@@ -3,7 +3,7 @@ namespace HexRPG.Battle.Player
     public enum ActionPanelStatus
     {
         CLOSE,
-        SELECT_PLAYER,
-        SELECT_SKILL
+        SELECT_SKILL,
+        SELECT_CHARACTER
     }
 }

@@ -19,10 +19,11 @@ namespace HexRPG.Battle.Player
             _playerTransformProvider = playerTransformProvider;
         }
 
-        public void InitCharacters(List<Character.Character> characterList)
+        public void Init(List<Character.Character> characterList)
         {
-            // Character
             _characterList = characterList;
+
+            _initCharacters.OnNext(Unit.Default);
             _curCharacter.Value = _characterList[0];
         }
 
@@ -48,7 +49,7 @@ namespace HexRPG.Battle.Player
 
         public void OnScreenTouched(Vector3 pos)
         {
-            if(_status == Status.IDLE && SelectSkillPanelStatus == CLOSE)
+            if(_status == Status.IDLE && ActionPanelStatus == CLOSE)
             {
                 Ray ray = Camera.main.ScreenPointToRay(pos);
                 Physics.Raycast(ray, out var hit, Mathf.Infinity, 1 << LayerMask.NameToLayer(HEX_MOVEABLE_INDICATOR));
@@ -66,6 +67,10 @@ namespace HexRPG.Battle.Player
 
         #region Character
         List<Character.Character> _characterList = new List<Character.Character>();
+        public List<Character.Character> CharacterList => _characterList;
+
+        public IObservable<Unit> InitCharacters => _initCharacters;
+        readonly Subject<Unit> _initCharacters = new Subject<Unit>();
 
         public IReadOnlyReactiveProperty<Character.Character> CurCharacter => _curCharacter;
         readonly ReactiveProperty<Character.Character> _curCharacter = new ReactiveProperty<Character.Character>();
@@ -80,23 +85,54 @@ namespace HexRPG.Battle.Player
         public IObservable<Unit> LiberateHex => _liberateHex;
         readonly Subject<Unit> _liberateHex = new Subject<Unit>();
 
+        public void ChangeCharacter(int index)
+        {
+
+        }
+
         public void OnStartSkill() => _curCharacterMP.Value = _curCharacter.Value.MP;
 
         public void OnFinishSkill()
         {
             Debug.Log("finish skill");
-            SelectSkillPanelStatus = CLOSE;
+            ActionPanelStatus = CLOSE;
             _liberateHex.OnNext(Unit.Default);
             _updateMoveableIndicator.OnNext(Unit.Default);
         }
         #endregion
 
-        #region SelectSkillPanel
+        #region SelectSkillPanel, SelectCharacterPanel
+        ActionPanelStatus _actionPanelStatus = CLOSE;
+        ActionPanelStatus ActionPanelStatus
+        {
+            get { return _actionPanelStatus; }
+            set
+            {
+                _actionPanelStatus = value;
+                switch (_actionPanelStatus)
+                {
+                    case CLOSE:
+                        SelectedSkillIndex = -1;
+                        SelectedCharacterIndex = -1;
+                        _closeSelectSkillPanel.OnNext(Unit.Default);
+                        break;
+                    case SELECT_SKILL:
+                        SelectedCharacterIndex = -1;
+                        _openSelectSkillPanel.OnNext(Unit.Default);
+                        break;
+                    case SELECT_CHARACTER:
+                        SelectedSkillIndex = -1;
+                        _openSelectCharacterPanel.OnNext(Unit.Default);
+                        break;
+                }
+            }
+        }
+
         public IObservable<Unit> CloseSelectSkillPanel => _closeSelectSkillPanel;
         readonly Subject<Unit> _closeSelectSkillPanel = new Subject<Unit>();
 
-        public IObservable<Unit> OpenSelectSkillPanelToSkillSelect => _openSelectSkillPanelToSkillSelect;
-        readonly Subject<Unit> _openSelectSkillPanelToSkillSelect = new Subject<Unit>();
+        public IObservable<Unit> OpenSelectSkillPanel => _openSelectSkillPanel;
+        readonly Subject<Unit> _openSelectSkillPanel = new Subject<Unit>();
 
         public IReadOnlyReactiveProperty<int> CurSelectedSkillIndex => _curSelectedSkillIndex;
         readonly ReactiveProperty<int> _curSelectedSkillIndex = new ReactiveProperty<int>();
@@ -110,7 +146,8 @@ namespace HexRPG.Battle.Player
             get { return _selectedSkillIndex; }
             set
             {
-                if (value != _selectedSkillIndex || value == -1) {
+                if (value != _selectedSkillIndex || value == -1)
+                {
                     DuplicateSelectedCount = 0;
                     _clearSelectedSkillIndex.OnNext(Unit.Default);
                 }
@@ -124,29 +161,38 @@ namespace HexRPG.Battle.Player
             }
         }
 
-        public int DuplicateSelectedCount { get; private set; } = 0;
+        public IObservable<Unit> CloseSelectCharacterPanel => _closeSelectCharacterPanel;
+        readonly Subject<Unit> _closeSelectCharacterPanel = new Subject<Unit>();
 
-        ActionPanelStatus _actionPanelStatus = CLOSE;
-        ActionPanelStatus SelectSkillPanelStatus
+        public IObservable<Unit> OpenSelectCharacterPanel => _openSelectCharacterPanel;
+        readonly Subject<Unit> _openSelectCharacterPanel = new Subject<Unit>();
+
+        public IReadOnlyReactiveProperty<int> CurSelectedCharacterIndex => _curSelectedCharacterIndex;
+        readonly ReactiveProperty<int> _curSelectedCharacterIndex = new ReactiveProperty<int>();
+
+        public IObservable<Unit> ClearSelectedCharacterIndex => _clearSelectedCharacterIndex;
+        readonly Subject<Unit> _clearSelectedCharacterIndex = new Subject<Unit>();
+
+        int _selectedCharacterIndex = -1;
+        int SelectedCharacterIndex
         {
-            get { return _actionPanelStatus; }
+            get { return _selectedCharacterIndex; }
             set
             {
-                _actionPanelStatus = value;
-                switch (_actionPanelStatus)
-                {
-                    case CLOSE: _closeSelectSkillPanel.OnNext(Unit.Default); break;
-                    case SELECT_SKILL: _openSelectSkillPanelToSkillSelect.OnNext(Unit.Default); break;
-                }
+                if (value != _selectedCharacterIndex || value == -1) _clearSelectedCharacterIndex.OnNext(Unit.Default);
+                if (value != -1) _curSelectedCharacterIndex.Value = value;
+                _selectedCharacterIndex = value;
             }
         }
 
-        public void OnDecideButtonTouched()
+        public int DuplicateSelectedCount { get; private set; } = 0;
+
+        public void OnDecideBtnTouched()
         {
-            switch (SelectSkillPanelStatus)
+            switch (ActionPanelStatus)
             {
                 case CLOSE:
-                    if(_status == Status.IDLE) SelectSkillPanelStatus = SELECT_SKILL;
+                    if(_status == Status.IDLE) ActionPanelStatus = SELECT_SKILL;
                     break;
                 case SELECT_SKILL:
                     if (SelectedSkillIndex == -1) break;
@@ -155,14 +201,24 @@ namespace HexRPG.Battle.Player
             }
         }
 
-        public void OnBackButtonTouched()
+        public void OnBackBtnTouched()
         {
-            switch (SelectSkillPanelStatus)
+            switch (ActionPanelStatus)
             {
                 case SELECT_SKILL:
-                    SelectedSkillIndex = -1;
-                    SelectSkillPanelStatus = CLOSE; 
+                    ActionPanelStatus = CLOSE;
                     break;
+                case SELECT_CHARACTER:
+                    ActionPanelStatus = SELECT_SKILL;
+                    break;
+            }
+        }
+
+        public void OnChangeCharacterBtnTouched()
+        {
+            switch (ActionPanelStatus)
+            {
+                case SELECT_SKILL: ActionPanelStatus = SELECT_CHARACTER; break;
             }
         }
 
@@ -170,6 +226,12 @@ namespace HexRPG.Battle.Player
         {
             if (index > _curCharacter.Value.SkillList.Count - 1) return;
             SelectedSkillIndex = index;
+        }
+
+        public void TryUpdateSelectedCharacterIndex(int index)
+        {
+            if (index > _characterList.Count - 1) return;
+            SelectedCharacterIndex = index;
         }
         #endregion
 

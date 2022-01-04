@@ -17,6 +17,7 @@ namespace HexRPG.Battle.Manager
         [SerializeField] List<CharacterData> _characterDataList = new List<CharacterData>();
 
         [SerializeField] SelectSkillPanelPresenter _selectSkillPanelPresenter;
+        [SerializeField] SelectCharacterPanelPresenter _selectCharacterPanelPresenter;
         [SerializeField] StatusPanelPresenter _statusPanelPresenter;
 
         public void RespawnPlayer()
@@ -28,6 +29,7 @@ namespace HexRPG.Battle.Manager
             PlayerModel = playerPresenter.Model;
 
             _selectSkillPanelPresenter.Init(PlayerModel);
+            _selectCharacterPanelPresenter.Init(PlayerModel);
             _statusPanelPresenter.Init(PlayerModel);
         }
 

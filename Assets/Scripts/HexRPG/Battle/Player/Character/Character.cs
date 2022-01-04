@@ -15,6 +15,9 @@ namespace HexRPG.Battle.Player.Character
         Sprite _statusIcon;
         public Sprite StatusIcon => _statusIcon;
 
+        Sprite _icon;
+        public Sprite Icon => _icon;
+
         int _maxHP;
         public int MaxHP => _maxHP;
         int _maxMP;
@@ -37,6 +40,7 @@ namespace HexRPG.Battle.Player.Character
         public void Init(CharacterData characterData, ICharacterSkillCallback skillCallback)
         {
             _statusIcon = characterData.StatusIcon;
+            _icon = characterData.Icon;
 
             _maxHP = _hp = characterData.MaxHP;
             _maxMP = _mp = characterData.MaxMP;

@@ -43,7 +43,7 @@ namespace HexRPG.Battle.Player
                 character.Init(data, Model);
                 characterList.Add(character);
             }
-            Model.InitCharacters(characterList);
+            Model.Init(characterList);
 
             SubscribeTouchEvent();
             SubscribeCharacterChange();

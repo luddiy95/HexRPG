@@ -6,46 +6,33 @@ namespace HexRPG.Battle.Player.Panel
     using Character.Skill;
 
     [RequireComponent(typeof(SelectSkillPanelPresenter))]
-    public class SelectSkillPanelView : MonoBehaviour
+    public class SelectSkillPanelView : SelectBasePanelView
     {
-        [SerializeField] GameObject _btnDecide;
-        public GameObject BtnDecide => _btnDecide;
-        [SerializeField] GameObject _btnBack;
-        public GameObject BtnBack => _btnBack;
-
-        [SerializeField] Transform _skillBtnListRoot;
-        public Transform SkillBtnListRoot => _skillBtnListRoot;
-        [SerializeField] Sprite _defaultSkillBtnSprite;
-        [SerializeField] Sprite _selectedSkillBtnSprite;
+        [SerializeField] GameObject _btnChangeCharacter;
+        public GameObject BtnChangeCharacter => _btnChangeCharacter;
 
         public void UpdateSkillBtnList(Character.Character character)
         {
-            for (int i = 0; i < _skillBtnListRoot.childCount; i++)
+            for (int i = 0; i < _optionBtnRoot.childCount; i++)
             {
                 if (i > character.SkillList.Count - 1) break;
                 BaseSkill skillData = character.SkillList[i];
-                Transform skillButton = _skillBtnListRoot.GetChild(i);
-                Image icon = skillButton.GetChild(1).GetComponent<Image>();
+                Transform skillBtn = _optionBtnRoot.GetChild(i);
+                Image icon = skillBtn.GetChild(1).GetComponent<Image>();
                 icon.sprite = skillData.Icon;
             }
         }
 
-        public void OpenSelectSkillPanelToSkillSelect()
+        public override void OpenSelectPanel()
         {
             _btnDecide.transform.localScale = new Vector3(1, 1, 1);
             gameObject.SetActive(true);
         }
 
-        public void CloseSelectSkillPanel()
+        public override void CloseSelectPanel()
         {
             _btnDecide.transform.localScale = new Vector3(1.8f, 1.8f, 1.8f);
             gameObject.SetActive(false);
-        }
-
-        public void SetSkillBtnSelectedStatus(int index, bool status)
-        {
-            if (status) _skillBtnListRoot.GetChild(index).GetChild(0).GetComponent<Image>().sprite = _selectedSkillBtnSprite;
-            else _skillBtnListRoot.GetChild(index).GetChild(0).GetComponent<Image>().sprite = _defaultSkillBtnSprite;
         }
     }
 }
