@@ -32,6 +32,11 @@ namespace HexRPG.Battle.Player.Character.Skill
             _skillEffect.SetActive(false);
         }
 
+        public virtual void OnFinishSkill()
+        {
+            _skillEffect.SetActive(false);
+        }
+
         public virtual void StartEffect()
         {
             _skillEffect.SetActive(true);

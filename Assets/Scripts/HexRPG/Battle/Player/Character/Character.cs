@@ -71,6 +71,12 @@ namespace HexRPG.Battle.Player.Character
             _skillCallback.StartSkillAnimation(skill.SkillAnimationParam);
         }
 
+        public void OnFinishSkill()
+        {
+            _runningSkill.OnFinishSkill();
+            _runningSkill = null;
+        }
+
 #nullable enable
         public void StartSkillEffect() => _runningSkill?.StartEffect();
 #nullable disable

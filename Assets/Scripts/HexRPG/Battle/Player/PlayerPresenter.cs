@@ -99,6 +99,8 @@ namespace HexRPG.Battle.Player
                 .CurCharacter
                 .Subscribe(character =>
                 {
+                    _view.OnChangeCharacter(Model.CurSelectedCharacterIndex.Value);
+
                     Animator animator = null;
 #nullable enable
                     if (!character?.TryGetComponent(out animator) ?? true) return;

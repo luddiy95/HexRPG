@@ -23,7 +23,6 @@ namespace HexRPG.Battle.Player
         {
             _characterList = characterList;
 
-            _initCharacters.OnNext(Unit.Default);
             _curCharacter.Value = _characterList[0];
         }
 
@@ -69,9 +68,6 @@ namespace HexRPG.Battle.Player
         List<Character.Character> _characterList = new List<Character.Character>();
         public List<Character.Character> CharacterList => _characterList;
 
-        public IObservable<Unit> InitCharacters => _initCharacters;
-        readonly Subject<Unit> _initCharacters = new Subject<Unit>();
-
         public IReadOnlyReactiveProperty<Character.Character> CurCharacter => _curCharacter;
         readonly ReactiveProperty<Character.Character> _curCharacter = new ReactiveProperty<Character.Character>();
 
@@ -85,16 +81,12 @@ namespace HexRPG.Battle.Player
         public IObservable<Unit> LiberateHex => _liberateHex;
         readonly Subject<Unit> _liberateHex = new Subject<Unit>();
 
-        public void ChangeCharacter(int index)
-        {
-
-        }
-
-        public void OnStartSkill() => _curCharacterMP.Value = _curCharacter.Value.MP;
+        public void OnStartSkill() => _curCharacterMP.SetValueAndForceNotify(_curCharacter.Value.MP);
 
         public void OnFinishSkill()
         {
             Debug.Log("finish skill");
+            CurCharacter.Value.OnFinishSkill();
             ActionPanelStatus = CLOSE;
             _liberateHex.OnNext(Unit.Default);
             _updateMoveableIndicator.OnNext(Unit.Default);
@@ -115,13 +107,16 @@ namespace HexRPG.Battle.Player
                         SelectedSkillIndex = -1;
                         SelectedCharacterIndex = -1;
                         _closeSelectSkillPanel.OnNext(Unit.Default);
+                        _closeSelectCharacterPanel.OnNext(Unit.Default);
                         break;
                     case SELECT_SKILL:
                         SelectedCharacterIndex = -1;
+                        _closeSelectCharacterPanel.OnNext(Unit.Default);
                         _openSelectSkillPanel.OnNext(Unit.Default);
                         break;
                     case SELECT_CHARACTER:
                         SelectedSkillIndex = -1;
+                        _closeSelectSkillPanel.OnNext(Unit.Default);
                         _openSelectCharacterPanel.OnNext(Unit.Default);
                         break;
                 }
@@ -180,7 +175,10 @@ namespace HexRPG.Battle.Player
             set
             {
                 if (value != _selectedCharacterIndex || value == -1) _clearSelectedCharacterIndex.OnNext(Unit.Default);
-                if (value != -1) _curSelectedCharacterIndex.Value = value;
+                if (value != -1)
+                {
+                    _curSelectedCharacterIndex.SetValueAndForceNotify(value);
+                }
                 _selectedCharacterIndex = value;
             }
         }
@@ -197,6 +195,11 @@ namespace HexRPG.Battle.Player
                 case SELECT_SKILL:
                     if (SelectedSkillIndex == -1) break;
                     if(_curCharacter.Value.TryExecuteSkill(SelectedSkillIndex)) SelectedSkillIndex = -1;
+                    break;
+                case SELECT_CHARACTER:
+                    if (SelectedCharacterIndex == -1) break;
+                    _curCharacter.Value = _characterList[SelectedCharacterIndex];
+                    ActionPanelStatus = SELECT_SKILL;
                     break;
             }
         }
@@ -231,7 +234,7 @@ namespace HexRPG.Battle.Player
         public void TryUpdateSelectedCharacterIndex(int index)
         {
             if (index > _characterList.Count - 1) return;
-            SelectedCharacterIndex = index;
+            if(index != SelectedCharacterIndex) SelectedCharacterIndex = index;
         }
         #endregion
 
@@ -266,6 +269,11 @@ namespace HexRPG.Battle.Player
         public Character.Character InstantiateCharacter(Character.Character prefab)
         {
             return Instantiate(prefab, _characterRoot);
+        }
+
+        public void OnChangeCharacter(int index)
+        {
+            for (int i = 0; i < _characterRoot.childCount; i++) _characterRoot.GetChild(i).gameObject.SetActive(index == i);
         }
         #endregion
 

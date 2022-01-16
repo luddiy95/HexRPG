@@ -11,7 +11,10 @@ namespace HexRPG.Battle.Player.Panel
         {
             base.Init(playerModel);
 
-            SubscribeInitCharacters();
+            List<Sprite> spriteList = new List<Sprite>();
+            _playerModel.CharacterList.ForEach(character => spriteList.Add(character.Icon));
+            if (_view is SelectCharacterPanelView selectCharacterPanelView)
+                selectCharacterPanelView.InitCharacterBtnList(spriteList);
         }
 
         protected override void OnCharacterChanged(Character.Character character)
@@ -21,21 +24,7 @@ namespace HexRPG.Battle.Player.Panel
 
         protected override void OnOptionBtnSelected(int index)
         {
-            _playerModel.ChangeCharacter(index);
-        }
-
-        void SubscribeInitCharacters()
-        {
-            _playerModel
-                .InitCharacters
-                .Subscribe(_ =>
-                {
-                    List<Sprite> spriteList = new List<Sprite>();
-                    _playerModel.CharacterList.ForEach(character => spriteList.Add(character.Icon));
-                    if (_view is SelectCharacterPanelView selectCharacterPanelView) 
-                        selectCharacterPanelView.InitCharacterBtnList(spriteList);
-                })
-                .AddTo(this);
+            _playerModel.TryUpdateSelectedCharacterIndex(index);
         }
 
         protected override void SubscribeSelectPanel()
@@ -43,12 +32,18 @@ namespace HexRPG.Battle.Player.Panel
             _playerModel
                 .CurSelectedCharacterIndex
                 .Skip(1)
-                .Subscribe(index => _view.SetOptionBtnSelectedStatus(index, true))
+                .Subscribe(index => {
+                    _view.SetOptionBtnSelectedStatus(index, true);
+                    })
                 .AddTo(this);
 
             _playerModel
                 .ClearSelectedCharacterIndex
-                .Subscribe(_ => _view.SetOptionBtnSelectedStatus(_playerModel.CurSelectedCharacterIndex.Value, false))
+                .Subscribe(_ =>
+                {
+                    if (_playerModel.CurSelectedCharacterIndex.Value == -1) return;
+                    _view.SetOptionBtnSelectedStatus(_playerModel.CurSelectedCharacterIndex.Value, false);
+                })
                 .AddTo(this);
 
             _playerModel

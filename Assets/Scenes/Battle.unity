@@ -2290,11 +2290,12 @@ MonoBehaviour:
     _statusIcon: {fileID: 21300000, guid: 9f615170aa0576c40a740cfb3ed272b8, type: 3}
     _icon: {fileID: 21300000, guid: 80a03fece01c1954e856143c87547afa, type: 3}
     _skillPrefabList:
-    - {fileID: 5726051639695129360, guid: c28b51005299b724a810bbf916b3a5cd, type: 3}
     - {fileID: 746655619909334226, guid: 8ee2a376c10bb584184abeae489708d2, type: 3}
+    - {fileID: 5726051639695129360, guid: c28b51005299b724a810bbf916b3a5cd, type: 3}
     _maxHP: 100
     _maxMP: 100
   _selectSkillPanelPresenter: {fileID: 1938153964}
+  _selectCharacterPanelPresenter: {fileID: 1970598642}
   _statusPanelPresenter: {fileID: 3069100}
 --- !u!114 &238158803
 MonoBehaviour:
@@ -8313,7 +8314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 1
+  _status: 0
 --- !u!64 &982039586
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -8349,7 +8350,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
