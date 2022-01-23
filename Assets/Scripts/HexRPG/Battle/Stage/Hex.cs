@@ -14,16 +14,27 @@ namespace HexRPG.Battle.Stage
         private Status _status;
         public bool IsPlayerHex => _status == Status.PLAYER;
 
-        bool _isAttackIndicated = false;
-        public bool IsAttackIndicated
+        int _attackIndicateCount;
+        int AttackIndicateCount
         {
-            get { return _isAttackIndicated; }
+            get { return _attackIndicateCount; }
             set
             {
-                _isAttackIndicated = value;
+                _attackIndicateCount = Mathf.Max(0, value);
+                IsAttackIndicate = (_attackIndicateCount > 0);
+            }
+        }
+
+        bool _isAttackIndicate = false;
+        public bool IsAttackIndicate
+        {
+            get { return _isAttackIndicate; }
+            private set
+            {
+                _isAttackIndicate = value;
                 var materials = _renderer.materials;
-                if (_isAttackIndicated) materials[0] = BattlePreference.Instance.HexAttackIndicatedMat;
-                else materials[0] = BattlePreference.Instance.HexDefaultMat;
+                if (_isAttackIndicate) materials[0] = DataCenter.Instance.HexAttackIndicatedMat;
+                else materials[0] = DataCenter.Instance.HexDefaultMat;
                 _renderer.materials = materials;
             }
         }
@@ -35,12 +46,22 @@ namespace HexRPG.Battle.Stage
             _renderer = GetComponent<MeshRenderer>();
         }
 
+        public void SetAttackIndicate()
+        {
+            ++AttackIndicateCount;
+        }
+
+        public void ResetAttackIndicate()
+        {
+            --AttackIndicateCount;
+        }
+
         public void Liberate()
         {
             if (_status == Status.PLAYER) return;
 
             var materials = _renderer.materials;
-            materials[1] = BattlePreference.Instance.HexPlayerLineMat;
+            materials[1] = DataCenter.Instance.HexPlayerLineMat;
             _renderer.materials = materials;
 
             _status = Status.PLAYER;

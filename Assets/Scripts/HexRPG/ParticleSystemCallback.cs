@@ -1,12 +1,15 @@
 using UnityEngine.Events;
 using UnityEngine;
 
-public class ParticleSystemCallback : MonoBehaviour
+namespace HexRPG
 {
-    [SerializeField] private UnityEvent stopCallback;
-
-    private void OnParticleSystemStopped()
+    public class ParticleSystemCallback : MonoBehaviour
     {
-        stopCallback.Invoke();
+        [SerializeField] private UnityEvent stopCallback;
+
+        private void OnParticleSystemStopped()
+        {
+            stopCallback.Invoke();
+        }
     }
 }
