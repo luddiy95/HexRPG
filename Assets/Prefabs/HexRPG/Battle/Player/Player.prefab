@@ -132,7 +132,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88e9480a262aed14da6f973e6286b87e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _transform: {fileID: 2932145111331283009}
+  _rootTransform: {fileID: 0}
+  _moveTransform: {fileID: 0}
+  _rotateTransform: {fileID: 2932145111331283009}
+  _spawnRootTransform: {fileID: 2932145111331283009}
 --- !u!114 &283549826583045591
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,7 +161,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 812a692db8bd2574088fcf806422c8c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _memberRoot: {fileID: 2932145111331283009}
 --- !u!114 &3507686725602030893
 MonoBehaviour:
   m_ObjectHideFlags: 0

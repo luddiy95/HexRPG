@@ -34063,7 +34063,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5726051639695129363}
+  - component: {fileID: 8087750090905539354}
   - component: {fileID: 5726051639695129360}
+  - component: {fileID: -8516270243708971312}
+  - component: {fileID: 93190380698511275}
   m_Layer: 0
   m_Name: Sword
   m_TagString: Untagged
@@ -34086,6 +34089,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8087750090905539354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5726051639695129361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88e9480a262aed14da6f973e6286b87e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _rootTransform: {fileID: 0}
+  _moveTransform: {fileID: 0}
+  _rotateTransform: {fileID: 0}
+  _spawnRootTransform: {fileID: 0}
 --- !u!114 &5726051639695129360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34098,13 +34117,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3f58b2d68dfc44f9ab9a5df69e3d55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _skillEffect: {fileID: 307420718587818739}
+--- !u!114 &-8516270243708971312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5726051639695129361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a273b60cbef843944956fd4307b59497, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &93190380698511275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5726051639695129361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9df17198d96478444b3fa28830e5e0e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   _icon: {fileID: 21300000, guid: 254c14d756a870144a8fef5717713c8f, type: 3}
   _MPcost: 0
   _damage: 10
   _range:
   - {x: 0, y: 1}
   _skillAnimationParam: Sword
-  _skillEffect: {fileID: 307420718587818739}
 --- !u!1 &6537398117398577601
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace HexRPG.Battle.Stage
@@ -41,6 +42,9 @@ namespace HexRPG.Battle.Stage
 
         MeshRenderer _renderer;
 
+        public List<IAttackApplicator> AttackApplicatorList => _attackApplicatorList;
+        List<IAttackApplicator> _attackApplicatorList = new List<IAttackApplicator>();
+
         void Awake()
         {
             _renderer = GetComponent<MeshRenderer>();
@@ -54,6 +58,16 @@ namespace HexRPG.Battle.Stage
         public void ResetAttackIndicate()
         {
             --AttackIndicateCount;
+        }
+
+        public void AddAttackApplicator(IAttackApplicator attackApplicator)
+        {
+            _attackApplicatorList.Add(attackApplicator);
+        }
+
+        public void RemoveAttackApplicator(IAttackApplicator attackApplicator)
+        {
+            _attackApplicatorList.Remove(attackApplicator);
         }
 
         public void Liberate()

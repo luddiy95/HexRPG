@@ -30,16 +30,17 @@ namespace HexRPG.Battle.Player.Member
 
         ICharacterSkillCallback _skillCallback;
 
-        List<BaseSkill> _skillList = new List<BaseSkill>();
-        public List<BaseSkill> SkillList => _skillList;
+        List<ISkill> _skillList = new List<ISkill>();
+        public List<ISkill> SkillList => _skillList;
 
-        public BaseSkill RunningSkill => _runningSkill;
+        public ISkill RunningSkill => _runningSkill;
 #nullable enable
-        BaseSkill? _runningSkill = null;
+        ISkill? _runningSkill = null;
 #nullable disable
 
         public void Init(MemberData memberData, ICharacterSkillCallback skillCallback)
         {
+            /*
             _statusIcon = memberData.StatusIcon;
             _icon = memberData.Icon;
 
@@ -54,19 +55,20 @@ namespace HexRPG.Battle.Player.Member
             });
 
             _skillCallback = skillCallback;
+            */
         }
 
         public bool TryExecuteSkill(int index)
         {
-            BaseSkill skill = _skillList[index];
-            if (_mp < skill.MPcost) return false;
+            ISkill skill = _skillList[index];
+            //if (_mp < skill.MPcost) return false;
             StartSkill(skill);
             return true;
         }
 
-        void StartSkill(BaseSkill skill)
+        void StartSkill(ISkill skill)
         {
-            _mp -= skill.MPcost;
+            //_mp -= skill.MPcost;
             _runningSkill = skill;
             skill.StartSkill();
             //_skillCallback.StartSkillAnimation(skill.SkillAnimationParam);

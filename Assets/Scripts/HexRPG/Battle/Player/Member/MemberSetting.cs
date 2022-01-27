@@ -6,15 +6,18 @@ namespace HexRPG.Battle.Player.Member
 
     public class MemberSetting : AbstractCustomComponentBehaviour, IMoveSetting, IHealthSetting, IMentalSetting, IProfileSetting, ISkillListSetting
     {
-        float IMoveSetting.Speed => _speed;
+        float IMoveSetting.MoveSpeed => _moveSpeed;
+        float IMoveSetting.RotateSpeed => _rotateSpeed;
         int IHealthSetting.Max => _healthMax;
         int IMentalSetting.Max => _mentalMax;
         Sprite IProfileSetting.StatusIcon => _statusIcon;
         Sprite IProfileSetting.OptionIcon => _optionIcon;
-        BaseSkill[] ISkillListSetting.SkillList => _skillList;
+        GameObject[] ISkillListSetting.SkillList => _skillList;
 
         [Header("移動速度")]
-        [SerializeField] float _speed;
+        [SerializeField] float _moveSpeed;
+        [Header("回転速度")]
+        [SerializeField] float _rotateSpeed;
         [Header("Health値")]
         [SerializeField] int _healthMax;
         [Header("Mental値")]
@@ -24,7 +27,7 @@ namespace HexRPG.Battle.Player.Member
         [Header("オプションアイコン")]
         [SerializeField] Sprite _optionIcon;
         [Header("スキルリスト")]
-        [SerializeField] BaseSkill[] _skillList;
+        [SerializeField] GameObject[] _skillList;
 
         public override void Register(ICustomComponentCollection owner)
         {

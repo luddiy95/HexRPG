@@ -54,7 +54,7 @@ namespace HexRPG.Battle.Player.UI
 
         void ICharacterUI.Bind(ICustomComponentCollection character)
         {
-            BaseSkill[] skillList = new BaseSkill[0];
+            Sprite[] skillIconList = new Sprite[0];
 
             if (character.QueryInterface(out IMemberObservable memberObservable))
             {
@@ -62,8 +62,12 @@ namespace HexRPG.Battle.Player.UI
                     .Where(member => member != null)
                     .Subscribe(_ =>
                     {
-                        skillList = memberObservable.CurMemberSkillList;
-                        _selectUI.UpdateOptionBtnSprite(skillList.ToList().Select(skill => skill.Icon).ToArray());
+                        skillIconList = memberObservable.CurMemberSkillList.Select(skill =>
+                        {
+                            skill.QueryInterface(out ISkillSetting skillSetting);
+                            return skillSetting.Icon;
+                        }).ToArray();
+                        _selectUI.UpdateOptionBtnSprite(skillIconList);
                     })
                     .AddTo(this);
             }
@@ -73,7 +77,7 @@ namespace HexRPG.Battle.Player.UI
             {
                 _selectUI.RegisterSelectOptionEvent(index =>
                 {
-                    if (index > skillList.Length - 1) return;
+                    if (index > skillIconList.Length - 1) return;
                     _selectSkillController.SelectSkill(index);
                 });
             }

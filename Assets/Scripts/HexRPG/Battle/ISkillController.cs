@@ -1,13 +1,13 @@
 
 namespace HexRPG.Battle
 {
-    using Skill;
-
     public interface ISkillController : IFeature
     {
+        ICustomComponentCollection[] SkillList { get; }
+
         bool TryStartSkill(int index);
 
-        BaseSkill RunningSkill { get; }
+        ICustomComponentCollection RunningSkill { get; }
         void FinishSkill();
     }
 }

@@ -5,21 +5,19 @@ using UniRx;
 
 namespace HexRPG.Battle.Player
 {
-    using Skill;
-
     public interface IMemberObservable : IFeature
     {
         ICustomComponentCollection[] MemberList { get; }
         IReadOnlyReactiveProperty<ICustomComponentCollection> CurMember { get; }
 
-        BaseSkill[] CurMemberSkillList { get; }
+        ICustomComponentCollection[] CurMemberSkillList { get; }
 
         void ChangeMember(int index);
     }
 
     public class MemberObservable : AbstractCustomComponentBehaviour, IMemberObservable
     {
-        [SerializeField] Transform _memberRoot;
+        ITransformController _transformController;
 
         ICustomComponentCollection[] IMemberObservable.MemberList => _memberList;
         ICustomComponentCollection[] _memberList;
@@ -27,8 +25,8 @@ namespace HexRPG.Battle.Player
         IReadOnlyReactiveProperty<ICustomComponentCollection> IMemberObservable.CurMember => _curMember;
         readonly ReactiveProperty<ICustomComponentCollection> _curMember = new ReactiveProperty<ICustomComponentCollection>();
 
-        BaseSkill[] IMemberObservable.CurMemberSkillList => _curMemberSkillList;
-        BaseSkill[] _curMemberSkillList;
+        ICustomComponentCollection[] IMemberObservable.CurMemberSkillList => _curMemberSkillList;
+        ICustomComponentCollection[] _curMemberSkillList;
 
         public override void Register(ICustomComponentCollection owner)
         {
@@ -41,13 +39,15 @@ namespace HexRPG.Battle.Player
         {
             base.Initialize();
 
+            Owner.QueryInterface(out _transformController);
+
             _curMember
                 .Where(member => member != null)
                 .Subscribe(member =>
                 {
-                    if (member.QueryInterface(out ISkillListSetting skillListSetting))
+                    if (member.QueryInterface(out ISkillController skillController))
                     {
-                        _curMemberSkillList = skillListSetting.SkillList;
+                        _curMemberSkillList = skillController.SkillList;
                     }
                 })
                 .AddTo(this);
@@ -57,7 +57,14 @@ namespace HexRPG.Battle.Player
                 _memberList = partySetting.Party.Select(member => SpawnMember(member)).ToArray();
             }
 
-            (this as IMemberObservable).ChangeMember(0);
+            // CurMemberを設定するのはBattle開始してから(全てのCustomComponentCollectionを生成し終わってから)
+            if(Owner.QueryInterface(out IBattleObservable battleObservable))
+            {
+                battleObservable.OnBattleStart
+                    .First()
+                    .Subscribe(_ => (this as IMemberObservable).ChangeMember(0))
+                    .AddTo(this);
+            }
         }
 
         ICustomComponentCollection SpawnMember(GameObject prefab)
@@ -79,7 +86,7 @@ namespace HexRPG.Battle.Player
             // 出現位置
             if (obj.QueryInterface(out ITransformController transformController))
             {
-                transformController.Transform.parent = _memberRoot;
+                transformController.RootTransform.parent = _transformController.SpawnRootTransform;
             }
 
             return obj;

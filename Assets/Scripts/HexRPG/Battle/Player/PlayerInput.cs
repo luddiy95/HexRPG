@@ -29,11 +29,18 @@ namespace HexRPG.Battle.Player
         {
             base.Initialize();
 
+            var isBtnFireClicked = false;
+
             if (Owner.QueryInterface(out IUpdateObservable update) == true)
             {
                 update.OnUpdate((int)UPDATE_ORDER.INPUT)
                     .Subscribe(_ =>
                     {
+                        if (isBtnFireClicked)
+                        {
+                            _onFire.OnNext(Unit.Default);
+                            isBtnFireClicked = false;
+                        }
                         UpdateDestination();
                     }).AddTo(this);
             }
@@ -44,7 +51,7 @@ namespace HexRPG.Battle.Player
                 .OnPointerClickAsObservable()
                 .Subscribe(_ =>
                 {
-                    _onFire.OnNext(Unit.Default);
+                    isBtnFireClicked = true;
                 })
                 .AddTo(this);
         }

@@ -6,21 +6,52 @@ namespace HexRPG.Battle
 
     public interface ITransformController : IFeature
     {
-        Transform Transform { get; }
+        /// <summary>
+        /// RootとなるTransform
+        /// </summary>
+        Transform RootTransform { get; }
+
+        /// <summary>
+        /// 動かすTransform
+        /// </summary>
+        Transform MoveTransform { get; }
         Vector3 Position { get; set; }
+
+        /// <summary>
+        /// 回転させるTransform
+        /// </summary>
+        Transform RotateTransform { get; }
         Quaternion Rotation { get; set; }
+
+        /// <summary>
+        /// 何かを生成する際に親となるTransform
+        /// </summary>
+        Transform SpawnRootTransform { get; }
     }
 
     public class TransformController : AbstractCustomComponentBehaviour, ITransformController
     {
-        Vector3 ITransformController.Position { get => _transform.position; set => _transform.position = value; }
+        Transform ITransformController.RootTransform => _rootTransform;
 
-        Quaternion ITransformController.Rotation { get => _transform.rotation; set => _transform.rotation = value; }
+        Transform ITransformController.MoveTransform => _moveTransform;
+        Vector3 ITransformController.Position { get => _moveTransform.position; set => _moveTransform.position = value; }
 
-        Transform ITransformController.Transform => _transform;
+        Transform ITransformController.RotateTransform => _rotateTransform;
+        Quaternion ITransformController.Rotation { get => _rotateTransform.rotation; set => _rotateTransform.rotation = value; }
+
+        Transform ITransformController.SpawnRootTransform => _spawnRootTransform;
+
+        [Header("RootとなるTransform。null ならこのオブジェクト。")]
+        [SerializeField] Transform _rootTransform;
 
         [Header("動かすTransform。null ならこのオブジェクト。")]
-        [SerializeField] Transform _transform;
+        [SerializeField] Transform _moveTransform;
+
+        [Header("回転させるTransform。null ならこのオブジェクト。")]
+        [SerializeField] Transform _rotateTransform;
+
+        [Header("何かを生成する際に親となるTransform。null ならこのオブジェクト。")]
+        [SerializeField] Transform _spawnRootTransform;
 
         public override void Register(ICustomComponentCollection owner)
         {
@@ -28,7 +59,10 @@ namespace HexRPG.Battle
 
             owner.RegisterInterface<ITransformController>(this);
 
-            if (_transform == null) _transform = transform;
+            if (_rootTransform == null) _rootTransform = transform;
+            if (_moveTransform == null) _moveTransform = transform;
+            if (_rotateTransform == null) _rotateTransform = transform;
+            if (_spawnRootTransform == null) _spawnRootTransform = transform;
         }
 
         public override void Initialize()

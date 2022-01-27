@@ -1,8 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-public class IMoveSetting : IFeature
+namespace HexRPG.Battle
 {
-    float Speed { get; }
+    public interface IMoveSetting : IFeature
+    {
+        float MoveSpeed { get; }
+        float RotateSpeed { get; }
+    }
 }

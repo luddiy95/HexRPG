@@ -12,6 +12,7 @@ namespace HexRPG.Battle.Player.Panel
 
         public void UpdateSkillBtnList(Member.Member member)
         {
+            /*
             for (int i = 0; i < _optionBtnRoot.childCount; i++)
             {
                 if (i > member.SkillList.Count - 1) break;
@@ -20,6 +21,7 @@ namespace HexRPG.Battle.Player.Panel
                 Image icon = skillBtn.GetChild(1).GetComponent<Image>();
                 icon.sprite = skillData.Icon;
             }
+            */
         }
 
         public override void OpenSelectPanel()

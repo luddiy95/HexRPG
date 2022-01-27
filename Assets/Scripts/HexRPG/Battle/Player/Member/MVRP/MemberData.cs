@@ -15,8 +15,8 @@ namespace HexRPG.Battle.Player.Member
         public Sprite StatusIcon => _statusIcon;
         [SerializeField] Sprite _icon;
         public Sprite Icon => _icon;
-        [SerializeField] List<BaseSkill> _skillPrefabList = new List<BaseSkill>();
-        public List<BaseSkill> SkillPrefabList => _skillPrefabList; 
+        //[SerializeField] List<BaseSkill> _skillPrefabList = new List<BaseSkill>();
+        //public List<BaseSkill> SkillPrefabList => _skillPrefabList; 
         [SerializeField] int _maxHP;
         public ref readonly int MaxHP => ref _maxHP;
         [SerializeField] int _maxMP;

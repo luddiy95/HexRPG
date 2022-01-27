@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace HexRPG.Battle.Player
 {
+    using Skill;
     using Stage;
 
     public interface ISelectSkillController : IFeature
@@ -55,7 +56,7 @@ namespace HexRPG.Battle.Player
 
                     if(index >= 0)
                     {
-                        var skill = _memberObservable.CurMemberSkillList[index];
+                        _memberObservable.CurMemberSkillList[index].QueryInterface(out ISkillSetting skill);
                         _curAttackIndicateHexList = _stageController.GetHexList(_transformController.GetLandedHex(), skill.Range, _duplicateSelectedCount).ToList();
                         _stageController.SetAttackIndicate(_curAttackIndicateHexList);
                     }

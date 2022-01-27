@@ -15,8 +15,11 @@ namespace HexRPG.Battle.Player
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        BaseSkill ISkillController.RunningSkill => _runningSkill;
-        BaseSkill _runningSkill;
+        // Žg‚í‚È‚¢
+        ICustomComponentCollection[] ISkillController.SkillList => null;
+
+        ICustomComponentCollection ISkillController.RunningSkill => _runningSkill;
+        ICustomComponentCollection _runningSkill;
 
         IObservable<Unit> ISkillObservable.OnStartSkill => _onStartSkill;
         ISubject<Unit> _onStartSkill = new Subject<Unit>();
@@ -77,9 +80,9 @@ namespace HexRPG.Battle.Player
                         .AddTo(_disposables);
                 }
 
-                _runningSkill = skillController.RunningSkill;
+                skillController.RunningSkill.QueryInterface(out ISkillSetting skill);
 
-                string param = _runningSkill.SkillAnimationParam;
+                string param = skill.SkillAnimationParam;
                 SubscribeSkillAnimationEvent(param);
                 _animatorController.SetTrigger(param);
 

@@ -7,14 +7,16 @@ namespace HexRPG.Battle.Player.Member
 
     public class MemberSkillController : AbstractCustomComponentBehaviour, ISkillController
     {
+        IComponentCollectionFactory _factory;
         IMental _mental;
 
-        BaseSkill[] _skillList;
-        
-        BaseSkill ISkillController.RunningSkill => _runningSkill;
-#nullable enable
-        BaseSkill? _runningSkill = null;
-#nullable disable
+        ICustomComponentCollection[] ISkillController.SkillList => _skillList;
+        ICustomComponentCollection[] _skillList;
+
+        ICustomComponentCollection ISkillController.RunningSkill => _runningSkill;
+        ICustomComponentCollection _runningSkill = null;
+
+        GameObject _skillRoot;
 
         public override void Register(ICustomComponentCollection owner)
         {
@@ -27,45 +29,64 @@ namespace HexRPG.Battle.Player.Member
         {
             base.Initialize();
 
+            Owner.QueryInterface(out _factory);
             Owner.QueryInterface(out _mental);
+
             if(Owner.QueryInterface(out ISkillListSetting skillListSetting))
             {
                 var skillList = skillListSetting.SkillList;
 
-                GameObject skillRoot = new GameObject("SkillRoot");
-                skillRoot.transform.parent = transform;
+                _skillRoot = new GameObject("SkillRoot");
+                if(Owner.QueryInterface(out ITransformController transformController))
+                {
+                    _skillRoot.transform.parent = transformController.SpawnRootTransform;
+                }
+                _skillList = Enumerable.Range(0, skillList.Length).Select(i => SpawnSkill(skillList[i])).ToArray();
+            }
+        }
 
-                _skillList = Enumerable.Range(0, skillList.Length).Select(i => Instantiate(skillList[i], skillRoot.transform)).ToArray();
+        ICustomComponentCollection SpawnSkill(GameObject prefab)
+        {
+            var obj = _factory.CreateComponentCollection(prefab, null, null);
+
+            if (obj.QueryInterface(out ITransformController transformController))
+            {
+                transformController.RootTransform.parent = _skillRoot.transform;
             }
 
+            return obj;
         }
 
         bool ISkillController.TryStartSkill(int index)
         {
-            BaseSkill skill = _skillList[index];
-            if (_mental.Current.Value < skill.MPcost) return false;
-            StartSkill(skill);
+            var obj = _skillList[index];
+            if (!obj.QueryInterface(out ISkillSetting skillSetting)) return false;
+            var MPcost = skillSetting.MPcost;
+            if (_mental.Current.Value < MPcost) return false;
+            StartSkill(obj, MPcost);
             return true;
         }
 
-        void StartSkill(BaseSkill skill)
+        void StartSkill(ICustomComponentCollection obj, int MPcost)
         {
-            _mental.Update(-skill.MPcost);
-            _runningSkill = skill;
+            _mental.Update(-MPcost);
+            _runningSkill = obj;
+
+            obj.QueryInterface(out ISkill skill);
             skill.StartSkill();
         }
 
         void ISkillController.FinishSkill()
         {
-            _runningSkill.FinishSkill();
+            _runningSkill.QueryInterface(out ISkill skill);
+            skill.FinishSkill();
             _runningSkill = null;
         }
 
         public void StartSkillEffect()
         {
-#nullable enable
-            _runningSkill?.StartEffect();
-#nullable disable
+            _runningSkill.QueryInterface(out ISkill skill);
+            skill.StartEffect();
         }
     }
 }

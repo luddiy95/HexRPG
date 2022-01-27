@@ -1,21 +1,17 @@
 using UnityEngine;
 using UniRx;
 using UniRx.Triggers;
-using DG.Tweening;
 
 namespace HexRPG.Battle.Player
 {
     using Stage;
 
-    public interface IMoveSetting : IFeature
-    {
-        float Speed { get; }
-    }
-
     public class PlayerMoveController : AbstractCustomComponentBehaviour, IMoveController
     {
         readonly string MOVE = "Move";
 
+        ITransformController _transformController;
+        IDeltaTime _deltaTime;
         IActionStateController _actionStateController;
 
         [Header("移動できるHexを示すインジケータ")]
@@ -23,7 +19,11 @@ namespace HexRPG.Battle.Player
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        float _moveTime;
+#nullable enable
+        (Vector3 StartPos, Vector3 GoalPos)? _movePos;
+#nullable disable
+        
+        float _speed = 0;
 
         public override void Register(ICustomComponentCollection owner)
         {
@@ -36,7 +36,38 @@ namespace HexRPG.Battle.Player
         {
             base.Initialize();
 
+            Owner.QueryInterface(out _transformController);
+            Owner.QueryInterface(out _deltaTime);
             Owner.QueryInterface(out _actionStateController);
+
+            // 移動
+            if(Owner.QueryInterface(out IUpdateObservable updateObservable))
+            {
+                updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
+                    .Subscribe(_ =>
+                    {
+#nullable enable
+                        if(_movePos != null)
+                        {
+                            var direction = _movePos?.GoalPos - _movePos?.StartPos;
+                            if((_transformController.Position - _movePos?.StartPos)?.magnitude >= direction?.magnitude)
+                            {
+                                _transformController.Position = (Vector3)_movePos?.GoalPos;
+                                _movePos = null;
+
+                                // 移動終了処理
+                                UpdateMoveableIndicator();
+                                _actionStateController.ExecuteTransition(ActionStateType.IDLE);
+                            }
+                            else
+                            {
+                                _transformController.Position += (Vector3)(_deltaTime.DeltaTime * _speed * direction / direction?.magnitude);
+                            }
+                        }
+#nullable disable
+                    })
+                    .AddTo(this);
+            }
 
             if (Owner.QueryInterface(out ISkillObservable skillObservable))
             {
@@ -54,7 +85,7 @@ namespace HexRPG.Battle.Player
                     {
                         if(member.QueryInterface(out IMoveSetting moveSetting))
                         {
-                            _moveTime = 1f / moveSetting.Speed;
+                            _speed = moveSetting.MoveSpeed;
                         }
                     })
                     .AddTo(this);
@@ -63,6 +94,7 @@ namespace HexRPG.Battle.Player
             if(Owner.QueryInterface(out IAnimatorController animatorController))
             {
                 animatorController.CurAnimator
+                    .Where(animator => animator != null)
                     .Subscribe(animator =>
                     {
                         _disposables.Clear();
@@ -100,14 +132,7 @@ namespace HexRPG.Battle.Player
 
         void IMoveController.StartMove(Hex destinationHex)
         {
-            transform
-                .DOMove(destinationHex.transform.position, _moveTime)
-                .onComplete = () =>
-                {
-                    UpdateMoveableIndicator();
-                    _actionStateController.ExecuteTransition(ActionStateType.IDLE);
-                };
-
+            _movePos = (_transformController.GetLandedHex().transform.position, destinationHex.transform.position);
             _moveableIndicatorRoot.gameObject.SetActive(false);
         }
 

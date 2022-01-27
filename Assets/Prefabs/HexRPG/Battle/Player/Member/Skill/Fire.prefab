@@ -9,7 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1394130933198764990}
+  - component: {fileID: 2124919091273452121}
   - component: {fileID: 746655619909334226}
+  - component: {fileID: 4579663174698941277}
+  - component: {fileID: 9005379149567900219}
   m_Layer: 0
   m_Name: Fire
   m_TagString: Untagged
@@ -32,6 +35,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2124919091273452121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 509526638429691441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88e9480a262aed14da6f973e6286b87e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _rootTransform: {fileID: 0}
+  _moveTransform: {fileID: 0}
+  _rotateTransform: {fileID: 0}
+  _spawnRootTransform: {fileID: 0}
 --- !u!114 &746655619909334226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42,6 +61,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d58f5e5982554a746a58fc899c99b4c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _skillEffect: {fileID: 1214054987594152256}
+--- !u!114 &4579663174698941277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 509526638429691441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a273b60cbef843944956fd4307b59497, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &9005379149567900219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 509526638429691441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9df17198d96478444b3fa28830e5e0e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 21300000, guid: b4691d8e8a2d9154d9cb8fdb4b72866e, type: 3}
@@ -56,7 +100,6 @@ MonoBehaviour:
   - {x: -1, y: 3}
   - {x: 0, y: 2}
   _skillAnimationParam: Fire
-  _skillEffect: {fileID: 1214054987594152256}
 --- !u!1 &1213942286221776172
 GameObject:
   m_ObjectHideFlags: 0

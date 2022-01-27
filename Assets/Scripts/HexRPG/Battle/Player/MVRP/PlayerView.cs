@@ -71,7 +71,7 @@ namespace HexRPG.Battle.Player
         public IReadOnlyReactiveProperty<Member.Member> CurMember => _curMember;
         readonly ReactiveProperty<Member.Member> _curMember = new ReactiveProperty<Member.Member>();
 
-        public List<Vector2> CurMemberSkillRange(int index) => _curMember.Value.SkillList[index].Range;
+        //public List<Vector2> CurMemberSkillRange(int index) => _curMember.Value.SkillList[index].Range;
 
         public IReadOnlyReactiveProperty<string> SkillAnimationParam => _skillAnimationParam;
         readonly ReactiveProperty<string> _skillAnimationParam = new ReactiveProperty<string>();

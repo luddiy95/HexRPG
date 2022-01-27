@@ -8,6 +8,8 @@ namespace HexRPG
     {
         INPUT,
 
+        DAMAGED,
+
         COLLISION,
 
         MOVE,

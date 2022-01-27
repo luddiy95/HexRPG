@@ -31,6 +31,7 @@ namespace HexRPG.Battle.Stage
                 .Skip(1)
                 .Subscribe(index =>
                 {
+                    /*
                     _view.ResetAttackIndicatedHexList(_attackIndicatedHexList);
                     _attackIndicatedHexList.Clear();
                     List<Vector2> range = _playerModel.CurMemberSkillRange(index);
@@ -47,6 +48,7 @@ namespace HexRPG.Battle.Stage
                             _view.SetAttackIndicated(rangeHex);
                             _attackIndicatedHexList.Add(rangeHex);
                         });
+                    */
                 })
                 .AddTo(this);
 
