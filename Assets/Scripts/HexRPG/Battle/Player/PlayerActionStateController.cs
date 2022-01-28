@@ -111,7 +111,7 @@ namespace HexRPG.Battle.Player
                 if (skillIndex >= 0)
                 {
                     // Skillスタートできるか？
-                    skillController.TryStartSkill(skillIndex);
+                    skillController.TryStartSkill(skillIndex, null);
                 }
                 else
                 {

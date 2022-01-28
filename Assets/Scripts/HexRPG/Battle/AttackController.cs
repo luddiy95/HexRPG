@@ -26,7 +26,7 @@ namespace HexRPG.Battle
     {
         void StartAttack(List<Hex> attackRange, IAttackSetting setting, ICustomComponentCollection attackOrigin);
 
-        void StopAttack();
+        void FinishAttack();
     }
 
     public class AttackController : AbstractCustomComponentBehaviour, IAttackApplicator, IAttackController, IAttackObservable
@@ -69,7 +69,7 @@ namespace HexRPG.Battle
             _hitObjects.Clear();
         }
 
-        void IAttackController.StopAttack()
+        void IAttackController.FinishAttack()
         {
             _curAttackRange.ForEach(hex =>
             {

@@ -44,7 +44,7 @@ namespace HexRPG.Battle
         void IHealth.Update(int cv)
         {
             int value = 0;
-            if(cv < 0) value = Mathf.Max(0, _current.Value - cv);
+            if(cv < 0) value = Mathf.Max(0, _current.Value + cv);
             else value = Mathf.Min(_max, _current.Value + cv);
             _current.SetValueAndForceNotify(value);
         }

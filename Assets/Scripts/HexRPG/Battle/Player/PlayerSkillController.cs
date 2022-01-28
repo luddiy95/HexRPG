@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using System;
 using UniRx;
 using UniRx.Triggers;
 
 namespace HexRPG.Battle.Player
 {
+    using Stage;
     using Skill;
 
     public class PlayerSkillController : AbstractCustomComponentBehaviour, ISkillController, ISkillObservable
@@ -18,8 +20,7 @@ namespace HexRPG.Battle.Player
         // Žg‚í‚È‚¢
         ICustomComponentCollection[] ISkillController.SkillList => null;
 
-        ICustomComponentCollection ISkillController.RunningSkill => _runningSkill;
-        ICustomComponentCollection _runningSkill;
+        ICustomComponentCollection ISkillController.RunningSkill => null;
 
         IObservable<Unit> ISkillObservable.OnStartSkill => _onStartSkill;
         ISubject<Unit> _onStartSkill = new Subject<Unit>();
@@ -45,12 +46,12 @@ namespace HexRPG.Battle.Player
             Owner.QueryInterface(out _selectSkillObservable);
         }
 
-        bool ISkillController.TryStartSkill(int index)
+        bool ISkillController.TryStartSkill(int index, List<Hex> attackRange)
         {
             var curMember = _memberObservable.CurMember.Value;
 
             if (!curMember.QueryInterface(out ISkillController skillController)) return false;
-            if (skillController.TryStartSkill(index))
+            if (skillController.TryStartSkill(index, _selectSkillObservable.CurAttackIndicateHexList))
             {
                 void SubscribeSkillAnimationEvent(string tag)
                 {
@@ -99,6 +100,11 @@ namespace HexRPG.Battle.Player
         }
 
         void ISkillController.FinishSkill()
+        {
+
+        }
+
+        void ISkillController.StartSkillEffect()
         {
 
         }

@@ -17,6 +17,7 @@ namespace HexRPG.Battle.Player
     {
         IReadOnlyReactiveProperty<int> SelectedSkillIndex { get; }
         int DuplicateSelectedCount { get; }
+        List<Hex> CurAttackIndicateHexList { get; }
     }
 
     public class SelectSkillController : AbstractCustomComponentBehaviour, ISelectSkillController, ISelectSkillObservable
@@ -31,6 +32,7 @@ namespace HexRPG.Battle.Player
         int ISelectSkillObservable.DuplicateSelectedCount => _duplicateSelectedCount;
         int _duplicateSelectedCount = 0;
 
+        List<Hex> ISelectSkillObservable.CurAttackIndicateHexList => _curAttackIndicateHexList;
         List<Hex> _curAttackIndicateHexList = new List<Hex>();
 
         public override void Register(ICustomComponentCollection owner)

@@ -86,7 +86,7 @@ namespace HexRPG.Battle.Player
             // èoåªà íu
             if (obj.QueryInterface(out ITransformController transformController))
             {
-                transformController.RootTransform.parent = _transformController.SpawnRootTransform;
+                transformController.RootTransform.SetParent(_transformController.SpawnRootTransform, true);
             }
 
             return obj;

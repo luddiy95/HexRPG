@@ -1,35 +1,39 @@
 using UnityEngine;
-using System.Linq;
 using UniRx;
 
 namespace HexRPG.Battle
 {
     public class HUDManager : AbstractCustomComponentBehaviour
     {
-        [Header("CustomComponentBehaviour のHUD実装オブジェクト")]
-        [SerializeField] GameObject[] _subHUDList = new GameObject[0];
+        [Header("PlayerのHUD実装オブジェクト")]
+        [SerializeField] GameObject _playerHUD;
+
+        [Header("EnemyのHUD実装オブジェクト")]
+        [SerializeField] GameObject _enemyHUD;
 
         public override void Initialize()
         {
             base.Initialize();
 
-            // Owner = 自分自身ComponentCollection
             if (!Owner.QueryInterface(out IComponentCollectionFactory factory)) return;
 
-            var hudInstances = _subHUDList.Select(x => factory.CreateComponentCollectionWithoutInstantiate(x)).ToList();
+            var playerHUD = factory.CreateComponentCollectionWithoutInstantiate(_playerHUD, null, null);
+            var enemyHUD = factory.CreateComponentCollectionWithoutInstantiate(_enemyHUD, null, null);
 
             if (Owner.QueryInterface(out IBattleObservable battleObservable))
             {
-                foreach (var hud in hudInstances)
+                if (playerHUD.QueryInterface(out ICharacterHUD phud))
                 {
-                    if (hud.QueryInterface(out ICharacterHUD characterHUD))
-                    {
-                        battleObservable.OnPlayerSpawn
-                            .Subscribe(player => characterHUD.Bind(player))
-                            .AddTo(this);
+                    battleObservable.OnPlayerSpawn
+                        .Subscribe(player => phud.Bind(player))
+                        .AddTo(this);
+                }
 
-                        //TODO: EnemyのHUDはテンプレからクローンしないといけない
-                    }
+                if(enemyHUD.QueryInterface(out ICharacterHUD ehud))
+                {
+                    battleObservable.OnEnemySpawn
+                        .Subscribe(enemy => ehud.Bind(enemy))
+                        .AddTo(this);
                 }
             }
         }

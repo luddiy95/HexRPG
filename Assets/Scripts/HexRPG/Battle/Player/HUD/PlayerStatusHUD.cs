@@ -6,12 +6,10 @@ namespace HexRPG.Battle.Player.HUD
 {
     public class PlayerStatusHUD : AbstractCustomComponentBehaviour, ICharacterHUD
     {
-        CompositeDisposable _disposables = new CompositeDisposable();
-
         [SerializeField] Image _icon;
 
-        [SerializeField] HP _hp;
-        [SerializeField] MP _mp;
+        [SerializeField] GameObject _healthGauge;
+        [SerializeField] GameObject _mentalGauge;
 
         public override void Register(ICustomComponentCollection owner)
         {
@@ -27,40 +25,23 @@ namespace HexRPG.Battle.Player.HUD
 
         void ICharacterHUD.Bind(ICustomComponentCollection chara)
         {
-            void SetUpMemberChanged(ICustomComponentCollection member)
-            {
-                _disposables.Clear();
+            if (!Owner.QueryInterface(out IComponentCollectionFactory factory)) return;
 
-                if(member.QueryInterface(out IProfileSetting profile))
-                {
-                    SetStatusIcon(profile.StatusIcon);
-                }
-
-                if (member.QueryInterface(out IHealth health))
-                {
-                    SetHP(health.Max, health.Current.Value);
-
-                    health.Current
-                        .Subscribe(v => UpdateHP(v))
-                        .AddTo(_disposables);
-                }
-
-                if (member.QueryInterface(out IMental mental))
-                {
-                    SetMP(mental.Max, mental.Current.Value);
-
-                    mental.Current
-                        .Subscribe(v => UpdateMP(v))
-                        .AddTo(_disposables);
-                }
-            }
+            ICharacterHUD characterHUD = null;
+            var healthGauge = factory.CreateComponentCollectionWithoutInstantiate(_healthGauge, null, null);
+            if (healthGauge.QueryInterface(out characterHUD)) characterHUD.Bind(chara);
+            var mentalGauge = factory.CreateComponentCollectionWithoutInstantiate(_mentalGauge, null, null);
+            if (mentalGauge.QueryInterface(out characterHUD)) characterHUD.Bind(chara);
 
             if(chara.QueryInterface(out IMemberObservable memberObservable))
             {
                 memberObservable.CurMember
                     .Where(member => member != null)
                     .Subscribe(member => {
-                        SetUpMemberChanged(member);
+                        if (member.QueryInterface(out IProfileSetting profile))
+                        {
+                            SetStatusIcon(profile.StatusIcon);
+                        }
                     })
                     .AddTo(this);
             }
@@ -69,22 +50,6 @@ namespace HexRPG.Battle.Player.HUD
         #region View
 
         void SetStatusIcon(Sprite sprite) => _icon.sprite = sprite;
-
-        void SetHP(int maxHP, int hp)
-        {
-            _hp.Init(maxHP);
-            _hp.Amount = hp;
-        }
-
-        void UpdateHP(int amount) => _hp.Amount = amount;
-
-        void SetMP(int maxMP, int mp)
-        {
-            _mp.Init(maxMP);
-            _mp.Amount = mp;
-        }
-
-        void UpdateMP(int amount) => _mp.Amount = amount;
 
         #endregion
     }
