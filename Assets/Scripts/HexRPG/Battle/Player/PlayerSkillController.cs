@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System;
 using UniRx;
 using UniRx.Triggers;
+using UnityEngine;
 
 namespace HexRPG.Battle.Player
 {
@@ -46,12 +47,12 @@ namespace HexRPG.Battle.Player
             Owner.QueryInterface(out _selectSkillObservable);
         }
 
-        bool ISkillController.TryStartSkill(int index, List<Hex> attackRange)
+        bool ISkillController.TryStartSkill(int index, List<Hex> attackRange, Animator animator)
         {
             var curMember = _memberObservable.CurMember.Value;
 
             if (!curMember.QueryInterface(out ISkillController skillController)) return false;
-            if (skillController.TryStartSkill(index, _selectSkillObservable.CurAttackIndicateHexList))
+            if (skillController.TryStartSkill(index, _selectSkillObservable.CurAttackIndicateHexList, animator))
             {
                 void SubscribeSkillAnimationEvent(string tag)
                 {

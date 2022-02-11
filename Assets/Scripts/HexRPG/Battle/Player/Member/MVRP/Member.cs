@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace HexRPG.Battle.Player.Member
 {
-    using Skill;
+    using Battle.Skill;
 
     public interface ICharacterSkillCallback
     {
@@ -70,7 +70,7 @@ namespace HexRPG.Battle.Player.Member
         {
             //_mp -= skill.MPcost;
             _runningSkill = skill;
-            skill.StartSkill();
+            //skill.StartSkill();
             //_skillCallback.StartSkillAnimation(skill.SkillAnimationParam);
         }
 

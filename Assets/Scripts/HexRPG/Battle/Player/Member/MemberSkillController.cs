@@ -61,18 +61,18 @@ namespace HexRPG.Battle.Player.Member
             return obj;
         }
 
-        bool ISkillController.TryStartSkill(int index, List<Hex> attackRange)
+        bool ISkillController.TryStartSkill(int index, List<Hex> attackRange, Animator animator)
         {
             var obj = _skillList[index];
             if (!obj.QueryInterface(out ISkillSetting skillSetting)) return false;
             var MPcost = skillSetting.MPcost;
             if (_mental.Current.Value < MPcost) return false;
-            StartSkill(obj, MPcost);
+            StartSkill(obj, MPcost, animator);
             _curAttackRange = attackRange;
             return true;
         }
 
-        void StartSkill(ICustomComponentCollection obj, int MPcost)
+        void StartSkill(ICustomComponentCollection obj, int MPcost, Animator animator)
         {
             _mental.Update(-MPcost);
             _runningSkill = obj;

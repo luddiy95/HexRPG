@@ -1,12 +1,12 @@
 using UnityEngine;
 using UniRx;
 
-namespace HexRPG.Battle.Player
+namespace HexRPG.Battle.Enemy
 {
     using Battle.Stage;
     using static ActionStateType;
 
-    public class PlayerActionStateController : AbstractCustomComponentBehaviour
+    public class EnemyActionStateController : AbstractCustomComponentBehaviour
     {
         public override void Initialize()
         {
@@ -19,38 +19,41 @@ namespace HexRPG.Battle.Player
         {
             if (Owner.QueryInterface(out IActionStateController actionStateController) == false)
             {
-                Debug.LogError($"{Owner}ãŒ IActionStateController ã‚’æŒã£ã¦ã„ãªã„");
+                Debug.LogError($"{Owner}‚ª IActionStateController ‚ğ‚Á‚Ä‚¢‚È‚¢");
                 return;
             }
 
             var idle = NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
-                .AddEvent(new ActionEventCancel("pause", 0, PAUSE))
                 .AddEvent(new ActionEventCancel("move", 0, MOVE))
+                .AddEvent(new ActionEventCancel("skill", 0, SKILL))
                 .AddEvent(new ActionEventCancel("damaged", 0, DAMAGED))
                 ;
             actionStateController.SetInitialState(idle);
-
-            NewState(PAUSE)
-                .AddEvent(new ActionEventPause(0f)) // Pauseä¸­
-                // Skillã¸é·ç§»
-                // IDLEã«æˆ»ã‚‹
                 ;
 
             NewState(MOVE)
-                .AddEvent(new ActionEventMove(0f)) // ç§»å‹•ä¸­
+                .AddEvent(new ActionEventMove(0f)) // ˆÚ“®’†
                 .AddEvent(new ActionEventPlayMotion(0f))
-                .AddEvent(new ActionEventCancel("damaged", 0, DAMAGED))
-                // IDLEã«æˆ»ã‚‹
+                // IDLE‚É–ß‚é
                 ;
+
+            NewState(PAUSE)
+                .AddEvent(new ActionEventPause(0f)) // Pause’†
+                .AddEvent(new ActionEventPlayMotion(0f))
+                .AddEvent(new ActionEventCancel("damaged", 0, DAMAGED)) // ƒ_ƒ[ƒW‚ğó‚¯‚é
+                // IDLE‚É–ß‚é
+                ;
+            ;
 
             NewState(DAMAGED)
                 .AddEvent(new ActionEventPlayMotion(0f))
+                // IDLE‚É–ß‚é
                 ;
 
             NewState(SKILL)
                 .AddEvent(new ActionEventSkill(0f))
-                // IDLEã«æˆ»ã‚‹
+                // IDLE‚É–ß‚é
                 ;
 
             ActionState NewState(ActionStateType type, System.Action<ActionState> action = null)
@@ -69,80 +72,19 @@ namespace HexRPG.Battle.Player
             Owner.QueryInterface(out IActionStateController actionStateController);
             Owner.QueryInterface(out IActionStateObservable actionStateObservable);
 
+            Owner.QueryInterface(out IDamageApplicable damageApplicable);
+
             Owner.QueryInterface(out ISkillController skillController);
             Owner.QueryInterface(out ISkillObservable skillObservable);
-
-            Owner.QueryInterface(out IPauseController pauseController);
-            Owner.QueryInterface(out IPauseObservable pauseObservable);
-
-            Owner.QueryInterface(out ISelectSkillObservable selectSkillObservable);
 
             Owner.QueryInterface(out IAnimatorController animatorController);
 
             Owner.QueryInterface(out ITransformController transformController);
 
-            // moveableIndicatorã‚¿ãƒƒãƒ—æ™‚
-            characterInput.Destination
-                .Skip(1)
-                .Subscribe(_ => 
-                {
-                    actionStateController.Execute(new Command { Id = "move" });
-                })
-                .AddTo(this);
+            damageApplicable.OnHit
+                .Subscribe(_ => actionStateController.Execute(new Command { Id = "damaged" }));
 
-            // moveã«é·ç§»å‡ºæ¥ãŸã‚‰ç§»å‹•
-            if (Owner.QueryInterface(out IMoveController moveController))
-            {
-                actionStateObservable
-                    .OnStart<ActionEventMove>()
-                    .Subscribe(_ =>
-                    {
-                        moveController.StartMove(characterInput.Destination.Value);
-                    })
-                    .AddTo(this);
-            }
-
-            // btnFireã‚¿ãƒƒãƒ—æ™‚
-            characterInput.OnFire
-            .Subscribe(_ =>
-            {
-                int skillIndex = selectSkillObservable.SelectedSkillIndex.Value;
-                if (skillIndex >= 0)
-                {
-                    // Skillã‚¹ã‚¿ãƒ¼ãƒˆã§ãã‚‹ã‹ï¼Ÿ
-                    skillController.TryStartSkill(skillIndex, null, animatorController.CurAnimator.Value);
-                }
-                else
-                {
-                    actionStateController.Execute(new Command { Id = "pause" });
-                }
-            })
-            .AddTo(this);
-
-            // Pauseã¸é·ç§»æ™‚
-            actionStateObservable
-                .OnStart<ActionEventPause>()
-                .Subscribe(_ => pauseController.StartPause())
-                .AddTo(this);
-
-            // Skillã‚¹ã‚¿ãƒ¼ãƒˆ
-            skillObservable
-                .OnStartSkill
-                .Subscribe(_ => actionStateController.ExecuteTransition(SKILL))
-                .AddTo(this);
-
-            // Restart
-            pauseObservable.OnRestart
-                .Subscribe(_ => actionStateController.ExecuteTransition(IDLE))
-                .AddTo(this);
-
-            // Skillçµ‚äº†
-            skillObservable
-                .OnFinishSkill
-                .Subscribe(_ => actionStateController.ExecuteTransition(IDLE))
-                .AddTo(this);
-
-            // å„ãƒ¢ãƒ¼ã‚·ãƒ§ãƒ³å†ç”Ÿ
+            // Šeƒ‚[ƒVƒ‡ƒ“Ä¶
             actionStateObservable
                 .OnStart<ActionEventPlayMotion>()
                 .Subscribe(ev =>
@@ -153,6 +95,7 @@ namespace HexRPG.Battle.Player
                             break;
 
                         case MOVE:
+                            //TODO: –Ú“I‚Ì•ûŒü‚Ö‰ñ“]‚µ‚Ä‚©‚çˆÚ“®ŠJn
                             Hex destinationHex = characterInput.Destination.Value;
                             Vector3 relativePos = destinationHex.transform.position - transformController.GetLandedHex().transform.position;
                             relativePos.y = 0;
@@ -189,6 +132,7 @@ namespace HexRPG.Battle.Player
                             break;
 
                         case DAMAGED:
+                            animatorController.SetTrigger("Damaged");
                             break;
                     }
                 })

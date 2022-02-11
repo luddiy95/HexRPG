@@ -1,9 +1,8 @@
-using System.Collections.Generic;
+using UnityEngine;
+using Cinemachine;
 
 namespace HexRPG.Battle.Skill
 {
-    using Stage;
-
     public interface ISkill : IFeature
     {
         void Init();

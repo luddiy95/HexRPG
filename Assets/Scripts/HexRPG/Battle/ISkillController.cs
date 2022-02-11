@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace HexRPG.Battle
 {
@@ -8,7 +9,7 @@ namespace HexRPG.Battle
     {
         ICustomComponentCollection[] SkillList { get; }
 
-        bool TryStartSkill(int index, List<Hex> attackRange);
+        bool TryStartSkill(int index, List<Hex> attackRange, Animator animator);
 
         ICustomComponentCollection RunningSkill { get; }
 
