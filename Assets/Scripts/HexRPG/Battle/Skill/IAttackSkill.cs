@@ -1,12 +1,13 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace HexRPG.Battle.Skill
 {
     using Stage;
 
-    public interface IAttackSkill : IFeature
+    public interface IAttackSkill
     {
-        void StartAttackEnable(List<Hex> attackRange, ICustomComponentCollection attackOrigin);
+        void StartAttackEnable(List<Hex> attackRange, ICharacterComponentCollection attackOrigin);
         void FinishAttackEnable();
     }
 }

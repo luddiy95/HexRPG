@@ -3,9 +3,9 @@ using UniRx;
 
 namespace HexRPG.Battle
 {
-    public interface ICharacterUI : IFeature
+    public interface ICharacterUI
     {
-        void Bind(ICustomComponentCollection character);
+        void Bind(ICharacterComponentCollection character);
 
         IObservable<Unit> OnBack { get; }
         void SwitchShow(bool isShow);

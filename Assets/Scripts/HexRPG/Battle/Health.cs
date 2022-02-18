@@ -1,9 +1,10 @@
 using UnityEngine;
 using UniRx;
+using Zenject;
 
 namespace HexRPG.Battle
 {
-    public interface IHealth : IFeature
+    public interface IHealth
     {
         int Max { get; }
 
@@ -12,33 +13,30 @@ namespace HexRPG.Battle
         void Update(int cv);
     }
 
-    public interface IHealthSetting : IFeature
+    public interface IHealthSetting
     {
         int Max { get; }
     }
 
-    public class Health : AbstractCustomComponent, IHealth
+    public class Health : IHealth, IInitializable
     {
+        IHealthSetting _setting;
+
         int IHealth.Max => _max;
         int _max;
 
         IReadOnlyReactiveProperty<int> IHealth.Current => _current;
         ReactiveProperty<int> _current = new ReactiveProperty<int>();
 
-        public override void Register(ICustomComponentCollection owner)
+        public Health(IHealthSetting setting)
         {
-            base.Register(owner);
-            owner.RegisterInterface<IHealth>(this);
+            _setting = setting;
         }
 
-        public override void Initialize()
+        void IInitializable.Initialize()
         {
-            base.Initialize();
-            if (Owner.QueryInterface(out IHealthSetting setting) == true)
-            {
-                _max = setting.Max;
-                _current.Value = setting.Max;
-            }
+            _max = _setting.Max;
+            _current.Value = _setting.Max;
         }
 
         void IHealth.Update(int cv)

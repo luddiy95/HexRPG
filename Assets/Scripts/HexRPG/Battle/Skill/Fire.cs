@@ -1,7 +1,7 @@
 
 namespace HexRPG.Battle.Skill
 {
-    public class Fire : AbstractAttackSkillComponentBehaviour
+    public class Fire : AbstractAttackSkillBehaviour
     {
 
     }

@@ -2,44 +2,31 @@ using UniRx;
 
 namespace HexRPG.Battle.Player.HUD
 {
-    public class MentalGauge : AbstractGaugeComponentBehaviour, ICharacterHUD
+    using Member;
+
+    public class MentalGauge : AbstractGaugeBehaviour, ICharacterHUD
     {
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        public override void Register(ICustomComponentCollection owner)
+        void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
-            base.Register(owner);
-
-            owner.RegisterInterface<ICharacterHUD>(this);
-        }
-
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
-
-        void ICharacterHUD.Bind(ICustomComponentCollection chara)
-        {
-            void SetUpMemberChanged(ICustomComponentCollection member)
+            void SetUpMemberChanged(IMemberComponentCollection member)
             {
                 _disposables.Clear();
 
-                if (member.QueryInterface(out IMental mental))
-                {
-                    SetGauge(mental.Max, mental.Current.Value);
+                var mental = member.Mental;
+                SetGauge(mental.Max, mental.Current.Value);
 
-                    mental.Current
-                        .Subscribe(v => UpdateAmount(v))
-                        .AddTo(_disposables);
-                }
+                mental.Current
+                    .Subscribe(v => UpdateAmount(v))
+                    .AddTo(_disposables);
             }
 
-            if (chara.QueryInterface(out IMemberObservable memberObservable))
+            if (chara is IPlayerComponentCollection playerOwner)
             {
-                memberObservable.CurMember
-                    .Where(member => member != null)
-                    .Subscribe(member => {
-                        SetUpMemberChanged(member);
+                playerOwner.MemberObservable.CurMember
+                    .Subscribe(memberOwner => {
+                        SetUpMemberChanged(memberOwner);
                     })
                     .AddTo(this);
             }

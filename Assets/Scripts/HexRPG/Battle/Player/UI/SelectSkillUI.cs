@@ -6,9 +6,7 @@ using UniRx.Triggers;
 
 namespace HexRPG.Battle.Player.UI
 {
-    using Skill;
-
-    public class SelectSkillUI : AbstractCustomComponentBehaviour, ICharacterUI
+    public class SelectSkillUI : MonoBehaviour, ICharacterUI
     {
         ISelectUI _selectUI;
 
@@ -20,19 +18,13 @@ namespace HexRPG.Battle.Player.UI
         IObservable<Unit> ICharacterUI.OnBack => _onBack;
         ISubject<Unit> _onBack = new Subject<Unit>();
 
-        public override void Register(ICustomComponentCollection owner)
+        void Awake()
         {
-            base.Register(owner);
-
-            owner.RegisterInterface<ICharacterUI>(this);
+            _selectUI = GetComponent<ISelectUI>();
         }
 
-        public override void Initialize()
+        void Start()
         {
-            base.Initialize();
-
-            Owner.QueryInterface(out _selectUI);
-
             // 戻るボタン押したらSelect状態を解除し非表示
             _selectUI.RegisterBtnBackEvent(() =>
             {
@@ -52,38 +44,34 @@ namespace HexRPG.Battle.Player.UI
                 .AddTo(this);
         }
 
-        void ICharacterUI.Bind(ICustomComponentCollection character)
+        void ICharacterUI.Bind(ICharacterComponentCollection chara)
         {
             Sprite[] skillIconList = new Sprite[0];
 
-            if (character.QueryInterface(out IMemberObservable memberObservable))
+            if (chara is IPlayerComponentCollection playerOwner)
             {
-                memberObservable.CurMember
-                    .Where(member => member != null)
-                    .Subscribe(_ =>
+                _selectSkillController = playerOwner.SelectSkillController;
+                _selectSkillObservable = playerOwner.SelectSkillObservable;
+
+                var memberObservable = playerOwner.MemberObservable;
+                memberObservable.CurMemberSkillList
+                    .Subscribe(skillList =>
                     {
-                        skillIconList = memberObservable.CurMemberSkillList.Select(skill =>
+                        skillIconList = skillList.Select(skill =>
                         {
-                            skill.QueryInterface(out ISkillSetting skillSetting);
-                            return skillSetting.Icon;
+                            return skill.SkillSetting.Icon;
                         }).ToArray();
                         _selectUI.UpdateOptionBtnSprite(skillIconList);
                     })
                     .AddTo(this);
-            }
 
-            // 各ボタンタップイベント登録
-            if (character.QueryInterface(out _selectSkillController))
-            {
+                // 各ボタンタップイベント登録
                 _selectUI.RegisterSelectOptionEvent(index =>
                 {
                     if (index > skillIconList.Length - 1) return;
                     _selectSkillController.SelectSkill(index);
                 });
-            }
 
-            if (character.QueryInterface(out _selectSkillObservable))
-            {
                 _selectSkillObservable.SelectedSkillIndex
                     .Pairwise()
                     .Subscribe(x =>
@@ -99,12 +87,9 @@ namespace HexRPG.Battle.Player.UI
                         }
                     })
                     .AddTo(this);
-            }
 
-            if (character.QueryInterface(out ISkillObservable skillObservable))
-            {
                 // Skill発動したらSelect状態を解除
-                skillObservable.OnStartSkill
+                playerOwner.SkillObservable.OnStartSkill
                     .Subscribe(_ => {
                         CancelSelection();
                     })

@@ -1,9 +1,10 @@
 using UnityEngine;
 using UniRx;
+using Zenject;
 
 namespace HexRPG.Battle.Player
 {
-    public interface IMental : IFeature
+    public interface IMental
     {
         int Max { get; }
 
@@ -12,34 +13,30 @@ namespace HexRPG.Battle.Player
         void Update(int cv);
     }
 
-    public interface IMentalSetting : IFeature
+    public interface IMentalSetting
     {
         int Max { get; }
     }
 
-    public class Mental : AbstractCustomComponent, IMental
+    public class Mental : IMental, IInitializable
     {
+        IMentalSetting _setting;
+
         int IMental.Max => _max;
         int _max;
 
         IReadOnlyReactiveProperty<int> IMental.Current => _current;
         ReactiveProperty<int> _current = new ReactiveProperty<int>();
 
-        public override void Register(ICustomComponentCollection owner)
+        public Mental(IMentalSetting setting)
         {
-            base.Register(owner);
-
-            owner.RegisterInterface<IMental>(this);
+            _setting = setting;
         }
 
-        public override void Initialize()
+        void IInitializable.Initialize()
         {
-            base.Initialize();
-            if (Owner.QueryInterface(out IMentalSetting setting) == true)
-            {
-                _max = setting.Max;
-                _current.Value = setting.Max;
-            }
+            _max = _setting.Max;
+            _current.Value = _setting.Max;
         }
 
         void IMental.Update(int cv)

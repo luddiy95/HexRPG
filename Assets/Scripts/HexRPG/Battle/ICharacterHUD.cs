@@ -1,8 +1,9 @@
+using UnityEngine;
 
 namespace HexRPG.Battle
 {
-    public interface ICharacterHUD : IFeature
+    public interface ICharacterHUD
     {
-        void Bind(ICustomComponentCollection character);
+        void Bind(ICharacterComponentCollection character);
     }
 }

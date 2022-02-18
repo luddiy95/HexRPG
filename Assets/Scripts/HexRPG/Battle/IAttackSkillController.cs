@@ -1,7 +1,7 @@
 
 namespace HexRPG.Battle
 {
-    public interface IAttackSkillController : IFeature
+    public interface IAttackSkillController
     {
         void StartSkillAttackEnable();
         void FinishSkillAttackEnable();

@@ -4,7 +4,7 @@ using UniRx;
 namespace HexRPG.Battle
 {
     using Stage;
-    public interface ICharacterInput : IFeature
+    public interface ICharacterInput
     {
         IReadOnlyReactiveProperty<Hex> Destination { get; }
 

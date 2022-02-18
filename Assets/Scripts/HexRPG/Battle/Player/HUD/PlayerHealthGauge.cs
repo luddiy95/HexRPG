@@ -2,44 +2,31 @@ using UniRx;
 
 namespace HexRPG.Battle.Player.HUD
 {
-    public class PlayerHealthGauge : AbstractGaugeComponentBehaviour, ICharacterHUD
+    using Member;
+
+    public class PlayerHealthGauge : AbstractGaugeBehaviour, ICharacterHUD
     {
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        public override void Register(ICustomComponentCollection owner)
+        void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
-            base.Register(owner);
-
-            owner.RegisterInterface<ICharacterHUD>(this);
-        }
-
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
-
-        void ICharacterHUD.Bind(ICustomComponentCollection chara)
-        {
-            void SetUpMemberChanged(ICustomComponentCollection member)
+            void SetUpMemberChanged(IMemberComponentCollection member)
             {
                 _disposables.Clear();
 
-                if (member.QueryInterface(out IHealth health))
-                {
-                    SetGauge(health.Max, health.Current.Value);
+                var health = member.Health;
+                SetGauge(health.Max, health.Current.Value);
 
-                    health.Current
-                        .Subscribe(v => UpdateAmount(v))
-                        .AddTo(_disposables);
-                }
+                health.Current
+                    .Subscribe(v => UpdateAmount(v))
+                    .AddTo(_disposables);
             }
 
-            if (chara.QueryInterface(out IMemberObservable memberObservable))
+            if (chara is IPlayerComponentCollection playerOwner)
             {
-                memberObservable.CurMember
-                    .Where(member => member != null)
-                    .Subscribe(member => {
-                        SetUpMemberChanged(member);
+                playerOwner.MemberObservable.CurMember
+                    .Subscribe(memberOwner => {
+                        SetUpMemberChanged(memberOwner);
                     })
                     .AddTo(this);
             }

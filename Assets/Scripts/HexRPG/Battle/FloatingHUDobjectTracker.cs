@@ -6,27 +6,18 @@ namespace HexRPG.Battle
     /// <summary>
     /// 頭上HUDとしてキャラクタに追従するコンポネント
     /// </summary>
-    public class FloatingHUDobjectTracker : AbstractCustomComponentBehaviour, ICharacterHUD
+    public class FloatingHUDobjectTracker : MonoBehaviour, ICharacterHUD
     {
         private Canvas _parentCanvas;
         private RectTransform _selfTransform;
 
-        public override void Register(ICustomComponentCollection owner)
+        void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
-            base.Register(owner);
-            owner.RegisterInterface<ICharacterHUD>(this);
-        }
-
-        public override void Initialize()
-        {
-            base.Initialize();
-
             _parentCanvas = gameObject.NearestCanvas();
             _selfTransform = GetComponent<RectTransform>();
-        }
 
-        void ICharacterHUD.Bind(ICustomComponentCollection character)
-        {
+            //TODO:
+            /*
             if (character.QueryInterface(out ITransformController characterTransform) == false)
             {
                 return;
@@ -43,6 +34,7 @@ namespace HexRPG.Battle
                 _selfTransform.anchoredPosition = pos2d;
             })
             .AddTo(this);
+            */
         }
     }
 }

@@ -1,35 +1,71 @@
 using UnityEngine;
 using UniRx;
+using System;
+using Zenject;
 
 namespace HexRPG.Battle.Player
 {
     using Battle.Stage;
     using static ActionStateType;
 
-    public class PlayerActionStateController : AbstractCustomComponentBehaviour
+    public class PlayerActionStateController : IInitializable, IDisposable
     {
-        public override void Initialize()
+        ITransformController _transformController;
+        IAnimatorController _animatorController;
+        ICharacterInput _characterInput;
+        IActionStateController _actionStateController;
+        IActionStateObservable _actionStateObservable;
+        ISkillController _skillController;
+        ISkillObservable _skillObservable;
+        IPauseController _pauseController;
+        IPauseObservable _pauseObservable;
+        ISelectSkillObservable _selectSkillObservable;
+        IMover _mover;
+
+        CompositeDisposable _disposables = new CompositeDisposable();
+
+        public PlayerActionStateController(
+            ITransformController transformController,
+            IAnimatorController animatorController,
+            ICharacterInput characterInput,
+            IActionStateController actionStateController,
+            IActionStateObservable actionStateObservable,
+            ISkillController skillController,
+            ISkillObservable skillObservable,
+            IPauseController pauseController,
+            IPauseObservable pauseObservable,
+            ISelectSkillObservable selectSkillObservable,
+            IMover mover
+        )
         {
-            base.Initialize();
+            _transformController = transformController;
+            _animatorController = animatorController;
+            _characterInput = characterInput;
+            _actionStateController = actionStateController;
+            _actionStateObservable = actionStateObservable;
+            _skillController = skillController;
+            _skillObservable = skillObservable;
+            _pauseController = pauseController;
+            _pauseObservable = pauseObservable;
+            _selectSkillObservable = selectSkillObservable;
+            _mover = mover;
+        }
+
+        void IInitializable.Initialize()
+        {
             BuildActionStates();
             SetUpControl();
         }
 
         void BuildActionStates()
         {
-            if (Owner.QueryInterface(out IActionStateController actionStateController) == false)
-            {
-                Debug.LogError($"{Owner}が IActionStateController を持っていない");
-                return;
-            }
-
             var idle = NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventCancel("pause", 0, PAUSE))
                 .AddEvent(new ActionEventCancel("move", 0, MOVE))
                 .AddEvent(new ActionEventCancel("damaged", 0, DAMAGED))
                 ;
-            actionStateController.SetInitialState(idle);
+            _actionStateController.SetInitialState(idle);
 
             NewState(PAUSE)
                 .AddEvent(new ActionEventPause(0f)) // Pause中
@@ -53,10 +89,10 @@ namespace HexRPG.Battle.Player
                 // IDLEに戻る
                 ;
 
-            ActionState NewState(ActionStateType type, System.Action<ActionState> action = null)
+            ActionState NewState(ActionStateType type, Action<ActionState> action = null)
             {
                 var s = new ActionState(type);
-                actionStateController.AddState(s);
+                _actionStateController.AddState(s);
                 action?.Invoke(s);
                 return s;
             }
@@ -64,97 +100,77 @@ namespace HexRPG.Battle.Player
 
         void SetUpControl()
         {
-            Owner.QueryInterface(out ICharacterInput characterInput);
-
-            Owner.QueryInterface(out IActionStateController actionStateController);
-            Owner.QueryInterface(out IActionStateObservable actionStateObservable);
-
-            Owner.QueryInterface(out ISkillController skillController);
-            Owner.QueryInterface(out ISkillObservable skillObservable);
-
-            Owner.QueryInterface(out IPauseController pauseController);
-            Owner.QueryInterface(out IPauseObservable pauseObservable);
-
-            Owner.QueryInterface(out ISelectSkillObservable selectSkillObservable);
-
-            Owner.QueryInterface(out IAnimatorController animatorController);
-
-            Owner.QueryInterface(out ITransformController transformController);
-
             // moveableIndicatorタップ時
-            characterInput.Destination
+            _characterInput.Destination
                 .Skip(1)
                 .Subscribe(_ => 
                 {
-                    actionStateController.Execute(new Command { Id = "move" });
+                    _actionStateController.Execute(new Command { Id = "move" });
                 })
-                .AddTo(this);
+                .AddTo(_disposables);
 
             // moveに遷移出来たら移動
-            if (Owner.QueryInterface(out IMoveController moveController))
-            {
-                actionStateObservable
-                    .OnStart<ActionEventMove>()
-                    .Subscribe(_ =>
-                    {
-                        moveController.StartMove(characterInput.Destination.Value);
-                    })
-                    .AddTo(this);
-            }
+            _actionStateObservable
+                .OnStart<ActionEventMove>()
+                .Subscribe(_ =>
+                {
+                    _mover.StartMove(_characterInput.Destination.Value);
+                })
+                .AddTo(_disposables);
 
             // btnFireタップ時
-            characterInput.OnFire
+            _characterInput.OnFire
             .Subscribe(_ =>
             {
-                int skillIndex = selectSkillObservable.SelectedSkillIndex.Value;
+                int skillIndex = _selectSkillObservable.SelectedSkillIndex.Value;
                 if (skillIndex >= 0)
                 {
                     // Skillスタートできるか？
-                    skillController.TryStartSkill(skillIndex, null, animatorController.CurAnimator.Value);
+                    _skillController.TryStartSkill(skillIndex, null);
                 }
                 else
                 {
-                    actionStateController.Execute(new Command { Id = "pause" });
+                    _actionStateController.Execute(new Command { Id = "pause" });
                 }
             })
-            .AddTo(this);
+            .AddTo(_disposables);
 
             // Pauseへ遷移時
-            actionStateObservable
+            _actionStateObservable
                 .OnStart<ActionEventPause>()
-                .Subscribe(_ => pauseController.StartPause())
-                .AddTo(this);
+                .Subscribe(_ => _pauseController.StartPause())
+                .AddTo(_disposables);
 
             // Skillスタート
-            skillObservable
+            _skillObservable
                 .OnStartSkill
-                .Subscribe(_ => actionStateController.ExecuteTransition(SKILL))
-                .AddTo(this);
+                .Subscribe(_ => _actionStateController.ExecuteTransition(SKILL))
+                .AddTo(_disposables);
 
             // Restart
-            pauseObservable.OnRestart
-                .Subscribe(_ => actionStateController.ExecuteTransition(IDLE))
-                .AddTo(this);
+            _pauseObservable.OnRestart
+                .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
+                .AddTo(_disposables);
 
             // Skill終了
-            skillObservable
+            _skillObservable
                 .OnFinishSkill
-                .Subscribe(_ => actionStateController.ExecuteTransition(IDLE))
-                .AddTo(this);
+                .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
+                .AddTo(_disposables);
 
             // 各モーション再生
-            actionStateObservable
+            _actionStateObservable
                 .OnStart<ActionEventPlayMotion>()
                 .Subscribe(ev =>
                 {
-                    switch (actionStateObservable.CurrentState.Value.Type)
+                    switch (_actionStateObservable.CurrentState.Value.Type)
                     {
                         case IDLE:
                             break;
 
                         case MOVE:
-                            Hex destinationHex = characterInput.Destination.Value;
-                            Vector3 relativePos = destinationHex.transform.position - transformController.GetLandedHex().transform.position;
+                            Hex destinationHex = _characterInput.Destination.Value;
+                            Vector3 relativePos = destinationHex.transform.position - _transformController.GetLandedHex().transform.position;
                             relativePos.y = 0;
                             Quaternion relativeRot = Quaternion.LookRotation(relativePos, Vector3.up);
                             int relativeRotAngle = (int)relativeRot.eulerAngles.y;
@@ -184,7 +200,7 @@ namespace HexRPG.Battle.Player
                                 speedVertical = 1f; speedHorizontal = -1f;
                             }
 
-                            animatorController.SetSpeed(speedHorizontal, speedVertical);
+                            _animatorController.SetSpeed(speedHorizontal, speedVertical);
 
                             break;
 
@@ -192,7 +208,12 @@ namespace HexRPG.Battle.Player
                             break;
                     }
                 })
-                .AddTo(this);
+                .AddTo(_disposables);
+        }
+
+        void IDisposable.Dispose()
+        {
+            _disposables.Dispose();
         }
     }
 }

@@ -4,7 +4,7 @@ using UniRx;
 
 namespace HexRPG.Battle
 {
-    public interface IActionStateObservable : IFeature
+    public interface IActionStateObservable
     {
         IReadOnlyReactiveProperty<ActionState> CurrentState { get; }
 

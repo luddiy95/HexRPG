@@ -1,23 +1,26 @@
 using System;
-using System.Threading;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
+using UniRx.Triggers;
+using Zenject;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 
 namespace HexRPG.Battle
 {
+    using Player;
     using Stage;
 
-    public class BattleManager : AbstractCustomComponentBehaviour, IBattleObservable
+    //TODO: MonoBehaviourである必要はない(IInitializableで管理したい、これを一番最初に呼びたい)
+    public class BattleManager : MonoBehaviour, IBattleObservable
     {
-        [Header("直おきCustomComponentCollection")]
-        [SerializeField] GameObject[] _instances;
+        IUpdater _updater;
+        PlayerOwner.Factory _playerFactory;
+        ISpawnSettings _spawnSettings;
 
-        IComponentCollectionFactory _factory = null;
-
-        IObservable<ICustomComponentCollection> IBattleObservable.OnPlayerSpawn => _onPlayerSpawn;
-        readonly ISubject<ICustomComponentCollection> _onPlayerSpawn = new Subject<ICustomComponentCollection>();
+        IObservable<IPlayerComponentCollection> IBattleObservable.OnPlayerSpawn => _onPlayerSpawn;
+        readonly ISubject<IPlayerComponentCollection> _onPlayerSpawn = new Subject<IPlayerComponentCollection>();
 
         IObservable<ICustomComponentCollection> IBattleObservable.OnEnemySpawn => _onEnemySpawn;
         readonly ISubject<ICustomComponentCollection> _onEnemySpawn = new Subject<ICustomComponentCollection>();
@@ -28,101 +31,67 @@ namespace HexRPG.Battle
         Hex IBattleObservable.PlayerLandedHex => _playerLandedHex;
         Hex _playerLandedHex = null;
 
-        public override void Register(ICustomComponentCollection owner)
+        [Inject]
+        public void Construct(
+            IUpdater updater,
+            PlayerOwner.Factory playerFactory, 
+            ISpawnSettings spawnSettings)
         {
-            base.Register(owner);
-
-            owner.RegisterInterface<IBattleObservable>(this);
+            _updater = updater;
+            _playerFactory = playerFactory; 
+            _spawnSettings = spawnSettings;
         }
 
-        public override void Initialize()
+        void Start()
         {
-            base.Initialize();
-
-            if (Owner.QueryInterface(out _factory))
-            {
-                Main(this.GetCancellationTokenOnDestroy()).Forget();
-            }
+            PlayStartSequence(this.GetCancellationTokenOnDestroy()).Forget();
         }
 
-        async UniTaskVoid Main(CancellationToken token)
+        async UniTaskVoid PlayStartSequence(CancellationToken token)
         {
-            await UniTask.Yield(token);
+            await UniTask.Yield(token); // HUD, UIの初期化処理が終わってから
 
-            // 直置きGameObjectをCustomComponentCollectionにする
-            foreach (var instance in _instances)
+            var playerSpawnSetting = _spawnSettings.PlayerSpawnSetting;
+            IPlayerComponentCollection player = _playerFactory.Create();
+
+            var memberController = player.MemberController;
+            await memberController.SpawnAllMember();
+            memberController.ChangeMember(0);
+
+            // Playerの位置を監視
+            /*
+            if (isPlayer && Owner.QueryInterface(out IUpdateObservable updateObservable))
             {
-                _factory.CreateComponentCollectionWithoutInstantiate(instance, null, null);
+                updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
+                    .Subscribe(_ =>
+                    {
+                        _playerLandedHex = transformController.GetLandedHex();
+                    })
+                    .AddTo(this);
+                _playerLandedHex = transformController.GetLandedHex();
             }
+            */
 
-            if(Owner.QueryInterface(out ISpawnSettings spawnSettings))
+            _onPlayerSpawn.OnNext(player);
+
+            //TODO:
+            /*
+            var enemySpawnSetting = spawnSettings.EnemySpawnSettings;
+            Array.ForEach(enemySpawnSetting, spawnSetting =>
             {
-                var playerSpawnSetting = spawnSettings.PlayerSpawnSetting;
-                var player = Spawn(playerSpawnSetting.Prefab, playerSpawnSetting.SpawnHex.transform.position, true);
-                _onPlayerSpawn.OnNext(player);
-
-                var enemySpawnSetting = spawnSettings.EnemySpawnSettings;
-                Array.ForEach(enemySpawnSetting, spawnSetting =>
-                {
-                    var enemy = Spawn(spawnSetting.Prefab, spawnSetting.SpawnHex.transform.position, false);
-                    _onEnemySpawn.OnNext(enemy);
-                });
-            }
-
-            // 各CustomComponentCollectionのCreateが済んだらBattleStart
-            _onBattleStart.OnNext(Unit.Default);
-        }
-
-        ICustomComponentCollection Spawn(GameObject prefab, Vector3 spawnPos, bool isPlayer)
-        {
-            var components = new List<ICustomComponent>
-            {
-                new ActionStateController(),
-            };
-
-            if (isPlayer)
-            {
-                components.AddRange(new List<ICustomComponent>
-                {
-
-                });
-            }
-            else
-            {
-                components.AddRange(new List<ICustomComponent>
-                {
-                    new Health()
-                });
-            }
-
-            // キャラクタ生成
-            var obj = _factory.CreateComponentCollection(prefab, components, owner =>
-            {
-                if (isPlayer && Owner.QueryInterface(out ICharacterInput input))
-                {
-                    owner.RegisterInterface(input);
-                }
+                var enemy = Spawn(spawnSetting.Prefab, spawnSetting.SpawnHex.transform.position, false);
+                _onEnemySpawn.OnNext(enemy);
             });
+            */
 
-            // 出現位置
-            if(obj.QueryInterface(out ITransformController transformController))
-            {
-                transformController.Position = spawnPos;
+            _onBattleStart.OnNext(Unit.Default);
 
-                // Playerの位置を監視
-                if (isPlayer && Owner.QueryInterface(out IUpdateObservable updateObservable))
-                {
-                    updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
-                        .Subscribe(_ =>
-                        {
-                            _playerLandedHex = transformController.GetLandedHex();
-                        })
-                        .AddTo(this);
-                    _playerLandedHex = transformController.GetLandedHex();
-                }
-            }
+            // 更新処理開始
+            this.UpdateAsObservable()
+                .Subscribe(_ => _updater.FireUpdateStreams())
+                .AddTo(this);
 
-            return obj;
+            //TODO: CancellationToken
         }
     }
 }

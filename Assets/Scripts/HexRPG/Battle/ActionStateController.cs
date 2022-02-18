@@ -4,6 +4,7 @@ using System.Linq;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Assertions;
+using Zenject;
 
 namespace HexRPG.Battle
 {
@@ -18,8 +19,11 @@ namespace HexRPG.Battle
         public static Command Empty { get; } = new Command { Id = string.Empty };
     }
 
-    public class ActionStateController : AbstractCustomComponent, IActionStateController, IActionStateObservable, IActionEventNotifier
+    public class ActionStateController : IActionStateController, IActionStateObservable, IActionEventNotifier, IInitializable, IDisposable
     {
+        IUpdateObservable _updateObservable;
+        IDeltaTime _deltaTime;
+
         IReadOnlyReactiveProperty<ActionState> IActionStateObservable.CurrentState => _currentState;
         IReadOnlyReactiveProperty<Command> IActionStateObservable.ExecutedCommand => _executedCommand;
         ICollection<ActionState> IActionStateObservable.StateHistory => _stateHistory;
@@ -38,6 +42,8 @@ namespace HexRPG.Battle
         readonly StatePosition[] _eventPositions = new StatePosition[100];
 
         readonly List<ActionEventCancel> _activeCancelEvents = new List<ActionEventCancel>();
+
+        CompositeDisposable _disposables = new CompositeDisposable();
 
         ActionState _initialState = null;
         ActionState _nextState = null;
@@ -59,30 +65,24 @@ namespace HexRPG.Battle
             Finished,
         }
 
-        public override void Register(ICustomComponentCollection owner)
+        public ActionStateController(
+            IUpdateObservable updateObservable, 
+            IDeltaTime deltaTime)
         {
-            base.Register(owner);
-
-            owner.RegisterInterface<IActionStateObservable>(this);
-            owner.RegisterInterface<IActionStateController>(this);
+            _updateObservable = updateObservable; 
+            _deltaTime = deltaTime;
         }
 
-        public override void Initialize()
+        void IInitializable.Initialize()
         {
-            base.Initialize();
-
             // キャンセル設定
             _onEnterState.Subscribe(_ => _activeCancelEvents.Clear());
             GetEventStream<ActionEventCancel>(EventStreamId.Start).Subscribe(c => _activeCancelEvents.Add(c));
             GetEventStream<ActionEventCancel>(EventStreamId.End).Subscribe(c => _activeCancelEvents.Remove(c));
 
-            // フレーム処理
-            if (Owner.QueryInterface(out IUpdateObservable updateObservable) == true && Owner.QueryInterface(out IDeltaTime deltaTime) == true)
-            {
-                updateObservable.OnUpdate((int)UPDATE_ORDER.ACTION_TRANSITION)
-                    .Subscribe(_ => OnUpdate(deltaTime))
-                    .AddTo(Disposables);
-            }
+            _updateObservable.OnUpdate((int)UPDATE_ORDER.ACTION_TRANSITION)
+                .Subscribe(_ => OnUpdate(_deltaTime))
+                .AddTo(_disposables);
         }
 
         void OnUpdate(IDeltaTime deltaTime)
@@ -249,6 +249,11 @@ namespace HexRPG.Battle
                 _eventStreamPool[type] = streams = new object[] { new Subject<T>(), new Subject<T>(), };
             }
             return streams[(int)streamId] as ISubject<T>;
+        }
+
+        void IDisposable.Dispose()
+        {
+            _disposables.Dispose();
         }
     }
 }

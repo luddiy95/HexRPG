@@ -1,35 +1,33 @@
-using UnityEngine;
-using UniRx;
+using Zenject;
 
 namespace HexRPG.Battle.Enemy
 {
-    using Battle.Stage;
     using static ActionStateType;
 
-    public class EnemyActionStateController : AbstractCustomComponentBehaviour
+    public class EnemyActionStateController : IInitializable
     {
-        public override void Initialize()
+        IActionStateController _actionStateController;
+
+        public EnemyActionStateController(IActionStateController actionStateController)
         {
-            base.Initialize();
+            _actionStateController = actionStateController;
+        }
+
+        void IInitializable.Initialize()
+        {
             BuildActionStates();
             SetUpControl();
         }
 
         void BuildActionStates()
         {
-            if (Owner.QueryInterface(out IActionStateController actionStateController) == false)
-            {
-                Debug.LogError($"{Owner}Ç™ IActionStateController ÇéùÇ¡ÇƒÇ¢Ç»Ç¢");
-                return;
-            }
-
             var idle = NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventCancel("move", 0, MOVE))
                 .AddEvent(new ActionEventCancel("skill", 0, SKILL))
                 .AddEvent(new ActionEventCancel("damaged", 0, DAMAGED))
                 ;
-            actionStateController.SetInitialState(idle);
+            _actionStateController.SetInitialState(idle);
                 ;
 
             NewState(MOVE)
@@ -59,7 +57,7 @@ namespace HexRPG.Battle.Enemy
             ActionState NewState(ActionStateType type, System.Action<ActionState> action = null)
             {
                 var s = new ActionState(type);
-                actionStateController.AddState(s);
+                _actionStateController.AddState(s);
                 action?.Invoke(s);
                 return s;
             }
@@ -67,6 +65,7 @@ namespace HexRPG.Battle.Enemy
 
         void SetUpControl()
         {
+            /*
             Owner.QueryInterface(out ICharacterInput characterInput);
 
             Owner.QueryInterface(out IActionStateController actionStateController);
@@ -137,6 +136,7 @@ namespace HexRPG.Battle.Enemy
                     }
                 })
                 .AddTo(this);
+            */
         }
     }
 }

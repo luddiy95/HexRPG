@@ -1,41 +1,39 @@
 using UnityEngine;
 using UniRx;
+using Zenject;
 
 namespace HexRPG.Battle
 {
-    public class HUDManager : AbstractCustomComponentBehaviour
+    public class HUDManager : MonoBehaviour
     {
+        IBattleObservable _battleObservable;
+
         [Header("PlayerのHUD実装オブジェクト")]
         [SerializeField] GameObject _playerHUD;
 
         [Header("EnemyのHUD実装オブジェクト")]
         [SerializeField] GameObject _enemyHUD;
 
-        public override void Initialize()
+        [Inject]
+        public void Construct(IBattleObservable battleObservable)
         {
-            base.Initialize();
+            _battleObservable = battleObservable;
+        }
 
-            if (!Owner.QueryInterface(out IComponentCollectionFactory factory)) return;
+        void Start()
+        {
+            var playerHUD = _playerHUD.GetComponent<ICharacterHUD>();
 
-            var playerHUD = factory.CreateComponentCollectionWithoutInstantiate(_playerHUD, null, null);
-            var enemyHUD = factory.CreateComponentCollectionWithoutInstantiate(_enemyHUD, null, null);
+            _battleObservable.OnPlayerSpawn
+                .Subscribe(playerOwner => playerHUD.Bind(playerOwner))
+                .AddTo(this);
 
-            if (Owner.QueryInterface(out IBattleObservable battleObservable))
-            {
-                if (playerHUD.QueryInterface(out ICharacterHUD phud))
-                {
-                    battleObservable.OnPlayerSpawn
-                        .Subscribe(player => phud.Bind(player))
-                        .AddTo(this);
-                }
-
-                if(enemyHUD.QueryInterface(out ICharacterHUD ehud))
-                {
-                    battleObservable.OnEnemySpawn
-                        .Subscribe(enemy => ehud.Bind(enemy))
-                        .AddTo(this);
-                }
-            }
+            //TODO:
+            /*
+            battleObservable.OnEnemySpawn
+                .Subscribe(enemy => ehud.Bind(enemy))
+                .AddTo(this);
+            */
         }
     }
 }

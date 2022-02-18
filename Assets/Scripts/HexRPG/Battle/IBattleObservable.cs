@@ -3,14 +3,15 @@ using UniRx;
 
 namespace HexRPG.Battle
 {
+    using Player;
     using Stage;
 
-    public interface IBattleObservable : IFeature
+    public interface IBattleObservable
     {
         /// <summary>
         /// ’¼‚¨‚«CustomComponentCollection‚É‘Î‚µ‚Ä”­s
         /// </summary>
-        IObservable<ICustomComponentCollection> OnPlayerSpawn { get; }
+        IObservable<IPlayerComponentCollection> OnPlayerSpawn { get; }
         IObservable<ICustomComponentCollection> OnEnemySpawn { get; }
 
         /// <summary>

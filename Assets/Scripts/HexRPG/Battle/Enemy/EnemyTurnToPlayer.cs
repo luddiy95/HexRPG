@@ -1,28 +1,29 @@
 using UnityEngine;
+using Zenject;
 
 namespace HexRPG.Battle.Enemy
 {
-    public class EnemyTurnToPlayer : AbstractCustomComponentBehaviour, ITurnToTarget
+    public class EnemyTurnToPlayer : ITurnToTarget, IInitializable
     {
         IBattleObservable _battleObservable;
         ITransformController _transformController;
+        IMoveSetting _moveSetting;
 
         float _rotateSpeed = 0;
 
-        public override void Register(ICustomComponentCollection owner)
+        public EnemyTurnToPlayer(
+            IBattleObservable battleObservable,
+            ITransformController transformController,
+            IMoveSetting moveSetting)
         {
-            base.Register(owner);
-
-            owner.RegisterInterface<ITurnToTarget>(this);
+            _battleObservable = battleObservable;
+            _transformController = transformController;
+            _moveSetting = moveSetting;
         }
 
-        public override void Initialize()
+        void IInitializable.Initialize()
         {
-            base.Initialize();
-
-            Owner.QueryInterface(out _battleObservable);
-            Owner.QueryInterface(out _transformController);
-            if (Owner.QueryInterface(out IMoveSetting moveSetting)) _rotateSpeed = moveSetting.RotateSpeed;
+            _rotateSpeed = _moveSetting.MoveSpeed;
         }
 
         void ITurnToTarget.TurnToTarget()

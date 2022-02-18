@@ -1,17 +1,17 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace HexRPG.Battle
 {
     using Stage;
+    using Skill;
 
-    public interface ISkillController : IFeature
+    public interface ISkillController
     {
-        ICustomComponentCollection[] SkillList { get; }
+        ISkillComponentCollection[] SkillList { get; }
 
-        bool TryStartSkill(int index, List<Hex> attackRange, Animator animator);
+        bool TryStartSkill(int index, List<Hex> attackRange);
 
-        ICustomComponentCollection RunningSkill { get; }
+        ISkillComponentCollection RunningSkill { get; }
 
         void StartSkillEffect();
 

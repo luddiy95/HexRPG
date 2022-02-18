@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace HexRPG.Battle.Skill
 {
-    public interface ISkillSetting : IFeature
+    public interface ISkillSetting
     {
         Sprite Icon { get; }
         int MPcost { get; }
@@ -12,7 +12,7 @@ namespace HexRPG.Battle.Skill
         public string SkillAnimationParam { get; }
     }
 
-    public class SkillSetting : AbstractCustomComponentBehaviour, ISkillSetting
+    public class SkillSetting : MonoBehaviour, ISkillSetting
     {
         Sprite ISkillSetting.Icon => _icon;
         [SerializeField] Sprite _icon;
@@ -24,17 +24,5 @@ namespace HexRPG.Battle.Skill
         [SerializeField] List<Vector2> _range;
         string ISkillSetting.SkillAnimationParam => _skillAnimationParam;
         [SerializeField] string _skillAnimationParam;
-
-        public override void Register(ICustomComponentCollection owner)
-        {
-            base.Register(owner);
-
-            owner.RegisterInterface<ISkillSetting>(this);
-        }
-
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
     }
 }

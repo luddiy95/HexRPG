@@ -1,10 +1,11 @@
 using System;
 using System.Linq;
 using UniRx;
+using UnityEngine;
 
 namespace HexRPG.Battle.Player.UI
 {
-    public class SelectMemberUI : AbstractCustomComponentBehaviour, ICharacterUI
+    public class SelectMemberUI : MonoBehaviour, ICharacterUI
     {
         ISelectUI _selectUI;
 
@@ -23,19 +24,13 @@ namespace HexRPG.Battle.Player.UI
             }
         }
 
-        public override void Register(ICustomComponentCollection owner)
+        void Awake()
         {
-            base.Register(owner);
-
-            owner.RegisterInterface<ICharacterUI>(this);
+            _selectUI = GetComponent<ISelectUI>();
         }
 
-        public override void Initialize()
+        void Start()
         {
-            base.Initialize();
-
-            Owner.QueryInterface(out _selectUI);
-
             // 戻るボタン押したらSkill選択へ
             _selectUI.RegisterBtnBackEvent(() =>
             {
@@ -44,17 +39,15 @@ namespace HexRPG.Battle.Player.UI
             });
         }
 
-        void ICharacterUI.Bind(ICustomComponentCollection character)
+        void ICharacterUI.Bind(ICharacterComponentCollection chara)
         {
-            if (character.QueryInterface(out IMemberObservable memberObservable))
+            if (chara is IPlayerComponentCollection playerOwner)
             {
-                var memberList = memberObservable.MemberList;
+                var memberList = playerOwner.MemberObservable.MemberList;
 
-                IProfileSetting profileSetting = null;
                 _selectUI.UpdateOptionBtnSprite(
                     memberList
-                        .Where(member => member.QueryInterface(out profileSetting))
-                        .Select(member => profileSetting.OptionIcon).ToArray()
+                        .Select(member => member.ProfileSetting.OptionIcon).ToArray()
                 );
 
                 // 各ボタンタップイベント登録
@@ -64,18 +57,15 @@ namespace HexRPG.Battle.Player.UI
                     SelectedIndex = index;
                 });
 
-                if (character.QueryInterface(out ICharacterInput input))
-                {
-                    input.OnFire
-                        .Where(_ => SelectedIndex >= 0)
-                        .Subscribe(_ =>
-                        {
-                            memberObservable.ChangeMember(SelectedIndex);
-                            CancelSelection();
-                            _onBack.OnNext(Unit.Default);
-                        })
-                        .AddTo(this);
-                }
+                playerOwner.CharacterInput.OnFire
+                    .Where(_ => SelectedIndex >= 0)
+                    .Subscribe(_ =>
+                    {
+                        playerOwner.MemberController.ChangeMember(SelectedIndex);
+                        CancelSelection();
+                        _onBack.OnNext(Unit.Default);
+                    })
+                    .AddTo(this);
             }
         }
 

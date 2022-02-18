@@ -21,17 +21,9 @@ namespace HexRPG
         JUDGE,
     }
 
-    public class UpdateFeature : AbstractCustomComponent, IUpdateObservable, IUpdater
+    public class UpdateFeature : IUpdateObservable, IUpdater
     {
         readonly SortedDictionary<int, ISubject<Unit>> _updateStreams = new SortedDictionary<int, ISubject<Unit>>();
-
-        public override void Register(ICustomComponentCollection owner)
-        {
-            base.Register(owner);
-
-            owner.RegisterInterface<IUpdateObservable>(this);
-            owner.RegisterInterface<IUpdater>(this);
-        }
 
         void IUpdater.FireUpdateStreams()
         {

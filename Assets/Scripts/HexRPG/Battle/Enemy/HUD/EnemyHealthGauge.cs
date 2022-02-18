@@ -1,23 +1,14 @@
 using UniRx;
+using UnityEngine;
 
 namespace HexRPG.Battle.Enemy.HUD
 {
-    public class EnemyHealthGauge : AbstractGaugeComponentBehaviour, ICharacterHUD
+    public class EnemyHealthGauge : AbstractGaugeBehaviour, ICharacterHUD
     {
-        public override void Register(ICustomComponentCollection owner)
+        void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
-            base.Register(owner);
-
-            owner.RegisterInterface<ICharacterHUD>(this);
-        }
-
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
-
-        void ICharacterHUD.Bind(ICustomComponentCollection chara)
-        {
+            //TODO:
+            /*
             if(chara.QueryInterface(out IHealth health))
             {
                 SetGauge(health.Max, health.Max);
@@ -28,6 +19,7 @@ namespace HexRPG.Battle.Enemy.HUD
                     })
                     .AddTo(this);
             }
+            */
         }
     }
 }

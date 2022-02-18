@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HexRPG.Battle
 {
-    public interface IActionStateController : IFeature
+    public interface IActionStateController
     {
         void Execute(Command command);
 

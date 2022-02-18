@@ -6,58 +6,45 @@ namespace HexRPG.Battle
 {
     using Stage;
 
-    public interface IAttackObservable : IFeature
+    public interface IAttackObservable
     {
         IObservable<HitData> OnAttackHit { get; }
     }
 
-    public interface IAttackApplicator : IFeature
+    public interface IAttackApplicator
     {
         IAttackSetting CurrentSetting { get; }
 
-        ICustomComponentCollection AttackOrigin { get; }
+        ICharacterComponentCollection AttackOrigin { get; }
 
-        bool TryMarkAsHit(ICustomComponentCollection damagedObject);
+        bool TryMarkAsHit(ICharacterComponentCollection damagedObject);
 
         void NotifyAttackHit(HitData hitData);
     }
 
-    public interface IAttackController : IFeature
+    public interface IAttackController
     {
-        void StartAttack(List<Hex> attackRange, IAttackSetting setting, ICustomComponentCollection attackOrigin);
+        void StartAttack(List<Hex> attackRange, IAttackSetting setting, ICharacterComponentCollection attackOrigin);
 
         void FinishAttack();
     }
 
-    public class AttackController : AbstractCustomComponentBehaviour, IAttackApplicator, IAttackController, IAttackObservable
+    public class AttackController : IAttackApplicator, IAttackController, IAttackObservable
     {
         List<Hex> _curAttackRange = new List<Hex>();
 
         IAttackSetting IAttackApplicator.CurrentSetting => _currentSetting;
         IAttackSetting _currentSetting = null;
 
-        ICustomComponentCollection IAttackApplicator.AttackOrigin => _attackOrigin;
-        ICustomComponentCollection _attackOrigin;
+        ICharacterComponentCollection IAttackApplicator.AttackOrigin => _attackOrigin;
+        ICharacterComponentCollection _attackOrigin;
 
         IObservable<HitData> IAttackObservable.OnAttackHit => _onAttackHit;
         readonly ISubject<HitData> _onAttackHit = new Subject<HitData>();
 
-        private List<ICustomComponentCollection> _hitObjects = new List<ICustomComponentCollection>();
+        private List<ICharacterComponentCollection> _hitObjects = new List<ICharacterComponentCollection>();
 
-        public override void Register(ICustomComponentCollection owner)
-        {
-            base.Register(owner);
-
-            owner.RegisterInterface<IAttackController>(this);
-            owner.RegisterInterface<IAttackObservable>(this);
-        }
-
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
-
-        void IAttackController.StartAttack(List<Hex> attackRange, IAttackSetting setting, ICustomComponentCollection attackOrigin)
+        void IAttackController.StartAttack(List<Hex> attackRange, IAttackSetting setting, ICharacterComponentCollection attackOrigin)
         {
             _curAttackRange = attackRange;
             _currentSetting = setting;
@@ -78,7 +65,7 @@ namespace HexRPG.Battle
             _currentSetting = null;
         }
 
-        bool IAttackApplicator.TryMarkAsHit(ICustomComponentCollection owner)
+        bool IAttackApplicator.TryMarkAsHit(ICharacterComponentCollection owner)
         {
             if (_currentSetting == null)
             {

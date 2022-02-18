@@ -4,44 +4,25 @@ using UniRx;
 
 namespace HexRPG.Battle.Player.HUD
 {
-    public class PlayerStatusHUD : AbstractCustomComponentBehaviour, ICharacterHUD
+    public class PlayerStatusHUD : MonoBehaviour, ICharacterHUD
     {
         [SerializeField] Image _icon;
 
         [SerializeField] GameObject _healthGauge;
         [SerializeField] GameObject _mentalGauge;
 
-        public override void Register(ICustomComponentCollection owner)
+        void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
-            base.Register(owner);
+            var healthGauge = _healthGauge.GetComponent<ICharacterHUD>();
+            var mentalGauge = _mentalGauge.GetComponent<ICharacterHUD>();
+            healthGauge.Bind(chara);
+            mentalGauge.Bind(chara);
 
-            owner.RegisterInterface<ICharacterHUD>(this);
-        }
-
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
-
-        void ICharacterHUD.Bind(ICustomComponentCollection chara)
-        {
-            if (!Owner.QueryInterface(out IComponentCollectionFactory factory)) return;
-
-            ICharacterHUD characterHUD = null;
-            var healthGauge = factory.CreateComponentCollectionWithoutInstantiate(_healthGauge, null, null);
-            if (healthGauge.QueryInterface(out characterHUD)) characterHUD.Bind(chara);
-            var mentalGauge = factory.CreateComponentCollectionWithoutInstantiate(_mentalGauge, null, null);
-            if (mentalGauge.QueryInterface(out characterHUD)) characterHUD.Bind(chara);
-
-            if(chara.QueryInterface(out IMemberObservable memberObservable))
+            if(chara is IPlayerComponentCollection playerOwner)
             {
-                memberObservable.CurMember
-                    .Where(member => member != null)
-                    .Subscribe(member => {
-                        if (member.QueryInterface(out IProfileSetting profile))
-                        {
-                            SetStatusIcon(profile.StatusIcon);
-                        }
+                playerOwner.MemberObservable.CurMember
+                    .Subscribe(memberOwner => {
+                        SetStatusIcon(memberOwner.ProfileSetting.StatusIcon);
                     })
                     .AddTo(this);
             }

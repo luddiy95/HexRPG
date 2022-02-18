@@ -2,13 +2,16 @@ using UnityEngine;
 using System;
 using UniRx;
 using UniRx.Triggers;
+using Zenject;
 
 namespace HexRPG.Battle.Player
 {
     using Battle.Stage;
 
-    public class PlayerInput : AbstractCustomComponentBehaviour, ICharacterInput
+    public class PlayerInput : MonoBehaviour, ICharacterInput
     {
+        IUpdateObservable _updateObservable;
+
         [Header("Œˆ’èƒ{ƒ^ƒ“")]
         [SerializeField] GameObject _btnFire;
 
@@ -18,32 +21,26 @@ namespace HexRPG.Battle.Player
         IObservable<Unit> ICharacterInput.OnFire => _onFire;
         ISubject<Unit> _onFire = new Subject<Unit>();
 
-        public override void Register(ICustomComponentCollection owner)
+        [Inject]
+        public void Construct(IUpdateObservable updateObservable)
         {
-            base.Register(owner);
-
-            owner.RegisterInterface<ICharacterInput>(this);
+            _updateObservable = updateObservable;
         }
 
-        public override void Initialize()
+        void Start()
         {
-            base.Initialize();
-
             var isBtnFireClicked = false;
 
-            if (Owner.QueryInterface(out IUpdateObservable update) == true)
-            {
-                update.OnUpdate((int)UPDATE_ORDER.INPUT)
-                    .Subscribe(_ =>
+            _updateObservable.OnUpdate((int)UPDATE_ORDER.INPUT)
+                .Subscribe(_ =>
+                {
+                    if (isBtnFireClicked)
                     {
-                        if (isBtnFireClicked)
-                        {
-                            _onFire.OnNext(Unit.Default);
-                            isBtnFireClicked = false;
-                        }
-                        UpdateDestination();
-                    }).AddTo(this);
-            }
+                        _onFire.OnNext(Unit.Default);
+                        isBtnFireClicked = false;
+                    }
+                    UpdateDestination();
+                }).AddTo(this);
 
             ObservablePointerClickTrigger trigger;
             if (!_btnFire.TryGetComponent(out trigger)) trigger = _btnFire.AddComponent<ObservablePointerClickTrigger>();

@@ -6,7 +6,7 @@ using UniRx.Triggers;
 
 namespace HexRPG.Battle.Player.UI
 {
-    public interface ISelectUI : IFeature
+    public interface ISelectUI
     {
         void RegisterSelectOptionEvent(Action<int> action); // 各ボタンを押したときの挙動登録
         void RegisterBtnBackEvent(Action action); // Backボタンを押したときの挙動登録
@@ -15,25 +15,13 @@ namespace HexRPG.Battle.Player.UI
         void UpdateOptionBtnSprite(Sprite[] spriteList); // 各ボタンのSprite更新
     }
 
-    public class SelectUI : AbstractCustomComponentBehaviour, ISelectUI
+    public class SelectUI : MonoBehaviour, ISelectUI
     {
         [SerializeField] Transform _optionBtnRoot;
         [SerializeField] GameObject _btnBack;
 
         [SerializeField] Sprite _optionBtnDefaultSprite;
         [SerializeField] Sprite _optionBtnSelectedSprite;
-
-        public override void Register(ICustomComponentCollection owner)
-        {
-            base.Register(owner);
-
-            owner.RegisterInterface<ISelectUI>(this);
-        }
-
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
 
         void ISelectUI.RegisterSelectOptionEvent(Action<int> action)
         {

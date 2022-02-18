@@ -3,7 +3,7 @@ using Cinemachine;
 
 namespace HexRPG.Battle.Skill
 {
-    public interface ISkill : IFeature
+    public interface ISkill
     {
         void Init();
 

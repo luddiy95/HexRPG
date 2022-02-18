@@ -2,13 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using UniRx.Triggers;
+using Zenject;
 
 namespace HexRPG.Battle
 {
-    using Player;
-
-    public class UIManager : AbstractCustomComponentBehaviour
+    public class UIManager : MonoBehaviour
     {
+        IBattleObservable _battleObservable;
+
         [Header("決定ボタン")]
         [SerializeField] GameObject _btnFire;
 
@@ -21,57 +22,47 @@ namespace HexRPG.Battle
         [Header("Member選択ボタン")]
         [SerializeField] GameObject _btnChangeMember;
 
-        public override void Initialize()
+        [Inject]
+        public void Construct(IBattleObservable battleObservable)
         {
-            base.Initialize();
+            _battleObservable = battleObservable;
+        }
 
-            // Owner = 自分自身ComponentCollection
-            if (!Owner.QueryInterface(out IComponentCollectionFactory factory)) return;
+        void Start()
+        {
+            var selectSkillUI = _selectSkillUI.GetComponent<ICharacterUI>();
+            var selectMemberUI = _selectMemberUI.GetComponent<ICharacterUI>();
 
-            var selectSkillUICollection = factory.CreateComponentCollectionWithoutInstantiate(_selectSkillUI, null, null);
-            selectSkillUICollection.QueryInterface(out ICharacterUI selectSkillUI);
-            var selectMemberUICollection = factory.CreateComponentCollectionWithoutInstantiate(_selectMemberUI, null, null);
-            selectMemberUICollection.QueryInterface(out ICharacterUI selectMemberUI);
-
-            if (Owner.QueryInterface(out IBattleObservable battleObservable))
-            {
-                battleObservable.OnPlayerSpawn
-                    .Subscribe(player =>
+            _battleObservable.OnPlayerSpawn
+                .Subscribe(playerOwner =>
+                {
+                    new List<ICharacterUI>
                     {
-                        new List<ICharacterUI>
-                        {
-                            selectSkillUI,
-                            selectMemberUI
-                        }
-                        .ForEach(ui =>
-                        {
-                            ui.Bind(player);
-                        });
-
-                        if (player.QueryInterface(out IPauseObservable pauseObservable))
-                        {
-                            pauseObservable.OnPause
-                                .Subscribe(_ =>
-                                {
-                                    selectSkillUI.SwitchShow(true);
-                                    SwitchPause(isPause: true);
-                                })
-                                .AddTo(this);
-                        }
-
-                        if (player.QueryInterface(out IPauseController pauseController) && player.QueryInterface(out ISkillObservable skillObservable))
-                        {
-                            Observable.Merge(selectSkillUI.OnBack, skillObservable.OnFinishSkill)
-                                .Subscribe(_ =>
-                                {
-                                    selectSkillUI.SwitchShow(false);
-                                    SwitchPause(isPause: false);
-                                    pauseController.Restart();
-                                })
-                                .AddTo(this);
-                        }
+                        selectSkillUI,
+                        selectMemberUI
+                    }
+                    .ForEach(ui =>
+                    {
+                        ui.Bind(playerOwner);
                     });
-            }
+
+                    playerOwner.PauseObservable.OnPause
+                        .Subscribe(_ =>
+                        {
+                            selectSkillUI.SwitchShow(true);
+                            SwitchPause(isPause: true);
+                        })
+                        .AddTo(this);
+
+                    Observable.Merge(selectSkillUI.OnBack, playerOwner.SkillObservable.OnFinishSkill)
+                        .Subscribe(_ =>
+                        {
+                            selectSkillUI.SwitchShow(false);
+                            SwitchPause(isPause: false);
+                            playerOwner.PauseController.Restart();
+                        })
+                        .AddTo(this);
+                });
 
             selectMemberUI.OnBack
                 .Subscribe(_ =>

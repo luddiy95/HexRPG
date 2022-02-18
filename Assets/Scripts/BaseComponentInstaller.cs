@@ -31,6 +31,7 @@ public class BaseComponentInstaller : ComponentInstaller
         }
 
         // DeltaTime
+        /*
         if (_commonComponentCollection.QueryInterface(out IDeltaTime deltaTime))
         {
             target.RegisterInterface(deltaTime);
@@ -45,15 +46,10 @@ public class BaseComponentInstaller : ComponentInstaller
         //! ↓からCustomComponentBehaviour
 
         // バトルwatch
+        /*
         if (_commonComponentCollection.QueryInterface(out IBattleObservable battleObservable))
         {
             target.RegisterInterface(battleObservable);
-        }
-
-        // Stage
-        if (_commonComponentCollection.QueryInterface(out IStageController stageController))
-        {
-            target.RegisterInterface(stageController);
         }
 
         /*
@@ -73,9 +69,9 @@ public class BaseComponentInstaller : ComponentInstaller
 
         commonComponents.AddRange(new List<ICustomComponent>
         {
-            new UpdateFeature(),
-            new StageController(),
-            new DeltaTime()
+            //new UpdateFeature(),
+            //new StageController(),
+            //new DeltaTime()
         });
 
         //! 基本機能が全て付いているComponentCollectionを生成する機能
