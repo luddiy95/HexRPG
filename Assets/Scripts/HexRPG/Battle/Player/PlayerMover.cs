@@ -11,6 +11,7 @@ namespace HexRPG.Battle.Player
     {
         ITransformController _transformController;
         IMoveableIndicator _moveableIndicator;
+        IBattleObservable _battleObservable;
         IUpdateObservable _updateObservable;
         IDeltaTime _deltaTime;
         IActionStateController _actionStateController;
@@ -27,6 +28,7 @@ namespace HexRPG.Battle.Player
 
         public PlayerMover(
             ITransformController transformController,
+            IBattleObservable battleObservable,
             IMoveableIndicator moveableIndicator,
             IUpdateObservable updateObservable,
             IDeltaTime deltaTime,
@@ -36,6 +38,7 @@ namespace HexRPG.Battle.Player
         )
         {
             _transformController = transformController;
+            _battleObservable = battleObservable;
             _moveableIndicator = moveableIndicator;
             _updateObservable = updateObservable;
             _deltaTime = deltaTime;
@@ -46,6 +49,10 @@ namespace HexRPG.Battle.Player
 
         void IInitializable.Initialize()
         {
+            _battleObservable.OnPlayerSpawn
+                .Subscribe(_ => _moveableIndicator.UpdateIndicator())
+                .AddTo(_disposables);
+
             _updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
                 .Subscribe(_ =>
                 {
@@ -83,10 +90,6 @@ namespace HexRPG.Battle.Player
                     _speed = memberOwner.MoveSetting.MoveSpeed;
                 })
                 .AddTo(_disposables);
-
-            _transformController.SetRotation(0);
-
-            _moveableIndicator.UpdateIndicator();
         }
 
         void IMover.StartMove(Hex destinationHex)
