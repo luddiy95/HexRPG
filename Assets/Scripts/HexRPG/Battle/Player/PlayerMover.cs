@@ -49,7 +49,7 @@ namespace HexRPG.Battle.Player
 
         void IInitializable.Initialize()
         {
-            _battleObservable.OnPlayerSpawn
+            _battleObservable.OnBattleStart
                 .Subscribe(_ => _moveableIndicator.UpdateIndicator())
                 .AddTo(_disposables);
 
