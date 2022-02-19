@@ -4,6 +4,7 @@ using UniRx;
 using System;
 using Zenject;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace HexRPG.Battle.Player
 {
@@ -61,8 +62,7 @@ namespace HexRPG.Battle.Player
 
         async UniTask IMemberController.SpawnAllMember()
         {
-            //TODO:
-            _memberList = _memberFactories.Select(factory => factory.Create(/*_transformController.SpawnRootTransform*/)).ToArray();
+            _memberList = _memberFactories.Select(factory => factory.Create(_transformController.SpawnRootTransform, Vector3.zero)).ToArray();
             // ‘S‚Ä‚ÌSkill‚ª¶¬‚³‚ê‚é‚Ì‚ð‘Ò‚Â
             await UniTask.WaitUntil(() => _memberList.All(member => member.SkillSpawnObservable.IsAllSkillSpawned));
         }

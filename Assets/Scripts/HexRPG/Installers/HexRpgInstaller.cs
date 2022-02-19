@@ -22,14 +22,13 @@ namespace HexRPG
             Container.BindInterfacesTo<UpdateFeature>().AsSingle();
             Container.BindInterfacesTo<DeltaTime>().AsSingle();
 
-            Container.BindFactory<PlayerOwner, PlayerOwner.Factory>().FromComponentInNewPrefab(_playerSpawnSetting.Prefab);
+            Container.BindFactory<Transform, Vector3, PlayerOwner, PlayerOwner.Factory>()
+                .FromSubContainerResolve()
+                .ByNewContextPrefab<PlayerInstaller>(_playerSpawnSetting.Prefab);
             Array.ForEach(_enemySpawnSettings, setting =>
             {
                 // TODO:
             });
-
-            Container.Bind<Vector3>().FromInstance(Vector3.zero);
-            Container.Bind<Transform>().FromInstance(transform);
         }
     }
 }

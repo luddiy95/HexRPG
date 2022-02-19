@@ -22,7 +22,6 @@ namespace HexRPG.Battle.Skill
         [Inject]
 #nullable enable
         public void Construct(
-            //Transform parentTransform,
             ITransformController transformController, 
             ISkillSetting skillSetting, 
             ISkill skill,
@@ -32,13 +31,10 @@ namespace HexRPG.Battle.Skill
             _skillSetting = skillSetting;
             _skill = skill;
             _attackSkill = attackSkill;
-
-            //TODO:
-            //transformController.RootTransform.SetParent(parentTransform, true);
         }
 #nullable disable
 
-        public class Factory : PlaceholderFactory<SkillOwner>
+        public class Factory : PlaceholderFactory<Transform, Vector3, SkillOwner>
         {
 
         }

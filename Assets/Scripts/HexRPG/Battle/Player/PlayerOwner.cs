@@ -36,8 +36,6 @@ namespace HexRPG.Battle.Player
 
         [Inject]
         public void Construct(
-            //Vector3 spawnPos,
-            ITransformController transformController,
             ICharacterInput characterInput,
             IMemberController memberController,
             IMemberObservable memberObservable,
@@ -48,8 +46,6 @@ namespace HexRPG.Battle.Player
             IPauseObservable pauseObservable
         )
         {
-            //TODO:
-            //transformController.Position = Vector3.zero;
             _characterInput = characterInput;
             _memberController = memberController;
             _memberObservable = memberObservable;
@@ -60,7 +56,7 @@ namespace HexRPG.Battle.Player
             _pauseObservable = pauseObservable;
         }
 
-        public class Factory : PlaceholderFactory<PlayerOwner>
+        public class Factory : PlaceholderFactory<Transform, Vector3, PlayerOwner>
         {
 
         }

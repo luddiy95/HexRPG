@@ -27,8 +27,6 @@ namespace HexRPG.Battle.Player.Member
 
         List<Hex> _curAttackRange;
 
-        GameObject _skillRoot;
-
         [Inject]
         public void Construct(
             IMemberComponentCollection memberOwner,
@@ -45,10 +43,7 @@ namespace HexRPG.Battle.Player.Member
 
         void Start()
         {
-            _skillRoot = new GameObject("SkillRoot");
-            _skillRoot.transform.SetParent(_transformController.SpawnRootTransform, true);
-
-            _skillList = _skillFactories.Select(factory => factory.Create()).ToArray();
+            _skillList = _skillFactories.Select(factory => factory.Create(_transformController.SpawnRootTransform, Vector3.zero)).ToArray();
             _isAllSkillSpawned = true;
         }
 

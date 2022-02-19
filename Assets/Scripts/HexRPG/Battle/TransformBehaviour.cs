@@ -1,4 +1,5 @@
 using UnityEngine;
+using Zenject;
 
 namespace HexRPG.Battle
 {
@@ -34,7 +35,7 @@ namespace HexRPG.Battle
         Transform ITransformController.RootTransform => _rootTransform;
 
         Transform ITransformController.MoveTransform => _moveTransform;
-        Vector3 ITransformController.Position { get => _moveTransform.position; set => _moveTransform.position = value; }
+        Vector3 ITransformController.Position { get => _moveTransform.localPosition; set => _moveTransform.localPosition = value; }
 
         Transform ITransformController.RotateTransform => _rotateTransform;
         Quaternion ITransformController.Rotation { get => _rotateTransform.rotation; set => _rotateTransform.rotation = value; }
@@ -53,12 +54,29 @@ namespace HexRPG.Battle
         [Header("何かを生成する際に親となるTransform。null ならこのオブジェクト。")]
         [SerializeField] Transform _spawnRootTransform;
 
-        void Awake()
+        Transform _spawnRoot;
+        Vector3 _spawnPos;
+
+        [Inject]
+        public void Construct(
+            Transform spawnRoot,
+            Vector3 spawnPos
+        )
+        {
+            _spawnRoot = spawnRoot;
+            _spawnPos = spawnPos;
+        }
+
+        void Start()
         {
             if (_rootTransform == null) _rootTransform = transform;
             if (_moveTransform == null) _moveTransform = transform;
             if (_rotateTransform == null) _rotateTransform = transform;
             if (_spawnRootTransform == null) _spawnRootTransform = transform;
+
+            (this as ITransformController).SetRotation(0);
+            if (_spawnRoot != null) _rootTransform.SetParent(_spawnRoot);
+            (this as ITransformController).Position = _spawnPos;
         }
     }
 

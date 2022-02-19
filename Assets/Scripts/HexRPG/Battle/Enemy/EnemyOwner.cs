@@ -9,6 +9,5 @@ namespace HexRPG.Battle.Enemy
 
     public class EnemyOwner : MonoBehaviour, IEnemyComponentCollection
     {
-
     }
 }

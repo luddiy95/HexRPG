@@ -36,7 +36,6 @@ namespace HexRPG.Battle.Player.Member
 
         [Inject]
         public void Construct(
-            //Transform parentTransform,
             IAnimatorController animatorController,
             ISkillSpawnObservable skillSpawnObservable,
             ITransformController transformController,
@@ -48,7 +47,6 @@ namespace HexRPG.Battle.Player.Member
             IMoveSetting moveSetting
         )
         {
-            //transformController.RootTransform.SetParent(parentTransform, true);
             _animatorController = animatorController;
             _skillSpawnObservable = skillSpawnObservable;
             _skillController = skillController;
@@ -59,7 +57,7 @@ namespace HexRPG.Battle.Player.Member
             _moveSetting = moveSetting;
         }
 
-        public class Factory : PlaceholderFactory<MemberOwner>
+        public class Factory : PlaceholderFactory<Transform, Vector3, MemberOwner>
         {
 
         }

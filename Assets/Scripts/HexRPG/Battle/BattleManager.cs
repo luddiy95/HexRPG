@@ -6,6 +6,7 @@ using UniRx.Triggers;
 using Zenject;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityEngine.SceneManagement;
 
 namespace HexRPG.Battle
 {
@@ -52,7 +53,7 @@ namespace HexRPG.Battle
             await UniTask.Yield(token); // HUD, UI‚Ì‰Šú‰»ˆ—‚ªI‚í‚Á‚Ä‚©‚ç
 
             var playerSpawnSetting = _spawnSettings.PlayerSpawnSetting;
-            IPlayerComponentCollection player = _playerFactory.Create();
+            IPlayerComponentCollection player = _playerFactory.Create(null, playerSpawnSetting.SpawnHex.transform.position);
 
             var memberController = player.MemberController;
             await memberController.SpawnAllMember();

@@ -12,8 +12,16 @@ namespace HexRPG.Battle.Player
         [Header("パーティのメンバーリスト")]
         [SerializeField] GameObject[] _party;
 
+        [Inject] Transform _spawnRoot;
+        [Inject] Vector3 _spawnPos;
+
         public override void InstallBindings()
         {
+            //! FromSubContainerResolveバインディングで親コンテナにバインドされるクラスはサブコンテナ(ここ)内でバインドされなければならない
+            Container.BindInterfacesAndSelfTo<PlayerOwner>().FromComponentOnRoot();
+            Container.BindInstance(_spawnRoot).WhenInjectedInto<TransformBehaviour>();
+            Container.BindInstance(_spawnPos).WhenInjectedInto<TransformBehaviour>();
+
             Container.BindInterfacesTo<MemberController>().AsSingle();
 
             Container.BindInterfacesTo<SkillSelecter>().AsSingle();
@@ -26,7 +34,9 @@ namespace HexRPG.Battle.Player
 
             System.Array.ForEach(_party, memberPrefab =>
             {
-                Container.BindFactory<MemberOwner, MemberOwner.Factory>().FromComponentInNewPrefab(memberPrefab);
+                Container.BindFactory<Transform, Vector3, MemberOwner, MemberOwner.Factory>()
+                    .FromSubContainerResolve()
+                    .ByNewContextPrefab<MemberInstaller>(memberPrefab);
             });
         }
     }
