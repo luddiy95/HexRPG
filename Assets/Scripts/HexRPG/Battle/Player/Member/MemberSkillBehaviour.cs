@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Linq;
 using Zenject;
 using UniRx;
+using Cysharp.Threading.Tasks;
 
 namespace HexRPG.Battle.Player.Member
 {
@@ -41,8 +42,9 @@ namespace HexRPG.Battle.Player.Member
             _skillFactories = skillFactories;
         }
 
-        void Start()
+        async UniTaskVoid Start()
         {
+            await UniTask.Yield(this.GetCancellationTokenOnDestroy()); // TransformBehaviour‚ª‰Šú‰»‚³‚ê‚é‚Ì‚ð‘Ò‚Â
             _skillList = _skillFactories.Select(factory => factory.Create(_transformController.SpawnRootTransform, Vector3.zero)).ToArray();
             _isAllSkillSpawned = true;
         }

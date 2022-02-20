@@ -1,7 +1,7 @@
 using UniRx;
 using UnityEngine;
 
-namespace HexRPG
+namespace HexRPG.Battle
 {
     public interface IDeltaTime
     {

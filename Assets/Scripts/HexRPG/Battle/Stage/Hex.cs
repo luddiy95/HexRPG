@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 namespace HexRPG.Battle.Stage
 {
@@ -10,6 +11,8 @@ namespace HexRPG.Battle.Stage
             PLAYER,
             ENEMY
         }
+
+        BattleData _battleData;
 
         [SerializeField]
         private Status _status;
@@ -34,8 +37,8 @@ namespace HexRPG.Battle.Stage
             {
                 _isAttackIndicate = value;
                 var materials = _renderer.materials;
-                if (_isAttackIndicate) materials[0] = DataCenter.Instance.HexAttackIndicatedMat;
-                else materials[0] = DataCenter.Instance.HexDefaultMat;
+                if (_isAttackIndicate) materials[0] = _battleData.HexAttackIndicatedMat;
+                else materials[0] = _battleData.HexDefaultMat;
                 _renderer.materials = materials;
             }
         }
@@ -44,6 +47,12 @@ namespace HexRPG.Battle.Stage
 
         public List<IAttackApplicator> AttackApplicatorList => _attackApplicatorList;
         List<IAttackApplicator> _attackApplicatorList = new List<IAttackApplicator>();
+
+        [Inject]
+        public void Construct(BattleData battleData)
+        {
+            _battleData = battleData;
+        }
 
         void Awake()
         {
@@ -75,7 +84,7 @@ namespace HexRPG.Battle.Stage
             if (_status == Status.PLAYER) return;
 
             var materials = _renderer.materials;
-            materials[1] = DataCenter.Instance.HexPlayerLineMat;
+            materials[1] = _battleData.HexPlayerLineMat;
             _renderer.materials = materials;
 
             _status = Status.PLAYER;

@@ -1,15 +1,19 @@
 using UnityEngine;
 using Zenject;
+using UniRx;
+using System;
 
 namespace HexRPG.Battle.Enemy
 {
-    public class EnemyTurnToPlayer : ITurnToTarget, IInitializable
+    public class EnemyTurnToPlayer : ITurnToTarget, IInitializable, IDisposable
     {
         IBattleObservable _battleObservable;
         ITransformController _transformController;
         IMoveSetting _moveSetting;
 
         float _rotateSpeed = 0;
+
+        CompositeDisposable _disposables = new CompositeDisposable();
 
         public EnemyTurnToPlayer(
             IBattleObservable battleObservable,
@@ -24,6 +28,10 @@ namespace HexRPG.Battle.Enemy
         void IInitializable.Initialize()
         {
             _rotateSpeed = _moveSetting.MoveSpeed;
+
+            _battleObservable.OnBattleStart
+                .Subscribe(_ => (this as ITurnToTarget).TurnToTarget())
+                .AddTo(_disposables);
         }
 
         void ITurnToTarget.TurnToTarget()
@@ -36,6 +44,11 @@ namespace HexRPG.Battle.Enemy
             relativePos.y = 0;
 
             _transformController.Rotation = Quaternion.LookRotation(relativePos);
+        }
+
+        void IDisposable.Dispose()
+        {
+            _disposables.Dispose();
         }
     }
 }

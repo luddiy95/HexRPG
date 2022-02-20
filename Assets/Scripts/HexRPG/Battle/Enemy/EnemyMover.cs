@@ -6,7 +6,7 @@ namespace HexRPG.Battle.Enemy
 {
     using Stage;
 
-    public class EnemyMover : IMover, IInitializable, IDisposable
+    public class EnemyMover : IMoveController, IDisposable
     {
         ITurnToTarget _turnToTarget;
         IBattleObservable _battleObservable;
@@ -21,15 +21,7 @@ namespace HexRPG.Battle.Enemy
             _battleObservable = battleObservable;
         }
 
-        void IInitializable.Initialize()
-        {
-            _battleObservable.OnBattleStart
-                .First()
-                .Subscribe(_ => _turnToTarget.TurnToTarget())
-                .AddTo(_disposables);
-        }
-
-        void IMover.StartMove(Hex destinationHex)
+        void IMoveController.StartMove(Hex destinationHex)
         {
 
         }

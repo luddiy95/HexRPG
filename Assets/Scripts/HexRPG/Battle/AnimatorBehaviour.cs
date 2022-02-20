@@ -16,7 +16,7 @@ namespace HexRPG.Battle
         [Header("動かすAnimator。null ならこのオブジェクト。")]
         [SerializeField] Animator _animator;
 
-        void Awake()
+        void Start()
         {
             if (_animator == null) TryGetComponent(out _animator);
         }

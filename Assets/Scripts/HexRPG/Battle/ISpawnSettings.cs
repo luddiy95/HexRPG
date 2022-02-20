@@ -5,7 +5,7 @@ namespace HexRPG.Battle
 {
     using Stage;
 
-    public interface ISpawnSettings : IFeature
+    public interface ISpawnSettings
     {
         SpawnSetting PlayerSpawnSetting { get; }
         SpawnSetting[] EnemySpawnSettings { get; }

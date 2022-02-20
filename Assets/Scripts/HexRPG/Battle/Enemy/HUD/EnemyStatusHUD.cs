@@ -1,28 +1,26 @@
-using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
+using System;
 
 namespace HexRPG.Battle.Enemy.HUD
 {
     public class EnemyStatusHUD : MonoBehaviour, ICharacterHUD
     {
-        [SerializeField] GameObject _healthGaugePrefab;
+        EnemyHealthGauge.Factory _factory;
         [SerializeField] Transform _healthGaugeRoot;
+
+        [Inject]
+        public void Construct(EnemyHealthGauge.Factory factory)
+        {
+            _factory = factory;
+        }
 
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
-            //TODO:
-            /*
-            var clone = Instantiate(_healthGaugePrefab);
+            var clone = _factory.Create();
             clone.transform.SetParent(_healthGaugeRoot);
-            var hpGauge = factory.CreateComponentCollectionWithoutInstantiate(clone, null, null);
-            if(hpGauge.QueryInterfaces(out IEnumerable<ICharacterHUD> characterHUDs))
-            {
-                foreach (var chud in characterHUDs)
-                {
-                    chud.Bind(chara);
-                }
-            }
-            */
+            var huds = clone.GetComponents<ICharacterHUD>();
+            Array.ForEach(huds, hud => hud.Bind(chara));
         }
     }
 }

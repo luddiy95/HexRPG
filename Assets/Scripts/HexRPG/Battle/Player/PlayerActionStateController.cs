@@ -20,7 +20,7 @@ namespace HexRPG.Battle.Player
         IPauseController _pauseController;
         IPauseObservable _pauseObservable;
         ISelectSkillObservable _selectSkillObservable;
-        IMover _mover;
+        IMoveController _moveController;
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -35,7 +35,7 @@ namespace HexRPG.Battle.Player
             IPauseController pauseController,
             IPauseObservable pauseObservable,
             ISelectSkillObservable selectSkillObservable,
-            IMover mover
+            IMoveController moveController
         )
         {
             _transformController = transformController;
@@ -48,7 +48,7 @@ namespace HexRPG.Battle.Player
             _pauseController = pauseController;
             _pauseObservable = pauseObservable;
             _selectSkillObservable = selectSkillObservable;
-            _mover = mover;
+            _moveController = moveController;
         }
 
         void IInitializable.Initialize()
@@ -114,7 +114,7 @@ namespace HexRPG.Battle.Player
                 .OnStart<ActionEventMove>()
                 .Subscribe(_ =>
                 {
-                    _mover.StartMove(_characterInput.Destination.Value);
+                    _moveController.StartMove(_characterInput.Destination.Value);
                 })
                 .AddTo(_disposables);
 

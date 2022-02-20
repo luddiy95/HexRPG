@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
@@ -6,25 +7,26 @@ using UniRx.Triggers;
 using Zenject;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using UnityEngine.SceneManagement;
 
 namespace HexRPG.Battle
 {
     using Player;
+    using Enemy;
     using Stage;
 
-    //TODO: MonoBehaviourである必要はない(IInitializableで管理したい、これを一番最初に呼びたい)
     public class BattleManager : MonoBehaviour, IBattleObservable
     {
         IUpdater _updater;
+        IUpdateObservable _updateObservable;
         PlayerOwner.Factory _playerFactory;
+        List<EnemyOwner.Factory> _enemyFactories;
         ISpawnSettings _spawnSettings;
 
         IObservable<IPlayerComponentCollection> IBattleObservable.OnPlayerSpawn => _onPlayerSpawn;
         readonly ISubject<IPlayerComponentCollection> _onPlayerSpawn = new Subject<IPlayerComponentCollection>();
 
-        IObservable<ICustomComponentCollection> IBattleObservable.OnEnemySpawn => _onEnemySpawn;
-        readonly ISubject<ICustomComponentCollection> _onEnemySpawn = new Subject<ICustomComponentCollection>();
+        IObservable<IEnemyComponentCollection> IBattleObservable.OnEnemySpawn => _onEnemySpawn;
+        readonly ISubject<IEnemyComponentCollection> _onEnemySpawn = new Subject<IEnemyComponentCollection>();
 
         IObservable<Unit> IBattleObservable.OnBattleStart => _onBattleStart;
         ISubject<Unit> _onBattleStart = new Subject<Unit>();
@@ -32,14 +34,20 @@ namespace HexRPG.Battle
         Hex IBattleObservable.PlayerLandedHex => _playerLandedHex;
         Hex _playerLandedHex = null;
 
+        [SerializeField] Transform _enemyRoot;
+
         [Inject]
         public void Construct(
             IUpdater updater,
-            PlayerOwner.Factory playerFactory, 
+            IUpdateObservable updateObservable,
+            PlayerOwner.Factory playerFactory,
+            List<EnemyOwner.Factory> enemyFactories,
             ISpawnSettings spawnSettings)
         {
             _updater = updater;
-            _playerFactory = playerFactory; 
+            _updateObservable = updateObservable;
+            _playerFactory = playerFactory;
+            _enemyFactories = enemyFactories;
             _spawnSettings = spawnSettings;
         }
 
@@ -52,6 +60,19 @@ namespace HexRPG.Battle
         {
             await UniTask.Yield(token); // HUD, UIの初期化処理が終わってから
 
+            await SpawnPlayer();
+
+            await SpawnEnemies();
+
+            _onBattleStart.OnNext(Unit.Default);
+            
+            this.UpdateAsObservable() // 更新処理開始
+                .Subscribe(_ => _updater.FireUpdateStreams())
+                .AddTo(this);
+        }
+
+        async UniTask SpawnPlayer()
+        {
             var playerSpawnSetting = _spawnSettings.PlayerSpawnSetting;
             IPlayerComponentCollection player = _playerFactory.Create(null, playerSpawnSetting.SpawnHex.transform.position);
 
@@ -60,39 +81,26 @@ namespace HexRPG.Battle
             memberController.ChangeMember(0);
 
             // Playerの位置を監視
-            /*
-            if (isPlayer && Owner.QueryInterface(out IUpdateObservable updateObservable))
-            {
-                updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
-                    .Subscribe(_ =>
-                    {
-                        _playerLandedHex = transformController.GetLandedHex();
-                    })
-                    .AddTo(this);
-                _playerLandedHex = transformController.GetLandedHex();
-            }
-            */
+            var transformController = player.TransformController;
+            _updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
+                .Subscribe(_ =>
+                {
+                    _playerLandedHex = transformController.GetLandedHex();
+                })
+                .AddTo(this);
+            _playerLandedHex = transformController.GetLandedHex();
 
             _onPlayerSpawn.OnNext(player);
+        }
 
-            //TODO:
-            /*
-            var enemySpawnSetting = spawnSettings.EnemySpawnSettings;
-            Array.ForEach(enemySpawnSetting, spawnSetting =>
-            {
-                var enemy = Spawn(spawnSetting.Prefab, spawnSetting.SpawnHex.transform.position, false);
-                _onEnemySpawn.OnNext(enemy);
-            });
-            */
+        async UniTask SpawnEnemies()
+        {
+            IEnemyComponentCollection[] enemyList = _spawnSettings.EnemySpawnSettings
+                .Select((setting, index) => _enemyFactories[index].Create(_enemyRoot, setting.SpawnHex.transform.position)).ToArray();
 
-            _onBattleStart.OnNext(Unit.Default);
+            await UniTask.WaitUntil(() => enemyList.All(enemy => enemy.SkillSpawnObservable.IsAllSkillSpawned));
 
-            // 更新処理開始
-            this.UpdateAsObservable()
-                .Subscribe(_ => _updater.FireUpdateStreams())
-                .AddTo(this);
-
-            //TODO: CancellationToken
+            Array.ForEach(enemyList, enemy => _onEnemySpawn.OnNext(enemy));
         }
     }
 }

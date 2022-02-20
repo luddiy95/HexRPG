@@ -1,5 +1,6 @@
 using UnityEngine;
 using UniRx;
+using System;
 using Zenject;
 
 namespace HexRPG.Battle
@@ -22,18 +23,21 @@ namespace HexRPG.Battle
 
         void Start()
         {
-            var playerHUD = _playerHUD.GetComponent<ICharacterHUD>();
+            var playerHUD = _playerHUD.GetComponents<ICharacterHUD>();
+            Array.ForEach(playerHUD, hud =>
+            {
+                _battleObservable.OnPlayerSpawn
+                    .Subscribe(playerOwner => hud.Bind(playerOwner))
+                    .AddTo(this);
+            });
 
-            _battleObservable.OnPlayerSpawn
-                .Subscribe(playerOwner => playerHUD.Bind(playerOwner))
-                .AddTo(this);
-
-            //TODO:
-            /*
-            battleObservable.OnEnemySpawn
-                .Subscribe(enemy => ehud.Bind(enemy))
-                .AddTo(this);
-            */
+            var enemyHUD = _enemyHUD.GetComponents<ICharacterHUD>();
+            Array.ForEach(enemyHUD, hud =>
+            {
+                _battleObservable.OnEnemySpawn
+                    .Subscribe(playerOwner => hud.Bind(playerOwner))
+                    .AddTo(this);
+            });
         }
     }
 }

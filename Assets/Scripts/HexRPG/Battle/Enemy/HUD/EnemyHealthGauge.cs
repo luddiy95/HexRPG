@@ -1,5 +1,5 @@
 using UniRx;
-using UnityEngine;
+using Zenject;
 
 namespace HexRPG.Battle.Enemy.HUD
 {
@@ -7,10 +7,9 @@ namespace HexRPG.Battle.Enemy.HUD
     {
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
-            //TODO:
-            /*
-            if(chara.QueryInterface(out IHealth health))
+            if(chara is IEnemyComponentCollection enemyOwner)
             {
+                var health = enemyOwner.Health;
                 SetGauge(health.Max, health.Max);
 
                 health.Current
@@ -19,7 +18,11 @@ namespace HexRPG.Battle.Enemy.HUD
                     })
                     .AddTo(this);
             }
-            */
+        }
+
+        public class Factory : PlaceholderFactory<EnemyHealthGauge>
+        {
+
         }
     }
 }

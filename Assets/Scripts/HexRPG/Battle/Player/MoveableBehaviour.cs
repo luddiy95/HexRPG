@@ -15,6 +15,11 @@ namespace HexRPG.Battle.Player
         [Header("移動できるHexを示すインジケータ")]
         [SerializeField] Transform _moveableIndicatorRoot;
 
+        void Start()
+        {
+            (this as IMoveableIndicator).SwitchShow(false);
+        }
+
         void IMoveableIndicator.SwitchShow(bool isShow)
         {
             _moveableIndicatorRoot.gameObject.SetActive(isShow);

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UniRx;
+using Zenject;
 
 namespace HexRPG.Battle
 {
@@ -11,30 +12,29 @@ namespace HexRPG.Battle
         private Canvas _parentCanvas;
         private RectTransform _selfTransform;
 
+        ITransformController _characterTransform;
+        IUpdateObservable _updateObservable;
+
+        [Inject]
+        public void Construct(IUpdateObservable updateObservable)
+        {
+            _updateObservable = updateObservable;
+        }
+
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
             _parentCanvas = gameObject.NearestCanvas();
             _selfTransform = GetComponent<RectTransform>();
 
-            //TODO:
-            /*
-            if (character.QueryInterface(out ITransformController characterTransform) == false)
-            {
-                return;
-            }
-            if (character.QueryInterface(out IUpdateObservable updateObservable) == false)
-            {
-                return;
-            }
+            _characterTransform = chara.TransformController;
 
-            updateObservable.OnUpdate((int)UPDATE_ORDER.CAMERA)
+            _updateObservable.OnUpdate((int)UPDATE_ORDER.CAMERA)
             .Subscribe(_ =>
             {
-                var pos2d = UGuiUtility.WorldToCanvasLocal(Camera.main, _parentCanvas, characterTransform.Position);
+                var pos2d = UGuiUtility.WorldToCanvasLocal(Camera.main, _parentCanvas, _characterTransform.Position);
                 _selfTransform.anchoredPosition = pos2d;
             })
             .AddTo(this);
-            */
         }
     }
 }

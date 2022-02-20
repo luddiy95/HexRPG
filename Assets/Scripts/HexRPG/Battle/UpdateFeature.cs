@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System;
 using UniRx;
 
-namespace HexRPG
+namespace HexRPG.Battle
 {
     public enum UPDATE_ORDER
     {

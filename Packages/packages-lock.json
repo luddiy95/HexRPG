@@ -7,15 +7,6 @@
       "dependencies": {},
       "hash": "284d5c50d3f1ddd9fa7df3d382ea904732a9c2ff"
     },
-    "com.nishi1004.customcomponentsystem": {
-      "version": "https://github.com/nishi1004/CustomComponentSystem.git#master",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.neuecc.unirx": "7.1.0"
-      },
-      "hash": "a1851ff427d4768c04ac6f9315ac9d61183a060c"
-    },
     "com.unity.cinemachine": {
       "version": "2.7.9",
       "depth": 0,

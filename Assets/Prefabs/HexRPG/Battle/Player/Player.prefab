@@ -210,8 +210,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _party:
-  - {fileID: 3385965354734054584, guid: 0e9c51adf00823f42992cfbe725cbd9b, type: 3}
-  - {fileID: 3385965354734054584, guid: a10a6b3d9b735d143a0f0ec75586165a, type: 3}
+  - {fileID: 5075132376415686598, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
+  - {fileID: 2761711240502400228, guid: 6e32a1e559cca62449eaced286dfb5b0, type: 3}
 --- !u!1001 &1665732066086640026
 PrefabInstance:
   m_ObjectHideFlags: 0

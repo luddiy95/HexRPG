@@ -7,7 +7,7 @@ namespace HexRPG.Battle.Player
 {
     using Stage;
 
-    public class PlayerMover : IMover, IInitializable, IDisposable
+    public class PlayerMover : IMoveController, IInitializable, IDisposable
     {
         ITransformController _transformController;
         IMoveableIndicator _moveableIndicator;
@@ -50,7 +50,10 @@ namespace HexRPG.Battle.Player
         void IInitializable.Initialize()
         {
             _battleObservable.OnBattleStart
-                .Subscribe(_ => _moveableIndicator.UpdateIndicator())
+                .Subscribe(_ => {
+                    _moveableIndicator.SwitchShow(true);
+                    _moveableIndicator.UpdateIndicator();
+                })
                 .AddTo(_disposables);
 
             _updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
@@ -92,7 +95,7 @@ namespace HexRPG.Battle.Player
                 .AddTo(_disposables);
         }
 
-        void IMover.StartMove(Hex destinationHex)
+        void IMoveController.StartMove(Hex destinationHex)
         {
             _movePos = (_transformController.GetLandedHex().transform.position, destinationHex.transform.position);
             _moveableIndicator.SwitchShow(false);
