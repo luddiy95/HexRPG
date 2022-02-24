@@ -21,11 +21,6 @@ namespace HexRPG.Battle.Enemy
             _isAllSkillSpawned = true;
         }
 
-        public bool TryStartSkill(int index, List<Hex> attackRange)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public void StartSkillEffect()
         {
             throw new System.NotImplementedException();
@@ -42,6 +37,16 @@ namespace HexRPG.Battle.Enemy
         }
 
         public void FinishSkillAttackEnable()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool TryStartSkill(int index)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void StartSkill(List<Hex> attackRange)
         {
             throw new System.NotImplementedException();
         }

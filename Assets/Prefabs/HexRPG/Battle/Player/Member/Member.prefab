@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4714491127713605631}
   - component: {fileID: 8909680073724217074}
   - component: {fileID: 1980460884870646913}
-  - component: {fileID: 4156576509597065263}
+  - component: {fileID: 5532791547886843234}
   - component: {fileID: 2659684322474483671}
   - component: {fileID: 7310130128193326296}
   - component: {fileID: 6118722193009629276}
@@ -113,7 +113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 0}
---- !u!114 &4156576509597065263
+--- !u!114 &5532791547886843234
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -159,8 +159,9 @@ MonoBehaviour:
   - {fileID: 4714491127713605631}
   - {fileID: 8909680073724217074}
   - {fileID: 1980460884870646913}
-  - {fileID: 4156576509597065263}
+  - {fileID: 5532791547886843234}
   - {fileID: 2659684322474483671}
+  - {fileID: 1267732234457698881}
   _identifier: 
   _useSceneContext: 0
   _context: {fileID: 6118722193009629276}
@@ -195,4 +196,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239936bbef0af934fa2d37a3dc0b41df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _skillList: []
+  _skills: []

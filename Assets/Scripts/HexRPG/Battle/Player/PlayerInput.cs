@@ -36,8 +36,8 @@ namespace HexRPG.Battle.Player
                 {
                     if (isBtnFireClicked)
                     {
-                        _onFire.OnNext(Unit.Default);
                         isBtnFireClicked = false;
+                        _onFire.OnNext(Unit.Default);
                     }
                     UpdateDestination();
                 }).AddTo(this);

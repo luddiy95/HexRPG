@@ -9,7 +9,6 @@ namespace HexRPG.Battle.Skill
         int MPcost { get; }
         int Damage { get; }
         public List<Vector2> Range { get; }
-        public string SkillAnimationParam { get; }
     }
 
     public class SkillSetting : MonoBehaviour, ISkillSetting
@@ -22,7 +21,5 @@ namespace HexRPG.Battle.Skill
         [SerializeField] int _damage;
         List<Vector2> ISkillSetting.Range => _range;
         [SerializeField] List<Vector2> _range;
-        string ISkillSetting.SkillAnimationParam => _skillAnimationParam;
-        [SerializeField] string _skillAnimationParam;
     }
 }

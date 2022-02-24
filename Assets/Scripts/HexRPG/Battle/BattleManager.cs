@@ -7,6 +7,7 @@ using UniRx.Triggers;
 using Zenject;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Cinemachine;
 
 namespace HexRPG.Battle
 {
@@ -33,6 +34,12 @@ namespace HexRPG.Battle
 
         Hex IBattleObservable.PlayerLandedHex => _playerLandedHex;
         Hex _playerLandedHex = null;
+
+        CinemachineBrain IBattleObservable.CinemachineBrain => _cinemachineBrain;
+        [SerializeField] CinemachineBrain _cinemachineBrain;
+
+        CinemachineVirtualCamera IBattleObservable.MainVirtualCamera => _mainVirtualCamera;
+        [SerializeField] CinemachineVirtualCamera _mainVirtualCamera;
 
         [SerializeField] Transform _enemyRoot;
 

@@ -1,27 +1,42 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Timeline;
 using Zenject;
+using UniRx;
+using System;
+using UnityEngine.Playables;
 
 namespace HexRPG.Battle.Skill
 {
     using Stage;
 
-    public class AbstractAttackSkillBehaviour : MonoBehaviour, ISkill, IAttackSkill
+    public class AbstractAttackSkillBehaviour : MonoBehaviour, ISkillObservable, ISkill, IAttackSkill
     {
-        [Inject] ISkillComponentCollection _skillOwner;
-        [Inject] IAttackController _attackController;
+        ISkillSetting _skillSetting;
+        IAttackController _attackController;
+        IBattleObservable _battleObservable;
 
         [SerializeField] protected GameObject _skillEffect;
+        [SerializeField] protected PlayableDirector _director;
 
-        List<Hex> _curAttackRange;
+        IObservable<Unit> ISkillObservable.OnStartSkill => _onStartSkill;
+        ISubject<Unit> _onStartSkill = new Subject<Unit>();
+        IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
+        ISubject<Unit> _onFinishSkill = new Subject<Unit>();
+
+        ICharacterComponentCollection _skillOrigin;
+        List<Hex> _curSkillRange;
 
         [Inject]
         public void Construct(
-            ISkillComponentCollection skillOwner,
-            IAttackController attackController)
+            ISkillSetting skillSetting,
+            IAttackController attackController,
+            IBattleObservable battleObservable
+        )
         {
-            _skillOwner = skillOwner;
+            _skillSetting = skillSetting;
             _attackController = attackController;
+            _battleObservable = battleObservable;
         }
 
         void Awake()
@@ -29,45 +44,69 @@ namespace HexRPG.Battle.Skill
             _skillEffect.SetActive(false);
         }
 
-        void ISkill.Init()
+        void ISkill.Init(PlayableAsset timeline, ICharacterComponentCollection skillOrigin, Animator animator)
         {
             _skillEffect.SetActive(false);
+            _skillOrigin = skillOrigin;
+
+            _director.playableAsset = timeline;
+
+            foreach (var bind in _director.playableAsset.outputs)
+            {
+                if (bind.streamName == "Animation Track")
+                {
+                    _director.SetGenericBinding(bind.sourceObject, animator);
+                }
+
+                if (bind.streamName == "Cinemachine Track")
+                {
+                    _director.SetGenericBinding(bind.sourceObject, _battleObservable.CinemachineBrain);
+                }
+            }
+
+            foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
+            {
+                if (trackAsset is CinemachineTrack cinemachineTrack)
+                {
+                    foreach (var clip in cinemachineTrack.GetClips())
+                    {
+                        if (clip.displayName == "Main CM vcam")
+                        {
+                            var cinemachineShot = clip.asset as CinemachineShot;
+                            if (cinemachineShot != null)
+                            {
+                                _director.SetReferenceValue(cinemachineShot.VirtualCamera.exposedName, _battleObservable.MainVirtualCamera);
+                            }
+                        }
+                    }
+                }
+            }
+
+            _director.played += ((obj) => _onStartSkill.OnNext(Unit.Default));
+            _director.stopped += ((obj) => _onFinishSkill.OnNext(Unit.Default));
         }
 
-        void ISkill.StartSkill()
+        void ISkill.StartSkill(List<Hex> skillRange)
         {
             _skillEffect.SetActive(false);
+            _curSkillRange = skillRange;
+
+            _director.Play();
         }
 
-        void ISkill.FinishSkill()
-        {
-            _skillEffect.SetActive(false);
-        }
-
-        void ISkill.StartEffect()
-        {
-            _skillEffect.SetActive(true);
-        }
-
-        void IAttackSkill.StartAttackEnable(List<Hex> attackRange, ICharacterComponentCollection attackOrigin)
+        public virtual void StartAttackEnable()
         {
             var attackSetting = new AttackSetting
             {
-                _power = _skillOwner.SkillSetting.Damage
+                _power = _skillSetting.Damage
             };
-            _curAttackRange = attackRange;
 
-            _attackController.StartAttack(_curAttackRange, attackSetting, attackOrigin);
+            _attackController.StartAttack(_curSkillRange, attackSetting, _skillOrigin);
         }
 
-        void IAttackSkill.FinishAttackEnable()
+        public virtual void FinishAttackEnable()
         {
             _attackController.FinishAttack();
-        }
-
-        void ISkill.OnFinishEffect()
-        {
-            _skillEffect.SetActive(false);
         }
     }
 }

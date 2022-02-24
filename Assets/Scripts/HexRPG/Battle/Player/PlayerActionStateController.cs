@@ -125,8 +125,8 @@ namespace HexRPG.Battle.Player
                 int skillIndex = _selectSkillObservable.SelectedSkillIndex.Value;
                 if (skillIndex >= 0)
                 {
-                    // Skillスタートできるか？
-                    _skillController.TryStartSkill(skillIndex, null);
+                    // Skillスタートできるか？->できたらそのまま実行
+                    _skillController.TryStartSkill(skillIndex);
                 }
                 else
                 {

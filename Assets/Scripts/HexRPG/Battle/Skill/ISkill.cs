@@ -1,18 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
-using Cinemachine;
+using UnityEngine.Playables;
 
 namespace HexRPG.Battle.Skill
 {
+    using Stage;
+
     public interface ISkill
     {
-        void Init();
+        void Init(PlayableAsset timeline, ICharacterComponentCollection skillOrigin, Animator animator);
 
-        void StartSkill();
-
-        void FinishSkill();
-
-        void StartEffect();
-
-        void OnFinishEffect();
+        void StartSkill(List<Hex> skillRange);
     }
 }

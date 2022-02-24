@@ -5682,17 +5682,29 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+      propertyPath: _skills.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skillList.Array.size
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skillList.Array.data[0]
       value: 
-      objectReference: {fileID: 5726051639695129361, guid: c28b51005299b724a810bbf916b3a5cd, type: 3}
+      objectReference: {fileID: 7217414599479797858, guid: b3e3ae67b582c374bb0bf21cec33e25d, type: 3}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skillList.Array.data[1]
       value: 
-      objectReference: {fileID: 509526638429691441, guid: 8ee2a376c10bb584184abeae489708d2, type: 3}
+      objectReference: {fileID: 5486576886436897123, guid: b9ff069509ef3384cb043a1e0783177c, type: 3}
+    - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+      propertyPath: _skills.Array.data[0]._prefab
+      value: 
+      objectReference: {fileID: 6832648262429242629, guid: 5bd4110a588fa6743a7449b73693e592, type: 3}
+    - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+      propertyPath: _skills.Array.data[0]._timeline
+      value: 
+      objectReference: {fileID: 11400000, guid: 033b51734057c4345a01705944477f2e, type: 2}
     - target: {fileID: 2717514595689543170, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -5745,14 +5757,49 @@ PrefabInstance:
       propertyPath: _gameObject
       value: 
       objectReference: {fileID: 5902907197689775700}
+    - target: {fileID: 7310130128193326296, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+      propertyPath: _components.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7310130128193326296, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+      propertyPath: _components.Array.data[3]
+      value: 
+      objectReference: {fileID: 2619774557559494172}
+    - target: {fileID: 7310130128193326296, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+      propertyPath: _components.Array.data[4]
+      value: 
+      objectReference: {fileID: 5510782246767885481}
     - target: {fileID: 8909680073724217074, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _spawnRootTransform
       value: 
       objectReference: {fileID: 9180855959732416496}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4156576509597065263, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
 --- !u!4 &5559041374435087740 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2717514595689543170, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
   m_PrefabInstance: {fileID: 7535405691006395262}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5510782246767885481 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+  m_PrefabInstance: {fileID: 7535405691006395262}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5898b96aacd98ce4ca2e1140421ae911, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2619774557559494172 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5532791547886843234, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+  m_PrefabInstance: {fileID: 7535405691006395262}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 517853c840d84dd479f725f0ee3c1657, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

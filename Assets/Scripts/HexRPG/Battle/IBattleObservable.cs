@@ -1,5 +1,6 @@
 using System;
 using UniRx;
+using Cinemachine;
 
 namespace HexRPG.Battle
 {
@@ -15,5 +16,8 @@ namespace HexRPG.Battle
         IObservable<Unit> OnBattleStart { get; }
 
         Hex PlayerLandedHex { get; }
+
+        CinemachineBrain CinemachineBrain { get; }
+        CinemachineVirtualCamera MainVirtualCamera { get; }
     }
 }

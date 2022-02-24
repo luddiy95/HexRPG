@@ -11683,6 +11683,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd1800cb041a8284c9fc1a5158abf3cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _cinemachineBrain: {fileID: 963194230}
+  _mainVirtualCamera: {fileID: 2044477744}
   _enemyRoot: {fileID: 1596894273}
 --- !u!114 &1334259402
 MonoBehaviour:
@@ -17386,7 +17388,7 @@ GameObject:
   - component: {fileID: 2044477745}
   - component: {fileID: 2044477744}
   m_Layer: 0
-  m_Name: MainCamera
+  m_Name: Main CM vcam
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

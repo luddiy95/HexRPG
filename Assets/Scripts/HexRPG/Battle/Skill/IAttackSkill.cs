@@ -7,7 +7,7 @@ namespace HexRPG.Battle.Skill
 
     public interface IAttackSkill
     {
-        void StartAttackEnable(List<Hex> attackRange, ICharacterComponentCollection attackOrigin);
+        void StartAttackEnable();
         void FinishAttackEnable();
     }
 }

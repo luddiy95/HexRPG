@@ -35,33 +35,5 @@ namespace HexRPG.Battle
             animatorController.Animator.SetFloat("SpeedHorizontal", horizontal);
             animatorController.Animator.SetFloat("SpeedVertical", vertical);
         }
-
-        // Trigger‘JˆÚæState‚ğ”²‚¯‚½‚çCallbackİ’è‚Í‰ğœ‚³‚ê‚é(ˆê“x‚«‚è)
-        public static void SetTriggerWithCallback(this IAnimatorController animatorController, Action enterCallback, Action exitCallback, string trigger)
-        {
-            var disposables = new CompositeDisposable();
-
-            var stateMachineTrigger = animatorController.Animator.GetBehaviour<ObservableStateMachineTrigger>();
-            stateMachineTrigger
-                .OnStateEnterAsObservable()
-                .Where(x => x.StateInfo.IsTag(trigger))
-                .Subscribe(_ =>
-                {
-                    enterCallback.Invoke();
-                    animatorController.Animator.ResetTrigger(trigger);
-                })
-                .AddTo(disposables);
-
-            stateMachineTrigger
-                .OnStateExitAsObservable()
-                .Where(x => x.StateInfo.IsTag(trigger))
-                .Subscribe(_ =>
-                {
-                    exitCallback.Invoke();
-                    disposables.Dispose();
-                })
-                .AddTo(disposables);
-            animatorController.Animator.SetTrigger(trigger);
-        }
     }
 }

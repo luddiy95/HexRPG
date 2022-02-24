@@ -7,16 +7,14 @@ namespace HexRPG.Battle.Skill
     {
         ISkillSetting SkillSetting { get; }
         ISkill Skill { get; }
-        IAttackSkill AttackSkill { get; }
+        ISkillObservable SkillObservable { get; }
     }
 
     public class SkillOwner : MonoBehaviour, ISkillComponentCollection
     {
         [Inject] ISkillSetting ISkillComponentCollection.SkillSetting { get; }
         [Inject] ISkill ISkillComponentCollection.Skill { get; }
-#nullable enable
-        [Inject] IAttackSkill? ISkillComponentCollection.AttackSkill { get; }
-#nullable disable
+        [Inject] ISkillObservable ISkillComponentCollection.SkillObservable { get; }
 
         public class Factory : PlaceholderFactory<Transform, Vector3, SkillOwner>
         {

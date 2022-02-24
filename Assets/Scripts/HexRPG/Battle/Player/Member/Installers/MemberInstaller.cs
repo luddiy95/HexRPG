@@ -6,11 +6,11 @@ namespace HexRPG.Battle.Player.Member
 {
     using Skill;
 
-    public class MemberInstaller : MonoInstaller, ISkillListSetting
+    public class MemberInstaller : MonoInstaller, ISkills
     {
-        GameObject[] ISkillListSetting.SkillList => _skillList;
+        SkillAsset[] ISkills.Skills => _skills;
         [Header("スキルリスト")]
-        [SerializeField] GameObject[] _skillList;
+        [SerializeField] SkillAsset[] _skills;
 
         [Inject] Transform _spawnRoot;
         [Inject] Vector3 _spawnPos;
@@ -24,11 +24,11 @@ namespace HexRPG.Battle.Player.Member
             Container.BindInterfacesTo<Mental>().AsSingle();
             Container.BindInterfacesTo<Health>().AsSingle();
 
-            Array.ForEach(_skillList, skill =>
+            Array.ForEach(_skills, skill =>
             {
                 Container.BindFactory<Transform, Vector3, SkillOwner, SkillOwner.Factory>()
                     .FromSubContainerResolve()
-                    .ByNewContextPrefab<SkillInstaller>(skill);
+                    .ByNewContextPrefab<SkillInstaller>(skill.Prefab);
             });
         }
     }

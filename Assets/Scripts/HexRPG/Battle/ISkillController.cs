@@ -9,12 +9,9 @@ namespace HexRPG.Battle
     {
         ISkillComponentCollection[] SkillList { get; }
 
-        bool TryStartSkill(int index, List<Hex> attackRange);
+        bool TryStartSkill(int index);
+        void StartSkill(List<Hex> attackRange);
 
         ISkillComponentCollection RunningSkill { get; }
-
-        void StartSkillEffect();
-
-        void FinishSkill();
     }
 }
