@@ -32,8 +32,13 @@ namespace HexRPG.Battle
         IObservable<Unit> IBattleObservable.OnBattleStart => _onBattleStart;
         ISubject<Unit> _onBattleStart = new Subject<Unit>();
 
+        IPlayerComponentCollection _playerOwner;
         Hex IBattleObservable.PlayerLandedHex => _playerLandedHex;
         Hex _playerLandedHex = null;
+
+        IEnemyComponentCollection[] _enemyOwnerList;
+        List<Hex> IBattleObservable.EnemyLandedHexList => _enemyLandedHexList;
+        List<Hex> _enemyLandedHexList = new List<Hex>();
 
         CinemachineBrain IBattleObservable.CinemachineBrain => _cinemachineBrain;
         [SerializeField] CinemachineBrain _cinemachineBrain;
@@ -81,33 +86,45 @@ namespace HexRPG.Battle
         async UniTask SpawnPlayer()
         {
             var playerSpawnSetting = _spawnSettings.PlayerSpawnSetting;
-            IPlayerComponentCollection player = _playerFactory.Create(null, playerSpawnSetting.SpawnHex.transform.position);
+            IPlayerComponentCollection _playerOwner = _playerFactory.Create(null, playerSpawnSetting.SpawnHex.transform.position);
 
-            var memberController = player.MemberController;
+            var memberController = _playerOwner.MemberController;
             await memberController.SpawnAllMember();
             memberController.ChangeMember(0);
 
             // Player‚ÌˆÊ’u‚ðŠÄŽ‹
-            var transformController = player.TransformController;
+            var transformController = _playerOwner.TransformController;
+            _playerLandedHex = transformController.GetLandedHex();
             _updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
                 .Subscribe(_ =>
                 {
                     _playerLandedHex = transformController.GetLandedHex();
                 })
                 .AddTo(this);
-            _playerLandedHex = transformController.GetLandedHex();
 
-            _onPlayerSpawn.OnNext(player);
+            _onPlayerSpawn.OnNext(_playerOwner);
         }
 
         async UniTask SpawnEnemies()
         {
-            IEnemyComponentCollection[] enemyList = _spawnSettings.EnemySpawnSettings
-                .Select((setting, index) => _enemyFactories[index].Create(_enemyRoot, setting.SpawnHex.transform.position)).ToArray();
+            _enemyOwnerList = _spawnSettings.EnemySpawnSettings
+                .Select((setting, index) => _enemyFactories[index].Create(_enemyRoot, setting.SpawnHex.transform.position) as IEnemyComponentCollection).ToArray();
 
-            await UniTask.WaitUntil(() => enemyList.All(enemy => enemy.SkillSpawnObservable.IsAllSkillSpawned));
+            await UniTask.WaitUntil(() => _enemyOwnerList.All(enemy => enemy.SkillSpawnObservable.IsAllSkillSpawned));
 
-            Array.ForEach(enemyList, enemy => _onEnemySpawn.OnNext(enemy));
+            // ŠeEnemy‚ÌˆÊ’u‚ðŠÄŽ‹
+            Array.ForEach(_enemyOwnerList, enemy => _enemyLandedHexList.Add(enemy.TransformController.GetLandedHex()));
+            _updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
+                .Subscribe(_ =>
+                {
+                    for(int i = 0; i < _enemyOwnerList.Length; i++)
+                    {
+                        _enemyLandedHexList[i] = _enemyOwnerList[i].TransformController.GetLandedHex();
+                    }
+                })
+                .AddTo(this);
+
+            Array.ForEach(_enemyOwnerList, enemy => _onEnemySpawn.OnNext(enemy));
         }
     }
 }

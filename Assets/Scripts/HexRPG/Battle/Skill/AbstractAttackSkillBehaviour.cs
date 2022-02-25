@@ -4,6 +4,7 @@ using UnityEngine.Timeline;
 using Zenject;
 using UniRx;
 using System;
+using System.Linq;
 using UnityEngine.Playables;
 
 namespace HexRPG.Battle.Skill
@@ -18,6 +19,7 @@ namespace HexRPG.Battle.Skill
 
         [SerializeField] protected GameObject _skillEffect;
         [SerializeField] protected PlayableDirector _director;
+        TrackAsset _cinemachineTrack;
 
         IObservable<Unit> ISkillObservable.OnStartSkill => _onStartSkill;
         ISubject<Unit> _onStartSkill = new Subject<Unit>();
@@ -66,9 +68,10 @@ namespace HexRPG.Battle.Skill
 
             foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
             {
-                if (trackAsset is CinemachineTrack cinemachineTrack)
+                if (trackAsset is CinemachineTrack)
                 {
-                    foreach (var clip in cinemachineTrack.GetClips())
+                    _cinemachineTrack = trackAsset;
+                    foreach (var clip in _cinemachineTrack.GetClips())
                     {
                         if (clip.displayName == "Main CM vcam")
                         {
@@ -90,6 +93,9 @@ namespace HexRPG.Battle.Skill
         {
             _skillEffect.SetActive(false);
             _curSkillRange = skillRange;
+
+            var isEnemyExistInSkillRange = _battleObservable.EnemyLandedHexList.Any(hex => skillRange.Contains(hex));
+            _cinemachineTrack.muted = !isEnemyExistInSkillRange;
 
             _director.Play();
         }

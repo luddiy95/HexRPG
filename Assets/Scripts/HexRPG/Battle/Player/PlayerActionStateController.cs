@@ -141,7 +141,7 @@ namespace HexRPG.Battle.Player
                 .Subscribe(_ => _pauseController.StartPause())
                 .AddTo(_disposables);
 
-            // Skillスタート
+            //! Skillスタート
             _skillObservable
                 .OnStartSkill
                 .Subscribe(_ => _actionStateController.ExecuteTransition(SKILL))
@@ -152,7 +152,7 @@ namespace HexRPG.Battle.Player
                 .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
                 .AddTo(_disposables);
 
-            // Skill終了
+            //! Skill終了
             _skillObservable
                 .OnFinishSkill
                 .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))

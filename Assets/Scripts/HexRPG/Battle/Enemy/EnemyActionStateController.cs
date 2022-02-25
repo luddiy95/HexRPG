@@ -25,10 +25,8 @@ namespace HexRPG.Battle.Enemy
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventCancel("move", 0, MOVE))
                 .AddEvent(new ActionEventCancel("skill", 0, SKILL))
-                .AddEvent(new ActionEventCancel("damaged", 0, DAMAGED))
                 ;
             _actionStateController.SetInitialState(idle);
-                ;
 
             NewState(MOVE)
                 .AddEvent(new ActionEventMove(0f)) // 移動中
@@ -36,9 +34,12 @@ namespace HexRPG.Battle.Enemy
                 // IDLEに戻る
                 ;
 
+            //TODO: Pause時はまだIDLEモーションに戻らない(固まるだけ)->自分が攻撃されるときのみIDLEモーション
+            //TODO: Pause後何もせずに戻ったり自分が攻撃されなかった場合はRestart時にPause直前のモーションを再開する
+            //TODO: PlayerもPause時には固まる->戻ったら再開にしないといけない(IDLE遷移はTimelineでやっているので必要ない)
             NewState(PAUSE)
                 .AddEvent(new ActionEventPause(0f)) // Pause中
-                .AddEvent(new ActionEventPlayMotion(0f))
+                .AddEvent(new ActionEventPlayMotion(0f)) // idleモーション
                 .AddEvent(new ActionEventCancel("damaged", 0, DAMAGED)) // ダメージを受ける
                 // IDLEに戻る
                 ;

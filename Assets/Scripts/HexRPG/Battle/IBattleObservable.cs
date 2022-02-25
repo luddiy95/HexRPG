@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System;
 using UniRx;
 using Cinemachine;
@@ -16,6 +17,7 @@ namespace HexRPG.Battle
         IObservable<Unit> OnBattleStart { get; }
 
         Hex PlayerLandedHex { get; }
+        List<Hex> EnemyLandedHexList { get; }
 
         CinemachineBrain CinemachineBrain { get; }
         CinemachineVirtualCamera MainVirtualCamera { get; }
