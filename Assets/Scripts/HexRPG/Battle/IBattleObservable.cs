@@ -11,13 +11,14 @@ namespace HexRPG.Battle
 
     public interface IBattleObservable
     {
-        IObservable<IPlayerComponentCollection> OnPlayerSpawn { get; }
+        IReadOnlyReactiveProperty<IPlayerComponentCollection> OnPlayerSpawn { get; }
         IObservable<IEnemyComponentCollection> OnEnemySpawn { get; }
 
         IObservable<Unit> OnBattleStart { get; }
 
         Hex PlayerLandedHex { get; }
-        List<Hex> EnemyLandedHexList { get; }
+
+        List<IEnemyComponentCollection> EnemyList { get; }
 
         CinemachineBrain CinemachineBrain { get; }
         CinemachineVirtualCamera MainVirtualCamera { get; }

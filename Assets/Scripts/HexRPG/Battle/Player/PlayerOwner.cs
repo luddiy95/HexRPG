@@ -13,6 +13,9 @@ namespace HexRPG.Battle.Player
         ISkillObservable SkillObservable { get; }
         IPauseController PauseController { get; }
         IPauseObservable PauseObservable { get; }
+
+        //TODO: Decorator—p
+        IActionStateObservable ActionStateObservable { get; }
     }
 
     public class PlayerOwner : MonoBehaviour, IPlayerComponentCollection
@@ -26,6 +29,9 @@ namespace HexRPG.Battle.Player
         [Inject] ISkillObservable IPlayerComponentCollection.SkillObservable { get; }
         [Inject] IPauseController IPlayerComponentCollection.PauseController { get; }
         [Inject] IPauseObservable IPlayerComponentCollection.PauseObservable { get; }
+
+        //TODO: Decorator—p
+        [Inject] IActionStateObservable IPlayerComponentCollection.ActionStateObservable { get; }
 
         public class Factory : PlaceholderFactory<Transform, Vector3, PlayerOwner>
         {

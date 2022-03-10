@@ -23,9 +23,11 @@ namespace HexRPG.Battle.Player
 
     public class SkillSelecter : ISelectSkillController, ISelectSkillObservable, IInitializable, IDisposable
     {
+        ICharacterComponentCollection _characterComponentCollection;
         ITransformController _transformController;
-        IStageController _stageController;
+        IAttackReserve _attackReserve;
         IMemberObservable _memberObservable;
+        IStageController _stageController;
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -39,14 +41,18 @@ namespace HexRPG.Battle.Player
         List<Hex> _curAttackIndicateHexList = new List<Hex>();
 
         public SkillSelecter(
+            ICharacterComponentCollection characterComponentCollection,
             ITransformController transformController,
-            IStageController stageController,
-            IMemberObservable memberObservable
+            IAttackReserve attackReserve,
+            IMemberObservable memberObservable,
+            IStageController stageController
         )
         {
+            _characterComponentCollection = characterComponentCollection;
             _transformController = transformController;
-            _stageController = stageController;
+            _attackReserve = attackReserve;
             _memberObservable = memberObservable;
+            _stageController = stageController;
         }
 
         void IInitializable.Initialize()
@@ -54,14 +60,14 @@ namespace HexRPG.Battle.Player
             _selectedSkillIndex
                 .Subscribe(index =>
                 {
-                    _stageController.ResetAttackIndicate(_curAttackIndicateHexList);
+                    _attackReserve.FinishAttackReservation();
 
                     if (index >= 0)
                     {
                         var skillSetting = _memberObservable.CurMemberSkillList.Value[index].SkillSetting;
                         _curAttackIndicateHexList =
-                        _stageController.GetHexList(_transformController.GetLandedHex(), skillSetting.Range, _duplicateSelectedCount).ToList();
-                        _stageController.SetAttackIndicate(_curAttackIndicateHexList);
+                            _stageController.GetHexList(_transformController.GetLandedHex(), skillSetting.Range, _duplicateSelectedCount).ToList();
+                        _attackReserve.StartAttackReservation(_curAttackIndicateHexList, _characterComponentCollection);
                     }
                 })
                 .AddTo(_disposables);

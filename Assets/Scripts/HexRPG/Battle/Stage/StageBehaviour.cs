@@ -9,9 +9,6 @@ namespace HexRPG.Battle.Stage
         Vector3 DirX { get; }
         Vector3 DirZ { get; }
 
-        void SetAttackIndicate(List<Hex> hexList);
-        void ResetAttackIndicate(List<Hex> hexList);
-
         void Liberate(List<Hex> hexList, bool isPlayer);
     }
 
@@ -31,16 +28,7 @@ namespace HexRPG.Battle.Stage
         Hex _hexPrefab;
         [SerializeField]
 
-        void IStageController.SetAttackIndicate(List<Hex> hexList)
-        {
-            hexList.ForEach(hex => hex.SetAttackIndicate());
-        }
-
-        void IStageController.ResetAttackIndicate(List<Hex> hexList)
-        {
-            hexList.ForEach(hex => hex.ResetAttackIndicate());
-        }
-
+        //TODO: IAttackController‚âIAttackReserve‚Æ“¯—l‚ÉILiberater‚ğì‚é‚×‚«
         void IStageController.Liberate(List<Hex> hexList, bool isPlayer)
         {
             if (isPlayer)

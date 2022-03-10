@@ -100,21 +100,13 @@ namespace HexRPG.Battle.Player
 
         void SetUpControl()
         {
+            ////// Execute(PlayerによるCommand) //////
             // moveableIndicatorタップ時
             _characterInput.Destination
                 .Skip(1)
                 .Subscribe(_ => 
                 {
                     _actionStateController.Execute(new Command { Id = "move" });
-                })
-                .AddTo(_disposables);
-
-            // moveに遷移出来たら移動
-            _actionStateObservable
-                .OnStart<ActionEventMove>()
-                .Subscribe(_ =>
-                {
-                    _moveController.StartMove(_characterInput.Destination.Value);
                 })
                 .AddTo(_disposables);
 
@@ -135,12 +127,6 @@ namespace HexRPG.Battle.Player
             })
             .AddTo(_disposables);
 
-            // Pauseへ遷移時
-            _actionStateObservable
-                .OnStart<ActionEventPause>()
-                .Subscribe(_ => _pauseController.StartPause())
-                .AddTo(_disposables);
-
             //! Skillスタート
             _skillObservable
                 .OnStartSkill
@@ -149,13 +135,35 @@ namespace HexRPG.Battle.Player
 
             // Restart
             _pauseObservable.OnRestart
-                .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
+                .Subscribe(_ => {
+                    _actionStateController.ExecuteTransition(IDLE);
+                    _animatorController.Restart();
+                })
                 .AddTo(_disposables);
 
             //! Skill終了
             _skillObservable
                 .OnFinishSkill
                 .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
+                .AddTo(_disposables);
+
+            ////// ActionStateObservable //////
+            // moveに遷移出来たら移動
+            _actionStateObservable
+                .OnStart<ActionEventMove>()
+                .Subscribe(_ =>
+                {
+                    _moveController.StartMove(_characterInput.Destination.Value);
+                })
+                .AddTo(_disposables);
+
+            // Pauseへ遷移時
+            _actionStateObservable
+                .OnStart<ActionEventPause>()
+                .Subscribe(_ => {
+                    _pauseController.StartPause();
+                    _animatorController.Pause();
+                })
                 .AddTo(_disposables);
 
             // 各モーション再生

@@ -29,6 +29,8 @@ namespace HexRPG.Battle
 
             Container.Bind<BattleData>().FromInstance(_battleDataContainer.Data);
 
+            Container.BindInterfacesTo<Pauser>().AsSingle();
+
             Container.BindFactory<Transform, Vector3, PlayerOwner, PlayerOwner.Factory>()
                 .FromSubContainerResolve()
                 .ByNewContextPrefab<PlayerInstaller>(_playerSpawnSetting.Prefab);

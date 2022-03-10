@@ -1,16 +1,42 @@
 using Zenject;
+using UniRx;
+using System;
+using UnityEngine;
 
 namespace HexRPG.Battle.Enemy
 {
+    using Player;
     using static ActionStateType;
 
-    public class EnemyActionStateController : IInitializable
+    public class EnemyActionStateController : IInitializable, IDisposable
     {
+        IBattleObservable _battleObservable;
+        IPauseObservable _pauseObservable;
+        ITransformController _transformController;
+        IAnimatorController _animatorController;
         IActionStateController _actionStateController;
+        IActionStateObservable _actionStateObservable;
+        IDamageApplicable _damageApplicable;
 
-        public EnemyActionStateController(IActionStateController actionStateController)
+        CompositeDisposable _disposables = new CompositeDisposable();
+
+        public EnemyActionStateController(
+            IBattleObservable battleObservable,
+            IPauseObservable pauseObservable,
+            ITransformController transformController,
+            IAnimatorController animatorController,
+            IActionStateController actionStateController,
+            IActionStateObservable actionStateObservable,
+            IDamageApplicable damageApplicable
+        )
         {
+            _battleObservable = battleObservable;
+            _pauseObservable = pauseObservable;
+            _transformController = transformController;
+            _animatorController = animatorController;
             _actionStateController = actionStateController;
+            _actionStateObservable = actionStateObservable;
+            _damageApplicable = damageApplicable;
         }
 
         void IInitializable.Initialize()
@@ -34,10 +60,7 @@ namespace HexRPG.Battle.Enemy
                 // IDLEに戻る
                 ;
 
-            //TODO: Pause時はまだIDLEモーションに戻らない(固まるだけ)->自分が攻撃されるときのみIDLEモーション
-            //TODO: Pause後何もせずに戻ったり自分が攻撃されなかった場合はRestart時にPause直前のモーションを再開する
-            //TODO: PlayerもPause時には固まる->戻ったら再開にしないといけない(IDLE遷移はTimelineでやっているので必要ない)
-            NewState(PAUSE)
+            NewState(PAUSE) //! Playerの攻撃範囲内にいるときのみPlayerSkill発動時にPause状態に遷移
                 .AddEvent(new ActionEventPause(0f)) // Pause中
                 .AddEvent(new ActionEventPlayMotion(0f)) // idleモーション
                 .AddEvent(new ActionEventCancel("damaged", 0, DAMAGED)) // ダメージを受ける
@@ -47,7 +70,7 @@ namespace HexRPG.Battle.Enemy
 
             NewState(DAMAGED)
                 .AddEvent(new ActionEventPlayMotion(0f))
-                // IDLEに戻る
+                // PAUSEに戻る
                 ;
 
             NewState(SKILL)
@@ -55,7 +78,7 @@ namespace HexRPG.Battle.Enemy
                 // IDLEに戻る
                 ;
 
-            ActionState NewState(ActionStateType type, System.Action<ActionState> action = null)
+            ActionState NewState(ActionStateType type, Action<ActionState> action = null)
             {
                 var s = new ActionState(type);
                 _actionStateController.AddState(s);
@@ -66,78 +89,94 @@ namespace HexRPG.Battle.Enemy
 
         void SetUpControl()
         {
-            /*
-            Owner.QueryInterface(out ICharacterInput characterInput);
+            ////// Execute(PlayerによるCommand) //////
+            // Pause
+            _pauseObservable.OnPause
+                .Subscribe(_ => _animatorController.Pause()) //! ここではAnimatorをPauseするだけ
+                .AddTo(_disposables);
 
-            Owner.QueryInterface(out IActionStateController actionStateController);
-            Owner.QueryInterface(out IActionStateObservable actionStateObservable);
+            // Restart
+            _pauseObservable.OnRestart
+                .Subscribe(_ => {
+                    _animatorController.Restart();
+                    if(_actionStateObservable.CurrentState.Value.Type == DAMAGED)
+                    {
+                        //! DAMAGED状態だった <==> Playerの攻撃範囲内にいた(ダメージを食らった)
+                        _actionStateController.ExecuteTransition(IDLE);
+                    }
+                    else
+                    {
+                        //! Playerに攻撃されなかった場合はIDLE状態に遷移せず直前の状態を続行
+                    }
+                })
+                .AddTo(_disposables);
 
-            Owner.QueryInterface(out IDamageApplicable damageApplicable);
+            // PlayerがSkillスタート時にSkill範囲内にEnemyがいたら
+            _battleObservable.OnPlayerSpawn
+                .Subscribe(playerOwner =>
+                {
+                    playerOwner.SkillObservable.OnStartSkill
+                        .Subscribe(_ =>
+                        {
+                            var isInPlayerAttackRange = false;
+                            foreach (var attackReservation in _transformController.GetLandedHex().AttackReservationList)
+                            {
+                                if (attackReservation.ReservationOrigin is IPlayerComponentCollection)
+                                {
+                                    isInPlayerAttackRange = true;
+                                    break;
+                                }
+                            }
+                            if (isInPlayerAttackRange)
+                            {
+                                _actionStateController.ExecuteTransition(PAUSE);
+                            }
+                        }).AddTo(_disposables);
+                }).AddTo(_disposables);
 
-            Owner.QueryInterface(out ISkillController skillController);
-            Owner.QueryInterface(out ISkillObservable skillObservable);
+            // ダメージ時
+            _damageApplicable.OnHit
+                .Subscribe(_ => _actionStateController.Execute(new Command { Id = "damaged" }))
+                .AddTo(_disposables);
 
-            Owner.QueryInterface(out IAnimatorController animatorController);
-
-            Owner.QueryInterface(out ITransformController transformController);
-
-            damageApplicable.OnHit
-                .Subscribe(_ => actionStateController.Execute(new Command { Id = "damaged" }));
+            ////// ActionStateObservable //////
+            _actionStateObservable
+                .OnStart<ActionEventPause>()
+                .Subscribe(ev =>
+                {
+                    _animatorController.Restart();
+                })
+                .AddTo(_disposables);
 
             // 各モーション再生
-            actionStateObservable
+            _actionStateObservable
                 .OnStart<ActionEventPlayMotion>()
                 .Subscribe(ev =>
                 {
-                    switch (actionStateObservable.CurrentState.Value.Type)
+                    switch (_actionStateObservable.CurrentState.Value.Type)
                     {
                         case IDLE:
+                            _animatorController.SetTrigger("Idle");
+                            break;
+
+                        case PAUSE:
+                            _animatorController.SetTrigger("Pause", "Idle");
                             break;
 
                         case MOVE:
-                            //TODO: 目的の方向へ回転してから移動開始
-                            Hex destinationHex = characterInput.Destination.Value;
-                            Vector3 relativePos = destinationHex.transform.position - transformController.GetLandedHex().transform.position;
-                            relativePos.y = 0;
-                            Quaternion relativeRot = Quaternion.LookRotation(relativePos, Vector3.up);
-                            int relativeRotAngle = (int)relativeRot.eulerAngles.y;
-                            float speedHorizontal = 0f, speedVertical = 0f;
-                            if (0 < relativeRotAngle && relativeRotAngle < 60)
-                            {
-                                speedVertical = 1f;
-                            }
-                            else if (60 < relativeRotAngle && relativeRotAngle < 120)
-                            {
-                                speedVertical = 1f; speedHorizontal = 1f;
-                            }
-                            else if (120 < relativeRotAngle && relativeRotAngle < 180)
-                            {
-                                speedVertical = -1f; speedHorizontal = 1f;
-                            }
-                            else if (180 < relativeRotAngle && relativeRotAngle < 240)
-                            {
-                                speedVertical = -1f;
-                            }
-                            else if (240 < relativeRotAngle && relativeRotAngle < 300)
-                            {
-                                speedVertical = -1f; speedHorizontal = -1f;
-                            }
-                            else if (300 < relativeRotAngle && relativeRotAngle < 360)
-                            {
-                                speedVertical = 1f; speedHorizontal = -1f;
-                            }
-
-                            animatorController.SetSpeed(speedHorizontal, speedVertical);
-
                             break;
 
                         case DAMAGED:
-                            animatorController.SetTrigger("Damaged");
+                            _animatorController.SetTrigger("Damaged");
                             break;
                     }
                 })
-                .AddTo(this);
-            */
+                .AddTo(_disposables);
+        }
+
+        void IDisposable.Dispose()
+        {
+            _disposables.Dispose();
         }
     }
 }

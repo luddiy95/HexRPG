@@ -1,7 +1,7 @@
 using System;
 using UniRx;
 
-namespace HexRPG.Battle.Player
+namespace HexRPG.Battle
 {
     public interface IPauseController
     {

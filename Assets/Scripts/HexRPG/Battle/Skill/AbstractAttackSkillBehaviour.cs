@@ -94,7 +94,7 @@ namespace HexRPG.Battle.Skill
             _skillEffect.SetActive(false);
             _curSkillRange = skillRange;
 
-            var isEnemyExistInSkillRange = _battleObservable.EnemyLandedHexList.Any(hex => skillRange.Contains(hex));
+            var isEnemyExistInSkillRange = _battleObservable.EnemyList.Any(enemy => skillRange.Contains(enemy.TransformController.GetLandedHex()));
             _cinemachineTrack.muted = !isEnemyExistInSkillRange;
 
             _director.Play();

@@ -5,35 +5,28 @@ using System;
 
 namespace HexRPG.Battle
 {
-    public interface IAnimatorController
-    {
-        Animator Animator { get; }
-    }
-
     public class AnimatorBehaviour : MonoBehaviour, IAnimatorController
     {
         Animator IAnimatorController.Animator { get { return _animator; } }
         [Header("動かすAnimator。null ならこのオブジェクト。")]
-        [SerializeField] Animator _animator;
+        [SerializeField] protected Animator _animator;
+
+        float _animatorSpeedCache = 0f;
 
         void Start()
         {
             if (_animator == null) TryGetComponent(out _animator);
         }
-    }
 
-    public static class AnimatorExtensions
-    {
-        public static void SetSpeed(this Animator animator, float horizontal, float vertical)
+        void IAnimatorController.Pause()
         {
-            animator.SetFloat("SpeedHorizontal", horizontal);
-            animator.SetFloat("SpeedVertical", vertical);
+            _animatorSpeedCache = _animator.speed;
+            _animator.speed = 0;
         }
 
-        public static void SetSpeed(this IAnimatorController animatorController, float horizontal, float vertical)
+        void IAnimatorController.Restart()
         {
-            animatorController.Animator.SetFloat("SpeedHorizontal", horizontal);
-            animatorController.Animator.SetFloat("SpeedVertical", vertical);
+            _animator.speed = _animatorSpeedCache;
         }
     }
 }

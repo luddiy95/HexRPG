@@ -40,6 +40,7 @@ namespace HexRPG.Battle
                 .OnUpdate((int)UPDATE_ORDER.DAMAGED)
                 .Subscribe(_ =>
                 {
+                    //TODO: Enemyの場合とPlayerの場合でダメージを受けるattackOriginが違う->isPlayerなどのフラグ
                     var landedHex = _transformController.GetLandedHex();
                     foreach (var attackApplicator in landedHex.AttackApplicatorList)
                     {

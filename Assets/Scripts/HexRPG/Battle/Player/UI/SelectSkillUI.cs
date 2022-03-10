@@ -90,6 +90,7 @@ namespace HexRPG.Battle.Player.UI
 
                 // Skill発動したらSelect状態を解除
                 playerOwner.SkillObservable.OnStartSkill
+                    .DelayFrame(1) // Skill実行時にPlayerの攻撃範囲内にEnemyがいるかどうか判定する必要があるため、1F後にattackRangeのHexからreservationをremoveする
                     .Subscribe(_ => {
                         CancelSelection();
                     })

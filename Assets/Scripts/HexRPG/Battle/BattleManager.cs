@@ -23,8 +23,8 @@ namespace HexRPG.Battle
         List<EnemyOwner.Factory> _enemyFactories;
         ISpawnSettings _spawnSettings;
 
-        IObservable<IPlayerComponentCollection> IBattleObservable.OnPlayerSpawn => _onPlayerSpawn;
-        readonly ISubject<IPlayerComponentCollection> _onPlayerSpawn = new Subject<IPlayerComponentCollection>();
+        IReadOnlyReactiveProperty<IPlayerComponentCollection> IBattleObservable.OnPlayerSpawn => _onPlayerSpawn;
+        readonly IReactiveProperty<IPlayerComponentCollection> _onPlayerSpawn = new ReactiveProperty<IPlayerComponentCollection>();
 
         IObservable<IEnemyComponentCollection> IBattleObservable.OnEnemySpawn => _onEnemySpawn;
         readonly ISubject<IEnemyComponentCollection> _onEnemySpawn = new Subject<IEnemyComponentCollection>();
@@ -36,9 +36,8 @@ namespace HexRPG.Battle
         Hex IBattleObservable.PlayerLandedHex => _playerLandedHex;
         Hex _playerLandedHex = null;
 
-        IEnemyComponentCollection[] _enemyOwnerList;
-        List<Hex> IBattleObservable.EnemyLandedHexList => _enemyLandedHexList;
-        List<Hex> _enemyLandedHexList = new List<Hex>();
+        List<IEnemyComponentCollection> IBattleObservable.EnemyList => _enemyList;
+        List<IEnemyComponentCollection> _enemyList;
 
         CinemachineBrain IBattleObservable.CinemachineBrain => _cinemachineBrain;
         [SerializeField] CinemachineBrain _cinemachineBrain;
@@ -70,7 +69,7 @@ namespace HexRPG.Battle
 
         async UniTaskVoid PlayStartSequence(CancellationToken token)
         {
-            await UniTask.Yield(token); // HUD, UIの初期化処理が終わってから
+            await UniTask.Yield(token); // HUD, UIの初期化処理が終わってから(OnPlayerSpawnは良いがEnemyは複数いるためOnEnemySpawnがHUD, UIの初期化前に発行されたら意味がない)
 
             await SpawnPlayer();
 
@@ -86,45 +85,32 @@ namespace HexRPG.Battle
         async UniTask SpawnPlayer()
         {
             var playerSpawnSetting = _spawnSettings.PlayerSpawnSetting;
-            IPlayerComponentCollection _playerOwner = _playerFactory.Create(null, playerSpawnSetting.SpawnHex.transform.position);
+            _playerOwner = _playerFactory.Create(null, playerSpawnSetting.SpawnHex.transform.position);
 
             var memberController = _playerOwner.MemberController;
             await memberController.SpawnAllMember();
             memberController.ChangeMember(0);
 
             // Playerの位置を監視
-            var transformController = _playerOwner.TransformController;
-            _playerLandedHex = transformController.GetLandedHex();
+            _playerLandedHex = _playerOwner.TransformController.GetLandedHex();
             _updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
                 .Subscribe(_ =>
                 {
-                    _playerLandedHex = transformController.GetLandedHex();
+                    _playerLandedHex = _playerOwner.TransformController.GetLandedHex();
                 })
                 .AddTo(this);
 
-            _onPlayerSpawn.OnNext(_playerOwner);
+            _onPlayerSpawn.Value = _playerOwner;
         }
 
         async UniTask SpawnEnemies()
         {
-            _enemyOwnerList = _spawnSettings.EnemySpawnSettings
-                .Select((setting, index) => _enemyFactories[index].Create(_enemyRoot, setting.SpawnHex.transform.position) as IEnemyComponentCollection).ToArray();
+            _enemyList = _spawnSettings.EnemySpawnSettings
+                .Select((setting, index) => _enemyFactories[index].Create(_enemyRoot, setting.SpawnHex.transform.position) as IEnemyComponentCollection).ToList();
 
-            await UniTask.WaitUntil(() => _enemyOwnerList.All(enemy => enemy.SkillSpawnObservable.IsAllSkillSpawned));
+            await UniTask.WaitUntil(() => _enemyList.All(enemy => enemy.SkillSpawnObservable.IsAllSkillSpawned));
 
-            // 各Enemyの位置を監視
-            Array.ForEach(_enemyOwnerList, enemy => _enemyLandedHexList.Add(enemy.TransformController.GetLandedHex()));
-            _updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
-                .Subscribe(_ =>
-                {
-                    for(int i = 0; i < _enemyOwnerList.Length; i++)
-                    {
-                        _enemyLandedHexList[i] = _enemyOwnerList[i].TransformController.GetLandedHex();
-                    }
-                })
-                .AddTo(this);
-
-            Array.ForEach(_enemyOwnerList, enemy => _onEnemySpawn.OnNext(enemy));
+            _enemyList.ForEach(enemy => _onEnemySpawn.OnNext(enemy));
         }
     }
 }

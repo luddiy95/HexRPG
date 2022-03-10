@@ -27,6 +27,7 @@ namespace HexRPG.Battle
             Array.ForEach(playerHUD, hud =>
             {
                 _battleObservable.OnPlayerSpawn
+                    .Skip(1)
                     .Subscribe(playerOwner => hud.Bind(playerOwner))
                     .AddTo(this);
             });

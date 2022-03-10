@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 using Zenject;
 
@@ -18,16 +19,8 @@ namespace HexRPG.Battle.Stage
         private Status _status;
         public bool IsPlayerHex => _status == Status.PLAYER;
 
-        int _attackIndicateCount;
-        int AttackIndicateCount
-        {
-            get { return _attackIndicateCount; }
-            set
-            {
-                _attackIndicateCount = Mathf.Max(0, value);
-                IsAttackIndicate = (_attackIndicateCount > 0);
-            }
-        }
+        public ObservableCollection<IAttackReservation> AttackReservationList => _attackReservationList;
+        ObservableCollection<IAttackReservation> _attackReservationList = new ObservableCollection<IAttackReservation>();
 
         bool _isAttackIndicate = false;
         public bool IsAttackIndicate
@@ -52,6 +45,11 @@ namespace HexRPG.Battle.Stage
         public void Construct(BattleData battleData)
         {
             _battleData = battleData;
+
+            _attackReservationList.CollectionChanged += (sender, e) =>
+            {
+                IsAttackIndicate = _attackReservationList.Count > 0;
+            };
         }
 
         void Awake()
@@ -59,14 +57,14 @@ namespace HexRPG.Battle.Stage
             _renderer = GetComponent<MeshRenderer>();
         }
 
-        public void SetAttackIndicate()
+        public void AddAttackReservation(IAttackReservation attackReservation)
         {
-            ++AttackIndicateCount;
+            _attackReservationList.Add(attackReservation);
         }
 
-        public void ResetAttackIndicate()
+        public void RemoveAttackReservation(IAttackReservation attackReservation)
         {
-            --AttackIndicateCount;
+            _attackReservationList.Remove(attackReservation);
         }
 
         public void AddAttackApplicator(IAttackApplicator attackApplicator)

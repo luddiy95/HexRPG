@@ -1,18 +1,13 @@
 using UniRx;
-using UnityEngine;
 using Zenject;
 using UniRx.Triggers;
 using System;
 
 namespace HexRPG.Battle.Player
 {
-    public class PlayerAnimatorBehaviour : MonoBehaviour, IAnimatorController
+    public class PlayerAnimatorBehaviour : AnimatorBehaviour
     {
         IMemberObservable _memberObservable;
-
-        Animator IAnimatorController.Animator => _animator;
-        [Header("動かすAnimator。null ならこのオブジェクト。")]
-        [SerializeField] Animator _animator;
 
 #nullable enable
         IDisposable? _moveAnimationEnterDisposable = null;
@@ -22,7 +17,9 @@ namespace HexRPG.Battle.Player
         const string MOVE = "Move";
 
         [Inject]
-        public void Construct(IMemberObservable memberObservable)
+        public void Construct(
+            IMemberObservable memberObservable
+        )
         {
             _memberObservable = memberObservable;
         }

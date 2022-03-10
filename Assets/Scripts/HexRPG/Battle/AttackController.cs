@@ -29,12 +29,27 @@ namespace HexRPG.Battle
         void FinishAttack();
     }
 
-    public class AttackController : IAttackApplicator, IAttackController, IAttackObservable
+    public interface IAttackReservation
     {
+        ICharacterComponentCollection ReservationOrigin { get; }
+    }
+
+    public interface IAttackReserve
+    {
+        void StartAttackReservation(List<Hex> reservationRange, ICharacterComponentCollection ReservationOrigin);
+        void FinishAttackReservation();
+    }
+
+    public class AttackController : IAttackApplicator, IAttackController, IAttackObservable, IAttackReservation, IAttackReserve
+    {
+        List<Hex> _curReservationRange = new List<Hex>();
         List<Hex> _curAttackRange = new List<Hex>();
 
         IAttackSetting IAttackApplicator.CurrentSetting => _currentSetting;
         IAttackSetting _currentSetting = null;
+
+        ICharacterComponentCollection IAttackReservation.ReservationOrigin => _reservationOrigin;
+        ICharacterComponentCollection _reservationOrigin;
 
         ICharacterComponentCollection IAttackApplicator.AttackOrigin => _attackOrigin;
         ICharacterComponentCollection _attackOrigin;
@@ -43,6 +58,18 @@ namespace HexRPG.Battle
         readonly ISubject<HitData> _onAttackHit = new Subject<HitData>();
 
         private List<ICharacterComponentCollection> _hitObjects = new List<ICharacterComponentCollection>();
+
+        void IAttackReserve.StartAttackReservation(List<Hex> reservationRange, ICharacterComponentCollection reservationOrigin)
+        {
+            _curReservationRange = reservationRange;
+            _reservationOrigin = reservationOrigin;
+            _curReservationRange.ForEach(hex => hex.AddAttackReservation(this));
+        }
+
+        void IAttackReserve.FinishAttackReservation()
+        {
+            _curReservationRange.ForEach(hex => hex.RemoveAttackReservation(this));
+        }
 
         void IAttackController.StartAttack(List<Hex> attackRange, IAttackSetting setting, ICharacterComponentCollection attackOrigin)
         {

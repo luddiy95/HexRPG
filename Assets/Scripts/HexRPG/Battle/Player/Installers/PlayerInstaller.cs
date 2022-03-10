@@ -27,9 +27,10 @@ namespace HexRPG.Battle.Player
             Container.BindInterfacesTo<SkillSelecter>().AsSingle();
             Container.BindInterfacesTo<PlayerSkillExecuter>().AsSingle();
 
+            Container.Bind<IAttackReserve>().To<AttackController>().AsSingle();
+
             Container.BindInterfacesTo<PlayerActionStateController>().AsSingle();
             Container.BindInterfacesTo<ActionStateController>().AsSingle();
-            Container.BindInterfacesTo<Pauser>().AsSingle();
             Container.BindInterfacesTo<PlayerMover>().AsSingle();
 
             System.Array.ForEach(_party, memberPrefab =>
