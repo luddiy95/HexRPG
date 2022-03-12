@@ -15,6 +15,7 @@ namespace HexRPG.Battle.Player
     {
         IMemberComponentCollection[] MemberList { get; }
         IReadOnlyReactiveProperty<IMemberComponentCollection> CurMember { get; }
+        int CurMemberIndex { get; }
 
         IReadOnlyReactiveProperty<ISkillComponentCollection[]> CurMemberSkillList { get; }
     }
@@ -35,6 +36,9 @@ namespace HexRPG.Battle.Player
 
         IReadOnlyReactiveProperty<IMemberComponentCollection> IMemberObservable.CurMember => _curMember;
         readonly ReactiveProperty<IMemberComponentCollection> _curMember = new ReactiveProperty<IMemberComponentCollection>();
+
+        int IMemberObservable.CurMemberIndex => _curMemberIndex;
+        int _curMemberIndex = 0;
 
         IReadOnlyReactiveProperty<ISkillComponentCollection[]> IMemberObservable.CurMemberSkillList => _curMemberSkillList;
         readonly ReactiveProperty<ISkillComponentCollection[]> _curMemberSkillList = new ReactiveProperty<ISkillComponentCollection[]>();
@@ -74,6 +78,7 @@ namespace HexRPG.Battle.Player
                 _memberList[i].ActiveController.SetActive(i == index);
             }
 
+            _curMemberIndex = index;
             _curMember.Value = _memberList[index];
         }
 

@@ -45,7 +45,6 @@ namespace HexRPG.Battle
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        ActionState _initialState = null;
         ActionState _nextState = null;
         Command _requestCommand = Command.Empty;
         float _currentStateTime;
@@ -89,12 +88,6 @@ namespace HexRPG.Battle
         {
             ActionState nextState = _nextState;
             _nextState = null;
-
-            // 初期ステート
-            if (_currentState.Value == null && _initialState != null)
-            {
-                nextState = _initialState;
-            }
 
             // コマンド処理
             if (nextState == null && _requestCommand.IsEmpty == false)
@@ -219,7 +212,7 @@ namespace HexRPG.Battle
         void IActionStateController.SetInitialState(ActionState state)
         {
             Assert.IsTrue(_actionStates.Find(x => x == state) != null);
-            _initialState = state;
+            _currentState.Value = state;
         }
 
         void IActionStateController.Execute(Command command)

@@ -11,8 +11,6 @@ namespace HexRPG.Battle.Player
         ISelectSkillController SelectSkillController { get; }
         ISelectSkillObservable SelectSkillObservable { get; }
         ISkillObservable SkillObservable { get; }
-        IPauseController PauseController { get; }
-        IPauseObservable PauseObservable { get; }
 
         //TODO: Decorator—p
         IActionStateObservable ActionStateObservable { get; }
@@ -27,8 +25,6 @@ namespace HexRPG.Battle.Player
         [Inject] ISelectSkillController IPlayerComponentCollection.SelectSkillController { get; }
         [Inject] ISelectSkillObservable IPlayerComponentCollection.SelectSkillObservable { get; }
         [Inject] ISkillObservable IPlayerComponentCollection.SkillObservable { get; }
-        [Inject] IPauseController IPlayerComponentCollection.PauseController { get; }
-        [Inject] IPauseObservable IPlayerComponentCollection.PauseObservable { get; }
 
         //TODO: Decorator—p
         [Inject] IActionStateObservable IPlayerComponentCollection.ActionStateObservable { get; }

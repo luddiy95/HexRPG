@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _skillEffect: {fileID: 8350354331149684499}
+  _director: {fileID: 2914420856738912099}
 --- !u!1001 &3415099235871775789
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -93,6 +94,11 @@ PrefabInstance:
 --- !u!1 &7217414599479797858 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5426194334740280399, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+  m_PrefabInstance: {fileID: 3415099235871775789}
+  m_PrefabAsset: {fileID: 0}
+--- !u!320 &2914420856738912099 stripped
+PlayableDirector:
+  m_CorrespondingSourceObject: {fileID: 510812189149481806, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
   m_PrefabInstance: {fileID: 3415099235871775789}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &8350354331149684499 stripped

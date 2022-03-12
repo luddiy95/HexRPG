@@ -8,8 +8,9 @@ namespace HexRPG.Battle.Player.Member
         float IMoveSetting.RotateSpeed => _rotateSpeed;
         int IHealthSetting.Max => _healthMax;
         int IMentalSetting.Max => _mentalMax;
+        //TODO: 消す
         Sprite IProfileSetting.StatusIcon => _statusIcon;
-        Sprite IProfileSetting.OptionIcon => _optionIcon;
+        Sprite IProfileSetting.Icon => _icon;
 
         [Header("移動速度")]
         [SerializeField] float _moveSpeed;
@@ -19,9 +20,10 @@ namespace HexRPG.Battle.Player.Member
         [SerializeField] int _healthMax;
         [Header("Mental値")]
         [SerializeField] int _mentalMax;
+        //TODO: 消す
         [Header("ステータスアイコン")]
         [SerializeField] Sprite _statusIcon;
-        [Header("オプションアイコン")]
-        [SerializeField] Sprite _optionIcon;
+        [Header("アイコン")]
+        [SerializeField] Sprite _icon;
     }
 }

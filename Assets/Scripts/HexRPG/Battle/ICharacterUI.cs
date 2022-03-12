@@ -8,6 +8,6 @@ namespace HexRPG.Battle
         void Bind(ICharacterComponentCollection character);
 
         IObservable<Unit> OnBack { get; }
-        void SwitchShow(bool isShow);
+        void SwitchOperation(bool inOperation); // ëÄçÏíÜÇ©Ç«Ç§Ç©
     }
 }
