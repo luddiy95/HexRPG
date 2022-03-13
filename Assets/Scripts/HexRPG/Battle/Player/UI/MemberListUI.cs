@@ -7,7 +7,9 @@ using UnityEngine.UI;
 
 namespace HexRPG.Battle.Player.UI
 {
-    public class SelectMemberUI : MonoBehaviour, ICharacterUI
+    using Battle.UI;
+
+    public class MemberListUI : MonoBehaviour, ICharacterUI
     {
         IObservable<Unit> ICharacterUI.OnBack => _onBack;
         ISubject<Unit> _onBack = new Subject<Unit>();
@@ -81,6 +83,8 @@ namespace HexRPG.Battle.Player.UI
                         _onBack.OnNext(Unit.Default);
                     })
                     .AddTo(this);
+
+                SelectedIndex = _playerOwner.MemberObservable.CurMemberIndex;
             }
         }
 
@@ -120,6 +124,7 @@ namespace HexRPG.Battle.Player.UI
                     .OnPointerClickAsObservable()
                     .Subscribe(_ =>
                     {
+                        // indexがMemberの数を超えていたらそもそもボタンが表示されないためタップできない
                         SelectedIndex = index;
                     })
                     .AddTo(this);

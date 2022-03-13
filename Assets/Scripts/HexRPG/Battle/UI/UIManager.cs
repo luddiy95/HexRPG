@@ -5,7 +5,7 @@ using UniRx;
 using UniRx.Triggers;
 using Zenject;
 
-namespace HexRPG.Battle
+namespace HexRPG.Battle.UI
 {
     public class UIManager : MonoBehaviour
     {
@@ -14,19 +14,24 @@ namespace HexRPG.Battle
         IPauseController _pauseController;
         IPauseObservable _pauseObservable;
 
-        [SerializeField] GameObject _selectSkillObj;
-        [SerializeField] GameObject _selectMemberObj;
-        ICharacterUI _selectSkillUI;
-        ICharacterUI _selectMemberUI;
+        [Header("SkillのUI実装オブジェクト")]
+        [SerializeField] GameObject _skillList;
+        [Header("MemberのUI実装オブジェクト")]
+        [SerializeField] GameObject _memberList;
+        ICharacterUI _skillListUI;
+        ICharacterUI _memberListUI;
 
+        [Header("ボタン")]
         [SerializeField] Image _btnFire;
         [SerializeField] Image _btnChangeMember;
         [SerializeField] GameObject _btnBack;
 
-        [SerializeField] Transform _pauseGrayBack;
+        [Header("Transformルート")]
+        [SerializeField] Transform _pauseGrayBackRoot;
         [SerializeField] GameObject _pauseGray;
-        [SerializeField] Transform _pauseGrayFront;
+        [SerializeField] Transform _pauseGrayFrontRoot;
 
+        [Header("Sprite")]
         [SerializeField] Sprite _btnPauseSprite;
         [SerializeField] Sprite _btnActionSprite;
         [SerializeField] Sprite _btnChangeSprite;
@@ -47,8 +52,8 @@ namespace HexRPG.Battle
 
         void Start()
         {
-            _selectSkillUI = _selectSkillObj.GetComponent<ICharacterUI>();
-            _selectMemberUI = _selectMemberObj.GetComponent<ICharacterUI>();
+            _skillListUI = _skillList.GetComponent<ICharacterUI>();
+            _memberListUI = _memberList.GetComponent<ICharacterUI>();
 
             _battleObservable.OnPlayerSpawn
                 .Skip(1)
@@ -56,8 +61,8 @@ namespace HexRPG.Battle
                 {
                     new List<ICharacterUI>
                     {
-                        _selectSkillUI,
-                        _selectMemberUI
+                        _skillListUI,
+                        _memberListUI
                     }
                     .ForEach(ui =>
                     {
@@ -68,7 +73,7 @@ namespace HexRPG.Battle
                     _pauseObservable.OnPause
                         .Subscribe(_ =>
                         {
-                            _selectSkillObj.SetActive(true);
+                            _skillList.SetActive(true);
                             SwitchOperation(OPERATION.SELECT_SKILL);
                             SwitchPause(true);
                         })
@@ -77,7 +82,7 @@ namespace HexRPG.Battle
                     // PlayerSkill開始時
                     playerOwner.SkillObservable.OnStartSkill
                         .Subscribe(_ => {
-                            _selectSkillObj.SetActive(false);
+                            _skillList.SetActive(false);
                             SwitchOperation(OPERATION.NONE);
                             SwitchPause(false);
                         })
@@ -96,7 +101,7 @@ namespace HexRPG.Battle
                         .AddTo(this);
 
                     // Member選択Back時
-                    _selectMemberUI.OnBack
+                    _memberListUI.OnBack
                         .Subscribe(_ => {
                             SwitchOperation(OPERATION.SELECT_SKILL);
                             SwitchBtnMemberChangeEneble(true);
@@ -104,9 +109,10 @@ namespace HexRPG.Battle
                         .AddTo(this);
 
                     // Skill選択Back時&PlayerSkill終了時
-                    Observable.Merge(_selectSkillUI.OnBack, playerOwner.SkillObservable.OnFinishSkill)
+                    Observable.Merge(_skillListUI.OnBack, playerOwner.SkillObservable.OnFinishSkill)
                         .Subscribe(_ =>
                         {
+                            _skillList.SetActive(false);
                             SwitchOperation(OPERATION.NONE);
                             SwitchPause(false);
                             _pauseController.Restart();
@@ -123,7 +129,7 @@ namespace HexRPG.Battle
                 });
 
             SwitchPause(false);
-            _selectSkillObj.SetActive(false);
+            _skillList.SetActive(false);
         }
 
         #region View
@@ -139,25 +145,25 @@ namespace HexRPG.Battle
             switch (operation)
             {
                 case OPERATION.NONE:
-                    _selectSkillUI.SwitchOperation(false);
-                    _selectMemberUI.SwitchOperation(false);
+                    _skillListUI.SwitchOperation(false);
+                    _memberListUI.SwitchOperation(false);
                     _btnFire.sprite = _btnPauseSprite;
                     break;
                 case OPERATION.SELECT_SKILL:
-                    _selectSkillUI.SwitchOperation(true);
-                    _selectMemberUI.SwitchOperation(false);
+                    _skillListUI.SwitchOperation(true);
+                    _memberListUI.SwitchOperation(false);
 
-                    _selectSkillObj.transform.SetParent(_pauseGrayFront);
-                    _selectMemberObj.transform.SetParent(_pauseGrayBack);
+                    _skillList.transform.SetParent(_pauseGrayFrontRoot);
+                    _memberList.transform.SetParent(_pauseGrayBackRoot);
 
                     _btnFire.sprite = _btnActionSprite;
                     break;
                 case OPERATION.SELECT_MEMBER:
-                    _selectSkillUI.SwitchOperation(false);
-                    _selectMemberUI.SwitchOperation(true);
+                    _skillListUI.SwitchOperation(false);
+                    _memberListUI.SwitchOperation(true);
 
-                    _selectSkillObj.transform.SetParent(_pauseGrayBack);
-                    _selectMemberObj.transform.SetParent(_pauseGrayFront);
+                    _skillList.transform.SetParent(_pauseGrayBackRoot);
+                    _memberList.transform.SetParent(_pauseGrayFrontRoot);
 
                     _btnFire.sprite = _btnChangeSprite;
                     break;

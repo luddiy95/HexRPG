@@ -6,7 +6,7 @@ namespace HexRPG.Battle
 {
     using Player;
     using Enemy;
-    using Enemy.HUD;
+    using HUD;
 
     public class BattleInstaller : MonoInstaller, ISpawnSettings
     {
@@ -20,7 +20,7 @@ namespace HexRPG.Battle
 
         [SerializeField] BattleDataContainer _battleDataContainer;
 
-        [SerializeField] GameObject _healthGaugePrefab;
+        [SerializeField] GameObject _enemyHealthGaugePrefab;
 
         public override void InstallBindings()
         {
@@ -40,7 +40,7 @@ namespace HexRPG.Battle
                     .FromSubContainerResolve()
                     .ByNewContextPrefab<EnemyInstaller>(setting.Prefab);
             });
-            Container.BindFactory<EnemyHealthGauge, EnemyHealthGauge.Factory>().FromComponentInNewPrefab(_healthGaugePrefab);
+            Container.BindFactory<HealthGauge, HealthGauge.Factory>().FromComponentInNewPrefab(_enemyHealthGaugePrefab);
         }
     }
 }

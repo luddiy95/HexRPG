@@ -1,6 +1,5 @@
-using UnityEngine;
 
-namespace HexRPG.Battle
+namespace HexRPG.Battle.HUD
 {
     public interface ICharacterHUD
     {

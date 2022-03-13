@@ -3,17 +3,17 @@ using UniRx;
 using System;
 using Zenject;
 
-namespace HexRPG.Battle
+namespace HexRPG.Battle.HUD
 {
     public class HUDManager : MonoBehaviour
     {
         IBattleObservable _battleObservable;
 
-        [Header("PlayerのHUD実装オブジェクト")]
-        [SerializeField] GameObject _playerHUD;
+        [Header("MemberのHUD実装オブジェクト")]
+        [SerializeField] GameObject _memberList;
 
         [Header("EnemyのHUD実装オブジェクト")]
-        [SerializeField] GameObject _enemyHUD;
+        [SerializeField] GameObject _enemyStatus;
 
         [Inject]
         public void Construct(IBattleObservable battleObservable)
@@ -23,7 +23,7 @@ namespace HexRPG.Battle
 
         void Start()
         {
-            var playerHUD = _playerHUD.GetComponents<ICharacterHUD>();
+            var playerHUD = _memberList.GetComponents<ICharacterHUD>();
             Array.ForEach(playerHUD, hud =>
             {
                 _battleObservable.OnPlayerSpawn
@@ -32,11 +32,11 @@ namespace HexRPG.Battle
                     .AddTo(this);
             });
 
-            var enemyHUD = _enemyHUD.GetComponents<ICharacterHUD>();
+            var enemyHUD = _enemyStatus.GetComponents<ICharacterHUD>();
             Array.ForEach(enemyHUD, hud =>
             {
                 _battleObservable.OnEnemySpawn
-                    .Subscribe(playerOwner => hud.Bind(playerOwner))
+                    .Subscribe(enemyOwner => hud.Bind(enemyOwner))
                     .AddTo(this);
             });
         }

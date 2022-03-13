@@ -2,7 +2,7 @@ using UnityEngine;
 using UniRx;
 using Zenject;
 
-namespace HexRPG.Battle
+namespace HexRPG.Battle.HUD
 {
     /// <summary>
     /// 頭上HUDとしてキャラクタに追従するコンポネント

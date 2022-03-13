@@ -19,6 +19,7 @@ namespace HexRPG.Battle.Player
     public class PlayerOwner : MonoBehaviour, IPlayerComponentCollection
     {
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
+        IHealth ICharacterComponentCollection.Health => (this as IPlayerComponentCollection).MemberObservable.CurMember.Value.Health;
         [Inject] ICharacterInput IPlayerComponentCollection.CharacterInput { get; }
         [Inject] IMemberController IPlayerComponentCollection.MemberController { get; }
         [Inject] IMemberObservable IPlayerComponentCollection.MemberObservable { get; }

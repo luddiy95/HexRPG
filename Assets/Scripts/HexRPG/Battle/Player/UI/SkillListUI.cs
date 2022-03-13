@@ -2,14 +2,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Linq;
-using System.Threading;
 using UniRx;
 using UniRx.Triggers;
 using Cysharp.Threading.Tasks;
 
 namespace HexRPG.Battle.Player.UI
 {
-    public class SelectSkillUI : MonoBehaviour, ICharacterUI
+    using Battle.UI;
+
+    public class SkillListUI : MonoBehaviour, ICharacterUI
     {
         ISelectSkillController _selectSkillController;
         ISelectSkillObservable _selectSkillObservable;
@@ -149,6 +150,7 @@ namespace HexRPG.Battle.Player.UI
                     .OnPointerClickAsObservable()
                     .Subscribe(_ =>
                     {
+                        // indexがSkillの数を超えていたらそもそもボタンが表示されないためタップできない
                         _selectSkillController.SelectSkill(index);
                     })
                     .AddTo(this);

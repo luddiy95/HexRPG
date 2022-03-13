@@ -1,10 +1,16 @@
 using UnityEngine;
 
-namespace HexRPG.Battle
+namespace HexRPG.Battle.HUD
 {
     public class AbstractGaugeBehaviour : MonoBehaviour
     {
-        [SerializeField] Gauge _gauge;
+        [SerializeField] GameObject _gaugeObj;
+        IGauge _gauge;
+
+        void Awake()
+        {
+            _gauge = _gaugeObj.GetComponent<IGauge>();
+        }
 
         #region View
 

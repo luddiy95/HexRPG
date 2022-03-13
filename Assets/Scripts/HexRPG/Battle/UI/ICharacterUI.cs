@@ -1,7 +1,7 @@
 using System;
 using UniRx;
 
-namespace HexRPG.Battle
+namespace HexRPG.Battle.UI
 {
     public interface ICharacterUI
     {

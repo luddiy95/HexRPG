@@ -4,13 +4,15 @@ using System;
 
 namespace HexRPG.Battle.Enemy.HUD
 {
+    using Battle.HUD;
+
     public class EnemyStatusHUD : MonoBehaviour, ICharacterHUD
     {
-        EnemyHealthGauge.Factory _factory;
+        HealthGauge.Factory _factory;
         [SerializeField] Transform _healthGaugeRoot;
 
         [Inject]
-        public void Construct(EnemyHealthGauge.Factory factory)
+        public void Construct(HealthGauge.Factory factory)
         {
             _factory = factory;
         }

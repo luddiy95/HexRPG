@@ -7,7 +7,6 @@ namespace HexRPG.Battle.Enemy
     public interface IEnemyComponentCollection : ICharacterComponentCollection
     {
         ISkillSpawnObservable SkillSpawnObservable { get; }
-        IHealth Health { get; }
 
         //TODO: Decorator—p
         IActionStateObservable ActionStateObservable { get; }
@@ -16,8 +15,8 @@ namespace HexRPG.Battle.Enemy
     public class EnemyOwner : MonoBehaviour, IEnemyComponentCollection
     {
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
+        [Inject] IHealth ICharacterComponentCollection.Health { get; }
         [Inject] ISkillSpawnObservable IEnemyComponentCollection.SkillSpawnObservable { get; }
-        [Inject] IHealth IEnemyComponentCollection.Health { get; }
 
         //TODO: Decorator—p
         [Inject] IActionStateObservable IEnemyComponentCollection.ActionStateObservable { get; }
