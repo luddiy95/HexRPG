@@ -1,7 +1,4 @@
 using UnityEngine;
-using UniRx;
-using UniRx.Triggers;
-using System;
 
 namespace HexRPG.Battle
 {

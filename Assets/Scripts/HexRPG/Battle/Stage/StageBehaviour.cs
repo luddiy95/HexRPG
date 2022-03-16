@@ -22,11 +22,8 @@ namespace HexRPG.Battle.Stage
         public readonly Vector3 _dirX = new Vector3(_diffX * 2, 0, 0);
         public readonly Vector3 _dirZ = new Vector3(_diffX, 0, _diffZ);
 
-        [SerializeField]
-        Transform _HexRoot;
-        [SerializeField]
-        Hex _hexPrefab;
-        [SerializeField]
+        [SerializeField] Transform _HexRoot;
+        [SerializeField] Hex _hexPrefab;
 
         //TODO: IAttackController‚âIAttackReserve‚Æ“¯—l‚ÉILiberater‚ğì‚é‚×‚«
         void IStageController.Liberate(List<Hex> hexList, bool isPlayer)

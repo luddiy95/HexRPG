@@ -7,6 +7,8 @@ namespace HexRPG.Battle.Player
 {
     using Stage;
 
+    //TODO: å„Ç≈è¡Ç∑
+    /*
     public class PlayerMover : IMoveController, IInitializable, IDisposable
     {
         ITransformController _transformController;
@@ -106,4 +108,5 @@ namespace HexRPG.Battle.Player
             _disposables.Dispose();
         }
     }
+    */
 }

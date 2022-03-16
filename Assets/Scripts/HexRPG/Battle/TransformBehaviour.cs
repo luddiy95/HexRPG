@@ -23,6 +23,8 @@ namespace HexRPG.Battle
         /// </summary>
         Transform RotateTransform { get; }
         Quaternion Rotation { get; set; }
+        int RotationAngle { set; }
+        int DefaultRotation { get; set; }
 
         /// <summary>
         /// ‰½‚©‚ð¶¬‚·‚éÛ‚Ée‚Æ‚È‚éTransform
@@ -38,7 +40,13 @@ namespace HexRPG.Battle
         Vector3 ITransformController.Position { get => _moveTransform.localPosition; set => _moveTransform.localPosition = value; }
 
         Transform ITransformController.RotateTransform => _rotateTransform;
-        Quaternion ITransformController.Rotation { get => _rotateTransform.rotation; set => _rotateTransform.rotation = value; }
+        Quaternion ITransformController.Rotation { get => _rotation; set => _rotation = value; }
+        Quaternion _rotation { get => _rotateTransform.rotation; set => _rotateTransform.rotation = value; }
+
+        int ITransformController.RotationAngle { set => _rotation = Quaternion.Euler(0, _defaultRotation + value, 0); }
+
+        int ITransformController.DefaultRotation { get => _defaultRotation; set => _defaultRotation = value; }
+        int _defaultRotation = 0;
 
         Transform ITransformController.SpawnRootTransform => _spawnRootTransform;
 
@@ -74,7 +82,7 @@ namespace HexRPG.Battle
             if (_rotateTransform == null) _rotateTransform = transform;
             if (_spawnRootTransform == null) _spawnRootTransform = transform;
 
-            (this as ITransformController).SetRotation(0);
+            (this as ITransformController).RotationAngle = 0;
             if (_spawnRoot != null) _rootTransform.SetParent(_spawnRoot);
             (this as ITransformController).Position = _spawnPos;
         }
@@ -96,11 +104,6 @@ namespace HexRPG.Battle
 #nullable enable
             return hit.collider?.GetComponent<Hex>();
 #nullable disable
-        }
-
-        public static void SetRotation(this ITransformController transformController, float angle)
-        {
-            transformController.Rotation = Quaternion.Euler(0, 30 + angle, 0);
         }
     }
 }

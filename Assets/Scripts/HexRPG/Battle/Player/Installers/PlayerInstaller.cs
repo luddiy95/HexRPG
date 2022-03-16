@@ -31,7 +31,6 @@ namespace HexRPG.Battle.Player
 
             Container.BindInterfacesTo<PlayerActionStateController>().AsSingle();
             Container.BindInterfacesTo<ActionStateController>().AsSingle();
-            Container.BindInterfacesTo<PlayerMover>().AsSingle();
 
             System.Array.ForEach(_party, memberPrefab =>
             {

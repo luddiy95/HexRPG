@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
-using UniRx.Triggers;
 using Zenject;
 
 namespace HexRPG.Battle.UI
@@ -89,16 +88,11 @@ namespace HexRPG.Battle.UI
                         .AddTo(this);
 
                     // Member変更ボタンタップ時
-                    ObservablePointerClickTrigger trigger;
-                    if (!_btnChangeMember.TryGetComponent(out trigger)) trigger = _btnChangeMember.gameObject.AddComponent<ObservablePointerClickTrigger>();
-                    trigger
-                        .OnPointerClickAsObservable()
-                        .Subscribe(_ =>
-                        {
-                            SwitchOperation(OPERATION.SELECT_MEMBER);
-                            SwitchBtnMemberChangeEneble(false);
-                        })
-                        .AddTo(this);
+                    _btnChangeMember.gameObject.OnClickListener(() =>
+                    {
+                        SwitchOperation(OPERATION.SELECT_MEMBER);
+                        SwitchBtnMemberChangeEneble(false);
+                    }, gameObject);
 
                     // Member選択Back時
                     _memberListUI.OnBack
@@ -129,7 +123,6 @@ namespace HexRPG.Battle.UI
                 });
 
             SwitchPause(false);
-            _skillList.SetActive(false);
         }
 
         #region View
@@ -145,13 +138,9 @@ namespace HexRPG.Battle.UI
             switch (operation)
             {
                 case OPERATION.NONE:
-                    _skillListUI.SwitchOperation(false);
-                    _memberListUI.SwitchOperation(false);
                     _btnFire.sprite = _btnPauseSprite;
                     break;
                 case OPERATION.SELECT_SKILL:
-                    _skillListUI.SwitchOperation(true);
-                    _memberListUI.SwitchOperation(false);
 
                     _skillList.transform.SetParent(_pauseGrayFrontRoot);
                     _memberList.transform.SetParent(_pauseGrayBackRoot);
@@ -159,8 +148,6 @@ namespace HexRPG.Battle.UI
                     _btnFire.sprite = _btnActionSprite;
                     break;
                 case OPERATION.SELECT_MEMBER:
-                    _skillListUI.SwitchOperation(false);
-                    _memberListUI.SwitchOperation(true);
 
                     _skillList.transform.SetParent(_pauseGrayBackRoot);
                     _memberList.transform.SetParent(_pauseGrayFrontRoot);

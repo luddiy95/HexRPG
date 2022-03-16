@@ -141,8 +141,7 @@ MonoBehaviour:
   _rotateSpeed: 4
   _healthMax: 100
   _mentalMax: 100
-  _statusIcon: {fileID: 21300000, guid: 004798dd2edacfc409b593185ea08685, type: 3}
-  _optionIcon: {fileID: 21300000, guid: 835618fad0bce6a4f932200d1c72840e, type: 3}
+  _icon: {fileID: 0}
 --- !u!114 &7310130128193326296
 MonoBehaviour:
   m_ObjectHideFlags: 0

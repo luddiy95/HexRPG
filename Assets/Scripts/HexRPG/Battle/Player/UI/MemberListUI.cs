@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using UniRx;
-using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -47,19 +46,14 @@ namespace HexRPG.Battle.Player.UI
         {
             // 戻るボタン押したらSkill選択へ
             // 戻るボタン押したらSelect状態を解除し非表示
-            ObservablePointerClickTrigger trigger;
-            if (!_btnBack.TryGetComponent(out trigger)) trigger = _btnBack.AddComponent<ObservablePointerClickTrigger>();
-            trigger
-                .OnPointerClickAsObservable()
-                .Subscribe(_ =>
-                {
-                    if (!_inOperation) return;
+            _btnBack.OnClickListener(() =>
+            {
+                if (!_inOperation) return;
 
-                    _playerOwner.MemberController.ChangeMember(_curMemberIndexCache);
-                    CancelSelection();
-                    _onBack.OnNext(Unit.Default);
-                })
-                .AddTo(this);
+                _playerOwner.MemberController.ChangeMember(_curMemberIndexCache);
+                CancelSelection();
+                _onBack.OnNext(Unit.Default);
+            }, gameObject);
         }
 
         void ICharacterUI.Bind(ICharacterComponentCollection chara)
@@ -88,12 +82,14 @@ namespace HexRPG.Battle.Player.UI
             }
         }
 
+        /*
         void ICharacterUI.SwitchOperation(bool inOperation)
         {
             _inOperation = inOperation;
             _curMemberIndexCache = _playerOwner.MemberObservable.CurMemberIndex;
             SelectedIndex = _curMemberIndexCache;
         }
+        */
 
         void UpdateMemberIcon()
         {
@@ -118,16 +114,11 @@ namespace HexRPG.Battle.Player.UI
         {
             void SetUpMemberBtnEvent(Transform btn, int index)
             {
-                ObservablePointerClickTrigger trigger;
-                if (!btn.TryGetComponent(out trigger)) trigger = btn.gameObject.AddComponent<ObservablePointerClickTrigger>();
-                trigger
-                    .OnPointerClickAsObservable()
-                    .Subscribe(_ =>
-                    {
-                        // indexがMemberの数を超えていたらそもそもボタンが表示されないためタップできない
-                        SelectedIndex = index;
-                    })
-                    .AddTo(this);
+                btn.gameObject.OnClickListener(() =>
+                {
+                    // indexがMemberの数を超えていたらそもそもボタンが表示されないためタップできない
+                    SelectedIndex = index;
+                }, gameObject);
             }
             for (int i = 0; i < _memberBtnList.childCount; i++)
             {

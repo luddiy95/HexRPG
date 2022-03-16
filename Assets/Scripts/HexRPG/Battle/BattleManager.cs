@@ -45,6 +45,9 @@ namespace HexRPG.Battle
         CinemachineVirtualCamera IBattleObservable.MainVirtualCamera => _mainVirtualCamera;
         [SerializeField] CinemachineVirtualCamera _mainVirtualCamera;
 
+        [SerializeField] CinemachineTargetGroup _targetGroup;
+
+        [SerializeField] Transform _playerRoot;
         [SerializeField] Transform _enemyRoot;
 
         [Inject]
@@ -85,11 +88,13 @@ namespace HexRPG.Battle
         async UniTask SpawnPlayer()
         {
             var playerSpawnSetting = _spawnSettings.PlayerSpawnSetting;
-            _playerOwner = _playerFactory.Create(null, playerSpawnSetting.SpawnHex.transform.position);
+            _playerOwner = _playerFactory.Create(_playerRoot, playerSpawnSetting.SpawnHex.transform.position);
 
             var memberController = _playerOwner.MemberController;
             await memberController.SpawnAllMember();
             memberController.ChangeMember(0);
+
+            _targetGroup.m_Targets[0].target = _playerOwner.TransformController.MoveTransform;
 
             // Player‚ÌˆÊ’u‚ðŠÄŽ‹
             _playerLandedHex = _playerOwner.TransformController.GetLandedHex();

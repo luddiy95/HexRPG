@@ -1,13 +1,15 @@
 using System;
 using UniRx;
+using UnityEngine;
 
 namespace HexRPG.Battle
 {
-    using Stage;
     public interface ICharacterInput
     {
-        IReadOnlyReactiveProperty<Hex> Destination { get; }
+        IReadOnlyReactiveProperty<Vector3> Direction { get; }
 
         IObservable<Unit> OnFire { get; }
+
+        IReadOnlyReactiveProperty<int> CameraRotateDir { get; }
     }
 }

@@ -51,12 +51,12 @@ namespace HexRPG.Battle.Player
                 skillObservable.OnStartSkill.Subscribe(_ => _onStartSkill.OnNext(Unit.Default)).AddTo(_disposables);
                 skillObservable.OnFinishSkill.Subscribe(_ =>
                 {
-                    _transformController.SetRotation(0);
+                    _transformController.RotationAngle = 0;
                     _stageController.Liberate(_selectSkillObservable.CurAttackIndicateHexList, true);
                     _onFinishSkill.OnNext(Unit.Default);
                 }).AddTo(_disposables);
 
-                _transformController.SetRotation(_selectSkillObservable.DuplicateSelectedCount * 60);
+                _transformController.RotationAngle = _selectSkillObservable.DuplicateSelectedCount * 60;
 
                 skillController.StartSkill(_selectSkillObservable.CurAttackIndicateHexList);
 

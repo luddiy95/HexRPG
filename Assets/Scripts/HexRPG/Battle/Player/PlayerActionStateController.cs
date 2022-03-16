@@ -5,13 +5,13 @@ using Zenject;
 
 namespace HexRPG.Battle.Player
 {
-    using Battle.Stage;
     using static ActionStateType;
 
     public class PlayerActionStateController : IInitializable, IDisposable
     {
-        ITransformController _transformController;
+        ILocomotionController _locomotionController;
         IAnimatorController _animatorController;
+        IUpdateObservable _updateObservable;
         ICharacterInput _characterInput;
         IActionStateController _actionStateController;
         IActionStateObservable _actionStateObservable;
@@ -20,13 +20,13 @@ namespace HexRPG.Battle.Player
         IPauseController _pauseController;
         IPauseObservable _pauseObservable;
         ISelectSkillObservable _selectSkillObservable;
-        IMoveController _moveController;
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
         public PlayerActionStateController(
-            ITransformController transformController,
+            ILocomotionController locomotionController,
             IAnimatorController animatorController,
+            IUpdateObservable updateObservable,
             ICharacterInput characterInput,
             IActionStateController actionStateController,
             IActionStateObservable actionStateObservable,
@@ -34,12 +34,12 @@ namespace HexRPG.Battle.Player
             ISkillObservable skillObservable,
             IPauseController pauseController,
             IPauseObservable pauseObservable,
-            ISelectSkillObservable selectSkillObservable,
-            IMoveController moveController
+            ISelectSkillObservable selectSkillObservable
         )
         {
-            _transformController = transformController;
+            _locomotionController = locomotionController;
             _animatorController = animatorController;
+            _updateObservable = updateObservable;
             _characterInput = characterInput;
             _actionStateController = actionStateController;
             _actionStateObservable = actionStateObservable;
@@ -48,7 +48,6 @@ namespace HexRPG.Battle.Player
             _pauseController = pauseController;
             _pauseObservable = pauseObservable;
             _selectSkillObservable = selectSkillObservable;
-            _moveController = moveController;
         }
 
         void IInitializable.Initialize()
@@ -75,7 +74,9 @@ namespace HexRPG.Battle.Player
 
             NewState(MOVE)
                 .AddEvent(new ActionEventMove(0f)) // 移動中
+                //TODO: ここでのActionEventPlayMotionを廃止し、InputのDirection変更を拾う->それに応じてvelocity/アニメーション変更するActionEventを作る
                 .AddEvent(new ActionEventPlayMotion(0f))
+                .AddEvent(new ActionEventCancel("stop", 0, IDLE))
                 .AddEvent(new ActionEventCancel("damaged", 0, DAMAGED))
                 // IDLEに戻る
                 ;
@@ -102,11 +103,41 @@ namespace HexRPG.Battle.Player
         {
             ////// Execute(PlayerによるCommand) //////
             // moveableIndicatorタップ時
+            /*
             _characterInput.Destination
                 .Skip(1)
                 .Subscribe(_ => 
                 {
                     _actionStateController.Execute(new Command { Id = "move" });
+                })
+                .AddTo(_disposables);
+            */
+
+            // joyスティック入力時
+            var canMove = false;
+            _updateObservable.OnUpdate((int)UPDATE_ORDER.INPUT)
+                .Subscribe(_ =>
+                {
+                    var direction = _characterInput.Direction.Value;
+                    if (direction.magnitude > 0.1)
+                    {
+                        if (canMove)
+                        {
+                            _locomotionController.SetSpeed(direction);
+
+                            _animatorController.SetSpeed(direction.x, direction.z);
+                        }
+                        else
+                        {
+                            _actionStateController.Execute(new Command { Id = "move" });
+                        }
+                    }
+                    else if (canMove)
+                    {
+                        _locomotionController.Stop();
+                        _animatorController.SetSpeed(0, 0);
+                        _actionStateController.Execute(new Command { Id = "stop" });
+                    }
                 })
                 .AddTo(_disposables);
 
@@ -149,6 +180,7 @@ namespace HexRPG.Battle.Player
 
             ////// ActionStateObservable //////
             // moveに遷移出来たら移動
+            /*
             _actionStateObservable
                 .OnStart<ActionEventMove>()
                 .Subscribe(_ =>
@@ -156,6 +188,17 @@ namespace HexRPG.Battle.Player
                     _moveController.StartMove(_characterInput.Destination.Value);
                 })
                 .AddTo(_disposables);
+
+            _actionStateObservable
+                .OnEnd<ActionEventMove>()
+                .Subscribe(_ =>
+                {
+
+                })
+                .AddTo(_disposables);
+            */
+            _actionStateObservable.OnStart<ActionEventMove>().Subscribe(_ => canMove = true).AddTo(_disposables);
+            _actionStateObservable.OnEnd<ActionEventMove>().Subscribe(_ => canMove = false).AddTo(_disposables);
 
             // Pauseへ遷移時
             _actionStateObservable
@@ -177,39 +220,6 @@ namespace HexRPG.Battle.Player
                             break;
 
                         case MOVE:
-                            Hex destinationHex = _characterInput.Destination.Value;
-                            Vector3 relativePos = destinationHex.transform.position - _transformController.GetLandedHex().transform.position;
-                            relativePos.y = 0;
-                            Quaternion relativeRot = Quaternion.LookRotation(relativePos, Vector3.up);
-                            int relativeRotAngle = (int)relativeRot.eulerAngles.y;
-                            float speedHorizontal = 0f, speedVertical = 0f;
-                            if (0 < relativeRotAngle && relativeRotAngle < 60)
-                            {
-                                speedVertical = 1f;
-                            }
-                            else if (60 < relativeRotAngle && relativeRotAngle < 120)
-                            {
-                                speedVertical = 1f; speedHorizontal = 1f;
-                            }
-                            else if (120 < relativeRotAngle && relativeRotAngle < 180)
-                            {
-                                speedVertical = -1f; speedHorizontal = 1f;
-                            }
-                            else if (180 < relativeRotAngle && relativeRotAngle < 240)
-                            {
-                                speedVertical = -1f;
-                            }
-                            else if (240 < relativeRotAngle && relativeRotAngle < 300)
-                            {
-                                speedVertical = -1f; speedHorizontal = -1f;
-                            }
-                            else if (300 < relativeRotAngle && relativeRotAngle < 360)
-                            {
-                                speedVertical = 1f; speedHorizontal = -1f;
-                            }
-
-                            _animatorController.SetSpeed(speedHorizontal, speedVertical);
-
                             break;
 
                         case DAMAGED:

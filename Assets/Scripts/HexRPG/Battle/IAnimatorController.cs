@@ -22,6 +22,8 @@ namespace HexRPG.Battle
         {
             animatorController.Animator.SetFloat("SpeedHorizontal", horizontal);
             animatorController.Animator.SetFloat("SpeedVertical", vertical);
+
+            animatorController.Animator.SetFloat("Speed", (new Vector3(horizontal, 0, vertical)).magnitude);
         }
 
         public static void SetTrigger(this IAnimatorController animatorController, string trigger)
