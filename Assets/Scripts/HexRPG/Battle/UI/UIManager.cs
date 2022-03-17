@@ -8,10 +8,7 @@ namespace HexRPG.Battle.UI
 {
     public class UIManager : MonoBehaviour
     {
-        BattleData _battleData;
         IBattleObservable _battleObservable;
-        IPauseController _pauseController;
-        IPauseObservable _pauseObservable;
 
         [Header("SkillのUI実装オブジェクト")]
         [SerializeField] GameObject _skillList;
@@ -20,33 +17,12 @@ namespace HexRPG.Battle.UI
         ICharacterUI _skillListUI;
         ICharacterUI _memberListUI;
 
-        [Header("ボタン")]
-        [SerializeField] Image _btnFire;
-        [SerializeField] Image _btnChangeMember;
-        [SerializeField] GameObject _btnBack;
-
-        [Header("Transformルート")]
-        [SerializeField] Transform _pauseGrayBackRoot;
-        [SerializeField] GameObject _pauseGray;
-        [SerializeField] Transform _pauseGrayFrontRoot;
-
-        [Header("Sprite")]
-        [SerializeField] Sprite _btnPauseSprite;
-        [SerializeField] Sprite _btnActionSprite;
-        [SerializeField] Sprite _btnChangeSprite;
-
         [Inject]
         public void Construct(
-            BattleData battleData,
-            IBattleObservable battleObservable,
-            IPauseController pauseController,
-            IPauseObservable pauseObservable
+            IBattleObservable battleObservable
         )
         {
-            _battleData = battleData;
             _battleObservable = battleObservable;
-            _pauseController = pauseController;
-            _pauseObservable = pauseObservable;
         }
 
         void Start()
@@ -67,117 +43,7 @@ namespace HexRPG.Battle.UI
                     {
                         ui.Bind(playerOwner);
                     });
-
-                    // Pause時
-                    _pauseObservable.OnPause
-                        .Subscribe(_ =>
-                        {
-                            _skillList.SetActive(true);
-                            SwitchOperation(OPERATION.SELECT_SKILL);
-                            SwitchPause(true);
-                        })
-                        .AddTo(this);
-
-                    // PlayerSkill開始時
-                    playerOwner.SkillObservable.OnStartSkill
-                        .Subscribe(_ => {
-                            _skillList.SetActive(false);
-                            SwitchOperation(OPERATION.NONE);
-                            SwitchPause(false);
-                        })
-                        .AddTo(this);
-
-                    // Member変更ボタンタップ時
-                    _btnChangeMember.gameObject.OnClickListener(() =>
-                    {
-                        SwitchOperation(OPERATION.SELECT_MEMBER);
-                        SwitchBtnMemberChangeEneble(false);
-                    }, gameObject);
-
-                    // Member選択Back時
-                    _memberListUI.OnBack
-                        .Subscribe(_ => {
-                            SwitchOperation(OPERATION.SELECT_SKILL);
-                            SwitchBtnMemberChangeEneble(true);
-                        })
-                        .AddTo(this);
-
-                    // Skill選択Back時&PlayerSkill終了時
-                    Observable.Merge(_skillListUI.OnBack, playerOwner.SkillObservable.OnFinishSkill)
-                        .Subscribe(_ =>
-                        {
-                            _skillList.SetActive(false);
-                            SwitchOperation(OPERATION.NONE);
-                            SwitchPause(false);
-                            _pauseController.Restart();
-                        })
-                        .AddTo(this);
-
-                    // Playerステート遷移時
-                    playerOwner.ActionStateObservable.CurrentState
-                        .Subscribe(state =>
-                        {
-                            SwitchBtnActionEnable(state.Type == ActionStateType.IDLE || state.Type == ActionStateType.PAUSE);
-                        })
-                        .AddTo(this);
                 });
-
-            SwitchPause(false);
         }
-
-        #region View
-
-        enum OPERATION
-        {
-            NONE,
-            SELECT_SKILL,
-            SELECT_MEMBER
-        }
-        void SwitchOperation(OPERATION operation)
-        {
-            switch (operation)
-            {
-                case OPERATION.NONE:
-                    _btnFire.sprite = _btnPauseSprite;
-                    break;
-                case OPERATION.SELECT_SKILL:
-
-                    _skillList.transform.SetParent(_pauseGrayFrontRoot);
-                    _memberList.transform.SetParent(_pauseGrayBackRoot);
-
-                    _btnFire.sprite = _btnActionSprite;
-                    break;
-                case OPERATION.SELECT_MEMBER:
-
-                    _skillList.transform.SetParent(_pauseGrayBackRoot);
-                    _memberList.transform.SetParent(_pauseGrayFrontRoot);
-
-                    _btnFire.sprite = _btnChangeSprite;
-                    break;
-            }
-        }
-
-
-        void SwitchPause(bool isPause)
-        {
-            _btnBack.SetActive(isPause);
-            _btnChangeMember.gameObject.SetActive(isPause);
-            _pauseGray.SetActive(isPause);
-        }
-
-        void SwitchBtnActionEnable(bool enable)
-        {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-            if (enable) _btnFire.material = _battleData.MainBtnEnableMat;
-            else _btnFire.material = _battleData.MainBtnDisableMat;
-        }
-
-        void SwitchBtnMemberChangeEneble(bool enable)
-        {
-            //! BtnMemberChangeのenable出し分けはSelectMemberUIで行わない(UIManagerで既にbtnChangeMemberを参照しているからそれを使う)
-            if (enable) _btnChangeMember.material = _battleData.SubBtnEnableMat;
-            else _btnChangeMember.material = _battleData.SubBtnDisableMat;
-        }
-
-        #endregion
     }
 }

@@ -5,15 +5,19 @@ using Zenject;
 
 namespace HexRPG.Battle.Player
 {
-    using Battle.Stage;
     using Battle.UI;
 
     public class PlayerInput : MonoBehaviour, ICharacterInput
     {
         IUpdateObservable _updateObservable;
 
-        [Header("決定ボタン")]
-        [SerializeField] GameObject _btnFire;
+        [Header("スキル選択ボタンリスト")]
+        [SerializeField] Transform _skillBtnList;
+
+        [Header("スキル決定ボタン")]
+        [SerializeField] GameObject _btnSkillDecide;
+        [Header("スキルキャンセルボタン")]
+        [SerializeField] GameObject _btnSkillCancel;
 
         [Header("カメラ回転ボタン")]
         [SerializeField] Transform _cameraRotLeft;
@@ -22,8 +26,13 @@ namespace HexRPG.Battle.Player
         IReadOnlyReactiveProperty<Vector3> ICharacterInput.Direction => _direction;
         ReactiveProperty<Vector3> _direction = new ReactiveProperty<Vector3>();
 
-        IObservable<Unit> ICharacterInput.OnFire => _onFire;
-        ISubject<Unit> _onFire = new Subject<Unit>();
+        IReadOnlyReactiveProperty<int> ICharacterInput.SelectedSkillIndex => _selectedSkillIndex;
+        ReactiveProperty<int> _selectedSkillIndex = new ReactiveProperty<int>(-1);
+
+        IObservable<Unit> ICharacterInput.OnSkillDecide => _onSkillDecide;
+        ISubject<Unit> _onSkillDecide = new Subject<Unit>();
+        IObservable<Unit> ICharacterInput.OnSkillCancel => _onSkillCancel;
+        ISubject<Unit> _onSkillCancel = new Subject<Unit>();
 
         IReadOnlyReactiveProperty<int> ICharacterInput.CameraRotateDir => _cameraRotateDir;
         ReactiveProperty<int> _cameraRotateDir = new ReactiveProperty<int>();
@@ -36,16 +45,31 @@ namespace HexRPG.Battle.Player
 
         void Start()
         {
-            var isBtnFireClicked = false;
+            int selectedSkillIndex = -1;
+            var isBtnSkillDecideClicked = false;
+            var isBtnSkillCancelClicked = false;
             int cameraRotateDir = 0;
 
             _updateObservable.OnUpdate((int)UPDATE_ORDER.INPUT)
                 .Subscribe(_ =>
                 {
-                    if (isBtnFireClicked)
+                    UpdateDirection();
+
+                    if (selectedSkillIndex != -1)
                     {
-                        _onFire.OnNext(Unit.Default);
-                        isBtnFireClicked = false;
+                        _selectedSkillIndex.SetValueAndForceNotify(selectedSkillIndex);
+                        selectedSkillIndex = -1;
+                    }
+
+                    if (isBtnSkillDecideClicked)
+                    {
+                        _onSkillDecide.OnNext(Unit.Default);
+                        isBtnSkillDecideClicked = false;
+                    }
+                    if (isBtnSkillCancelClicked)
+                    {
+                        _onSkillCancel.OnNext(Unit.Default);
+                        isBtnSkillCancelClicked = false;
                     }
 
                     if(cameraRotateDir != 0)
@@ -53,13 +77,27 @@ namespace HexRPG.Battle.Player
                         _cameraRotateDir.SetValueAndForceNotify(cameraRotateDir);
                         cameraRotateDir = 0;
                     }
-
-                    UpdateDirection();
                 }).AddTo(this);
 
-            _btnFire.OnClickListener(() =>
+            void SetSkillBtnClickEvent(GameObject btn, int index)
             {
-                isBtnFireClicked = true;
+                btn.OnClickListener(() =>
+                {
+                    selectedSkillIndex = index;
+                }, gameObject);
+            }
+            for (int i = 0; i < _skillBtnList.childCount; i++)
+            {
+                SetSkillBtnClickEvent(_skillBtnList.GetChild(i).gameObject, i);
+            }
+
+            _btnSkillDecide.OnClickListener(() =>
+            {
+                isBtnSkillDecideClicked = true;
+            }, gameObject);
+            _btnSkillCancel.OnClickListener(() =>
+            {
+                isBtnSkillCancelClicked = true;
             }, gameObject);
 
             _cameraRotLeft.GetChild(2).gameObject.OnClickListener(() =>

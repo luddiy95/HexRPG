@@ -10,22 +10,35 @@ namespace HexRPG.Battle
 
         public bool HasStateType => StateType != ActionStateType.NONE;
 
-        public ActionEventCancel(string commandId, float start, float end, ActionStateType stateType) : base(start, end)
+        // StateÇíEèoÇ∑ÇÈéûÅAÇªÇÃStateÇ…ìoò^Ç≥ÇÍÇΩëSÇƒÇÃActionEventÇ÷ÇÃEndí ímÇî≠çsÇµÇ»Ç¢
+        public bool PassEndNotification { get; private set; }
+
+        public ActionEventCancel(string commandId, float start, float end, ActionStateType stateType, bool passEndNotification = false) : base(start, end)
         {
             CommandId = commandId;
             StateType = stateType;
+            PassEndNotification = passEndNotification;
         }
 
-        public ActionEventCancel(string commandId, float start, ActionStateType stateType) : base(start)
+        public ActionEventCancel(string commandId, float start, ActionStateType stateType, bool passEndNotification = false) : base(start)
         {
             CommandId = commandId;
             StateType = stateType;
+            PassEndNotification = passEndNotification;
         }
 
-        public ActionEventCancel(string commandId, float start) : base(start)
+        public ActionEventCancel(string commandId, ActionStateType stateType, bool passEndNotification = false) : base(0f)
+        {
+            CommandId = commandId;
+            StateType = stateType;
+            PassEndNotification = passEndNotification;
+        }
+
+        public ActionEventCancel(string commandId, float start, bool passEndNotification = false) : base(start)
         {
             CommandId = commandId;
             StateType = ActionStateType.NONE;
+            PassEndNotification = passEndNotification;
         }
     }
 }

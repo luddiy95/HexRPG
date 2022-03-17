@@ -9,6 +9,7 @@ namespace HexRPG.Battle
         IDLE,
         MOVE,
         DAMAGED,
+        SKILL_SELECT,
         SKILL,
 
         PAUSE

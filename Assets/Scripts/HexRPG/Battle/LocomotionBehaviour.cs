@@ -7,12 +7,12 @@ using Cinemachine;
 
 namespace HexRPG.Battle
 {
-    using Stage;
-
     public interface ILocomotionController
     {
         void SetSpeed(Vector3 direction);
         void Stop();
+
+        void SnapHexCenter();
     }
 
     public class LocomotionBehaviour : MonoBehaviour, ILocomotionController
@@ -74,6 +74,11 @@ namespace HexRPG.Battle
         void ILocomotionController.Stop()
         {
             _rigidbody.velocity = Vector3.zero;
+        }
+
+        void ILocomotionController.SnapHexCenter()
+        {
+            _transformController.Position = _transformController.GetLandedHex().transform.position;
         }
     }
 }

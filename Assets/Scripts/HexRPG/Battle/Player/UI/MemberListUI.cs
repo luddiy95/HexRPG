@@ -10,8 +10,10 @@ namespace HexRPG.Battle.Player.UI
 
     public class MemberListUI : MonoBehaviour, ICharacterUI
     {
+        /*
         IObservable<Unit> ICharacterUI.OnBack => _onBack;
         ISubject<Unit> _onBack = new Subject<Unit>();
+        */
 
         [SerializeField] Transform _memberBtnList;
 
@@ -52,7 +54,7 @@ namespace HexRPG.Battle.Player.UI
 
                 _playerOwner.MemberController.ChangeMember(_curMemberIndexCache);
                 CancelSelection();
-                _onBack.OnNext(Unit.Default);
+                //_onBack.OnNext(Unit.Default);
             }, gameObject);
         }
 
@@ -69,6 +71,7 @@ namespace HexRPG.Battle.Player.UI
                 // 各ボタンタップイベント登録
                 SetupMemberSelectEvent();
 
+                /*
                 _playerOwner.CharacterInput.OnFire
                     .Where(_ => SelectedIndex >= 0)
                     .Subscribe(_ =>
@@ -77,6 +80,7 @@ namespace HexRPG.Battle.Player.UI
                         _onBack.OnNext(Unit.Default);
                     })
                     .AddTo(this);
+                */
 
                 SelectedIndex = _playerOwner.MemberObservable.CurMemberIndex;
             }

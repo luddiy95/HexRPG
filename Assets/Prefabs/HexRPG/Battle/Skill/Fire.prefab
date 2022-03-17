@@ -205,6 +205,38 @@ PrefabInstance:
       propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 3505504371383799877, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+      propertyPath: _range.Array.data[0].x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3505504371383799877, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+      propertyPath: _range.Array.data[1].x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3505504371383799877, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+      propertyPath: _range.Array.data[3].y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3505504371383799877, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+      propertyPath: _range.Array.data[4].y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3505504371383799877, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+      propertyPath: _range.Array.data[5].x
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3505504371383799877, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+      propertyPath: _range.Array.data[5].y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3505504371383799877, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+      propertyPath: _range.Array.data[6].x
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3505504371383799877, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+      propertyPath: _range.Array.data[6].y
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5426194334740280399, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
       propertyPath: m_Name
       value: Fire

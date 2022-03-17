@@ -21,7 +21,5 @@ namespace HexRPG.Battle.Player.UI
                 //TODO: ‚»‚êˆÈã‰ñ“]‚Å‚«‚È‚¢‚Æ‚«‚Ídisable‚É
             }
         }
-
-        IObservable<Unit> ICharacterUI.OnBack => null;
     }
 }

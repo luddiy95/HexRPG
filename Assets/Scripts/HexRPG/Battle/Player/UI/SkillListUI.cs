@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 using System.Linq;
 using UniRx;
 using Cysharp.Threading.Tasks;
@@ -11,7 +10,6 @@ namespace HexRPG.Battle.Player.UI
 
     public class SkillListUI : MonoBehaviour, ICharacterUI
     {
-        ISelectSkillController _selectSkillController;
         ISelectSkillObservable _selectSkillObservable;
 
         [SerializeField] Transform _skillBtnList;
@@ -26,23 +24,10 @@ namespace HexRPG.Battle.Player.UI
         [SerializeField] Sprite _skillBackgroundDefaultSprite;
         [SerializeField] Sprite _skillBackgroundSelectedSprite;
 
-        IObservable<Unit> ICharacterUI.OnBack => _onBack;
-        ISubject<Unit> _onBack = new Subject<Unit>();
-
-        void Start()
-        {
-            _btnBack.OnClickListener(() =>
-            {
-                CancelSelection();
-                //TODO: 何か必要？
-            }, gameObject);
-        }
-
         void ICharacterUI.Bind(ICharacterComponentCollection chara)
         {
             if (chara is IPlayerComponentCollection playerOwner)
             {
-                _selectSkillController = playerOwner.SelectSkillController;
                 _selectSkillObservable = playerOwner.SelectSkillObservable;
 
                 var memberObservable = playerOwner.MemberObservable;
@@ -58,8 +43,6 @@ namespace HexRPG.Battle.Player.UI
                     })
                     .AddTo(this);
 
-                // 各ボタンタップイベント登録
-                SetupSkillSelectEvent();
 
                 _selectSkillObservable.SelectedSkillIndex
                     .Pairwise()
@@ -79,44 +62,6 @@ namespace HexRPG.Battle.Player.UI
                         SwitchBtnDecideEnable(x.Current != -1);
                     })
                     .AddTo(this);
-
-                // Skill発動したらSelect状態を解除
-                playerOwner.SkillObservable.OnStartSkill
-                    .DelayFrame(1) // Skill実行時にPlayerの攻撃範囲内にEnemyがいるかどうか判定する必要があるため、1F後にattackRangeのHexからreservationをremoveする
-                    .Subscribe(_ => {
-                        CancelSelection();
-                    })
-                    .AddTo(this);
-            }
-        }
-
-        void SetupSkillSelectEvent()
-        {
-            void SetUpSkillBtnEvent(Transform btn, int index)
-            {
-                btn.gameObject.OnClickListener(() =>
-                {
-                    if (index > _skillIconList.Length - 1) return;
-                    _selectSkillController.SelectSkill(index);
-                }, gameObject);
-            }
-            for (int i = 0; i < _skillBtnList.childCount; i++)
-            {
-#nullable enable
-                Transform? detectButton = _skillBtnList.GetChild(i);
-                if (detectButton == null) continue;
-#nullable disable
-                SetUpSkillBtnEvent(detectButton, i);
-            }
-        }
-
-        void CancelSelection()
-        {
-            int index = _selectSkillObservable.SelectedSkillIndex.Value;
-            if (index >= 0)
-            {
-                UpdateBtnSelectedStatus(index, false);
-                _selectSkillController.ResetSelection();
             }
         }
 

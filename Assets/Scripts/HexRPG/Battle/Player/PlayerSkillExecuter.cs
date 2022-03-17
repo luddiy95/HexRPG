@@ -18,7 +18,6 @@ namespace HexRPG.Battle.Player
 
         // égÇÌÇ»Ç¢
         ISkillComponentCollection[] ISkillController.SkillList => null;
-        ISkillComponentCollection ISkillController.RunningSkill => null;
 
         IObservable<Unit> ISkillObservable.OnStartSkill => _onStartSkill;
         ISubject<Unit> _onStartSkill = new Subject<Unit>();
@@ -39,41 +38,24 @@ namespace HexRPG.Battle.Player
             _stageController = stageController;
         }
 
-        bool ISkillController.TryStartSkill(int index)
+        ISkillComponentCollection ISkillController.StartSkill(int index, List<Hex> skillRange)
         {
-            var memberOwner = _memberObservable.CurMember.Value;
-            var skillController = memberOwner.SkillController;
+            _disposables.Clear();
+            var skillController = _memberObservable.CurMember.Value.SkillController;
 
-            if (skillController.TryStartSkill(index))
+            _transformController.RotationAngle = _selectSkillObservable.SelectedSkillRotation - _transformController.DefaultRotation;
+            var runningSkill = skillController.StartSkill(index, _selectSkillObservable.CurAttackIndicateHexList);
+
+            var skillObservable = runningSkill.SkillObservable;
+            skillObservable.OnStartSkill.Subscribe(_ => _onStartSkill.OnNext(Unit.Default)).AddTo(_disposables);
+            skillObservable.OnFinishSkill.Subscribe(_ =>
             {
-                _disposables.Clear();
-                var skillObservable = skillController.RunningSkill.SkillObservable;
-                skillObservable.OnStartSkill.Subscribe(_ => _onStartSkill.OnNext(Unit.Default)).AddTo(_disposables);
-                skillObservable.OnFinishSkill.Subscribe(_ =>
-                {
-                    _transformController.RotationAngle = 0;
-                    _stageController.Liberate(_selectSkillObservable.CurAttackIndicateHexList, true);
-                    _onFinishSkill.OnNext(Unit.Default);
-                }).AddTo(_disposables);
+                _transformController.RotationAngle = 0;
+                _stageController.Liberate(_selectSkillObservable.CurAttackIndicateHexList, true);
+                _onFinishSkill.OnNext(Unit.Default);
+            }).AddTo(_disposables);
 
-                _transformController.RotationAngle = _selectSkillObservable.DuplicateSelectedCount * 60;
-
-                skillController.StartSkill(_selectSkillObservable.CurAttackIndicateHexList);
-
-                return true;
-            }
-            else
-            {
-                //TODO: Skillé¿çsÇ≈Ç´Ç»Ç©Ç¡ÇΩèÍçá
-                _disposables.Clear();
-
-                return false;
-            }
-        }
-
-        void ISkillController.StartSkill(List<Hex> attackRange)
-        {
-
+            return runningSkill;
         }
 
         void IDisposable.Dispose()

@@ -15,11 +15,13 @@ namespace HexRPG.Battle.Player
         ICharacterInput _characterInput;
         IActionStateController _actionStateController;
         IActionStateObservable _actionStateObservable;
+        IMemberObservable _memberObservable;
         ISkillController _skillController;
         ISkillObservable _skillObservable;
         IPauseController _pauseController;
         IPauseObservable _pauseObservable;
         ISelectSkillObservable _selectSkillObservable;
+        ISelectSkillController _selectSkillController;
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -30,11 +32,13 @@ namespace HexRPG.Battle.Player
             ICharacterInput characterInput,
             IActionStateController actionStateController,
             IActionStateObservable actionStateObservable,
+            IMemberObservable memberObservable,
             ISkillController skillController,
             ISkillObservable skillObservable,
             IPauseController pauseController,
             IPauseObservable pauseObservable,
-            ISelectSkillObservable selectSkillObservable
+            ISelectSkillObservable selectSkillObservable,
+            ISelectSkillController selectSkillController
         )
         {
             _locomotionController = locomotionController;
@@ -43,11 +47,13 @@ namespace HexRPG.Battle.Player
             _characterInput = characterInput;
             _actionStateController = actionStateController;
             _actionStateObservable = actionStateObservable;
+            _memberObservable = memberObservable;
             _skillController = skillController;
             _skillObservable = skillObservable;
             _pauseController = pauseController;
             _pauseObservable = pauseObservable;
             _selectSkillObservable = selectSkillObservable;
+            _selectSkillController = selectSkillController;
         }
 
         void IInitializable.Initialize()
@@ -60,34 +66,42 @@ namespace HexRPG.Battle.Player
         {
             var idle = NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
-                .AddEvent(new ActionEventCancel("pause", 0, PAUSE))
-                .AddEvent(new ActionEventCancel("move", 0, MOVE))
-                .AddEvent(new ActionEventCancel("damaged", 0, DAMAGED))
+                .AddEvent(new ActionEventCancel("move", MOVE))
+                .AddEvent(new ActionEventCancel("skillSelect", SKILL_SELECT))
+                .AddEvent(new ActionEventCancel("damaged", DAMAGED))
                 ;
             _actionStateController.SetInitialState(idle);
 
-            NewState(PAUSE)
-                .AddEvent(new ActionEventPause(0f)) // Pause中
-                // Skillへ遷移
-                // IDLEに戻る
-                ;
-
             NewState(MOVE)
-                .AddEvent(new ActionEventMove(0f)) // 移動中
-                //TODO: ここでのActionEventPlayMotionを廃止し、InputのDirection変更を拾う->それに応じてvelocity/アニメーション変更するActionEventを作る
                 .AddEvent(new ActionEventPlayMotion(0f))
-                .AddEvent(new ActionEventCancel("stop", 0, IDLE))
-                .AddEvent(new ActionEventCancel("damaged", 0, DAMAGED))
-                // IDLEに戻る
+                .AddEvent(new ActionEventMove(0f))
+                .AddEvent(new ActionEventCancel("move", MOVE, passEndNotification: true)) // 方向変更
+                .AddEvent(new ActionEventCancel("stop", IDLE))
+                .AddEvent(new ActionEventCancel("skillSelect", SKILL_SELECT))
+                .AddEvent(new ActionEventCancel("damaged", DAMAGED))
                 ;
 
             NewState(DAMAGED)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 ;
 
+            NewState(SKILL_SELECT)
+                .AddEvent(new ActionEventPlayMotion(0f))
+                .AddEvent(new ActionEventSkillSelect())
+                .AddEvent(new ActionEventCancel("skillCancel", IDLE))
+                .AddEvent(new ActionEventCancel("move", MOVE))
+                .AddEvent(new ActionEventCancel("damaged", DAMAGED))
+                .AddEvent(new ActionEventCancel("skillSelect", SKILL_SELECT, passEndNotification: true))
+                .AddEvent(new ActionEventCancel("skill", SKILL, passEndNotification: true))
+                ;
+
             NewState(SKILL)
                 .AddEvent(new ActionEventSkill(0f))
                 // IDLEに戻る
+                ;
+
+            NewState(PAUSE)
+                .AddEvent(new ActionEventPause(0f)) // Pause中
                 ;
 
             ActionState NewState(ActionStateType type, Action<ActionState> action = null)
@@ -101,67 +115,48 @@ namespace HexRPG.Battle.Player
 
         void SetUpControl()
         {
-            ////// Execute(PlayerによるCommand) //////
-            // moveableIndicatorタップ時
-            /*
-            _characterInput.Destination
-                .Skip(1)
-                .Subscribe(_ => 
+            ////// Player入力などによる状態遷移 //////
+            
+            // joyスティック入力時
+            _characterInput.Direction
+                .Subscribe(direction =>
                 {
-                    _actionStateController.Execute(new Command { Id = "move" });
+                    if(direction.magnitude > 0.1) _actionStateController.Execute(new Command { Id = "move" });
+                    else _actionStateController.Execute(new Command { Id = "stop" });
                 })
                 .AddTo(_disposables);
-            */
 
-            // joyスティック入力時
-            var canMove = false;
-            _updateObservable.OnUpdate((int)UPDATE_ORDER.INPUT)
+            // Skill選択
+            _characterInput.SelectedSkillIndex
+                .Skip(1)
+                .Subscribe(index =>
+                {
+                    if (index > _memberObservable.CurMemberSkillList.Value.Length - 1) return;
+                    //TODO: MPやチャージ状態を見て選択可能か判断(UIにも反映)、実行できないSkillはそもそも選択できないようにする
+                    _actionStateController.Execute(new Command { Id = "skillSelect" });
+                })
+                .AddTo(_disposables);
+
+            // Skillキャンセル時
+            _characterInput.OnSkillCancel
+                .Subscribe(_ => _actionStateController.Execute(new Command { Id = "skillCancel" }))
+                .AddTo(_disposables);
+            _characterInput.CameraRotateDir
+                .Subscribe(_ => _actionStateController.Execute(new Command { Id = "skillCancel" }))
+                .AddTo(_disposables);
+
+            // Skill決定時
+            _characterInput.OnSkillDecide
                 .Subscribe(_ =>
                 {
-                    var direction = _characterInput.Direction.Value;
-                    if (direction.magnitude > 0.1)
-                    {
-                        if (canMove)
-                        {
-                            _locomotionController.SetSpeed(direction);
-
-                            _animatorController.SetSpeed(direction.x, direction.z);
-                        }
-                        else
-                        {
-                            _actionStateController.Execute(new Command { Id = "move" });
-                        }
-                    }
-                    else if (canMove)
-                    {
-                        _locomotionController.Stop();
-                        _animatorController.SetSpeed(0, 0);
-                        _actionStateController.Execute(new Command { Id = "stop" });
-                    }
+                    _actionStateController.Execute(new Command { Id = "skill" });
                 })
                 .AddTo(_disposables);
 
-            // btnFireタップ時
-            _characterInput.OnFire
-            .Subscribe(_ =>
-            {
-                int skillIndex = _selectSkillObservable.SelectedSkillIndex.Value;
-                if (skillIndex >= 0)
-                {
-                    // Skillスタートできるか？->できたらそのまま実行
-                    _skillController.TryStartSkill(skillIndex);
-                }
-                else
-                {
-                    _actionStateController.Execute(new Command { Id = "pause" });
-                }
-            })
-            .AddTo(_disposables);
-
-            //! Skillスタート
+            // Skill終了
             _skillObservable
-                .OnStartSkill
-                .Subscribe(_ => _actionStateController.ExecuteTransition(SKILL))
+                .OnFinishSkill
+                .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
                 .AddTo(_disposables);
 
             // Restart
@@ -172,44 +167,50 @@ namespace HexRPG.Battle.Player
                 })
                 .AddTo(_disposables);
 
-            //! Skill終了
-            _skillObservable
-                .OnFinishSkill
-                .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
-                .AddTo(_disposables);
+            ////// ステートでの詳細処理 //////
 
-            ////// ActionStateObservable //////
-            // moveに遷移出来たら移動
-            /*
+            // 移動開始/終了
             _actionStateObservable
                 .OnStart<ActionEventMove>()
-                .Subscribe(_ =>
-                {
-                    _moveController.StartMove(_characterInput.Destination.Value);
-                })
+                .Subscribe(_ => _locomotionController.SetSpeed(_characterInput.Direction.Value))
                 .AddTo(_disposables);
-
             _actionStateObservable
                 .OnEnd<ActionEventMove>()
+                .Subscribe(_ => {
+                    _locomotionController.Stop();
+                    _animatorController.SetSpeed(0, 0); //TODO: Playableに変えたら消す(?)、animation関係は全てActionEventPlayMotionに集約させる
+                }).AddTo(_disposables);
+
+            // スキル選択時
+            _actionStateObservable
+                .OnStart<ActionEventSkillSelect>()
+                .Subscribe(_ => _selectSkillController.SelectSkill(_characterInput.SelectedSkillIndex.Value))
+                .AddTo(_disposables);
+
+            // スキル選択解除
+            _actionStateObservable
+                .OnEnd<ActionEventSkillSelect>()
+                .Subscribe(_ => _selectSkillController.ResetSelection())
+                .AddTo(_disposables);
+
+            // スキル実行
+            _actionStateObservable
+                .OnStart<ActionEventSkill>()
                 .Subscribe(_ =>
                 {
-
+                    _skillController.StartSkill(_selectSkillObservable.SelectedSkillIndex.Value, null);
+                    _selectSkillController.ResetSelection();
                 })
                 .AddTo(_disposables);
-            */
-            _actionStateObservable.OnStart<ActionEventMove>().Subscribe(_ => canMove = true).AddTo(_disposables);
-            _actionStateObservable.OnEnd<ActionEventMove>().Subscribe(_ => canMove = false).AddTo(_disposables);
 
-            // Pauseへ遷移時
+            // Hexの中心にSnap
             _actionStateObservable
-                .OnStart<ActionEventPause>()
-                .Subscribe(_ => {
-                    _pauseController.StartPause();
-                    _animatorController.Pause();
-                })
+                .OnStart<ActionEventSnapHexCenter>()
+                .Subscribe(_ => _locomotionController.SnapHexCenter())
                 .AddTo(_disposables);
 
             // 各モーション再生
+            //TODO: Playableにする
             _actionStateObservable
                 .OnStart<ActionEventPlayMotion>()
                 .Subscribe(ev =>
@@ -220,11 +221,22 @@ namespace HexRPG.Battle.Player
                             break;
 
                         case MOVE:
+                            var direction = _characterInput.Direction.Value;
+                            _animatorController.SetSpeed(direction.x, direction.z);
                             break;
 
                         case DAMAGED:
                             break;
                     }
+                })
+                .AddTo(_disposables);
+
+            // Pauseへ遷移時
+            _actionStateObservable
+                .OnStart<ActionEventPause>()
+                .Subscribe(_ => {
+                    _pauseController.StartPause();
+                    _animatorController.Pause();
                 })
                 .AddTo(_disposables);
         }

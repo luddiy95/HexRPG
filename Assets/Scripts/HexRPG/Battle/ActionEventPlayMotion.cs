@@ -5,6 +5,7 @@ namespace HexRPG.Battle
     {
         protected override ActionEventPlayMotion Self => this;
 
+        //TODO: ‚ä‚­‚ä‚­‚ÍanimationName‚ð“n‚·
         public ActionEventPlayMotion(float start) : base(start)
         {
         }

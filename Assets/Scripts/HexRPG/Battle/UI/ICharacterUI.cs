@@ -8,8 +8,6 @@ namespace HexRPG.Battle.UI
     public interface ICharacterUI
     {
         void Bind(ICharacterComponentCollection character);
-
-        IObservable<Unit> OnBack { get; }
     }
 
     public static class ClickUtility

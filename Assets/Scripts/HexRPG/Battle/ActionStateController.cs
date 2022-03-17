@@ -89,25 +89,31 @@ namespace HexRPG.Battle
             ActionState nextState = _nextState;
             _nextState = null;
 
+            var passEndNotification = false;
+
             // コマンド処理
             if (nextState == null && _requestCommand.IsEmpty == false)
             {
+                // キャンセル
                 var cancelEvent = _activeCancelEvents.Find(x => x.CommandId == _requestCommand.Id);
                 if (cancelEvent != null)
                 {
+                    passEndNotification = cancelEvent.PassEndNotification;
+
                     _executedCommand.Value = _requestCommand;
                     if (cancelEvent.HasStateType == true)
                     {
                         nextState = _actionStates.FirstOrDefault(x => x.Type == cancelEvent.StateType);
                     }
                 }
+
                 _requestCommand = Command.Empty;
             }
 
             // 遷移
             if (nextState != null)
             {
-                StartNewState(nextState);
+                StartNewState(nextState, passEndNotification);
             }
 
             // 時間経過
@@ -142,18 +148,21 @@ namespace HexRPG.Battle
             }
         }
 
-        void StartNewState(ActionState newActionState)
+        void StartNewState(ActionState newActionState, bool passEndNotification)
         {
             // 前のステートからの脱出
             if (_currentState.Value != null)
             {
                 // End できていないevent処理
-                var events = _currentState.Value.Events;
-                for (int evIndex = 0; evIndex < events.Count; ++evIndex)
+                if (!passEndNotification)
                 {
-                    if (_eventPositions[evIndex] == StatePosition.PreEnd)
+                    var events = _currentState.Value.Events;
+                    for (int evIndex = 0; evIndex < events.Count; ++evIndex)
                     {
-                        events[evIndex].OnEnd(this);
+                        if (_eventPositions[evIndex] == StatePosition.PreEnd)
+                        {
+                            events[evIndex].OnEnd(this);
+                        }
                     }
                 }
 

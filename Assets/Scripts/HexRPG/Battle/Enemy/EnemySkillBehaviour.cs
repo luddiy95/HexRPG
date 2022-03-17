@@ -50,5 +50,10 @@ namespace HexRPG.Battle.Enemy
         {
             throw new System.NotImplementedException();
         }
+
+        public ISkillComponentCollection StartSkill(int index, List<Hex> skillRange)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

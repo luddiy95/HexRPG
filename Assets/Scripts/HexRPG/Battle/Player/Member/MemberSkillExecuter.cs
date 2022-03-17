@@ -25,7 +25,6 @@ namespace HexRPG.Battle.Player.Member
         ISkillComponentCollection[] ISkillController.SkillList => _skillList;
         ISkillComponentCollection[] _skillList;
 
-        ISkillComponentCollection ISkillController.RunningSkill => _runningSkill;
         ISkillComponentCollection _runningSkill = null;
 
         CompositeDisposable _disposables = new CompositeDisposable();
@@ -59,17 +58,9 @@ namespace HexRPG.Battle.Player.Member
             _isAllSkillSpawned = true;
         }
 
-        bool ISkillController.TryStartSkill(int index)
+        ISkillComponentCollection ISkillController.StartSkill(int index, List<Hex> skillRange)
         {
-            var skillOwner = _skillList[index];
-            var MPcost = skillOwner.SkillSetting.MPcost;
-            if (_mental.Current.Value < MPcost) return false;
-            _runningSkill = skillOwner;
-            return true;
-        }
-
-        void ISkillController.StartSkill(List<Hex> skillRange)
-        {
+            _runningSkill = _skillList[index];
             _mental.Update(-_runningSkill.SkillSetting.MPcost);
 
             _disposables.Clear();
@@ -80,6 +71,8 @@ namespace HexRPG.Battle.Player.Member
             }).AddTo(_disposables);
 
             _runningSkill.Skill.StartSkill(skillRange);
+
+            return _runningSkill;
         }
     }
 }

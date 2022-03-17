@@ -19,8 +19,8 @@ namespace HexRPG.Battle.Stage
 
         Vector3 IStageController.DirX => _dirX;
         Vector3 IStageController.DirZ => _dirZ;
-        public readonly Vector3 _dirX = new Vector3(_diffX * 2, 0, 0);
-        public readonly Vector3 _dirZ = new Vector3(_diffX, 0, _diffZ);
+        public readonly Vector3 _dirX = new Vector3(_diffX, 0, 0);
+        public readonly Vector3 _dirZ = new Vector3(0, 0, _diffZ);
 
         [SerializeField] Transform _HexRoot;
         [SerializeField] Hex _hexPrefab;
@@ -83,13 +83,13 @@ namespace HexRPG.Battle.Stage
 
     public static class StageExtensions
     {
-        public static List<Hex> GetHexList(this IStageController stageController, Hex root, List<Vector2> range, int rotate)
+        public static List<Hex> GetHexList(this IStageController stageController, Hex root, List<Vector2> range, int rotationAngle)
         {
             return range
                 .Select(dir =>
                 {
                     Vector3 position = root.transform.position + 
-                        Quaternion.AngleAxis(60 * rotate, Vector3.up) * (stageController.DirX * dir.x + stageController.DirZ * dir.y);
+                        Quaternion.AngleAxis(rotationAngle, Vector3.up) * (stageController.DirX * dir.x + stageController.DirZ * dir.y);
                     return TransformExtensions.GetLandedHex(position);
                 })
                 .Where(rangeHex => rangeHex != null).ToList();

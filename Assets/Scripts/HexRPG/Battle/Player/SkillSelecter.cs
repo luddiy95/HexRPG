@@ -17,7 +17,7 @@ namespace HexRPG.Battle.Player
     public interface ISelectSkillObservable
     {
         IReadOnlyReactiveProperty<int> SelectedSkillIndex { get; }
-        int DuplicateSelectedCount { get; }
+        int SelectedSkillRotation { get; }
         List<Hex> CurAttackIndicateHexList { get; }
     }
 
@@ -34,7 +34,9 @@ namespace HexRPG.Battle.Player
         IReadOnlyReactiveProperty<int> ISelectSkillObservable.SelectedSkillIndex => _selectedSkillIndex;
         ReactiveProperty<int> _selectedSkillIndex = new ReactiveProperty<int>(-1);
 
-        int ISelectSkillObservable.DuplicateSelectedCount => _duplicateSelectedCount;
+        int ISelectSkillObservable.SelectedSkillRotation => _selectedSkillRotation;
+        int _selectedSkillRotation = 0;
+
         int _duplicateSelectedCount = 0;
 
         List<Hex> ISelectSkillObservable.CurAttackIndicateHexList => _curAttackIndicateHexList;
@@ -65,8 +67,12 @@ namespace HexRPG.Battle.Player
                     if (index >= 0)
                     {
                         var skillSetting = _memberObservable.CurMemberSkillList.Value[index].SkillSetting;
+                        _selectedSkillRotation = (_transformController.DefaultRotation + 30) / 60 * 60 + _duplicateSelectedCount * 60;
                         _curAttackIndicateHexList =
-                            _stageController.GetHexList(_transformController.GetLandedHex(), skillSetting.Range, _duplicateSelectedCount).ToList();
+                            _stageController.GetHexList(
+                                _transformController.GetLandedHex(), 
+                                skillSetting.Range,
+                                _selectedSkillRotation).ToList();
                         _attackReserve.StartAttackReservation(_curAttackIndicateHexList, _characterComponentCollection);
                     }
                 })

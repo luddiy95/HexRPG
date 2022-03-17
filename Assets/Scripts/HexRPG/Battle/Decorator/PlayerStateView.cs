@@ -24,6 +24,7 @@ namespace HexRPG.Battle
             _playerStateText = GetComponent<Text>();
 
             _battleObservable.OnPlayerSpawn
+                .Skip(1)
                 .Subscribe(playerOwner =>
                 {
                     playerOwner.ActionStateObservable.CurrentState
