@@ -11,24 +11,22 @@ namespace HexRPG.Battle.Player
     {
         ILocomotionController _locomotionController;
         IAnimatorController _animatorController;
-        IUpdateObservable _updateObservable;
         ICharacterInput _characterInput;
         IActionStateController _actionStateController;
         IActionStateObservable _actionStateObservable;
         IMemberObservable _memberObservable;
+        ISelectSkillObservable _selectSkillObservable;
+        ISelectSkillController _selectSkillController;
         ISkillController _skillController;
         ISkillObservable _skillObservable;
         IPauseController _pauseController;
         IPauseObservable _pauseObservable;
-        ISelectSkillObservable _selectSkillObservable;
-        ISelectSkillController _selectSkillController;
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
         public PlayerActionStateController(
             ILocomotionController locomotionController,
             IAnimatorController animatorController,
-            IUpdateObservable updateObservable,
             ICharacterInput characterInput,
             IActionStateController actionStateController,
             IActionStateObservable actionStateObservable,
@@ -43,7 +41,6 @@ namespace HexRPG.Battle.Player
         {
             _locomotionController = locomotionController;
             _animatorController = animatorController;
-            _updateObservable = updateObservable;
             _characterInput = characterInput;
             _actionStateController = actionStateController;
             _actionStateObservable = actionStateObservable;
@@ -67,8 +64,9 @@ namespace HexRPG.Battle.Player
             var idle = NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventCancel("move", MOVE))
-                .AddEvent(new ActionEventCancel("skillSelect", SKILL_SELECT))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
+                .AddEvent(new ActionEventCancel("combat", COMBAT))
+                .AddEvent(new ActionEventCancel("skillSelect", SKILL_SELECT))
                 ;
             _actionStateController.SetInitialState(idle);
 
@@ -77,12 +75,22 @@ namespace HexRPG.Battle.Player
                 .AddEvent(new ActionEventMove(0f))
                 .AddEvent(new ActionEventCancel("move", MOVE, passEndNotification: true)) // 方向変更
                 .AddEvent(new ActionEventCancel("stop", IDLE))
-                .AddEvent(new ActionEventCancel("skillSelect", SKILL_SELECT))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
+                .AddEvent(new ActionEventCancel("combat", COMBAT))
+                .AddEvent(new ActionEventCancel("skillSelect", SKILL_SELECT))
                 ;
 
             NewState(DAMAGED)
                 .AddEvent(new ActionEventPlayMotion(0f))
+                ;
+
+            //TODO: エフェクトのことを考えるとTimelineにするべき？
+            NewState(COMBAT)
+                .AddEvent(new ActionEventCombat())
+                .AddEvent(new ActionEventCancel("damaged", DAMAGED))
+                .AddEvent(new ActionEventCancel("combat", COMBAT)) //TODO: ？(Combat中でもcombat入力を受け取り連続コンボなどに利用できる)
+                // IDLEに戻る
+                // MOVEに戻る
                 ;
 
             NewState(SKILL_SELECT)
@@ -91,12 +99,13 @@ namespace HexRPG.Battle.Player
                 .AddEvent(new ActionEventCancel("skillCancel", IDLE))
                 .AddEvent(new ActionEventCancel("move", MOVE))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
+                .AddEvent(new ActionEventCancel("combat", COMBAT))
                 .AddEvent(new ActionEventCancel("skillSelect", SKILL_SELECT, passEndNotification: true))
                 .AddEvent(new ActionEventCancel("skill", SKILL, passEndNotification: true))
                 ;
 
             NewState(SKILL)
-                .AddEvent(new ActionEventSkill(0f))
+                .AddEvent(new ActionEventSkill())
                 // IDLEに戻る
                 ;
 
@@ -126,12 +135,20 @@ namespace HexRPG.Battle.Player
                 })
                 .AddTo(_disposables);
 
+            // Combat
+            _characterInput.OnCombat
+                .Subscribe(_ =>
+                {
+
+                })
+                .AddTo(_disposables);
+
             // Skill選択
             _characterInput.SelectedSkillIndex
                 .Skip(1)
                 .Subscribe(index =>
                 {
-                    if (index > _memberObservable.CurMemberSkillList.Value.Length - 1) return;
+                    if (index > _memberObservable.CurMember.Value.SkillSpawnObservable.SkillList.Length - 1) return;
                     //TODO: MPやチャージ状態を見て選択可能か判断(UIにも反映)、実行できないSkillはそもそも選択できないようにする
                     _actionStateController.Execute(new Command { Id = "skillSelect" });
                 })
@@ -180,6 +197,15 @@ namespace HexRPG.Battle.Player
                     _locomotionController.Stop();
                     _animatorController.SetSpeed(0, 0); //TODO: Playableに変えたら消す(?)、animation関係は全てActionEventPlayMotionに集約させる
                 }).AddTo(_disposables);
+
+            // Combat
+            _actionStateObservable
+                .OnStart<ActionEventCombat>()
+                .Subscribe(_ =>
+                {
+
+                })
+                .AddTo(_disposables);
 
             // スキル選択時
             _actionStateObservable

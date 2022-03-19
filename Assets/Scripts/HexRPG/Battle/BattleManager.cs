@@ -30,7 +30,7 @@ namespace HexRPG.Battle
         readonly ISubject<IEnemyComponentCollection> _onEnemySpawn = new Subject<IEnemyComponentCollection>();
 
         IObservable<Unit> IBattleObservable.OnBattleStart => _onBattleStart;
-        ISubject<Unit> _onBattleStart = new Subject<Unit>();
+        readonly ISubject<Unit> _onBattleStart = new Subject<Unit>();
 
         IPlayerComponentCollection _playerOwner;
         Hex IBattleObservable.PlayerLandedHex => _playerLandedHex;

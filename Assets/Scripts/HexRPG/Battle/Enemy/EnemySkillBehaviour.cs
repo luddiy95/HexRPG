@@ -3,10 +3,11 @@ using HexRPG.Battle.Stage;
 using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using UniRx;
 
 namespace HexRPG.Battle.Enemy
 {
-    public class EnemySkillBehaviour : MonoBehaviour, ISkillSpawnObservable, ISkillController, IAttackSkillController
+    public class EnemySkillBehaviour : MonoBehaviour, ISkillSpawnObservable, ISkillController
     {
         bool ISkillSpawnObservable.IsAllSkillSpawned => _isAllSkillSpawned;
         bool _isAllSkillSpawned = false;

@@ -22,9 +22,9 @@ namespace HexRPG.Battle.Skill
         TrackAsset _cinemachineTrack;
 
         IObservable<Unit> ISkillObservable.OnStartSkill => _onStartSkill;
-        ISubject<Unit> _onStartSkill = new Subject<Unit>();
+        readonly ISubject<Unit> _onStartSkill = new Subject<Unit>();
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
-        ISubject<Unit> _onFinishSkill = new Subject<Unit>();
+        readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
 
         ICharacterComponentCollection _skillOrigin;
         List<Hex> _curSkillRange;

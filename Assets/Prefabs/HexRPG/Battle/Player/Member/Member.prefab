@@ -13,8 +13,7 @@ GameObject:
   - component: {fileID: 1748735777603464265}
   - component: {fileID: 4714491127713605631}
   - component: {fileID: 8909680073724217074}
-  - component: {fileID: 4872497608899624641}
-  - component: {fileID: 5532791547886843234}
+  - component: {fileID: 8761299872914069485}
   - component: {fileID: 2659684322474483671}
   - component: {fileID: 7310130128193326296}
   - component: {fileID: 6118722193009629276}
@@ -99,8 +98,12 @@ MonoBehaviour:
   _rootTransform: {fileID: 0}
   _moveTransform: {fileID: 0}
   _rotateTransform: {fileID: 0}
-  _spawnRootTransform: {fileID: 0}
---- !u!114 &4872497608899624641
+  _spawnRoots:
+  - _transform: {fileID: 0}
+    _spawnObj: Skill
+  - _transform: {fileID: 0}
+    _spawnObj: Combat
+--- !u!114 &8761299872914069485
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -109,22 +112,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3385965354734054584}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6f4197107bfbaf42b7d4a6f0921c92f, type: 3}
+  m_Script: {fileID: 11500000, guid: f7909d4190f66174185df2ae41924ae2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 0}
---- !u!114 &5532791547886843234
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3385965354734054584}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 517853c840d84dd479f725f0ee3c1657, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &2659684322474483671
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,8 +148,7 @@ MonoBehaviour:
   _components:
   - {fileID: 4714491127713605631}
   - {fileID: 8909680073724217074}
-  - {fileID: 4872497608899624641}
-  - {fileID: 5532791547886843234}
+  - {fileID: 8761299872914069485}
   - {fileID: 2659684322474483671}
   - {fileID: 1267732234457698881}
   _identifier: 

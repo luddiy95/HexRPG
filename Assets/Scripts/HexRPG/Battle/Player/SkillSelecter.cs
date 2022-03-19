@@ -6,6 +6,7 @@ using Zenject;
 
 namespace HexRPG.Battle.Player
 {
+    using Skill;
     using Stage;
 
     public interface ISelectSkillController
@@ -32,7 +33,7 @@ namespace HexRPG.Battle.Player
         CompositeDisposable _disposables = new CompositeDisposable();
 
         IReadOnlyReactiveProperty<int> ISelectSkillObservable.SelectedSkillIndex => _selectedSkillIndex;
-        ReactiveProperty<int> _selectedSkillIndex = new ReactiveProperty<int>(-1);
+        readonly ReactiveProperty<int> _selectedSkillIndex = new ReactiveProperty<int>(-1);
 
         int ISelectSkillObservable.SelectedSkillRotation => _selectedSkillRotation;
         int _selectedSkillRotation = 0;
@@ -66,7 +67,7 @@ namespace HexRPG.Battle.Player
 
                     if (index >= 0)
                     {
-                        var skillSetting = _memberObservable.CurMemberSkillList.Value[index].SkillSetting;
+                        var skillSetting = _memberObservable.CurMember.Value.SkillSpawnObservable.SkillList[index].SkillSetting;
                         _selectedSkillRotation = (_transformController.DefaultRotation + 30) / 60 * 60 + _duplicateSelectedCount * 60;
                         _curAttackIndicateHexList =
                             _stageController.GetHexList(

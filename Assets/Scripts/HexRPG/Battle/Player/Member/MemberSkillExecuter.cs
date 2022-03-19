@@ -10,33 +10,32 @@ namespace HexRPG.Battle.Player.Member
     using Stage;
     using Skill;
 
-    public class MemberSkillExecuter : MonoBehaviour, ISkillSpawnObservable, ISkillController
+    public class MemberSkillExecuter : ISkillSpawnObservable, ISkillController, IInitializable
     {
         IMemberComponentCollection _memberOwner;
         ITransformController _transformController;
         IAnimatorController _animatorController;
         IMental _mental;
         List<SkillOwner.Factory> _skillFactories;
-        ISkills _skills;
+        ISkillsSetting _skillsSetting;
+
+        ISkillComponentCollection[] ISkillSpawnObservable.SkillList => _skillList;
+        ISkillComponentCollection[] _skillList;
 
         bool ISkillSpawnObservable.IsAllSkillSpawned => _isAllSkillSpawned;
         bool _isAllSkillSpawned = false;
-
-        ISkillComponentCollection[] ISkillController.SkillList => _skillList;
-        ISkillComponentCollection[] _skillList;
 
         ISkillComponentCollection _runningSkill = null;
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        [Inject]
-        public void Construct(
+        public MemberSkillExecuter(
             IMemberComponentCollection memberOwner,
             ITransformController transformController,
             IAnimatorController animatorController,
             IMental mental,
             List<SkillOwner.Factory> skillFactories,
-            ISkills skills
+            ISkillsSetting skillsSetting
         )
         {
             _memberOwner = memberOwner;
@@ -44,15 +43,14 @@ namespace HexRPG.Battle.Player.Member
             _animatorController = animatorController;
             _mental = mental;
             _skillFactories = skillFactories;
-            _skills = skills;
+            _skillsSetting = skillsSetting;
         }
 
-        async UniTaskVoid Start()
+        void IInitializable.Initialize()
         {
-            await UniTask.Yield(this.GetCancellationTokenOnDestroy()); // TransformBehaviour‚ª‰Šú‰»‚³‚ê‚é‚Ì‚ð‘Ò‚Â
             _skillList = _skillFactories.Select((factory, index) => {
-                ISkillComponentCollection skillOwner = factory.Create(_transformController.SpawnRootTransform, Vector3.zero);
-                skillOwner.Skill.Init(_skills.Skills[index].Timeline, _memberOwner, _animatorController.Animator);
+                ISkillComponentCollection skillOwner = factory.Create(_transformController.SpawnRootTransform("Skill"), Vector3.zero);
+                skillOwner.Skill.Init(_skillsSetting.Skills[index].Timeline, _memberOwner, _animatorController.Animator);
                 return skillOwner;
             }).ToArray();
             _isAllSkillSpawned = true;

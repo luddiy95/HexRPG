@@ -15,6 +15,6 @@ namespace HexRPG.Battle
 
         IReactiveProperty<float> IDeltaTime.TimeScale => _timeScale;
 
-        private IReactiveProperty<float> _timeScale = new ReactiveProperty<float>(1f);
+        readonly IReactiveProperty<float> _timeScale = new ReactiveProperty<float>(1f);
     }
 }

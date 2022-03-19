@@ -26,7 +26,7 @@ namespace HexRPG.Battle.Player
         int _max;
 
         IReadOnlyReactiveProperty<int> IMental.Current => _current;
-        ReactiveProperty<int> _current = new ReactiveProperty<int>();
+        readonly ReactiveProperty<int> _current = new ReactiveProperty<int>();
 
         public Mental(IMentalSetting setting)
         {

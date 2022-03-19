@@ -1,4 +1,6 @@
+using System.Linq;
 using UnityEngine;
+using System;
 using Zenject;
 
 namespace HexRPG.Battle
@@ -27,28 +29,42 @@ namespace HexRPG.Battle
         int DefaultRotation { get; set; }
 
         /// <summary>
-        /// 何かを生成する際に親となるTransform
+        /// spawnObjを生成する際に親となるTransform
         /// </summary>
-        Transform SpawnRootTransform { get; }
+        Transform SpawnRootTransform(string spawnObj);
     }
 
     public class TransformBehaviour : MonoBehaviour, ITransformController
     {
-        Transform ITransformController.RootTransform => _rootTransform;
+        ITransformController Self => this;
 
-        Transform ITransformController.MoveTransform => _moveTransform;
-        Vector3 ITransformController.Position { get => _moveTransform.localPosition; set => _moveTransform.localPosition = value; }
+        Transform ITransformController.RootTransform => _rootTransform != null ? _rootTransform : transform;
 
-        Transform ITransformController.RotateTransform => _rotateTransform;
+        Transform ITransformController.MoveTransform => _moveTransform != null ? _moveTransform : transform;
+        Vector3 ITransformController.Position 
+        { 
+            get => Self.MoveTransform.localPosition; 
+            set => Self.MoveTransform.localPosition = value; 
+        }
+
+        Transform ITransformController.RotateTransform => _rotateTransform != null ? _rotateTransform : transform;
         Quaternion ITransformController.Rotation { get => _rotation; set => _rotation = value; }
-        Quaternion _rotation { get => _rotateTransform.rotation; set => _rotateTransform.rotation = value; }
+        Quaternion _rotation 
+        { 
+            get => Self.RotateTransform.rotation; 
+            set => Self.RotateTransform.rotation = value; 
+        }
 
         int ITransformController.RotationAngle { set => _rotation = Quaternion.Euler(0, _defaultRotation + value, 0); }
 
         int ITransformController.DefaultRotation { get => _defaultRotation; set => _defaultRotation = value; }
         int _defaultRotation = 0;
 
-        Transform ITransformController.SpawnRootTransform => _spawnRootTransform;
+        Transform ITransformController.SpawnRootTransform(string spawnObj)
+        {
+            var spawnRootTransform = _spawnRoots.ToList().FirstOrDefault(x => x.SpawnObj == spawnObj);
+            return (spawnRootTransform != null && spawnRootTransform.Transform != null) ? spawnRootTransform.Transform : transform;
+        }
 
         [Header("RootとなるTransform。null ならこのオブジェクト。")]
         [SerializeField] Transform _rootTransform;
@@ -60,7 +76,20 @@ namespace HexRPG.Battle
         [SerializeField] Transform _rotateTransform;
 
         [Header("何かを生成する際に親となるTransform。null ならこのオブジェクト。")]
-        [SerializeField] Transform _spawnRootTransform;
+        [SerializeField] SpawnRoot[] _spawnRoots;
+
+        [Serializable]
+        class SpawnRoot
+        {
+            public Transform Transform => _transform;
+            public string SpawnObj => _spawnObj;
+
+            [Header("nullならこのオブジェクト")]
+            [SerializeField] Transform _transform;
+
+            [Header("spawnするオブジェクト")]
+            [SerializeField] string _spawnObj;
+        }
 
         Transform _spawnRoot;
         Vector3 _spawnPos;
@@ -77,14 +106,10 @@ namespace HexRPG.Battle
 
         void Start()
         {
-            if (_rootTransform == null) _rootTransform = transform;
-            if (_moveTransform == null) _moveTransform = transform;
-            if (_rotateTransform == null) _rotateTransform = transform;
-            if (_spawnRootTransform == null) _spawnRootTransform = transform;
+            if (_spawnRoot != null) Self.RootTransform.SetParent(_spawnRoot);
+            Self.Position = _spawnPos;
 
-            (this as ITransformController).RotationAngle = 0;
-            if (_spawnRoot != null) _rootTransform.SetParent(_spawnRoot);
-            (this as ITransformController).Position = _spawnPos;
+            Self.RotationAngle = 0;
         }
     }
 

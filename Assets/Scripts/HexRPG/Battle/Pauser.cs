@@ -18,10 +18,10 @@ namespace HexRPG.Battle
     public class Pauser : IPauseController, IPauseObservable
     {
         IObservable<Unit> IPauseObservable.OnPause => _onPause;
-        ISubject<Unit> _onPause = new Subject<Unit>();
+        readonly ISubject<Unit> _onPause = new Subject<Unit>();
 
         IObservable<Unit> IPauseObservable.OnRestart => _onRestart;
-        ISubject<Unit> _onRestart = new Subject<Unit>();
+        readonly ISubject<Unit> _onRestart = new Subject<Unit>();
 
         void IPauseController.StartPause()
         {

@@ -16,8 +16,6 @@ namespace HexRPG.Battle.Player
         IMemberComponentCollection[] MemberList { get; }
         IReadOnlyReactiveProperty<IMemberComponentCollection> CurMember { get; }
         int CurMemberIndex { get; }
-
-        IReadOnlyReactiveProperty<ISkillComponentCollection[]> CurMemberSkillList { get; }
     }
 
     public interface IMemberController
@@ -26,7 +24,7 @@ namespace HexRPG.Battle.Player
         void ChangeMember(int index);
     }
 
-    public class MemberController : IMemberController, IMemberObservable, IInitializable, IDisposable
+    public class MemberController : IMemberController, IMemberObservable, IDisposable
     {
         ITransformController _transformController;
         List<MemberOwner.Factory> _memberFactories;
@@ -35,13 +33,10 @@ namespace HexRPG.Battle.Player
         IMemberComponentCollection[] _memberList;
 
         IReadOnlyReactiveProperty<IMemberComponentCollection> IMemberObservable.CurMember => _curMember;
-        readonly ReactiveProperty<IMemberComponentCollection> _curMember = new ReactiveProperty<IMemberComponentCollection>();
+        readonly IReactiveProperty<IMemberComponentCollection> _curMember = new ReactiveProperty<IMemberComponentCollection>();
 
         int IMemberObservable.CurMemberIndex => _curMemberIndex;
         int _curMemberIndex = 0;
-
-        IReadOnlyReactiveProperty<ISkillComponentCollection[]> IMemberObservable.CurMemberSkillList => _curMemberSkillList;
-        readonly ReactiveProperty<ISkillComponentCollection[]> _curMemberSkillList = new ReactiveProperty<ISkillComponentCollection[]>();
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -53,20 +48,9 @@ namespace HexRPG.Battle.Player
             _memberFactories = memberFactories;
         }
 
-        void IInitializable.Initialize()
-        {
-            _curMember
-                .Skip(1)
-                .Subscribe(member =>
-                {
-                    _curMemberSkillList.Value = member.SkillController.SkillList;
-                })
-                .AddTo(_disposables);
-        }
-
         async UniTask IMemberController.SpawnAllMember()
         {
-            _memberList = _memberFactories.Select(factory => factory.Create(_transformController.SpawnRootTransform, Vector3.zero)).ToArray();
+            _memberList = _memberFactories.Select(factory => factory.Create(_transformController.SpawnRootTransform("Member"), Vector3.zero)).ToArray();
             // ‘S‚Ä‚ÌSkill‚ª¶¬‚³‚ê‚é‚Ì‚ð‘Ò‚Â
             await UniTask.WaitUntil(() => _memberList.All(member => member.SkillSpawnObservable.IsAllSkillSpawned));
         }

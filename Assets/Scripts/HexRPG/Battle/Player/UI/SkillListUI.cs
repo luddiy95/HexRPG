@@ -28,13 +28,10 @@ namespace HexRPG.Battle.Player.UI
         {
             if (chara is IPlayerComponentCollection playerOwner)
             {
-                _selectSkillObservable = playerOwner.SelectSkillObservable;
-
-                var memberObservable = playerOwner.MemberObservable;
-                memberObservable.CurMemberSkillList
-                    .Subscribe(skillList =>
+                playerOwner.MemberObservable.CurMember
+                    .Subscribe(memberOwner =>
                     {
-                        _skillIconList = skillList.Select(skill =>
+                        _skillIconList = memberOwner.SkillSpawnObservable.SkillList.Select(skill =>
                         {
                             return skill.SkillSetting.Icon;
                         }).ToArray();
@@ -44,7 +41,7 @@ namespace HexRPG.Battle.Player.UI
                     .AddTo(this);
 
 
-                _selectSkillObservable.SelectedSkillIndex
+                playerOwner.SelectSkillObservable.SelectedSkillIndex
                     .Pairwise()
                     .Subscribe(x =>
                     {

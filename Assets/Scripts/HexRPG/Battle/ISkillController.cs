@@ -7,8 +7,6 @@ namespace HexRPG.Battle
 
     public interface ISkillController
     {
-        ISkillComponentCollection[] SkillList { get; }
-
         ISkillComponentCollection StartSkill(int index, List<Hex> skillRange);
     }
 }

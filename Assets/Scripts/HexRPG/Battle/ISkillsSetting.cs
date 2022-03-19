@@ -4,7 +4,7 @@ using UnityEngine.Playables;
 
 namespace HexRPG.Battle
 {
-    public interface ISkills
+    public interface ISkillsSetting
     {
         SkillAsset[] Skills { get; }
     }

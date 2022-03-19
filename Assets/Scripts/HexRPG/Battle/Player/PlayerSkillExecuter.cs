@@ -16,14 +16,11 @@ namespace HexRPG.Battle.Player
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        // Žg‚í‚È‚¢
-        ISkillComponentCollection[] ISkillController.SkillList => null;
-
         IObservable<Unit> ISkillObservable.OnStartSkill => _onStartSkill;
-        ISubject<Unit> _onStartSkill = new Subject<Unit>();
+        readonly ISubject<Unit> _onStartSkill = new Subject<Unit>();
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
-        ISubject<Unit> _onFinishSkill = new Subject<Unit>();
+        readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
 
         public PlayerSkillExecuter(
             ITransformController transformController,
@@ -40,20 +37,19 @@ namespace HexRPG.Battle.Player
 
         ISkillComponentCollection ISkillController.StartSkill(int index, List<Hex> skillRange)
         {
-            _disposables.Clear();
-            var skillController = _memberObservable.CurMember.Value.SkillController;
-
             _transformController.RotationAngle = _selectSkillObservable.SelectedSkillRotation - _transformController.DefaultRotation;
-            var runningSkill = skillController.StartSkill(index, _selectSkillObservable.CurAttackIndicateHexList);
 
-            var skillObservable = runningSkill.SkillObservable;
-            skillObservable.OnStartSkill.Subscribe(_ => _onStartSkill.OnNext(Unit.Default)).AddTo(_disposables);
-            skillObservable.OnFinishSkill.Subscribe(_ =>
+            var runningSkill = _memberObservable.CurMember.Value.SkillController.StartSkill(index, _selectSkillObservable.CurAttackIndicateHexList);
+
+            _disposables.Clear();
+            runningSkill.SkillObservable.OnFinishSkill.Subscribe(_ =>
             {
                 _transformController.RotationAngle = 0;
                 _stageController.Liberate(_selectSkillObservable.CurAttackIndicateHexList, true);
                 _onFinishSkill.OnNext(Unit.Default);
             }).AddTo(_disposables);
+
+            _onStartSkill.OnNext(Unit.Default);
 
             return runningSkill;
         }

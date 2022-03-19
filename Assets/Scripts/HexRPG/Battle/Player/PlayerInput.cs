@@ -11,6 +11,9 @@ namespace HexRPG.Battle.Player
     {
         IUpdateObservable _updateObservable;
 
+        [Header("通常攻撃ボタン")]
+        [SerializeField] GameObject _btnCombat;
+
         [Header("スキル選択ボタンリスト")]
         [SerializeField] Transform _skillBtnList;
 
@@ -24,18 +27,21 @@ namespace HexRPG.Battle.Player
         [SerializeField] Transform _cameraRotRight;
 
         IReadOnlyReactiveProperty<Vector3> ICharacterInput.Direction => _direction;
-        ReactiveProperty<Vector3> _direction = new ReactiveProperty<Vector3>();
+        readonly IReactiveProperty<Vector3> _direction = new ReactiveProperty<Vector3>();
+
+        IObservable<Unit> ICharacterInput.OnCombat => _onCombat;
+        readonly ISubject<Unit> _onCombat = new Subject<Unit>();
 
         IReadOnlyReactiveProperty<int> ICharacterInput.SelectedSkillIndex => _selectedSkillIndex;
-        ReactiveProperty<int> _selectedSkillIndex = new ReactiveProperty<int>(-1);
+        readonly ReactiveProperty<int> _selectedSkillIndex = new ReactiveProperty<int>(-1);
 
         IObservable<Unit> ICharacterInput.OnSkillDecide => _onSkillDecide;
-        ISubject<Unit> _onSkillDecide = new Subject<Unit>();
+        readonly ISubject<Unit> _onSkillDecide = new Subject<Unit>();
         IObservable<Unit> ICharacterInput.OnSkillCancel => _onSkillCancel;
-        ISubject<Unit> _onSkillCancel = new Subject<Unit>();
+        readonly ISubject<Unit> _onSkillCancel = new Subject<Unit>();
 
         IReadOnlyReactiveProperty<int> ICharacterInput.CameraRotateDir => _cameraRotateDir;
-        ReactiveProperty<int> _cameraRotateDir = new ReactiveProperty<int>();
+        readonly ReactiveProperty<int> _cameraRotateDir = new ReactiveProperty<int>();
 
         [Inject]
         public void Construct(IUpdateObservable updateObservable)
@@ -45,6 +51,7 @@ namespace HexRPG.Battle.Player
 
         void Start()
         {
+            var isBtnCombatClicked = false;
             int selectedSkillIndex = -1;
             var isBtnSkillDecideClicked = false;
             var isBtnSkillCancelClicked = false;
@@ -54,6 +61,12 @@ namespace HexRPG.Battle.Player
                 .Subscribe(_ =>
                 {
                     UpdateDirection();
+
+                    if (isBtnCombatClicked)
+                    {
+                        _onCombat.OnNext(Unit.Default);
+                        isBtnCombatClicked = false;
+                    }
 
                     if (selectedSkillIndex != -1)
                     {
@@ -78,6 +91,11 @@ namespace HexRPG.Battle.Player
                         cameraRotateDir = 0;
                     }
                 }).AddTo(this);
+
+            _btnCombat.OnClickListener(() =>
+            {
+                isBtnCombatClicked = true;
+            }, gameObject);
 
             void SetSkillBtnClickEvent(GameObject btn, int index)
             {

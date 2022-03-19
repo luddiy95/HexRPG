@@ -28,7 +28,7 @@ namespace HexRPG.Battle
         IReadOnlyReactiveProperty<Command> IActionStateObservable.ExecutedCommand => _executedCommand;
         ICollection<ActionState> IActionStateObservable.StateHistory => _stateHistory;
 
-        IReactiveProperty<ActionState> _currentState = new ReactiveProperty<ActionState>();
+        readonly IReactiveProperty<ActionState> _currentState = new ReactiveProperty<ActionState>();
         readonly IReactiveProperty<Command> _executedCommand = new ReactiveProperty<Command>();
         readonly List<ActionState> _stateHistory = new List<ActionState>();
 

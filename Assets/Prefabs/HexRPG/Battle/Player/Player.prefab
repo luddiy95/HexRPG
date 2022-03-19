@@ -96,7 +96,9 @@ MonoBehaviour:
   _rootTransform: {fileID: 0}
   _moveTransform: {fileID: 0}
   _rotateTransform: {fileID: 2932145111331283009}
-  _spawnRootTransform: {fileID: 2932145111331283009}
+  _spawnRoots:
+  - _transform: {fileID: 2932145111331283009}
+    _spawnObj: Member
 --- !u!114 &5478983484616431511
 MonoBehaviour:
   m_ObjectHideFlags: 0

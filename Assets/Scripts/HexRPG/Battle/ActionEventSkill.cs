@@ -5,7 +5,7 @@ namespace HexRPG.Battle
     {
         protected override ActionEventSkill Self => this;
 
-        public ActionEventSkill(float start) : base(start)
+        public ActionEventSkill() : base(0f)
         {
         }
     }

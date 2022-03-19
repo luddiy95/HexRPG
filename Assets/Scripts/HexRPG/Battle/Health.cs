@@ -26,7 +26,7 @@ namespace HexRPG.Battle
         int _max;
 
         IReadOnlyReactiveProperty<int> IHealth.Current => _current;
-        ReactiveProperty<int> _current = new ReactiveProperty<int>();
+        readonly ReactiveProperty<int> _current = new ReactiveProperty<int>();
 
         public Health(IHealthSetting setting)
         {

@@ -6,9 +6,9 @@ namespace HexRPG.Battle.Player.Member
 {
     using Skill;
 
-    public class MemberInstaller : MonoInstaller, ISkills
+    public class MemberInstaller : MonoInstaller, ISkillsSetting
     {
-        SkillAsset[] ISkills.Skills => _skills;
+        SkillAsset[] ISkillsSetting.Skills => _skills;
         [Header("スキルリスト")]
         [SerializeField] SkillAsset[] _skills;
 
@@ -20,6 +20,9 @@ namespace HexRPG.Battle.Player.Member
             Container.BindInterfacesAndSelfTo<MemberOwner>().FromComponentOnRoot();
             Container.BindInstance(_spawnRoot).WhenInjectedInto<TransformBehaviour>();
             Container.BindInstance(_spawnPos).WhenInjectedInto<TransformBehaviour>();
+
+            Container.BindInterfacesTo<MemberCombatExecuter>().AsSingle();
+            Container.BindInterfacesTo<MemberSkillExecuter>().AsSingle();
 
             Container.BindInterfacesTo<Mental>().AsSingle();
             Container.BindInterfacesTo<Health>().AsSingle();

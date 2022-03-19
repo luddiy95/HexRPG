@@ -36,13 +36,13 @@ namespace HexRPG.Battle.Player
 #nullable disable
 
                     _animator = memberOwner.AnimatorController.Animator;
-                    var stateMachineTrigger = _animator.GetBehaviour<ObservableStateMachineTrigger>();
+                    var stateMachineTrigger = Self.Animator.GetBehaviour<ObservableStateMachineTrigger>();
                     _moveAnimationEnterDisposable = stateMachineTrigger
                         .OnStateEnterAsObservable()
                         .Where(x => x.StateInfo.IsTag(MOVE))
                         .Subscribe(_ =>
                         {
-                            _animator.SetSpeed(0, 0);
+                            Self.Animator.SetSpeed(0, 0);
                         });
 
                     _moveAnimationExitDisposable = stateMachineTrigger

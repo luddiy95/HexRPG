@@ -7,8 +7,13 @@ namespace HexRPG.Battle
         NONE,
 
         IDLE,
+
         MOVE,
+
         DAMAGED,
+
+        COMBAT,
+
         SKILL_SELECT,
         SKILL,
 

@@ -74,7 +74,7 @@ namespace HexRPG.Battle.Enemy
                 ;
 
             NewState(SKILL)
-                .AddEvent(new ActionEventSkill(0f))
+                .AddEvent(new ActionEventSkill())
                 // IDLE‚É–ß‚é
                 ;
 
