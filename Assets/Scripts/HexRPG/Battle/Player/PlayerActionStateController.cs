@@ -11,14 +11,22 @@ namespace HexRPG.Battle.Player
     {
         ILocomotionController _locomotionController;
         IAnimatorController _animatorController;
+
         ICharacterInput _characterInput;
+
         IActionStateController _actionStateController;
         IActionStateObservable _actionStateObservable;
+
         IMemberObservable _memberObservable;
+
+        ICombatController _combatController;
+        ICombatObservable _combatObservable;
+
         ISelectSkillObservable _selectSkillObservable;
         ISelectSkillController _selectSkillController;
         ISkillController _skillController;
         ISkillObservable _skillObservable;
+
         IPauseController _pauseController;
         IPauseObservable _pauseObservable;
 
@@ -31,6 +39,8 @@ namespace HexRPG.Battle.Player
             IActionStateController actionStateController,
             IActionStateObservable actionStateObservable,
             IMemberObservable memberObservable,
+            ICombatController combatController,
+            ICombatObservable combatObservable,
             ISkillController skillController,
             ISkillObservable skillObservable,
             IPauseController pauseController,
@@ -45,6 +55,8 @@ namespace HexRPG.Battle.Player
             _actionStateController = actionStateController;
             _actionStateObservable = actionStateObservable;
             _memberObservable = memberObservable;
+            _combatController = combatController;
+            _combatObservable = combatObservable;
             _skillController = skillController;
             _skillObservable = skillObservable;
             _pauseController = pauseController;
@@ -88,7 +100,7 @@ namespace HexRPG.Battle.Player
             NewState(COMBAT)
                 .AddEvent(new ActionEventCombat())
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
-                .AddEvent(new ActionEventCancel("combat", COMBAT)) //TODO: ？(Combat中でもcombat入力を受け取り連続コンボなどに利用できる)
+                .AddEvent(new ActionEventCancel("combat", COMBAT, passEndNotification: true)) //TODO: ？(Combat中でもcombat入力を受け取り連続コンボなどに利用できる)
                 // IDLEに戻る
                 // MOVEに戻る
                 ;
@@ -139,8 +151,13 @@ namespace HexRPG.Battle.Player
             _characterInput.OnCombat
                 .Subscribe(_ =>
                 {
-
+                    _actionStateController.Execute(new Command { Id = "combat" });
                 })
+                .AddTo(_disposables);
+
+            // Combat終了
+            _combatObservable.OnFinishCombat
+                .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
                 .AddTo(_disposables);
 
             // Skill選択
@@ -203,7 +220,7 @@ namespace HexRPG.Battle.Player
                 .OnStart<ActionEventCombat>()
                 .Subscribe(_ =>
                 {
-
+                    _combatController.Combat();
                 })
                 .AddTo(_disposables);
 

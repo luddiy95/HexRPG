@@ -36,7 +36,7 @@ namespace HexRPG.Battle.Player.Combat
 
         void ICombat.Execute()
         {
-            //TODO: 通常攻撃開始/コンボ
+            _director.Play();
         }
     }
 }

@@ -15,5 +15,10 @@ namespace HexRPG.Battle.Player.Combat
     {
         [Inject] ICombat ICombatComponentCollection.Combat { get; }
         [Inject] ICombatObservable ICombatComponentCollection.CombatObservable { get; }
+
+        public class Factory : PlaceholderFactory<Transform, Vector3, CombatOwner>
+        {
+
+        }
     }
 }

@@ -5717,6 +5717,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+      propertyPath: _combat._prefab
+      value: 
+      objectReference: {fileID: 5513408834457327260, guid: e14331e5974de344aa10ac47ec65328b, type: 3}
+    - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+      propertyPath: _combat._timeline
+      value: 
+      objectReference: {fileID: 11400000, guid: 10e4f807bff27a948a9dc9b7cb22b824, type: 2}
+    - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.size
       value: 2
       objectReference: {fileID: 0}

@@ -42,7 +42,8 @@ namespace HexRPG.Battle.Player
                 _runningCombat.CombatObservable.OnFinishCombat
                     .Subscribe(_ =>
                     {
-
+                        _onFinishCombat.OnNext(Unit.Default);
+                        _runningCombat = null;
                     })
                     .AddTo(_disposables);
             }
