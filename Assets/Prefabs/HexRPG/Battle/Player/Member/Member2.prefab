@@ -3125,7 +3125,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2698591082006853935}
   m_Layer: 0
-  m_Name: ComboSword
+  m_Name: ComboSwordRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3138,13 +3138,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4322322227040168889}
-  m_LocalRotation: {x: 0.019377628, y: 0.08210355, z: -0.6702754, w: 0.7373022}
-  m_LocalPosition: {x: 0.0200001, y: 0.10599999, z: -0.0130003765}
+  m_LocalRotation: {x: -0.67732537, y: 0.5367557, z: 0.477719, w: -0.15782364}
+  m_LocalPosition: {x: -0.023, y: 0.008, z: -0.017}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3725838523046305865}
   m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 7.969, y: 5.51, z: -84.163}
+  m_LocalEulerAnglesHint: {x: -17.4, y: 238.84, z: -113.073}
 --- !u!1 &4451393332246906592
 GameObject:
   m_ObjectHideFlags: 0

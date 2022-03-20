@@ -51,8 +51,8 @@ namespace HexRPG.Battle
         Quaternion ITransformController.Rotation { get => _rotation; set => _rotation = value; }
         Quaternion _rotation 
         { 
-            get => Self.RotateTransform.rotation; 
-            set => Self.RotateTransform.rotation = value; 
+            get => Self.RotateTransform.localRotation; 
+            set => Self.RotateTransform.localRotation = value; 
         }
 
         int ITransformController.RotationAngle { set => _rotation = Quaternion.Euler(0, _defaultRotation + value, 0); }

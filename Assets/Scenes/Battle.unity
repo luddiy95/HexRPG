@@ -1051,7 +1051,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8dd6ec133b57c854b9357b12164aad00, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b2247366b73af474c9a81d5614d860b4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -10865,6 +10865,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce28bbf8cfd25d343806abef61723b48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _combatBtn: {fileID: 1756449360}
   _skillList: {fileID: 1715980185}
   _memberList: {fileID: 533240346}
 --- !u!1001 &947725387
@@ -19727,6 +19728,7 @@ GameObject:
   - component: {fileID: 1756449361}
   - component: {fileID: 1756449363}
   - component: {fileID: 1756449362}
+  - component: {fileID: 1756449364}
   m_Layer: 5
   m_Name: ButtonCombat
   m_TagString: Untagged
@@ -19792,6 +19794,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1756449360}
   m_CullTransparentMesh: 1
+--- !u!114 &1756449364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756449360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b41522a8bb493040986a3bde513e2b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _combatBtn: {fileID: 1756449361}
 --- !u!1 &1760580806
 GameObject:
   m_ObjectHideFlags: 0
