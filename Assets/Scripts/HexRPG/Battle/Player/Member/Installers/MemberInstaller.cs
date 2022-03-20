@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using Zenject;
+using UnityEngine.Playables;
 
 namespace HexRPG.Battle.Player.Member
 {
@@ -9,9 +10,13 @@ namespace HexRPG.Battle.Player.Member
 
     public class MemberInstaller : MonoInstaller, ICombatSetting, ISkillsSetting
     {
-        CombatAsset ICombatSetting.Combat => _combat;
+        GameObject ICombatSetting.Prefab => _combatPrefab;
+        Transform ICombatSetting.SpawnRoot => _combatSpawnRoot;
+        PlayableAsset ICombatSetting.Timeline => _combatTimeline;
         [Header("通常攻撃")]
-        [SerializeField] CombatAsset _combat;
+        [SerializeField] GameObject _combatPrefab;
+        [SerializeField] Transform _combatSpawnRoot;
+        [SerializeField] PlayableAsset _combatTimeline;
 
         SkillAsset[] ISkillsSetting.Skills => _skills;
         [Header("スキルリスト")]
@@ -34,7 +39,7 @@ namespace HexRPG.Battle.Player.Member
 
             Container.BindFactory<Transform, Vector3, CombatOwner, CombatOwner.Factory>()
                 .FromSubContainerResolve()
-                .ByNewContextPrefab<CombatInstaller>(_combat.Prefab);
+                .ByNewContextPrefab<CombatInstaller>(_combatPrefab);
 
             Array.ForEach(_skills, skill =>
             {

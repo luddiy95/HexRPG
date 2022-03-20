@@ -95,19 +95,19 @@ namespace HexRPG.Battle.Skill
             _curSkillRange = skillRange;
 
             var isEnemyExistInSkillRange = _battleObservable.EnemyList.Any(enemy => skillRange.Contains(enemy.TransformController.GetLandedHex()));
-            _cinemachineTrack.muted = !isEnemyExistInSkillRange;
+            //_cinemachineTrack.muted = !isEnemyExistInSkillRange;
 
             _director.Play();
         }
 
         public virtual void StartAttackEnable()
         {
-            var attackSetting = new AttackSetting
+            var attackSetting = new SkillAttackSetting
             {
-                _power = _skillSetting.Damage
+                _power = _skillSetting.Damage, _attackRange = _curSkillRange
             };
 
-            _attackController.StartAttack(_curSkillRange, attackSetting, _skillOrigin);
+            _attackController.StartAttack(attackSetting, _skillOrigin);
         }
 
         public virtual void FinishAttackEnable()

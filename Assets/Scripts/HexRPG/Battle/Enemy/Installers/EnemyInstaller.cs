@@ -16,10 +16,11 @@ namespace HexRPG.Battle.Enemy
 
             Container.BindInterfacesTo<ActionStateController>().AsSingle();
             Container.BindInterfacesTo<EnemyActionStateController>().AsSingle();
+
             Container.BindInterfacesTo<EnemyMover>().AsSingle();
             Container.BindInterfacesTo<EnemyTurnToPlayer>().AsSingle();
 
-            Container.BindInterfacesTo<DamageApplicable>().AsSingle();
+            Container.BindInterfacesTo<EnemySkillExecuter>().AsSingle();
 
             Container.BindInterfacesTo<Health>().AsSingle();
         }

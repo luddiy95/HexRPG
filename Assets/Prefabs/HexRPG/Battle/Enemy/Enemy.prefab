@@ -14,13 +14,13 @@ GameObject:
   - component: {fileID: 439547804308635337}
   - component: {fileID: 8205341976085822526}
   - component: {fileID: -3323397056586544932}
-  - component: {fileID: 13823230829077512}
+  - component: {fileID: 4111755355788955245}
   - component: {fileID: 14830042264568972}
   - component: {fileID: 4192941471624449821}
   - component: {fileID: 5444327952133001356}
   - component: {fileID: 7135533358454013842}
   m_Layer: 0
-  m_Name: CharacterEnemy
+  m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -99,7 +99,7 @@ MonoBehaviour:
   _rootTransform: {fileID: 0}
   _moveTransform: {fileID: 0}
   _rotateTransform: {fileID: 0}
-  _spawnRootTransform: {fileID: 0}
+  _spawnRoots: []
 --- !u!114 &-3323397056586544932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -113,7 +113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 0}
---- !u!114 &13823230829077512
+--- !u!114 &4111755355788955245
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,7 +122,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8860857860763353368}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eba1bb79a1afed8419b9cfd9e0b7f027, type: 3}
+  m_Script: {fileID: 11500000, guid: ff031b9e59c79554a8ded6e14aea480f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &14830042264568972
@@ -156,7 +156,7 @@ MonoBehaviour:
   - {fileID: 439547804308635337}
   - {fileID: 8205341976085822526}
   - {fileID: -3323397056586544932}
-  - {fileID: 13823230829077512}
+  - {fileID: 4111755355788955245}
   - {fileID: 14830042264568972}
   _identifier: 
   _useSceneContext: 0

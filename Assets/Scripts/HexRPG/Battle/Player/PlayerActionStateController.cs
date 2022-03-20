@@ -27,9 +27,6 @@ namespace HexRPG.Battle.Player
         ISkillController _skillController;
         ISkillObservable _skillObservable;
 
-        IPauseController _pauseController;
-        IPauseObservable _pauseObservable;
-
         CompositeDisposable _disposables = new CompositeDisposable();
 
         public PlayerActionStateController(
@@ -43,8 +40,6 @@ namespace HexRPG.Battle.Player
             ICombatObservable combatObservable,
             ISkillController skillController,
             ISkillObservable skillObservable,
-            IPauseController pauseController,
-            IPauseObservable pauseObservable,
             ISelectSkillObservable selectSkillObservable,
             ISelectSkillController selectSkillController
         )
@@ -59,8 +54,6 @@ namespace HexRPG.Battle.Player
             _combatObservable = combatObservable;
             _skillController = skillController;
             _skillObservable = skillObservable;
-            _pauseController = pauseController;
-            _pauseObservable = pauseObservable;
             _selectSkillObservable = selectSkillObservable;
             _selectSkillController = selectSkillController;
         }
@@ -119,10 +112,6 @@ namespace HexRPG.Battle.Player
             NewState(SKILL)
                 .AddEvent(new ActionEventSkill())
                 // IDLEに戻る
-                ;
-
-            NewState(PAUSE)
-                .AddEvent(new ActionEventPause(0f)) // Pause中
                 ;
 
             ActionState NewState(ActionStateType type, Action<ActionState> action = null)
@@ -191,14 +180,6 @@ namespace HexRPG.Battle.Player
             _skillObservable
                 .OnFinishSkill
                 .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
-                .AddTo(_disposables);
-
-            // Restart
-            _pauseObservable.OnRestart
-                .Subscribe(_ => {
-                    _actionStateController.ExecuteTransition(IDLE);
-                    _animatorController.Restart();
-                })
                 .AddTo(_disposables);
 
             ////// ステートでの詳細処理 //////
@@ -271,15 +252,6 @@ namespace HexRPG.Battle.Player
                         case DAMAGED:
                             break;
                     }
-                })
-                .AddTo(_disposables);
-
-            // Pauseへ遷移時
-            _actionStateObservable
-                .OnStart<ActionEventPause>()
-                .Subscribe(_ => {
-                    _pauseController.StartPause();
-                    _animatorController.Pause();
                 })
                 .AddTo(_disposables);
         }

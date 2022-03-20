@@ -24,7 +24,7 @@ namespace HexRPG.Battle
 
     public interface IAttackController
     {
-        void StartAttack(List<Hex> attackRange, IAttackSetting setting, ICharacterComponentCollection attackOrigin);
+        void StartAttack(IAttackSetting setting, ICharacterComponentCollection attackOrigin);
 
         void FinishAttack();
     }
@@ -71,15 +71,21 @@ namespace HexRPG.Battle
             _curReservationRange.ForEach(hex => hex.RemoveAttackReservation(this));
         }
 
-        void IAttackController.StartAttack(List<Hex> attackRange, IAttackSetting setting, ICharacterComponentCollection attackOrigin)
+        void IAttackController.StartAttack(IAttackSetting setting, ICharacterComponentCollection attackOrigin)
         {
-            _curAttackRange = attackRange;
             _currentSetting = setting;
             _attackOrigin = attackOrigin;
-            _curAttackRange.ForEach(hex =>
+            if (setting is ICombatAttackSetting combatAttackSetting)
             {
-                hex.AddAttackApplicator(this);
-            });
+
+            }else if (setting is ISkillAttackSetting skillAttackSetting)
+            {
+                _curAttackRange = skillAttackSetting.AttackRange;
+                _curAttackRange.ForEach(hex =>
+                {
+                    hex.AddAttackApplicator(this);
+                });
+            }
             _hitObjects.Clear();
         }
 
@@ -92,17 +98,17 @@ namespace HexRPG.Battle
             _currentSetting = null;
         }
 
-        bool IAttackApplicator.TryMarkAsHit(ICharacterComponentCollection owner)
+        bool IAttackApplicator.TryMarkAsHit(ICharacterComponentCollection damagedOwner)
         {
             if (_currentSetting == null)
             {
                 return false;
             }
-            if (_hitObjects.Contains(owner) == true)
+            if (_hitObjects.Contains(damagedOwner) == true)
             {
                 return false;
             }
-            _hitObjects.Add(owner);
+            _hitObjects.Add(damagedOwner);
             return true;
         }
 

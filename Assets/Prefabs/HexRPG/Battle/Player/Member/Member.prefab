@@ -101,8 +101,6 @@ MonoBehaviour:
   _spawnRoots:
   - _transform: {fileID: 0}
     _spawnObj: Skill
-  - _transform: {fileID: 0}
-    _spawnObj: Combat
 --- !u!114 &8761299872914069485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -185,4 +183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239936bbef0af934fa2d37a3dc0b41df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _combatPrefab: {fileID: 0}
+  _combatSpawnRoot: {fileID: 0}
+  _combatTimeline: {fileID: 0}
   _skills: []

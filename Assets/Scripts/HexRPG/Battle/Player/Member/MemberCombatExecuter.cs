@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
@@ -12,7 +10,6 @@ namespace HexRPG.Battle.Player.Member
         IMemberComponentCollection _memberOwner;
         CombatOwner.Factory _combatFactory;
         ICombatSetting _combatSetting;
-        ITransformController _transformController;
         IAnimatorController _animatorController;
 
         ICombatComponentCollection ICombatSpawnObservable.Combat => _combat;
@@ -25,21 +22,19 @@ namespace HexRPG.Battle.Player.Member
             IMemberComponentCollection memberOwner,
             CombatOwner.Factory combatFactory,
             ICombatSetting combatSetting,
-            ITransformController transformController,
             IAnimatorController animatorController
         )
         {
             _memberOwner = memberOwner;
             _combatFactory = combatFactory;
             _combatSetting = combatSetting;
-            _transformController = transformController;
             _animatorController = animatorController;
         }
 
         void IInitializable.Initialize()
         {
-            _combat = _combatFactory.Create(_transformController.SpawnRootTransform("Combat"), Vector3.zero);
-            _combat.Combat.Init(_combatSetting.Combat.Timeline, _memberOwner, _animatorController.Animator);
+            _combat = _combatFactory.Create(_combatSetting.SpawnRoot, Vector3.zero);
+            _combat.Combat.Init(_combatSetting.Timeline, _memberOwner, _animatorController.Animator);
             _isCombatSpawned = true;
         }
 
