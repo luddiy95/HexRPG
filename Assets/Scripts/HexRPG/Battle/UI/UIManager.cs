@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UniRx;
 using Zenject;
 
@@ -10,10 +9,13 @@ namespace HexRPG.Battle.UI
     {
         IBattleObservable _battleObservable;
 
+        [Header("CombatのUI実装オブジェクト")]
+        [SerializeField] GameObject _combatBtn;
         [Header("SkillのUI実装オブジェクト")]
         [SerializeField] GameObject _skillList;
         [Header("MemberのUI実装オブジェクト")]
         [SerializeField] GameObject _memberList;
+        ICharacterUI _combatUI;
         ICharacterUI _skillListUI;
         ICharacterUI _memberListUI;
 
@@ -27,23 +29,27 @@ namespace HexRPG.Battle.UI
 
         void Start()
         {
-            _skillListUI = _skillList.GetComponent<ICharacterUI>();
-            _memberListUI = _memberList.GetComponent<ICharacterUI>();
-
-            _battleObservable.OnPlayerSpawn
-                .Skip(1)
-                .Subscribe(playerOwner =>
-                {
-                    new List<ICharacterUI>
+            if(_combatBtn.TryGetComponent(out _combatUI) && 
+                _skillList.TryGetComponent(out _skillListUI) && 
+                _memberList.TryGetComponent(out _memberListUI))
+            {
+                _battleObservable.OnPlayerSpawn
+                    .Skip(1)
+                    .Subscribe(playerOwner =>
                     {
-                        _skillListUI,
-                        _memberListUI
-                    }
-                    .ForEach(ui =>
-                    {
-                        ui.Bind(playerOwner);
+                        new List<ICharacterUI>
+                        {
+                            _combatUI,
+                            _skillListUI,
+                            _memberListUI
+                        }
+                        .ForEach(ui =>
+                        {
+                            ui.Bind(playerOwner);
+                        });
                     });
-                });
+            }
+
         }
     }
 }

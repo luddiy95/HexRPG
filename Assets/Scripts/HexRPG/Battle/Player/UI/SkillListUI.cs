@@ -10,14 +10,10 @@ namespace HexRPG.Battle.Player.UI
 
     public class SkillListUI : MonoBehaviour, ICharacterUI
     {
-        ISelectSkillObservable _selectSkillObservable;
-
         [SerializeField] Transform _skillBtnList;
 
         [SerializeField] GameObject _btnBack;
         [SerializeField] Image _btnDecide;
-
-        Sprite[] _skillIconList = new Sprite[0];
 
         [SerializeField] Sprite _btnDecideEnableSprite;
         [SerializeField] Sprite _btnDecideDisableSprite;
@@ -31,12 +27,12 @@ namespace HexRPG.Battle.Player.UI
                 playerOwner.MemberObservable.CurMember
                     .Subscribe(memberOwner =>
                     {
-                        _skillIconList = memberOwner.SkillSpawnObservable.SkillList.Select(skill =>
+                        Sprite[] skillIconList = memberOwner.SkillSpawnObservable.SkillList.Select(skill =>
                         {
                             return skill.SkillSetting.Icon;
                         }).ToArray();
 
-                        UpdateBtnIcon();
+                        UpdateBtnIcon(skillIconList);
                     })
                     .AddTo(this);
 
@@ -64,15 +60,15 @@ namespace HexRPG.Battle.Player.UI
 
         #region View
 
-        void UpdateBtnIcon()
+        void UpdateBtnIcon(Sprite[] skillIconList)
         {
             for (int i = 0; i < _skillBtnList.childCount; i++)
             {
                 UpdateBtnSelectedStatus(i, false);
-                if (i > _skillIconList.Length - 1) return;
+                if (i > skillIconList.Length - 1) return;
                 var optionBtn = _skillBtnList.GetChild(i);
                 Image icon = optionBtn.GetChild(0).GetComponent<Image>();
-                icon.sprite = _skillIconList[i];
+                icon.sprite = skillIconList[i];
             }
         }
 

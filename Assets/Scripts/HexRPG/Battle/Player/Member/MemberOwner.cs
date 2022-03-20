@@ -6,6 +6,7 @@ namespace HexRPG.Battle.Player.Member
     public interface IMemberComponentCollection : ICharacterComponentCollection
     {
         IAnimatorController AnimatorController { get; }
+        ICombatSpawnObservable CombatSpawnObservable { get; }
         ICombatController CombatController { get; }
         ISkillSpawnObservable SkillSpawnObservable { get; }
         ISkillController SkillController { get; }
@@ -20,6 +21,7 @@ namespace HexRPG.Battle.Player.Member
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
         [Inject] IAnimatorController IMemberComponentCollection.AnimatorController { get; }
+        [Inject] ICombatSpawnObservable IMemberComponentCollection.CombatSpawnObservable { get; }
         [Inject] ICombatController IMemberComponentCollection.CombatController { get; }
         [Inject] ISkillSpawnObservable IMemberComponentCollection.SkillSpawnObservable { get; }
         [Inject] ISkillController IMemberComponentCollection.SkillController { get; }
