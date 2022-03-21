@@ -24,7 +24,6 @@ namespace HexRPG.Battle.Player
 
     public class SkillSelecter : ISelectSkillController, ISelectSkillObservable, IInitializable, IDisposable
     {
-        ICharacterComponentCollection _characterComponentCollection;
         ITransformController _transformController;
         IAttackReserve _attackReserve;
         IMemberObservable _memberObservable;
@@ -44,14 +43,12 @@ namespace HexRPG.Battle.Player
         List<Hex> _curAttackIndicateHexList = new List<Hex>();
 
         public SkillSelecter(
-            ICharacterComponentCollection characterComponentCollection,
             ITransformController transformController,
             IAttackReserve attackReserve,
             IMemberObservable memberObservable,
             IStageController stageController
         )
         {
-            _characterComponentCollection = characterComponentCollection;
             _transformController = transformController;
             _attackReserve = attackReserve;
             _memberObservable = memberObservable;
@@ -74,7 +71,7 @@ namespace HexRPG.Battle.Player
                                 _transformController.GetLandedHex(), 
                                 skillSetting.Range,
                                 _selectedSkillRotation).ToList();
-                        _attackReserve.StartAttackReservation(_curAttackIndicateHexList, _characterComponentCollection);
+                        _attackReserve.StartAttackReservation(_curAttackIndicateHexList, _memberObservable.CurMember.Value);
                     }
                 })
                 .AddTo(_disposables);

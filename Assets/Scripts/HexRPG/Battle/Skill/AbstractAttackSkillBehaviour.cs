@@ -10,8 +10,9 @@ using UnityEngine.Playables;
 namespace HexRPG.Battle.Skill
 {
     using Stage;
+    using Playable;
 
-    public class AbstractAttackSkillBehaviour : MonoBehaviour, ISkillObservable, ISkill, IAttackSkill
+    public class AbstractAttackSkillBehaviour : MonoBehaviour, ISkillObservable, ISkill, IDisposable
     {
         ISkillSetting _skillSetting;
         IAttackController _attackController;
@@ -28,6 +29,8 @@ namespace HexRPG.Battle.Skill
 
         ICharacterComponentCollection _skillOrigin;
         List<Hex> _curSkillRange;
+
+        CompositeDisposable _disposables = new CompositeDisposable();
 
         [Inject]
         public void Construct(
@@ -85,8 +88,12 @@ namespace HexRPG.Battle.Skill
                 }
             }
 
-            _director.played += ((obj) => _onStartSkill.OnNext(Unit.Default));
-            _director.stopped += ((obj) => _onFinishSkill.OnNext(Unit.Default));
+            _director.played += (obj) => _onStartSkill.OnNext(Unit.Default);
+            _director.stopped += (obj) =>
+            {
+                _onFinishSkill.OnNext(Unit.Default);
+                _disposables.Clear();
+            };
         }
 
         void ISkill.StartSkill(List<Hex> skillRange)
@@ -97,10 +104,28 @@ namespace HexRPG.Battle.Skill
             var isEnemyExistInSkillRange = _battleObservable.EnemyList.Any(enemy => skillRange.Contains(enemy.TransformController.GetLandedHex()));
             //_cinemachineTrack.muted = !isEnemyExistInSkillRange;
 
+            // Attack”»’è
+            foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
+            {
+                if (trackAsset is AttackEnableTrack)
+                {
+                    foreach (var clip in trackAsset.GetClips())
+                    {
+                        var behaviour = (clip.asset as AttackEnableAsset).behaviour;
+                        behaviour.OnAttackEnable
+                            .Subscribe(_ => StartAttackEnable())
+                            .AddTo(_disposables);
+                        behaviour.OnAttackDisable
+                            .Subscribe(_ => FinishAttackEnable())
+                            .AddTo(_disposables);
+                    }
+                }
+            }
+
             _director.Play();
         }
 
-        public virtual void StartAttackEnable()
+        protected virtual void StartAttackEnable()
         {
             var attackSetting = new SkillAttackSetting
             {
@@ -110,9 +135,14 @@ namespace HexRPG.Battle.Skill
             _attackController.StartAttack(attackSetting, _skillOrigin);
         }
 
-        public virtual void FinishAttackEnable()
+        protected virtual void FinishAttackEnable()
         {
             _attackController.FinishAttack();
+        }
+
+        void IDisposable.Dispose()
+        {
+            _disposables.Dispose();
         }
     }
 }

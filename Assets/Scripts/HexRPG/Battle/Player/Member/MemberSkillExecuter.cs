@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 using System.Linq;
 using Zenject;
 using UniRx;
@@ -10,7 +11,7 @@ namespace HexRPG.Battle.Player.Member
     using Stage;
     using Skill;
 
-    public class MemberSkillExecuter : ISkillSpawnObservable, ISkillController, IInitializable
+    public class MemberSkillExecuter : ISkillSpawnObservable, ISkillController, IInitializable, IDisposable
     {
         IMemberComponentCollection _memberOwner;
         ITransformController _transformController;
@@ -71,6 +72,11 @@ namespace HexRPG.Battle.Player.Member
             _runningSkill.Skill.StartSkill(skillRange);
 
             return _runningSkill;
+        }
+
+        void IDisposable.Dispose()
+        {
+            _disposables.Dispose();
         }
     }
 }

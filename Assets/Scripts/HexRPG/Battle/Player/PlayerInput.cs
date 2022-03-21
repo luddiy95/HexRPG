@@ -27,7 +27,7 @@ namespace HexRPG.Battle.Player
         [SerializeField] Transform _cameraRotRight;
 
         IReadOnlyReactiveProperty<Vector3> ICharacterInput.Direction => _direction;
-        readonly IReactiveProperty<Vector3> _direction = new ReactiveProperty<Vector3>();
+        readonly ReactiveProperty<Vector3> _direction = new ReactiveProperty<Vector3>();
 
         IObservable<Unit> ICharacterInput.OnCombat => _onCombat;
         readonly ISubject<Unit> _onCombat = new Subject<Unit>();
@@ -131,7 +131,7 @@ namespace HexRPG.Battle.Player
 
         void UpdateDirection()
         {
-            _direction.Value = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+            _direction.SetValueAndForceNotify(new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")));
         }
     }
 }

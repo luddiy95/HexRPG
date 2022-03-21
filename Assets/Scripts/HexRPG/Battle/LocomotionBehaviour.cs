@@ -9,7 +9,7 @@ namespace HexRPG.Battle
 {
     public interface ILocomotionController
     {
-        void SetSpeed(Vector3 direction);
+        void SetSpeed(Vector3 direction, float? speed = null);
         void Stop();
 
         void SnapHexCenter();
@@ -21,6 +21,7 @@ namespace HexRPG.Battle
         IBattleObservable _battleObservable;
         ITransformController _transformController;
 
+        Rigidbody Rigidbody => _rigidbody != null ? _rigidbody : GetComponent<Rigidbody>();
         [Header("動かすRigidbody。nullならこのオブジェクト")]
         [SerializeField] Rigidbody _rigidbody;
         //TODO: Rigidbody(Player)の子オブジェクトのMemberにMeshCollider(Convex)をつけないと衝突判定してくれない)
@@ -46,7 +47,6 @@ namespace HexRPG.Battle
 
         void Start()
         {
-            if (_rigidbody == null) _rigidbody = GetComponent<Rigidbody>();
             _mainVirtualCamera = _battleObservable.MainVirtualCamera;
             _cameraTransposer = _mainVirtualCamera.GetCinemachineComponent<CinemachineOrbitalTransposer>();
 
@@ -66,14 +66,16 @@ namespace HexRPG.Battle
                 .AddTo(this);
         }
 
-        void ILocomotionController.SetSpeed(Vector3 direction)
+        void ILocomotionController.SetSpeed(Vector3 direction, float? speed)
         {
-            _rigidbody.velocity = (Quaternion.AngleAxis(_cameraAngle, Vector3.up) * direction).normalized * _speed;
+            Rigidbody.velocity = (Quaternion.AngleAxis(_cameraAngle, Vector3.up) * direction).normalized * (float)(speed != null ? speed : _speed);
+
+            //TODO: Playerのエリアしか動けない
         }
 
         void ILocomotionController.Stop()
         {
-            _rigidbody.velocity = Vector3.zero;
+            Rigidbody.velocity = Vector3.zero;
         }
 
         void ILocomotionController.SnapHexCenter()

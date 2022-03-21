@@ -75,6 +75,7 @@ namespace HexRPG.Battle
                     {
                         DoHit(attackCollider.AttackApplicator);
                     }
+                    _hitAttacks.Clear();
 
                     // SkillçUåÇ
                     var landedHex = _transformController.GetLandedHex();

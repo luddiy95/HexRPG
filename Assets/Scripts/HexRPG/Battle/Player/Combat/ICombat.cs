@@ -8,5 +8,7 @@ namespace HexRPG.Battle.Player.Combat
     {
         void Init(PlayableAsset timeline, ICharacterComponentCollection combatOrigin, Animator animator);
         void Execute();
+
+        Vector3 Velocity { get; }
     }
 }
