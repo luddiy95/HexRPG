@@ -35,7 +35,9 @@ namespace HexRPG.Playable
         {
             base.OnBehaviourPause(playable, info);
 
-            if (Collider != null) Collider.gameObject.SetActive(false); // OnBehaviourPause‚Íclip‚©‚ç”²‚¯‚é‚Æ‚«‚¾‚¯‚Å‚È‚­TimelineÄ¶ŠJn‚É‚àŒÄ‚Î‚ê‚Ä‚µ‚Ü‚¤
+            if (!playable.IsClipEnded(info)) return;
+
+            Collider.gameObject.SetActive(false);
             _onAttackDisable.OnNext(Unit.Default);
         }
     }

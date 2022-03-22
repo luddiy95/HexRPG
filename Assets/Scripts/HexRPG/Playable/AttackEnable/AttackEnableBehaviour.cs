@@ -1,4 +1,5 @@
 using UnityEngine.Playables;
+using UnityEngine;
 using System;
 using UniRx;
 
@@ -21,6 +22,9 @@ namespace HexRPG.Playable
         public override void OnBehaviourPause(UnityEngine.Playables.Playable playable, FrameData info)
         {
             base.OnBehaviourPause(playable, info);
+
+            if (!playable.IsClipEnded(info)) return;
+
             _onAttackDisable.OnNext(Unit.Default);
         }
     }
