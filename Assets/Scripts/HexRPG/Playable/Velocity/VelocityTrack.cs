@@ -2,7 +2,7 @@ using UnityEngine.Timeline;
 
 namespace HexRPG.Playable
 {
-    [TrackColor(1, 0, 0)]
+    [TrackColor(0, 0, 1)]
     [TrackClipType(typeof(VelocityAsset))]
     public class VelocityTrack : TrackAsset
     {
