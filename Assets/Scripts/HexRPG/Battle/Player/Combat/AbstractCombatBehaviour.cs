@@ -23,6 +23,8 @@ namespace HexRPG.Battle.Player.Combat
         IReadOnlyReactiveProperty<Vector3> ICombatObservable.Velocity => _velocity;
         readonly IReactiveProperty<Vector3> _velocity = new ReactiveProperty<Vector3>();
 
+        PlayableAsset ICombat.PlayableAsset => _director.playableAsset;
+
         Vector3 ICombat.Velocity => velocity;
         Vector3 velocity = Vector3.zero;
 

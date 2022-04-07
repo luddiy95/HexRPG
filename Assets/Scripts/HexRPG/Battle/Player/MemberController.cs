@@ -2,14 +2,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UniRx;
 using System;
-using Zenject;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace HexRPG.Battle.Player
 {
     using Member;
-    using Skill;
 
     public interface IMemberObservable
     {
@@ -20,7 +19,7 @@ namespace HexRPG.Battle.Player
 
     public interface IMemberController
     {
-        UniTask SpawnAllMember();
+        UniTask SpawnAllMember(CancellationToken token);
         void ChangeMember(int index);
     }
 
@@ -48,11 +47,15 @@ namespace HexRPG.Battle.Player
             _memberFactories = memberFactories;
         }
 
-        async UniTask IMemberController.SpawnAllMember()
+        async UniTask IMemberController.SpawnAllMember(CancellationToken token)
         {
             _memberList = _memberFactories.Select(factory => factory.Create(_transformController.SpawnRootTransform("Member"), Vector3.zero)).ToArray();
-            // ‘S‚Ä‚ÌSkill‚ª¶¬‚³‚ê‚é‚Ì‚ð‘Ò‚Â
-            await UniTask.WaitUntil(() => _memberList.All(member => member.SkillSpawnObservable.IsAllSkillSpawned));
+            // ‘S‚Ä‚ÌCombat/Skill‚ª¶¬‚³‚ê‚é‚Ì‚ð‘Ò‚Â
+            await UniTask.WaitUntil(
+                () => _memberList.All(member => member.CombatSpawnObservable.isCombatSpawned && member.SkillSpawnObservable.IsAllSkillSpawned),
+                cancellationToken: token);
+            // ŠeMember‚ÌAnimationBehaviour‰Šú‰»
+            Array.ForEach(_memberList, member => member.AnimationController.Init());
         }
 
         void IMemberController.ChangeMember(int index)

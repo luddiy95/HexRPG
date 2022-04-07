@@ -20,15 +20,5 @@ namespace HexRPG.Battle
         public Material HexDefaultMat => _hexDefaultMat;
         [SerializeField] Material _hexAttackIndicatedMat;
         public Material HexAttackIndicatedMat => _hexAttackIndicatedMat;
-
-        [SerializeField] Material _mainBtnEnableMat;
-        public Material MainBtnEnableMat => _mainBtnEnableMat;
-        [SerializeField] Material _mainBtnDisableMat;
-        public Material MainBtnDisableMat => _mainBtnDisableMat;
-
-        [SerializeField] Material _subBtnEnableMat;
-        public Material SubBtnEnableMat => _subBtnEnableMat;
-        [SerializeField] Material _subBtnDisableMat;
-        public Material SubBtnDisableMat => _subBtnDisableMat;
     }
 }

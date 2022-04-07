@@ -27,7 +27,7 @@ namespace HexRPG.Playable
                 Collider = playerData as Collider;
 
                 _onAttackEnable.OnNext(Unit.Default);
-                Collider.gameObject.SetActive(true);
+                //Collider.gameObject.SetActive(true);
             }
         }
 
@@ -37,7 +37,7 @@ namespace HexRPG.Playable
 
             if (!playable.IsClipEnded(info)) return;
 
-            Collider.gameObject.SetActive(false);
+            //Collider.gameObject.SetActive(false);
             _onAttackDisable.OnNext(Unit.Default);
         }
     }

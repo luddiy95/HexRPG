@@ -74,9 +74,9 @@ namespace HexRPG.Battle
         {
             await UniTask.Yield(token); // HUD, UIの初期化処理が終わってから(OnPlayerSpawnは良いがEnemyは複数いるためOnEnemySpawnがHUD, UIの初期化前に発行されたら意味がない)
 
-            await SpawnPlayer();
+            await SpawnPlayer(token);
 
-            await SpawnEnemies();
+            await SpawnEnemies(token);
 
             _onBattleStart.OnNext(Unit.Default);
             
@@ -85,14 +85,17 @@ namespace HexRPG.Battle
                 .AddTo(this);
         }
 
-        async UniTask SpawnPlayer()
+        async UniTask SpawnPlayer(CancellationToken token)
         {
             var playerSpawnSetting = _spawnSettings.PlayerSpawnSetting;
             _playerOwner = _playerFactory.Create(_playerRoot, playerSpawnSetting.SpawnHex.transform.position);
 
             var memberController = _playerOwner.MemberController;
-            await memberController.SpawnAllMember();
+            await memberController.SpawnAllMember(token);
             memberController.ChangeMember(0);
+
+            //TODO: PlayerAnimationBehaviour初期化(各MemberのAnimatorBehaviour初期化/Combat, Skillが初期化していなければならない)
+            //TODO: -> PlayerActionStateControllerスタート(?)(PlayerAnimationBehaviourが初期化していないとモーションを再生できない)
 
             _targetGroup.m_Targets[0].target = _playerOwner.TransformController.MoveTransform;
 
@@ -108,12 +111,12 @@ namespace HexRPG.Battle
             _onPlayerSpawn.Value = _playerOwner;
         }
 
-        async UniTask SpawnEnemies()
+        async UniTask SpawnEnemies(CancellationToken token)
         {
             _enemyList = _spawnSettings.EnemySpawnSettings
                 .Select((setting, index) => _enemyFactories[index].Create(_enemyRoot, setting.SpawnHex.transform.position) as IEnemyComponentCollection).ToList();
 
-            await UniTask.WaitUntil(() => _enemyList.All(enemy => enemy.SkillSpawnObservable.IsAllSkillSpawned));
+            await UniTask.WaitUntil(() => _enemyList.All(enemy => enemy.SkillSpawnObservable.IsAllSkillSpawned), cancellationToken: token);
 
             _enemyList.ForEach(enemy => _onEnemySpawn.OnNext(enemy));
         }

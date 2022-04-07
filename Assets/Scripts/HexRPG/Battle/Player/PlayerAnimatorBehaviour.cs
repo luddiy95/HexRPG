@@ -5,6 +5,7 @@ using System;
 
 namespace HexRPG.Battle.Player
 {
+    //TODO: è¡Ç∑
     public class PlayerAnimatorBehaviour : AnimatorBehaviour
     {
         IMemberObservable _memberObservable;

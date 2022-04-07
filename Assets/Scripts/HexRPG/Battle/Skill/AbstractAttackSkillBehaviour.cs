@@ -20,6 +20,9 @@ namespace HexRPG.Battle.Skill
 
         [SerializeField] protected GameObject _skillEffect;
         [SerializeField] protected PlayableDirector _director;
+
+        PlayableAsset ISkill.PlayableAsset => _director.playableAsset;
+
         TrackAsset _cinemachineTrack;
 
         IObservable<Unit> ISkillObservable.OnStartSkill => _onStartSkill;
