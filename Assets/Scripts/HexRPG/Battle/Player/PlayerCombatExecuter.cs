@@ -53,10 +53,10 @@ namespace HexRPG.Battle.Player
                     .Subscribe(_ =>
                     {
                         _locomotionController.Stop();
-                        _onFinishCombat.OnNext(Unit.Default);
                         _runningCombat = null;
-
                         _disposables.Clear();
+
+                        _onFinishCombat.OnNext(Unit.Default);
                     })
                     .AddTo(_disposables);
                 // VelocityçXêV

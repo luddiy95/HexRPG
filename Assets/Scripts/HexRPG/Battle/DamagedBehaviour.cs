@@ -7,6 +7,9 @@ using Zenject;
 
 namespace HexRPG.Battle
 {
+    using Player;
+    using Enemy;
+
     public interface IDamageApplicable
     {
         IObservable<HitData> OnHit { get; }
@@ -14,10 +17,9 @@ namespace HexRPG.Battle
 
     public class DamagedBehaviour : MonoBehaviour, IDamageApplicable, IInitializable
     {
-        ICharacterComponentCollection _owner;
+        ICharacterComponentCollection _damagedOwner;
         ITransformController _transformController;
         IUpdateObservable _updateObservable;
-        IHealth _health;
 
         public IObservable<HitData> OnHit => _onHit;
         readonly ISubject<HitData> _onHit = new Subject<HitData>();
@@ -28,13 +30,12 @@ namespace HexRPG.Battle
         public void Construct(
             ICharacterComponentCollection owner, 
             ITransformController transformController, 
-            IUpdateObservable updateObservable, 
-            IHealth health)
+            IUpdateObservable updateObservable
+         )
         {
-            _owner = owner; 
+            _damagedOwner = owner; 
             _transformController = transformController; 
             _updateObservable = updateObservable; 
-            _health = health;
         }
 
         void IInitializable.Initialize()
@@ -49,7 +50,7 @@ namespace HexRPG.Battle
                         return;
                     }
                     // 自分の攻撃かどうか
-                    if (attackCollider.AttackApplicator.AttackOrigin == _owner)
+                    if (attackCollider.AttackApplicator.AttackOrigin == _damagedOwner)
                     {
                         return;
                     }
@@ -83,6 +84,8 @@ namespace HexRPG.Battle
                     {
                         DoHit(attackApplicator);
                     }
+
+                    if (Input.GetKeyDown(KeyCode.D)) _onHit.OnNext(new HitData());
                 })
                 .AddTo(this);
         }
@@ -90,7 +93,7 @@ namespace HexRPG.Battle
         void DoHit(IAttackApplicator attackApplicator)
         {
             // ヒット済みマーク失敗＝すでにヒットしてる
-            if (attackApplicator.TryMarkAsHit(_owner) == false)
+            if (attackApplicator.TryMarkAsHit(_damagedOwner) == false)
             {
                 return;
             }
@@ -98,12 +101,12 @@ namespace HexRPG.Battle
             var hitData = new HitData
             {
                 AttackApplicator = attackApplicator,
-                DamagedObject = _owner,
+                DamagedObject = _damagedOwner,
                 Damage = attackApplicator.CurrentSetting.Power
-        };
+            };
 
-            // health を減らす
-            _health.Update(-hitData.Damage);
+            if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-hitData.Damage);
+            if (_damagedOwner is IEnemyComponentCollection enemyOwner) enemyOwner.Health.Update(-hitData.Damage);
 
             // コールバック
             _onHit.OnNext(hitData);

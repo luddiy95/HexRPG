@@ -31,6 +31,8 @@ namespace HexRPG.Battle.Player.Combat
         [SerializeField] AttackCollider[] _attackColliders;
         ICharacterComponentCollection _combatOrigin;
 
+        IAnimationController _memberAnimationController;
+
         bool _isComboInputEnable = false;
         bool _isComboInputted = false;
 
@@ -48,29 +50,28 @@ namespace HexRPG.Battle.Player.Combat
             _combatSetting = combatSetting;
         }
 
-        void ICombat.Init(PlayableAsset timeline, ICharacterComponentCollection combatOrigin, Animator animator)
+        void ICombat.Init(PlayableAsset timeline, ICharacterComponentCollection combatOrigin, IAnimationController memberAnimationController)
         {
             Array.ForEach(_attackColliders, attackCollider => attackCollider.AttackApplicator = _attackApplicator);
 
             //_skillEffect.SetActive(false);
             _combatOrigin = combatOrigin;
+            _memberAnimationController = memberAnimationController;
 
             _director.playableAsset = timeline;
 
-            // AnimatorÝ’è
-            foreach (var bind in _director.playableAsset.outputs)
-            {
-                if (bind.streamName == "Animation Track")
+            _memberAnimationController.OnFinishCombat
+                .Subscribe(_ =>
                 {
-                    _director.SetGenericBinding(bind.sourceObject, animator);
-                }
-            }
+                    // I—¹ˆ—
+                    _isComboInputEnable = false;
+                    FinishAttackEnable();
+                    // velocity‚ÍActionStateController‚ÅCombatStateExitŽž‚É0‚É‚È‚é
+                    _disposables.Clear();
+                    _director.Stop();
 
-            // TimelineI—¹ˆ—
-            _director.stopped += (obj) => {
-                _onFinishCombat.OnNext(Unit.Default);
-                _disposables.Clear();
-            };
+                    _onFinishCombat.OnNext(Unit.Default);
+                }).AddTo(this);
         }
 
         void ICombat.Execute()
@@ -134,7 +135,7 @@ namespace HexRPG.Battle.Player.Combat
                                 {
                                     if (!_isComboInputted)
                                     {
-                                        _director.Stop();
+                                        _memberAnimationController.Play("Idle");
                                     }
                                     _isComboInputEnable = false;
                                 })
@@ -144,6 +145,7 @@ namespace HexRPG.Battle.Player.Combat
                 }
 
                 _director.Play();
+                _memberAnimationController.Play(_director.playableAsset.name);
             }
         }
 

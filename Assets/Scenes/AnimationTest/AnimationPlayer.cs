@@ -15,6 +15,7 @@ using Cysharp.Threading.Tasks;
 namespace AnimationTest
 {
     using HexRPG.Playable;
+    using HexRPG.Battle;
 
     public interface IAnimationPlayer
     {
@@ -59,9 +60,7 @@ namespace AnimationTest
 
         public void Initialize()
         {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
+            TokenCancel();
 
             _curPlayingIndex = -1;
 
@@ -114,9 +113,7 @@ namespace AnimationTest
                 if(_cancellationTokenSource != null)
                 {
                     // 割り込み(Locomotion->Locomotion遷移中のみ可能)
-                    _cancellationTokenSource?.Cancel();
-                    _cancellationTokenSource?.Dispose();
-                    _cancellationTokenSource = null;
+                    TokenCancel();
 
                     if (_nextPlayingIndex >= 0) fixedRate = rate;
                 }
@@ -134,9 +131,7 @@ namespace AnimationTest
                 if (_cancellationTokenSource != null)
                 {
                     // 割り込み(Locomotion->Locomotion遷移中のみ可能)
-                    _cancellationTokenSource?.Cancel();
-                    _cancellationTokenSource?.Dispose();
-                    _cancellationTokenSource = null;
+                    TokenCancel();
 
                     if (_nextPlayingIndex >= 0) fixedRate = rate;
                 }
@@ -188,11 +183,9 @@ namespace AnimationTest
                 if (isDamagedClip)
                 {
                     //! 割り込む
-                    //! InnerPlayCombat, InnerPlaySkill, InnerCrossFade内のWaitWhile、メソッド自体停止
+                    //! InnerPlayCombat, InnerPlaySkill, InnerAnimationTransit内のWaitWhile、メソッド自体停止
                     //! キャンセルしたtokenを引数に持つメソッド全てawait後続の処理もキャンセルされる
-                    _cancellationTokenSource?.Cancel();
-                    _cancellationTokenSource?.Dispose();
-                    _cancellationTokenSource = null;
+                    TokenCancel();
 
                     if (_curCombat != null) FinishCombat(); // damagedの場合はその瞬間に終了(InnerPlayCombatのawait後続処理は呼ばれない)
                     if (_curSkill != null) FinishSkill(); // damagedの場合はその瞬間に終了(InnerPlaySkillのawait後続処理は呼ばれない)
@@ -201,27 +194,25 @@ namespace AnimationTest
                     if (_nextPlayingIndex >= 0) fixedRate = rate;
 
                     _cancellationTokenSource = new CancellationTokenSource();
-                    InnerCrossFade(clip, GetFadeLength(), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
+                    InnerAnimationTransit(clip, GetFadeLength(), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
                 }
                 if (isCombatSuspended)
                 {
-                    _cancellationTokenSource?.Cancel();
-                    _cancellationTokenSource?.Dispose();
-                    _cancellationTokenSource = null;
+                    TokenCancel();
 
                     // Fade中でも割り込む
                     if (_nextPlayingIndex >= 0) fixedRate = rate;
 
                     _cancellationTokenSource = new CancellationTokenSource();
                     _cancellationTokenSource.Token.Register(() => FinishCombat());
-                    InnerCrossFade(clip, GetFadeLength(), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
+                    InnerAnimationTransit(clip, GetFadeLength(), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
                 }
             }
             else
             {
                 // 何も待ち合わせていない
                 _cancellationTokenSource = new CancellationTokenSource();
-                InnerCrossFade(clip, GetFadeLength(), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
+                InnerAnimationTransit(clip, GetFadeLength(), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
             }
         }
 
@@ -235,7 +226,6 @@ namespace AnimationTest
 
                 var transitionTime = (float)timelinClipInfo.BlendInDuration;
                 if (i == 0) transitionTime = 0.25f; // 仮
-                float transitionWaitTime = Time.timeSinceLevelLoad + transitionTime;
 
                 var exitTime = (float)(timelinClipInfo.Duration - timelinClipInfo.BlendOutDuration);
                 float exitWaitTime = Time.timeSinceLevelLoad + exitTime;
@@ -248,35 +238,7 @@ namespace AnimationTest
                 _mixer.GetInput(_nextPlayingIndex).SetTime(0);
                 _mixer.GetInput(_nextPlayingIndex).SetSpeed(timelinClipInfo.Speed);
 
-                await UniTask.WaitWhile(() =>
-                {
-                    var diff = transitionWaitTime - Time.timeSinceLevelLoad;
-                    if (diff <= 0)
-                    {
-                        _prePlayingIndex = _curPlayingIndex;
-                        _curPlayingIndex = _nextPlayingIndex;
-                        _nextPlayingIndex = -1;
-                        _mixer.SetInputWeight(_prePlayingIndex, 0);
-                        _mixer.SetInputWeight(_curPlayingIndex, 1);
-                        return false;
-                    }
-                    else
-                    {
-                        rate = Mathf.Clamp01(diff / transitionTime);
-                        if(disposedPlayingIndex == -1)
-                        {
-                            _mixer.SetInputWeight(_curPlayingIndex, rate);
-                            _mixer.SetInputWeight(_nextPlayingIndex, 1 - rate);
-                        }
-                        else
-                        {
-                            _mixer.SetInputWeight(_curPlayingIndex, fixedRate * rate);
-                            _mixer.SetInputWeight(disposedPlayingIndex, (1 - fixedRate) * rate);
-                            _mixer.SetInputWeight(_nextPlayingIndex, 1 - rate);
-                        }
-                        return true;
-                    }
-                }, cancellationToken: token);
+                await InnerCrossFade(transitionTime, disposedPlayingIndex, token);
 
                 await UniTask.WaitWhile(() =>
                 {
@@ -286,9 +248,7 @@ namespace AnimationTest
             }
 
             // 割り込みがなかった場合のみここまで辿り着く
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
+            TokenCancel();
 
             FinishCombat();
         }
@@ -303,7 +263,6 @@ namespace AnimationTest
 
                 var transitionTime = (float)timelinClipInfo.BlendInDuration;
                 if (i == 0) transitionTime = 0.25f; // 仮
-                float transitionWaitTime = Time.timeSinceLevelLoad + transitionTime;
 
                 var exitTime = (float)(timelinClipInfo.Duration - timelinClipInfo.BlendOutDuration);
                 float exitWaitTime = Time.timeSinceLevelLoad + exitTime;
@@ -316,35 +275,7 @@ namespace AnimationTest
                 _mixer.GetInput(_nextPlayingIndex).SetTime(0);
                 _mixer.GetInput(_nextPlayingIndex).SetSpeed(timelinClipInfo.Speed);
 
-                await UniTask.WaitWhile(() =>
-                {
-                    var diff = transitionWaitTime - Time.timeSinceLevelLoad;
-                    if (diff <= 0)
-                    {
-                        _prePlayingIndex = _curPlayingIndex;
-                        _curPlayingIndex = _nextPlayingIndex;
-                        _nextPlayingIndex = -1;
-                        _mixer.SetInputWeight(_prePlayingIndex, 0);
-                        _mixer.SetInputWeight(_curPlayingIndex, 1);
-                        return false;
-                    }
-                    else
-                    {
-                        rate = Mathf.Clamp01(diff / transitionTime);
-                        if (disposedPlayingIndex == -1)
-                        {
-                            _mixer.SetInputWeight(_curPlayingIndex, rate);
-                            _mixer.SetInputWeight(_nextPlayingIndex, 1 - rate);
-                        }
-                        else
-                        {
-                            _mixer.SetInputWeight(_curPlayingIndex, fixedRate * rate);
-                            _mixer.SetInputWeight(disposedPlayingIndex, (1 - fixedRate) * rate);
-                            _mixer.SetInputWeight(_nextPlayingIndex, 1 - rate);
-                        }
-                        return true;
-                    }
-                }, cancellationToken: token);
+                await InnerCrossFade(transitionTime, disposedPlayingIndex, token);
 
                 await UniTask.WaitWhile(() =>
                 {
@@ -354,23 +285,29 @@ namespace AnimationTest
             }
 
             // 割り込みがなかった場合のみここまで辿り着く
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
+            TokenCancel();
 
             FinishSkill();
         }
 
-        async UniTask InnerCrossFade(string nextClip, float transitionTime, CancellationToken token)
+        async UniTask InnerAnimationTransit(string nextClip, float transitionTime, CancellationToken token)
         {
-            float waitTime = Time.timeSinceLevelLoad + transitionTime; // この時間までFadeする
-
             var disposedPlayingIndex = _nextPlayingIndex;
             _nextPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == nextClip);
 
             //! 次に再生するクリップは最初(time = 0)から再生(こうしないとLoopOffのClipへ遷移するときにtimeが大きすぎて再生されない場合がある)
             _playables[_nextPlayingIndex].SetTime(0);
             _mixer.GetInput(_nextPlayingIndex).SetTime(0);
+
+            await InnerCrossFade(transitionTime, disposedPlayingIndex, token);
+
+            // 割り込みがなかった場合のみここまで辿り着く
+            TokenCancel();
+        }
+
+        async UniTask InnerCrossFade(float transitionTime, int disposedPlayingIndex, CancellationToken token)
+        {
+            float waitTime = Time.timeSinceLevelLoad + transitionTime;
 
             await UniTask.WaitWhile(() =>
             {
@@ -401,8 +338,10 @@ namespace AnimationTest
                     return true;
                 }
             }, cancellationToken: token);
+        }
 
-            // 割り込みがなかった場合のみここまで辿り着く
+        void TokenCancel()
+        {
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = null;
@@ -441,12 +380,8 @@ namespace AnimationTest
             if (_graph.IsValid()) _graph.Destroy();
             if(_combatDirector != null) _combatDirector.Stop();
             if(_skillDirector != null) _skillDirector.Stop();
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
+            TokenCancel();
         }
-
-#if UNITY_EDITOR
 
         IAnimationPlayer _animationPlayer;
 
@@ -1075,6 +1010,8 @@ namespace AnimationTest
                 }
             }
         }
+
+#if UNITY_EDITOR
 
         [CustomEditor(typeof(AnimationPlayer))]
         public class AnimationPlayerInspector : Editor

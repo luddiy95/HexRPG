@@ -54,7 +54,7 @@ namespace HexRPG.Battle.Player
             await UniTask.WaitUntil(
                 () => _memberList.All(member => member.CombatSpawnObservable.isCombatSpawned && member.SkillSpawnObservable.IsAllSkillSpawned),
                 cancellationToken: token);
-            // 各MemberのAnimationBehaviour初期化
+            // 各MemberのAnimationBehaviour初期化(MemberのAnimator, Combat, Skillが必要)
             Array.ForEach(_memberList, member => member.AnimationController.Init());
         }
 

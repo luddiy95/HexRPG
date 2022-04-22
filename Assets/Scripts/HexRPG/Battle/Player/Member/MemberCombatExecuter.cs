@@ -10,7 +10,6 @@ namespace HexRPG.Battle.Player.Member
         IMemberComponentCollection _memberOwner;
         CombatOwner.Factory _combatFactory;
         ICombatSetting _combatSetting;
-        IAnimatorController _animatorController;
 
         ICombatComponentCollection ICombatSpawnObservable.Combat => _combat;
         ICombatComponentCollection _combat;
@@ -21,20 +20,18 @@ namespace HexRPG.Battle.Player.Member
         public MemberCombatExecuter(
             IMemberComponentCollection memberOwner,
             CombatOwner.Factory combatFactory,
-            ICombatSetting combatSetting,
-            IAnimatorController animatorController
+            ICombatSetting combatSetting
         )
         {
             _memberOwner = memberOwner;
             _combatFactory = combatFactory;
             _combatSetting = combatSetting;
-            _animatorController = animatorController;
         }
 
         void IInitializable.Initialize()
         {
             _combat = _combatFactory.Create(_combatSetting.SpawnRoot, Vector3.zero);
-            _combat.Combat.Init(_combatSetting.Timeline, _memberOwner, _animatorController.Animator);
+            _combat.Combat.Init(_combatSetting.Timeline, _memberOwner, _memberOwner.AnimationController);
             _isCombatSpawned = true;
         }
 

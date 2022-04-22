@@ -15,7 +15,6 @@ namespace HexRPG.Battle.Player.Member
     {
         IMemberComponentCollection _memberOwner;
         ITransformController _transformController;
-        IAnimatorController _animatorController;
         IMental _mental;
         List<SkillOwner.Factory> _skillFactories;
         ISkillsSetting _skillsSetting;
@@ -33,7 +32,6 @@ namespace HexRPG.Battle.Player.Member
         public MemberSkillExecuter(
             IMemberComponentCollection memberOwner,
             ITransformController transformController,
-            IAnimatorController animatorController,
             IMental mental,
             List<SkillOwner.Factory> skillFactories,
             ISkillsSetting skillsSetting
@@ -41,7 +39,6 @@ namespace HexRPG.Battle.Player.Member
         {
             _memberOwner = memberOwner;
             _transformController = transformController;
-            _animatorController = animatorController;
             _mental = mental;
             _skillFactories = skillFactories;
             _skillsSetting = skillsSetting;
@@ -51,7 +48,7 @@ namespace HexRPG.Battle.Player.Member
         {
             _skillList = _skillFactories.Select((factory, index) => {
                 ISkillComponentCollection skillOwner = factory.Create(_transformController.SpawnRootTransform("Skill"), Vector3.zero);
-                skillOwner.Skill.Init(_skillsSetting.Skills[index].Timeline, _memberOwner, _animatorController.Animator);
+                skillOwner.Skill.Init(_skillsSetting.Skills[index].Timeline, _memberOwner, _memberOwner.AnimationController);
                 return skillOwner;
             }).ToArray();
             _isAllSkillSpawned = true;
@@ -63,11 +60,12 @@ namespace HexRPG.Battle.Player.Member
             _mental.Update(-_runningSkill.SkillSetting.MPcost);
 
             _disposables.Clear();
-            _runningSkill.SkillObservable.OnFinishSkill.Subscribe(_ =>
-            {
-                _runningSkill = null;
-                _disposables.Clear();
-            }).AddTo(_disposables);
+            _runningSkill.SkillObservable.OnFinishSkill
+                .Subscribe(_ =>
+                {
+                    _runningSkill = null;
+                    _disposables.Clear();
+                }).AddTo(_disposables);
 
             _runningSkill.Skill.StartSkill(skillRange);
 

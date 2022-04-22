@@ -16,9 +16,6 @@ namespace HexRPG.Battle.Player
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        IObservable<Unit> ISkillObservable.OnStartSkill => _onStartSkill;
-        readonly ISubject<Unit> _onStartSkill = new Subject<Unit>();
-
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
 
@@ -42,14 +39,15 @@ namespace HexRPG.Battle.Player
             var runningSkill = _memberObservable.CurMember.Value.SkillController.StartSkill(index, _selectSkillObservable.CurAttackIndicateHexList);
 
             _disposables.Clear();
-            runningSkill.SkillObservable.OnFinishSkill.Subscribe(_ =>
-            {
-                _transformController.RotationAngle = 0;
-                _stageController.Liberate(_selectSkillObservable.CurAttackIndicateHexList, true);
-                _onFinishSkill.OnNext(Unit.Default);
-            }).AddTo(_disposables);
+            runningSkill.SkillObservable.OnFinishSkill
+                .Subscribe(_ =>
+                {
+                    _transformController.RotationAngle = 0;
+                    //TODO: Liberateのタイミング正確に
+                    _stageController.Liberate(_selectSkillObservable.CurAttackIndicateHexList, true);
 
-            _onStartSkill.OnNext(Unit.Default);
+                    _onFinishSkill.OnNext(Unit.Default);
+                }).AddTo(_disposables);
 
             return runningSkill;
         }

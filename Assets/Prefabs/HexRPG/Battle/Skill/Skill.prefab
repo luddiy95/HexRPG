@@ -40,14 +40,26 @@ PlayableDirector:
   m_GameObject: {fileID: 2480659381435947332}
   m_Enabled: 1
   serializedVersion: 3
-  m_PlayableAsset: {fileID: 0}
+  m_PlayableAsset: {fileID: 11400000, guid: 033b51734057c4345a01705944477f2e, type: 2}
   m_InitialState: 0
   m_WrapMode: 2
   m_DirectorUpdateMode: 1
   m_InitialTime: 0
-  m_SceneBindings: []
+  m_SceneBindings:
+  - key: {fileID: 3848858639249072848, guid: 033b51734057c4345a01705944477f2e, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: -6863590465229269024, guid: 033b51734057c4345a01705944477f2e, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: -2564539597823100841, guid: 033b51734057c4345a01705944477f2e, type: 2}
+    value: {fileID: 1492953761577186401}
+  - key: {fileID: -7103932427207736043, guid: 033b51734057c4345a01705944477f2e, type: 2}
+    value: {fileID: 6667216051157734206}
   m_ExposedReferences:
-    m_References: []
+    m_References:
+    - e94e2d8d8975fe64fbe6d5cfbec2b380: {fileID: 5987046430720086213}
+    - 537c3bfca5ea7074a83b71e7f9a25d2a: {fileID: 6667216051157734206}
+    - 32a3816fc80cbca49a4ae122bcccaa86: {fileID: 0}
+    - cfe251c3bfa4ac7418272f076fafcb2a: {fileID: 0}
 --- !u!1 &5426194334740280399
 GameObject:
   m_ObjectHideFlags: 0
@@ -64,6 +76,7 @@ GameObject:
   - component: {fileID: 369017925278791130}
   - component: {fileID: 6962153130480823856}
   - component: {fileID: 5664851281790574093}
+  - component: {fileID: 6737259389918104997}
   m_Layer: 0
   m_Name: Skill
   m_TagString: Untagged
@@ -115,7 +128,7 @@ MonoBehaviour:
   _rootTransform: {fileID: 0}
   _moveTransform: {fileID: 0}
   _rotateTransform: {fileID: 0}
-  _spawnRootTransform: {fileID: 0}
+  _spawnRoots: []
 --- !u!114 &3505504371383799877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,13 +145,13 @@ MonoBehaviour:
   _MPcost: 20
   _damage: 20
   _range:
-  - {x: 0, y: 3}
-  - {x: 1, y: 2}
+  - {x: 1, y: 3}
+  - {x: 2, y: 2}
   - {x: 1, y: 1}
-  - {x: 0, y: 1}
-  - {x: -1, y: 2}
-  - {x: -1, y: 3}
   - {x: 0, y: 2}
+  - {x: -1, y: 1}
+  - {x: -2, y: 2}
+  - {x: -1, y: 3}
 --- !u!114 &1492953761577186401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152,8 +165,40 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Events:
-    m_Signals: []
-    m_Events: []
+    m_Signals:
+    - {fileID: 11400000, guid: b772905640b0ddb449b2d05f1b65372a, type: 2}
+    - {fileID: 11400000, guid: decdf4e4e5c919245bd753fb13efe21d, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6737259389918104997}
+          m_TargetAssemblyTypeName: HexRPG.Battle.Skill.AbstractAttackSkillBehaviour,
+            HexRPG
+          m_MethodName: StartAttackEnable
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6737259389918104997}
+          m_TargetAssemblyTypeName: HexRPG.Battle.Skill.AbstractAttackSkillBehaviour,
+            HexRPG
+          m_MethodName: FinishAttackEnable
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!114 &369017925278791130
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169,6 +214,7 @@ MonoBehaviour:
   _components:
   - {fileID: 5846445956313243687}
   - {fileID: 3505504371383799877}
+  - {fileID: 6737259389918104997}
   _identifier: 
   _useSceneContext: 0
   _context: {fileID: 6962153130480823856}
@@ -203,6 +249,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dcf0de544fe3654c91db3d449af546c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6737259389918104997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5426194334740280399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d58f5e5982554a746a58fc899c99b4c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _skillEffect: {fileID: 6667216051157734206}
+  _director: {fileID: 510812189149481806}
 --- !u!1 &6665624031373727762
 GameObject:
   m_ObjectHideFlags: 0
@@ -34297,7 +34357,7 @@ GameObject:
   - component: {fileID: 6670593365654794568}
   - component: {fileID: 6790703928302331296}
   - component: {fileID: 6793383900085211304}
-  - component: {fileID: 8186232915664415184}
+  - component: {fileID: 7598238110953713315}
   m_Layer: 0
   m_Name: AttackEffect
   m_TagString: Untagged
@@ -39106,7 +39166,7 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
---- !u!114 &8186232915664415184
+--- !u!114 &7598238110953713315
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -39121,10 +39181,10 @@ MonoBehaviour:
   stopCallback:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: HexRPG.Battle.Player.Character.Skill.BaseSkill,
-          Assembly-CSharp
-        m_MethodName: OnFinishEffect
+      - m_Target: {fileID: 6737259389918104997}
+        m_TargetAssemblyTypeName: HexRPG.Battle.Skill.AbstractAttackSkillBehaviour,
+          HexRPG
+        m_MethodName: HideEffect
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -53902,14 +53962,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6886716033590331314}
-  m_LocalRotation: {x: 0.12905571, y: -0.51249087, z: 0.0782423, w: 0.84532595}
-  m_LocalPosition: {x: 6, y: 1.4608061, z: 0.48130763}
+  m_LocalRotation: {x: 0.120062076, y: -0.37441087, z: 0.048959766, w: 0.91815275}
+  m_LocalPosition: {x: 6.88, y: 2.5, z: -4.58}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 114938301491674696}
   m_Father: {fileID: 6847573193581859264}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 14.9, y: -44.37, z: 0}
 --- !u!114 &5987046430720086213
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53931,7 +53991,7 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
-    FieldOfView: 22.2
+    FieldOfView: 38.62
     OrthographicSize: 5
     NearClipPlane: 0.3
     FarClipPlane: 1000
@@ -53958,8 +54018,6 @@ GameObject:
   m_Component:
   - component: {fileID: 114938301491674696}
   - component: {fileID: 2584903415369097801}
-  - component: {fileID: 4044721268977567970}
-  - component: {fileID: 3222401710814276668}
   m_Layer: 0
   m_Name: cm
   m_TagString: Untagged
@@ -53993,52 +54051,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0b09e7857660247b1477e93731de29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4044721268977567970
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7840519996554282633}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4044717213e31446939f7bd49c896ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_TrackedObjectOffset: {x: 0, y: 0, z: 0}
-  m_LookaheadTime: 0
-  m_LookaheadSmoothing: 0
-  m_LookaheadIgnoreY: 0
-  m_HorizontalDamping: 0.5
-  m_VerticalDamping: 0.5
-  m_ScreenX: 0.5
-  m_ScreenY: 0.5
-  m_DeadZoneWidth: 0
-  m_DeadZoneHeight: 0
-  m_SoftZoneWidth: 0.8
-  m_SoftZoneHeight: 0.8
-  m_BiasX: 0
-  m_BiasY: 0
-  m_CenterOnActivate: 1
---- !u!114 &3222401710814276668
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7840519996554282633}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa7155796051b734daa718462081dc5f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_BindingMode: 1
-  m_FollowOffset: {x: 0, y: 0, z: -10}
-  m_XDamping: 1
-  m_YDamping: 1
-  m_ZDamping: 1
-  m_AngularDampingMode: 0
-  m_PitchDamping: 0
-  m_YawDamping: 0
-  m_RollDamping: 0
-  m_AngularDamping: 0

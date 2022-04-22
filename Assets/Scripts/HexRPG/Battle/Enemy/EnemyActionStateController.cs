@@ -80,14 +80,12 @@ namespace HexRPG.Battle.Enemy
                     switch (_actionStateObservable.CurrentState.Value.Type)
                     {
                         case IDLE:
-                            _animatorController.SetTrigger("Idle");
                             break;
 
                         case MOVE:
                             break;
 
                         case DAMAGED:
-                            _animatorController.SetTrigger("Damaged");
                             break;
                     }
                 })

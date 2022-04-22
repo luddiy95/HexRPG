@@ -25,13 +25,13 @@ namespace HexRPG.Battle.Skill
 
         TrackAsset _cinemachineTrack;
 
-        IObservable<Unit> ISkillObservable.OnStartSkill => _onStartSkill;
-        readonly ISubject<Unit> _onStartSkill = new Subject<Unit>();
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
 
         ICharacterComponentCollection _skillOrigin;
         List<Hex> _curSkillRange;
+
+        IAnimationController _memberAnimationController;
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -52,20 +52,28 @@ namespace HexRPG.Battle.Skill
             _skillEffect.SetActive(false);
         }
 
-        void ISkill.Init(PlayableAsset timeline, ICharacterComponentCollection skillOrigin, Animator animator)
+        void ISkill.Init(PlayableAsset timeline, ICharacterComponentCollection skillOrigin, IAnimationController memberAnimationController)
         {
             _skillEffect.SetActive(false);
             _skillOrigin = skillOrigin;
+            _memberAnimationController = memberAnimationController;
 
             _director.playableAsset = timeline;
 
+            _memberAnimationController.OnFinishSkill
+                .Subscribe(_ =>
+                {
+                    // I—¹ˆ—
+                    FinishAttackEnable();
+                    _disposables.Clear();
+                    _director.Stop();
+
+                    _onFinishSkill.OnNext(Unit.Default);
+                })
+                .AddTo(this);
+
             foreach (var bind in _director.playableAsset.outputs)
             {
-                if (bind.streamName == "Animation Track")
-                {
-                    _director.SetGenericBinding(bind.sourceObject, animator);
-                }
-
                 if (bind.streamName == "Cinemachine Track")
                 {
                     _director.SetGenericBinding(bind.sourceObject, _battleObservable.CinemachineBrain);
@@ -90,13 +98,6 @@ namespace HexRPG.Battle.Skill
                     }
                 }
             }
-
-            _director.played += (obj) => _onStartSkill.OnNext(Unit.Default);
-            _director.stopped += (obj) =>
-            {
-                _onFinishSkill.OnNext(Unit.Default);
-                _disposables.Clear();
-            };
         }
 
         void ISkill.StartSkill(List<Hex> skillRange)
@@ -126,6 +127,7 @@ namespace HexRPG.Battle.Skill
             }
 
             _director.Play();
+            _memberAnimationController.Play(_director.playableAsset.name);
         }
 
         protected virtual void StartAttackEnable()
@@ -141,6 +143,11 @@ namespace HexRPG.Battle.Skill
         protected virtual void FinishAttackEnable()
         {
             _attackController.FinishAttack();
+        }
+
+        public void HideEffect()
+        {
+            _skillEffect.SetActive(false);
         }
 
         void IDisposable.Dispose()

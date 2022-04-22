@@ -13,11 +13,10 @@ namespace HexRPG.Battle.Enemy
         ISkillComponentCollection[] ISkillSpawnObservable.SkillList => throw new System.NotImplementedException();
 
         bool ISkillSpawnObservable.IsAllSkillSpawned => _isAllSkillSpawned;
+
+        public IObservable<Unit> OnFinishSkill => throw new NotImplementedException();
+
         bool _isAllSkillSpawned = true;
-
-        IObservable<Unit> ISkillObservable.OnStartSkill => throw new NotImplementedException();
-
-        IObservable<Unit> ISkillObservable.OnFinishSkill => throw new NotImplementedException();
 
         ISkillComponentCollection ISkillController.StartSkill(int index, List<Hex> skillRange)
         {
