@@ -79,6 +79,7 @@ namespace HexRPG.Battle.Player.Combat
                     _isComboInputEnable = false;
                     FinishAttackEnable();
                     // velocity‚ÍActionStateController‚ÅCombatStateExitŽž‚É0‚É‚È‚é
+
                     _disposables.Clear();
                     _director.Stop();
 

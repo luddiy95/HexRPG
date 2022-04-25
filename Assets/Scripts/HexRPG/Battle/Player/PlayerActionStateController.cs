@@ -28,6 +28,8 @@ namespace HexRPG.Battle.Player
         ISkillController _skillController;
         ISkillObservable _skillObservable;
 
+        bool _acceptDirectionInput = true;
+
         CompositeDisposable _disposables = new CompositeDisposable();
         CompositeDisposable _memberChangeDisposables = new CompositeDisposable();
 
@@ -63,12 +65,34 @@ namespace HexRPG.Battle.Player
         void IInitializable.Initialize()
         {
             BuildActionStates();
-            SetUpControl();
+
+            _actionStateObservable.CurrentState
+                .Where(state => state != null)
+                .First()
+                .Subscribe(_ =>
+                {
+                    SetUpControl();
+                })
+                .AddTo(_disposables);
+
+            // Member変更
+            _memberObservable.CurMember
+                .Skip(1)
+                .Subscribe(member =>
+                {
+                    _actionStateController.ExecuteTransition(IDLE);
+
+                    _memberChangeDisposables.Clear();
+                    member.AnimationController.OnFinishDamaged
+                        .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
+                        .AddTo(_memberChangeDisposables);
+                })
+                .AddTo(_disposables);
         }
 
         void BuildActionStates()
         {
-            var idle = NewState(IDLE)
+            NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventIdle(0f))
                 .AddEvent(new ActionEventCancel("move", 0.35f, MOVE))
@@ -99,8 +123,6 @@ namespace HexRPG.Battle.Player
                 // IDLEに戻る
                 ;
 
-            //TODO: Skill選択中に動いたときIndicatorが解除されるかされないかは未定だが、とりあえずSkill選択時に止まる(Idle)ようにする
-            //TODO: MoveしたままSKILL_SELECT遷移したときは、次に初めてDirection.magnitude = 0になった後、初めてDirection.magnitude > 0になったときにCancelされる
             NewState(SKILL_SELECT)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventSkillSelect())
@@ -132,20 +154,6 @@ namespace HexRPG.Battle.Player
             ////// Player入力などによる状態遷移 //////
             /// ※ UPDATE_ORDER.INPUTで同時にInputされた場合(例えばDirection, Combat)、↓のSubscribe記述順にCommandが実行されるため記述の順序に注意
 
-            // Member変更
-            _memberObservable.CurMember
-                .Skip(1)
-                .Subscribe(member =>
-                {
-                    _actionStateController.ExecuteTransition(IDLE);
-
-                    _memberChangeDisposables.Clear();
-                    member.AnimationController.OnFinishDamaged
-                        .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
-                        .AddTo(_memberChangeDisposables);
-                })
-                .AddTo(_disposables);
-
             // Damaged
             _damagedApplicable.OnHit
                 .Subscribe(_ => _actionStateController.Execute(new Command { Id = "damaged" }))
@@ -157,11 +165,15 @@ namespace HexRPG.Battle.Player
                 {
                     if (direction.magnitude > 0.1)
                     {
-                        _actionStateController.Execute(new Command { Id = "move" });
+                        if(_acceptDirectionInput) _actionStateController.Execute(new Command { Id = "move" });
                     }
                     else
                     {
                         _actionStateController.Execute(new Command { Id = "stop" });
+                        if (_actionStateObservable.CurrentState.Value.Type == SKILL_SELECT)
+                        {
+                            _acceptDirectionInput = true; // Skill選択ステートに遷移した後、一度Direction入力がzeroにならないとDirection入力による移動を受け付けない
+                        }
                     }
                 })
                 .AddTo(_disposables);
@@ -251,6 +263,7 @@ namespace HexRPG.Battle.Player
                 .OnStart<ActionEventSkillSelect>()
                 .Subscribe(_ =>
                 {
+                    _acceptDirectionInput = false;
                     _selectSkillController.SelectSkill(_characterInput.SelectedSkillIndex.Value);
                 })
                 .AddTo(_disposables);

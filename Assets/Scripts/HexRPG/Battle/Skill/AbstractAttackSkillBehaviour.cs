@@ -27,7 +27,7 @@ namespace HexRPG.Battle.Skill
         List<Vector2> _fullAttackRange;
 
         IReadOnlyReactiveProperty<Hex[]> ISkillObservable.OnSkillAttack => _onSkillAttack;
-        readonly IReactiveProperty<Hex[]> _onSkillAttack = new ReactiveProperty<Hex[]>();
+        readonly IReactiveProperty<Hex[]> _onSkillAttack = new ReactiveProperty<Hex[]>(new Hex[0]);
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();

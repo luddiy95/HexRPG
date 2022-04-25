@@ -62,16 +62,16 @@ namespace HexRPG.Battle.Player
                 {
                     UpdateDirection();
 
-                    if (isBtnCombatClicked)
-                    {
-                        _onCombat.OnNext(Unit.Default);
-                        isBtnCombatClicked = false;
-                    }
-
                     if (selectedSkillIndex != -1)
                     {
                         _selectedSkillIndex.SetValueAndForceNotify(selectedSkillIndex);
                         selectedSkillIndex = -1;
+                    }
+
+                    if (isBtnCombatClicked)
+                    {
+                        _onCombat.OnNext(Unit.Default);
+                        isBtnCombatClicked = false;
                     }
 
                     if (isBtnSkillDecideClicked)

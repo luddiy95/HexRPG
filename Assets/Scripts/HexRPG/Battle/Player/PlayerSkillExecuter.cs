@@ -46,17 +46,11 @@ namespace HexRPG.Battle.Player
                 );
             _disposables.Clear();
             runningSkill.SkillObservable.OnSkillAttack
-                .Skip(1)
                 .Subscribe(attackRange =>
                 {
                     //TODO: 攻撃着弾直後にskillRange内に生きている敵がいるかどうか->いなければLiberate
                     //TODO: 敵の生死判定をまだ決定していないため、とりあえず敵の有無/生死にかかわらずLiberate
                     _stageController.Liberate(attackRange, true);
-                    //TODO: 【ここから】
-                    //TODO: 多段Skillを想定すると、OnFinishAttackをUnitではなくHex[]にしてでその時攻撃した範囲を取ってきてList<Hex[]>のキャッシュに追加し、
-                    //TODO:  OnFinishSkill時にキャッシュされたList<Hex[]>のそれぞれのHex[]に対してLiberateを行う(中断にも対応できる)
-                    //TODO: SkillSettingのRangeは多段の攻撃範囲全て網羅するようにして(Indicateするときも網羅した範囲)、多段の各攻撃の範囲はTimelineのトラックで取得するようにする
-                    //TODO: 網羅させるのはTimelineから多段の各攻撃範囲を読み取ってそれを統合すれば良い
                 })
                 .AddTo(_disposables);
             runningSkill.SkillObservable.OnFinishSkill
