@@ -1,11 +1,11 @@
-using UnityEngine;
-using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
 namespace HexRPG.Playable
 {
+    using HexRPG.Battle;
+
     [TrackColor(1, 0, 0)]
-    [TrackBindingType(typeof(Collider))]
+    [TrackBindingType(typeof(AttackCollider))]
     [TrackClipType(typeof(AttackColliderAsset))]
     public class AttackColliderTrack : TrackAsset
     {

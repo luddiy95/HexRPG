@@ -91,12 +91,13 @@ namespace HexRPG.Battle.Player
         void IAnimationController.Init()
         {
             SetupGraph();
-            var locomotionClipLength = AnimationExtensions.LocomotionClips.Length;
-            for (int i = 0; i < locomotionClipLength; i++)
+            _animationTypeMap.Add(_playables[0].GetAnimationClip().name, AnimationType.Idle);
+            var locomotionClipLength = AnimationExtensions.MoveClips.Length;
+            for (int i = 1; i < locomotionClipLength + 1; i++)
             {
-                _animationTypeMap.Add(_playables[i].GetAnimationClip().name, AnimationType.Locomotion);
+                _animationTypeMap.Add(_playables[i].GetAnimationClip().name, AnimationType.Move);
             }
-            _animationTypeMap.Add(_playables[locomotionClipLength].GetAnimationClip().name, AnimationType.Damaged);
+            _animationTypeMap.Add(_playables[locomotionClipLength + 1].GetAnimationClip().name, AnimationType.Damaged);
 
             SetupCombatAnimation(_combatSpawnObservable.Combat.Combat.PlayableAsset);
             Array.ForEach(_skillSpawnObservable.SkillList, skill => SetupSkillAnimation(skill.Skill.PlayableAsset));
@@ -132,33 +133,30 @@ namespace HexRPG.Battle.Player
 
                 switch (nextAnimationType)
                 {
-                    case AnimationType.Locomotion:
-                        if(clip == "Idle")
+                    case AnimationType.Idle:
+                        switch (curAnimationType)
                         {
-                            switch (curAnimationType)
-                            {
-                                case AnimationType.Locomotion: // MoveÅõÅõ -> Idle
-                                case AnimationType.Damaged: // Damaged -> Idle
-                                case AnimationType.Combat: // Combat -> Idle (íÜífÇÃÇ›)
-                                    fadeLength = _durationData.defaultBackToIdleDuration;
-                                    var backToIdleDurationData = _durationData.backToIdleDurations.FirstOrDefault(data => data.clipBefore == curClip);
-                                    if (backToIdleDurationData != null) fadeLength = backToIdleDurationData.duration;
-                                    break;
-                                default: fadeLength = _durationData.defaultDuration; break;
-                            }
+                            case AnimationType.Move: // MoveÅõÅõ -> Idle
+                            case AnimationType.Damaged: // Damaged -> Idle
+                            case AnimationType.Combat: // Combat -> Idle (íÜífÇÃÇ›)
+                                fadeLength = _durationData.defaultBackToIdleDuration;
+                                var backToIdleDurationData = _durationData.backToIdleDurations.FirstOrDefault(data => data.clipBefore == curClip);
+                                if (backToIdleDurationData != null) fadeLength = backToIdleDurationData.duration;
+                                break;
+                            default: fadeLength = _durationData.defaultDuration; break;
                         }
-                        else
+                        break;
+                    case AnimationType.Move:
+                        switch (curAnimationType)
                         {
-                            switch (curAnimationType)
-                            {
-                                case AnimationType.Locomotion:
-                                    // Idle, MoveÅõÅõ -> MoveÅõÅõ
-                                    fadeLength = _durationData.defaultLocomotionDuration;
-                                    var locomotionDurationData = _durationData.locomotionDurations.FirstOrDefault(data => data.clipBefore == curClip && data.clipAfter == clip);
-                                    if (locomotionDurationData != null) fadeLength = locomotionDurationData.duration;
-                                    break;
-                                default: fadeLength = _durationData.defaultDuration; break;
-                            }
+                            case AnimationType.Idle:
+                            case AnimationType.Move:
+                                // Idle, MoveÅõÅõ -> MoveÅõÅõ
+                                fadeLength = _durationData.defaultLocomotionDuration;
+                                var locomotionDurationData = _durationData.locomotionDurations.FirstOrDefault(data => data.clipBefore == curClip && data.clipAfter == clip);
+                                if (locomotionDurationData != null) fadeLength = locomotionDurationData.duration;
+                                break;
+                            default: fadeLength = _durationData.defaultDuration; break;
                         }
                         break;
                     case AnimationType.Damaged:
@@ -210,8 +208,8 @@ namespace HexRPG.Battle.Player
 
                 // Locomotion->LocomotionëJà⁄íÜÇÕÅuIdle, Combat, SkillÅväÑÇËçûÇ›â¬î\
                 var isCrossFadeBtwLocomotion =
-                    (_animationTypeMap.TryGetValue(_playables[_curPlayingIndex].GetAnimationClip().name, out AnimationType type) && type == AnimationType.Locomotion) &&
-                    (_animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type == AnimationType.Locomotion);
+                    (_animationTypeMap.TryGetValue(_playables[_curPlayingIndex].GetAnimationClip().name, out AnimationType type) && type.IsLocomotionType()) &&
+                    (_animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType());
                 if (isCrossFadeBtwLocomotion)
                 {
                     // CombatÇ≈Ç∑Ç©ÅH

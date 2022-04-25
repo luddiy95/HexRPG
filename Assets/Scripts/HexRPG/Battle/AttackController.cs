@@ -36,14 +36,13 @@ namespace HexRPG.Battle
 
     public interface IAttackReserve
     {
-        void StartAttackReservation(List<Hex> reservationRange, ICharacterComponentCollection ReservationOrigin);
+        void StartAttackReservation(Hex[] reservationRange, ICharacterComponentCollection ReservationOrigin);
         void FinishAttackReservation();
     }
 
     public class AttackController : IAttackApplicator, IAttackController, IAttackObservable, IAttackReservation, IAttackReserve
     {
-        List<Hex> _curReservationRange = new List<Hex>();
-        List<Hex> _curAttackRange = new List<Hex>();
+        Hex[] _curReservationRange = new Hex[0];
 
         IAttackSetting IAttackApplicator.CurrentSetting => _currentSetting;
         IAttackSetting _currentSetting = null;
@@ -59,16 +58,16 @@ namespace HexRPG.Battle
 
         private List<ICharacterComponentCollection> _hitObjects = new List<ICharacterComponentCollection>();
 
-        void IAttackReserve.StartAttackReservation(List<Hex> reservationRange, ICharacterComponentCollection reservationOrigin)
+        void IAttackReserve.StartAttackReservation(Hex[] reservationRange, ICharacterComponentCollection reservationOrigin)
         {
             _curReservationRange = reservationRange;
             _reservationOrigin = reservationOrigin;
-            _curReservationRange.ForEach(hex => hex.AddAttackReservation(this));
+            Array.ForEach(_curReservationRange, hex => hex.AddAttackReservation(this));
         }
 
         void IAttackReserve.FinishAttackReservation()
         {
-            _curReservationRange.ForEach(hex => hex.RemoveAttackReservation(this));
+            Array.ForEach(_curReservationRange, hex => hex.RemoveAttackReservation(this));
         }
 
         void IAttackController.StartAttack(IAttackSetting setting, ICharacterComponentCollection attackOrigin)
@@ -77,24 +76,25 @@ namespace HexRPG.Battle
             _attackOrigin = attackOrigin;
             if (setting is ICombatAttackSetting combatAttackSetting)
             {
-
-            }else if (setting is ISkillAttackSetting skillAttackSetting)
+                combatAttackSetting.AttackColliders.ForEach(attackCollider => attackCollider.gameObject.SetActive(true));
+            }
+            if (setting is ISkillAttackSetting skillAttackSetting)
             {
-                _curAttackRange = skillAttackSetting.AttackRange;
-                _curAttackRange.ForEach(hex =>
-                {
-                    hex.AddAttackApplicator(this);
-                });
+                Array.ForEach(skillAttackSetting.AttackRange, hex => hex.AddAttackApplicator(this));
             }
             _hitObjects.Clear();
         }
 
         void IAttackController.FinishAttack()
         {
-            _curAttackRange.ForEach(hex =>
+            if(_currentSetting is ICombatAttackSetting combatAttackSetting)
             {
-                hex.RemoveAttackApplicator(this);
-            });
+                combatAttackSetting.AttackColliders.ForEach(attackCollider => attackCollider.gameObject.SetActive(false));
+            }
+            if(_currentSetting is ISkillAttackSetting skillAttackSetting)
+            {
+                Array.ForEach(skillAttackSetting.AttackRange, hex => hex.RemoveAttackApplicator(this));
+            }
             _currentSetting = null;
         }
 

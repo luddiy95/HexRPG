@@ -3,7 +3,6 @@ using UnityEngine.Playables;
 
 namespace HexRPG.Playable
 {
-    [System.Serializable]
     public class AttackColliderAsset : PlayableAsset
     {
         public AttackColliderBehaviour behaviour = new AttackColliderBehaviour();

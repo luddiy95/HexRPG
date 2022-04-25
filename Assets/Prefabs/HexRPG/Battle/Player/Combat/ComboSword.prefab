@@ -72,7 +72,6 @@ GameObject:
   - component: {fileID: 6192599650436789691}
   - component: {fileID: 6192599650436789688}
   - component: {fileID: 7780875501582284897}
-  - component: {fileID: 769332593087168472}
   - component: {fileID: 6192599650436789689}
   - component: {fileID: 6192599650436789702}
   - component: {fileID: 6192599650436789703}
@@ -205,55 +204,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _director: {fileID: 6192599651737054739}
-  _attackColliders:
-  - {fileID: 2888929333061382893}
---- !u!114 &769332593087168472
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6192599650436789701}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Events:
-    m_Signals:
-    - {fileID: 11400000, guid: b772905640b0ddb449b2d05f1b65372a, type: 2}
-    - {fileID: 11400000, guid: decdf4e4e5c919245bd753fb13efe21d, type: 2}
-    m_Events:
-    - m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 7780875501582284897}
-          m_TargetAssemblyTypeName: HexRPG.Battle.Player.Combat.AbstractCombatBehaviour,
-            HexRPG
-          m_MethodName: StartAttackEnable
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-    - m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 7780875501582284897}
-          m_TargetAssemblyTypeName: HexRPG.Battle.Player.Combat.AbstractCombatBehaviour,
-            HexRPG
-          m_MethodName: FinishAttackEnable
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
 --- !u!114 &6192599650436789689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -357,7 +307,7 @@ PlayableDirector:
   - key: {fileID: -3658863090894582401, guid: 10e4f807bff27a948a9dc9b7cb22b824, type: 2}
     value: {fileID: 2888929333061382898}
   - key: {fileID: -2372264398053752059, guid: 10e4f807bff27a948a9dc9b7cb22b824, type: 2}
-    value: {fileID: 2888929333061382898}
+    value: {fileID: 2888929333061382893}
   m_ExposedReferences:
     m_References:
     - 861fba3086311bb479987bd4eccf9a2d: {fileID: 2888929333061382895}

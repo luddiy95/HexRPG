@@ -9,7 +9,7 @@ using Cysharp.Threading.Tasks;
 namespace HexRPG.Battle.Player.Member
 {
     using Stage;
-    using Skill;
+    using Battle.Skill;
 
     public class MemberSkillExecuter : ISkillSpawnObservable, ISkillController, IInitializable, IDisposable
     {
@@ -54,7 +54,7 @@ namespace HexRPG.Battle.Player.Member
             _isAllSkillSpawned = true;
         }
 
-        ISkillComponentCollection ISkillController.StartSkill(int index, List<Hex> skillRange)
+        ISkillComponentCollection ISkillController.StartSkill(int index, Hex landedHex, int skillRotation)
         {
             _runningSkill = _skillList[index];
             _mental.Update(-_runningSkill.SkillSetting.MPcost);
@@ -67,7 +67,7 @@ namespace HexRPG.Battle.Player.Member
                     _disposables.Clear();
                 }).AddTo(_disposables);
 
-            _runningSkill.Skill.StartSkill(skillRange);
+            _runningSkill.Skill.StartSkill(landedHex, skillRotation);
 
             return _runningSkill;
         }

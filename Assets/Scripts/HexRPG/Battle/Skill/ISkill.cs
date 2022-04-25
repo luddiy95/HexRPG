@@ -9,8 +9,9 @@ namespace HexRPG.Battle.Skill
     public interface ISkill
     {
         void Init(PlayableAsset timeline, ICharacterComponentCollection skillOrigin, IAnimationController memberAnimationController);
-        void StartSkill(List<Hex> skillRange);
+        void StartSkill(Hex landedHex, int skillRotation);
 
         PlayableAsset PlayableAsset { get; }
+        List<Vector2> FullAttackRange { get; }
     }
 }

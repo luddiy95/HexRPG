@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 using System.Linq;
 
 namespace HexRPG.Battle.Stage
@@ -9,7 +10,7 @@ namespace HexRPG.Battle.Stage
         Vector3 DirX { get; }
         Vector3 DirZ { get; }
 
-        void Liberate(List<Hex> hexList, bool isPlayer);
+        void Liberate(Hex[] hexList, bool isPlayer);
     }
 
     public class StageBehaviour : MonoBehaviour, IStageController
@@ -26,11 +27,11 @@ namespace HexRPG.Battle.Stage
         [SerializeField] Hex _hexPrefab;
 
         //TODO: IAttackController‚âIAttackReserve‚Æ“¯—l‚ÉILiberater‚ğì‚é‚×‚«
-        void IStageController.Liberate(List<Hex> hexList, bool isPlayer)
+        void IStageController.Liberate(Hex[] hexList, bool isPlayer)
         {
             if (isPlayer)
             {
-                hexList.ForEach(hex => hex.Liberate());
+                Array.ForEach(hexList, hex => hex.Liberate());
             }
         }
 
@@ -83,7 +84,7 @@ namespace HexRPG.Battle.Stage
 
     public static class StageExtensions
     {
-        public static List<Hex> GetHexList(this IStageController stageController, Hex root, List<Vector2> range, int rotationAngle)
+        public static Hex[] GetHexList(this IStageController stageController, Hex root, List<Vector2> range, int rotationAngle)
         {
             return range
                 .Select(dir =>
@@ -92,7 +93,7 @@ namespace HexRPG.Battle.Stage
                         Quaternion.AngleAxis(rotationAngle, Vector3.up) * (stageController.DirX * dir.x + stageController.DirZ * dir.y);
                     return TransformExtensions.GetLandedHex(position);
                 })
-                .Where(rangeHex => rangeHex != null).ToList();
+                .Where(rangeHex => rangeHex != null).ToArray();
         }
     }
 }

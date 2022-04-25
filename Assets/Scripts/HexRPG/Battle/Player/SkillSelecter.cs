@@ -1,6 +1,5 @@
-using System.Collections.Generic;
+using UnityEngine;
 using UniRx;
-using System.Linq;
 using System;
 using Zenject;
 
@@ -19,7 +18,6 @@ namespace HexRPG.Battle.Player
     {
         IReadOnlyReactiveProperty<int> SelectedSkillIndex { get; }
         int SelectedSkillRotation { get; }
-        List<Hex> CurAttackIndicateHexList { get; }
     }
 
     public class SkillSelecter : ISelectSkillController, ISelectSkillObservable, IInitializable, IDisposable
@@ -38,9 +36,6 @@ namespace HexRPG.Battle.Player
         int _selectedSkillRotation = 0;
 
         int _duplicateSelectedCount = 0;
-
-        List<Hex> ISelectSkillObservable.CurAttackIndicateHexList => _curAttackIndicateHexList;
-        List<Hex> _curAttackIndicateHexList = new List<Hex>();
 
         public SkillSelecter(
             ITransformController transformController,
@@ -64,14 +59,12 @@ namespace HexRPG.Battle.Player
 
                     if (index >= 0)
                     {
-                        var skillSetting = _memberObservable.CurMember.Value.SkillSpawnObservable.SkillList[index].SkillSetting;
+                        var attackRange = _memberObservable.CurMember.Value.SkillSpawnObservable.SkillList[index].Skill.FullAttackRange;
                         _selectedSkillRotation = (_transformController.DefaultRotation + 30) / 60 * 60 + _duplicateSelectedCount * 60;
-                        _curAttackIndicateHexList =
-                            _stageController.GetHexList(
-                                _transformController.GetLandedHex(), 
-                                skillSetting.Range,
-                                _selectedSkillRotation).ToList();
-                        _attackReserve.StartAttackReservation(_curAttackIndicateHexList, _memberObservable.CurMember.Value);
+
+                        var curAttackIndicateHexList =
+                            _stageController.GetHexList(_transformController.GetLandedHex(), attackRange, _selectedSkillRotation);
+                        _attackReserve.StartAttackReservation(curAttackIndicateHexList, _memberObservable.CurMember.Value);
                     }
                 })
                 .AddTo(_disposables);

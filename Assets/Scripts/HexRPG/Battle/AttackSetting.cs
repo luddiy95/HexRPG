@@ -9,7 +9,7 @@ namespace HexRPG.Battle
 
     public class AttackSetting : IAttackSetting
     {
-        int IAttackSetting.Power => _power;
-        public int _power;
+        int IAttackSetting.Power => power;
+        public int power;
     }
 }

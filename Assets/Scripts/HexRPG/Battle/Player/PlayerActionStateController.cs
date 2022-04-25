@@ -71,10 +71,10 @@ namespace HexRPG.Battle.Player
             var idle = NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventIdle(0f))
-                .AddEvent(new ActionEventCancel("move", 0.5f, MOVE))
+                .AddEvent(new ActionEventCancel("move", 0.35f, MOVE))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
-                .AddEvent(new ActionEventCancel("combat", 0.5f, COMBAT))
-                .AddEvent(new ActionEventCancel("skillSelect", 0.5f, SKILL_SELECT))
+                .AddEvent(new ActionEventCancel("combat", 0.35f, COMBAT))
+                .AddEvent(new ActionEventCancel("skillSelect", 0.35f, SKILL_SELECT))
                 ;
 
             NewState(MOVE)
@@ -161,7 +161,6 @@ namespace HexRPG.Battle.Player
                     }
                     else
                     {
-                        //if(_actionStateObservable.CurrentState.Value != null) Debug.Log("back to idle, State: " + _actionStateObservable.CurrentState.Value.Type.ToString());
                         _actionStateController.Execute(new Command { Id = "stop" });
                     }
                 })
@@ -221,7 +220,9 @@ namespace HexRPG.Battle.Player
                 .OnStart<ActionEventIdle>()
                 .Subscribe(_ =>
                 {
-                    // Idle遷移前のStateに応じてインターバル
+                    // これを使って_characterInputを制御するフラグを立てたりすれば、IDLE遷移前に可変な長さの入力インターバルを設定出来そうだったが、
+                    // ここが実行される前に_characterInput.Directionが入力を検知してしまう
+                    // (例えばCombat終了前後でDirection入力を入れっぱなしにしていたら、IDLEステート遷移直後に_characterInputを制御するより前にmoveコマンドが実行されて動いてしまう)
                 })
                 .AddTo(_disposables);
 
@@ -250,7 +251,6 @@ namespace HexRPG.Battle.Player
                 .OnStart<ActionEventSkillSelect>()
                 .Subscribe(_ =>
                 {
-                    Debug.Log("select skill");
                     _selectSkillController.SelectSkill(_characterInput.SelectedSkillIndex.Value);
                 })
                 .AddTo(_disposables);
@@ -266,7 +266,7 @@ namespace HexRPG.Battle.Player
                 .OnStart<ActionEventSkill>()
                 .Subscribe(_ =>
                 {
-                    _skillController.StartSkill(_selectSkillObservable.SelectedSkillIndex.Value, null);
+                    _skillController.StartSkill(_selectSkillObservable.SelectedSkillIndex.Value);
                     _selectSkillController.ResetSelection();
                 })
                 .AddTo(_disposables);
@@ -286,14 +286,14 @@ namespace HexRPG.Battle.Player
                     {
                         case IDLE:
                         case SKILL_SELECT:
-                            _memberObservable.CurMember.Value.AnimationController.Play(AnimationExtensions.LocomotionClips[0]);
+                            _memberObservable.CurMember.Value.AnimationController.Play(AnimationExtensions.IdleClip);
                             break;
 
                         case MOVE:
                             var direction = _characterInput.Direction.Value;
                             var euler = Quaternion.LookRotation(direction).eulerAngles.y;
-                            var locomotionIndex = ((int)((euler + 22.5) / 45)) % 8 + 1;
-                            _memberObservable.CurMember.Value.AnimationController.Play(AnimationExtensions.LocomotionClips[locomotionIndex]);
+                            var locomotionIndex = ((int)((euler + 22.5) / 45)) % 8;
+                            _memberObservable.CurMember.Value.AnimationController.Play(AnimationExtensions.MoveClips[locomotionIndex]);
                             break;
 
                         case DAMAGED:

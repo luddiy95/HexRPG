@@ -1,4 +1,3 @@
-using UnityEngine;
 using UnityEngine.Playables;
 using System;
 using UniRx;
@@ -13,22 +12,11 @@ namespace HexRPG.Playable
         public IObservable<Unit> OnAttackDisable => _onAttackDisable;
         readonly ISubject<Unit> _onAttackDisable = new Subject<Unit>();
 
-        bool _isFirstFrame = true;
-        public Collider Collider { get; private set; }
-
-        public override void ProcessFrame(UnityEngine.Playables.Playable playable, FrameData info, object playerData)
+        public override void OnBehaviourPlay(UnityEngine.Playables.Playable playable, FrameData info)
         {
-            base.ProcessFrame(playable, info, playerData);
+            base.OnBehaviourPlay(playable, info);
 
-            if (_isFirstFrame)
-            {
-                _isFirstFrame = false;
-
-                Collider = playerData as Collider;
-
-                _onAttackEnable.OnNext(Unit.Default);
-                //Collider.gameObject.SetActive(true);
-            }
+            _onAttackEnable.OnNext(Unit.Default);
         }
 
         public override void OnBehaviourPause(UnityEngine.Playables.Playable playable, FrameData info)
@@ -37,7 +25,6 @@ namespace HexRPG.Playable
 
             if (!playable.IsClipEnded(info)) return;
 
-            //Collider.gameObject.SetActive(false);
             _onAttackDisable.OnNext(Unit.Default);
         }
     }

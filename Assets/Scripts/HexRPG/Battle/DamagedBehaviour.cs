@@ -85,7 +85,7 @@ namespace HexRPG.Battle
                         DoHit(attackApplicator);
                     }
 
-                    if (Input.GetKeyDown(KeyCode.D)) _onHit.OnNext(new HitData());
+                    if (Input.GetKeyDown(KeyCode.D)) _onHit.OnNext(new HitData()); //TODO: テストコード
                 })
                 .AddTo(this);
         }

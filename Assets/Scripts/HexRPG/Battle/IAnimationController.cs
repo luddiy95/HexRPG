@@ -17,7 +17,8 @@ namespace HexRPG.Battle
 
     public enum AnimationType
     {
-        Locomotion,
+        Idle,
+        Move,
         Damaged,
         Combat,
         Skill
@@ -25,9 +26,16 @@ namespace HexRPG.Battle
 
     public static class AnimationExtensions
     {
-        public static string[] LocomotionClips => new string[]
+        public static string IdleClip => "Idle";
+
+        public static string[] MoveClips => new string[]
         {
-            "Idle", "Movefwd", "Moverightfwd", "Moveright", "Moverightbwd", "Movebwd", "Moveleftbwd", "Moveleft", "Moveleftfwd"
+            "Movefwd", "Moverightfwd", "Moveright", "Moverightbwd", "Movebwd", "Moveleftbwd", "Moveleft", "Moveleftfwd"
         };
+
+        public static bool IsLocomotionType(this AnimationType type)
+        {
+            return type == AnimationType.Idle || type == AnimationType.Move;
+        }
     }
 }

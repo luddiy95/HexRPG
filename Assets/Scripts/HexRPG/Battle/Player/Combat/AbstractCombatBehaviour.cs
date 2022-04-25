@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
@@ -28,7 +29,7 @@ namespace HexRPG.Battle.Player.Combat
         Vector3 ICombat.Velocity => velocity;
         Vector3 velocity = Vector3.zero;
 
-        [SerializeField] AttackCollider[] _attackColliders;
+        List<AttackCollider> _attackColliders = new List<AttackCollider>();
         ICharacterComponentCollection _combatOrigin;
 
         IAnimationController _memberAnimationController;
@@ -52,13 +53,24 @@ namespace HexRPG.Battle.Player.Combat
 
         void ICombat.Init(PlayableAsset timeline, ICharacterComponentCollection combatOrigin, IAnimationController memberAnimationController)
         {
-            Array.ForEach(_attackColliders, attackCollider => attackCollider.AttackApplicator = _attackApplicator);
-
             //_skillEffect.SetActive(false);
             _combatOrigin = combatOrigin;
             _memberAnimationController = memberAnimationController;
 
             _director.playableAsset = timeline;
+
+            // AttackCollider‚ðƒNƒŠƒbƒv‚©‚çŽæ“¾
+            foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
+            {
+                if (trackAsset is AttackColliderTrack)
+                {
+                    if(_director.GetGenericBinding(trackAsset) is AttackCollider attackCollider)
+                    {
+                        _attackColliders.Add(attackCollider);
+                    }
+                }
+            }
+            _attackColliders.ForEach(attackCollider => attackCollider.AttackApplicator = _attackApplicator);
 
             _memberAnimationController.OnFinishCombat
                 .Subscribe(_ =>
@@ -153,7 +165,8 @@ namespace HexRPG.Battle.Player.Combat
         {
             var attackSetting = new CombatAttackSetting
             {
-                _power = _combatSetting.Damage
+                power = _combatSetting.Damage, 
+                attackColliders = _attackColliders
             };
             _attackController.StartAttack(attackSetting, _combatOrigin);
         }

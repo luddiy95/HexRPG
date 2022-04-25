@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 
 namespace HexRPG.Battle
 {
@@ -7,6 +6,6 @@ namespace HexRPG.Battle
 
     public interface ISkillController
     {
-        ISkillComponentCollection StartSkill(int index, List<Hex> skillRange);
+        ISkillComponentCollection StartSkill(int index, Hex landedHex = null, int skillRotation = 0);
     }
 }
