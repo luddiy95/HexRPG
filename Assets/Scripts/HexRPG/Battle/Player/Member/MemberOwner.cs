@@ -19,6 +19,7 @@ namespace HexRPG.Battle.Player.Member
 
     public class MemberOwner : MonoBehaviour, IMemberComponentCollection
     {
+        [Inject] IColliderController ICharacterComponentCollection.ColliderController { get; }
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
         [Inject] IAnimatorController IMemberComponentCollection.AnimatorController { get; }

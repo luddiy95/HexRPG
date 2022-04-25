@@ -14,6 +14,7 @@ namespace HexRPG.Battle.Enemy
 
     public class EnemyOwner : MonoBehaviour, IEnemyComponentCollection
     {
+        [Inject] IColliderController ICharacterComponentCollection.ColliderController { get; }
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
         [Inject] ISkillSpawnObservable IEnemyComponentCollection.SkillSpawnObservable { get; }

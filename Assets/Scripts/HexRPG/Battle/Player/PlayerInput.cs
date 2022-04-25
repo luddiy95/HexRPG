@@ -62,6 +62,7 @@ namespace HexRPG.Battle.Player
                 {
                     UpdateDirection();
 
+                    //! ˆÚ“®’†‚É‘€ìŠ„‚è‚İ‚µ‚½‚¢‚à‚Ì‚ÍUpdateDirection‚æ‚è‰º‚É‹Lq‚·‚é
                     if (selectedSkillIndex != -1)
                     {
                         _selectedSkillIndex.SetValueAndForceNotify(selectedSkillIndex);

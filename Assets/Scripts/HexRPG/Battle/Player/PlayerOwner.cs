@@ -15,6 +15,7 @@ namespace HexRPG.Battle.Player
 
     public class PlayerOwner : MonoBehaviour, IPlayerComponentCollection
     {
+        IColliderController ICharacterComponentCollection.ColliderController => MemberOwner.ColliderController;
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         IHealth ICharacterComponentCollection.Health => MemberOwner.Health;
         [Inject] IMemberController IPlayerComponentCollection.MemberController { get; }
