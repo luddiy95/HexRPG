@@ -12,6 +12,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff031b9e59c79554a8ded6e14aea480f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!320 &7049364295519211133
+PlayableDirector:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2188945162103877907}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_PlayableAsset: {fileID: 11400000, guid: 9976a20d842186949a6c358cbdcdff9b, type: 2}
+  m_InitialState: 0
+  m_WrapMode: 2
+  m_DirectorUpdateMode: 1
+  m_InitialTime: 0
+  m_SceneBindings:
+  - key: {fileID: 4359498476862850307, guid: 9976a20d842186949a6c358cbdcdff9b, type: 2}
+    value: {fileID: 3805217081822447630}
+  - key: {fileID: 2568392351655936353, guid: 9976a20d842186949a6c358cbdcdff9b, type: 2}
+    value: {fileID: 4457092692856597827}
+  - key: {fileID: 160078404283603301, guid: 9976a20d842186949a6c358cbdcdff9b, type: 2}
+    value: {fileID: 4457798592409566743}
+  m_ExposedReferences:
+    m_References: []
 --- !u!1 &4457092692856597827
 GameObject:
   m_ObjectHideFlags: 0
@@ -4787,7 +4810,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 4f0077caf53021a45ac23e48be8a0caf, type: 2}
-  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9606,7 +9628,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 01726f0222ac82c428f3b25246f191a6, type: 2}
-  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -15280,10 +15301,10 @@ Animator:
   m_GameObject: {fileID: 6861965244252449679}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: d13d2e643b1082444bb5e7f9dd35a364, type: 2}
+  m_Controller: {fileID: 0}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
@@ -15301,9 +15322,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3805217081822447630}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _name
+      value: CannonMachineA
+      objectReference: {fileID: 0}
+    - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _healthMax
       value: 300
       objectReference: {fileID: 0}
+    - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _dieTimeline
+      value: 
+      objectReference: {fileID: 11400000, guid: 9976a20d842186949a6c358cbdcdff9b, type: 2}
     - target: {fileID: 439547804308635337, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _gameObject
       value: 
@@ -15319,6 +15348,10 @@ PrefabInstance:
     - target: {fileID: 513248080382508231, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: m_Center.y
       value: 0.78
+      objectReference: {fileID: 0}
+    - target: {fileID: 1609706617907820296, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2922301573819534344, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _animator
@@ -15368,6 +15401,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8463418554706351464, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _dieDirector
+      value: 
+      objectReference: {fileID: 7049364295519211133}
+    - target: {fileID: 8463418554706351464, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _durationData
+      value: 
+      objectReference: {fileID: 11400000, guid: e2432323838066747a8711ba066fa6e3, type: 2}
+    - target: {fileID: 8463418554706351464, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _clips.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8463418554706351464, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _clips.Array.data[0]
+      value: 
+      objectReference: {fileID: 7400000, guid: 3f7471cd242c1924c9e182d3ebf3e55e, type: 2}
+    - target: {fileID: 8463418554706351464, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _clips.Array.data[1]
+      value: 
+      objectReference: {fileID: 7400000, guid: 2a2fd446a32f0964ab84651a48263fa5, type: 2}
+    - target: {fileID: 8682672011007346387, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _director
+      value: 
+      objectReference: {fileID: 7049364295519211133}
     - target: {fileID: 8860857860763353368, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: m_Name
       value: CannonMachine
@@ -15383,5 +15440,10 @@ Transform:
 --- !u!1 &6462630326340586861 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8860857860763353368, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+  m_PrefabInstance: {fileID: 2546776026939493493}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2188945162103877907 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4411070546783468902, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
   m_PrefabInstance: {fileID: 2546776026939493493}
   m_PrefabAsset: {fileID: 0}

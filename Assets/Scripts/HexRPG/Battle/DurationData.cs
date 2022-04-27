@@ -48,13 +48,15 @@ namespace HexRPG.Battle
             public string clipBefore;
             public float duration;
         }
-        public float defaultDamagedDuration;
+        public float defaultDamagedDuration = 0.25f;
         public List<DamagedDurationData> damagedDurations = new List<DamagedDurationData>();
 
         /// <summary>
         /// Damaged -> Idle‘JˆÚ‚ÌExitTime‚ÆDuration
         /// </summary>
         public float exitTimeToIdle;
+
+        public float dieStartDuration = 0.25f;
 
         /// <summary>
         /// ”O‚Ì‚½‚ß

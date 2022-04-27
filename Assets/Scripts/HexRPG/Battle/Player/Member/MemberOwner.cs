@@ -5,6 +5,7 @@ namespace HexRPG.Battle.Player.Member
 {
     public interface IMemberComponentCollection : ICharacterComponentCollection
     {
+        IColliderController ColliderController { get; }
         IAnimatorController AnimatorController { get; }
         IAnimationController AnimationController { get; }
         ICombatSpawnObservable CombatSpawnObservable { get; }
@@ -19,7 +20,8 @@ namespace HexRPG.Battle.Player.Member
 
     public class MemberOwner : MonoBehaviour, IMemberComponentCollection
     {
-        [Inject] IColliderController ICharacterComponentCollection.ColliderController { get; }
+        [Inject] IColliderController IMemberComponentCollection.ColliderController { get; }
+        [Inject] IDieObservable ICharacterComponentCollection.DieObservable { get; }
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
         [Inject] IAnimatorController IMemberComponentCollection.AnimatorController { get; }

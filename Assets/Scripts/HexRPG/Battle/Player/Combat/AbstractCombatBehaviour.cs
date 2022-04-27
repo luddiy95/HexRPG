@@ -32,7 +32,7 @@ namespace HexRPG.Battle.Player.Combat
         List<AttackCollider> _attackColliders = new List<AttackCollider>();
         ICharacterComponentCollection _combatOrigin;
 
-        IAnimationController _memberAnimationController;
+        IAnimationController _animationController;
 
         bool _isComboInputEnable = false;
         bool _isComboInputted = false;
@@ -51,11 +51,11 @@ namespace HexRPG.Battle.Player.Combat
             _combatSetting = combatSetting;
         }
 
-        void ICombat.Init(PlayableAsset timeline, ICharacterComponentCollection combatOrigin, IAnimationController memberAnimationController)
+        void ICombat.Init(PlayableAsset timeline, ICharacterComponentCollection combatOrigin, IAnimationController animationController)
         {
             //_skillEffect.SetActive(false);
             _combatOrigin = combatOrigin;
-            _memberAnimationController = memberAnimationController;
+            _animationController = animationController;
 
             _director.playableAsset = timeline;
 
@@ -72,7 +72,7 @@ namespace HexRPG.Battle.Player.Combat
             }
             _attackColliders.ForEach(attackCollider => attackCollider.AttackApplicator = _attackApplicator);
 
-            _memberAnimationController.OnFinishCombat
+            _animationController.OnFinishCombat
                 .Subscribe(_ =>
                 {
                     // èIóπèàóù
@@ -148,7 +148,7 @@ namespace HexRPG.Battle.Player.Combat
                                 {
                                     if (!_isComboInputted)
                                     {
-                                        _memberAnimationController.Play("Idle");
+                                        _animationController.Play("Idle");
                                     }
                                     _isComboInputEnable = false;
                                 })
@@ -158,7 +158,7 @@ namespace HexRPG.Battle.Player.Combat
                 }
 
                 _director.Play();
-                _memberAnimationController.Play(_director.playableAsset.name);
+                _animationController.Play(_director.playableAsset.name);
             }
         }
 

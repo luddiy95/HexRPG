@@ -28,6 +28,8 @@ namespace HexRPG.Battle.Player
         ISkillController _skillController;
         ISkillObservable _skillObservable;
 
+        ActionStateType CurState => _actionStateObservable.CurrentState.Value.Type;
+
         bool _acceptDirectionInput = true;
 
         CompositeDisposable _disposables = new CompositeDisposable();
@@ -68,7 +70,7 @@ namespace HexRPG.Battle.Player
 
             _actionStateObservable.CurrentState
                 .Where(state => state != null)
-                .First()
+                .First() //! 初期化時CurMemberが設定されてからIDLEステートに遷移したときの最初の一回
                 .Subscribe(_ =>
                 {
                     SetUpControl();
@@ -84,7 +86,13 @@ namespace HexRPG.Battle.Player
 
                     _memberChangeDisposables.Clear();
                     member.AnimationController.OnFinishDamaged
-                        .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
+                        .Where(_ => CurState == DAMAGED)
+                        .Subscribe(_ => _actionStateController.Execute(new Command { Id = "finishDamaged" }))
+                        .AddTo(_memberChangeDisposables);
+
+                    member.DieObservable.IsDead
+                        .Where(isDead => isDead)
+                        .Subscribe(_ => _actionStateController.ExecuteTransition(DIE))
                         .AddTo(_memberChangeDisposables);
                 })
                 .AddTo(_disposables);
@@ -113,14 +121,14 @@ namespace HexRPG.Battle.Player
 
             NewState(DAMAGED)
                 .AddEvent(new ActionEventPlayMotion(0f))
-                // IDLEに戻る
+                .AddEvent(new ActionEventCancel("finishDamaged", IDLE))
                 ;
 
             NewState(COMBAT)
                 .AddEvent(new ActionEventCombat())
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
                 .AddEvent(new ActionEventCancel("combat", COMBAT, passEndNotification: true))
-                // IDLEに戻る
+                .AddEvent(new ActionEventCancel("finishCombat", IDLE))
                 ;
 
             NewState(SKILL_SELECT)
@@ -137,7 +145,10 @@ namespace HexRPG.Battle.Player
             NewState(SKILL)
                 .AddEvent(new ActionEventSkill())
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
-                // IDLEに戻る
+                .AddEvent(new ActionEventCancel("finishSkill", IDLE))
+                ;
+
+            NewState(DIE)
                 ;
 
             ActionState NewState(ActionStateType type, Action<ActionState> action = null)
@@ -158,28 +169,30 @@ namespace HexRPG.Battle.Player
             _damagedApplicable.OnHit
                 .Subscribe(_ => _actionStateController.Execute(new Command { Id = "damaged" }))
                 .AddTo(_disposables);
-            
+
             // joyスティック入力時
             _characterInput.Direction
                 .Subscribe(direction =>
                 {
                     if (direction.magnitude > 0.1)
                     {
-                        if(_acceptDirectionInput) _actionStateController.Execute(new Command { Id = "move" });
+                        var canMoveState = (CurState == IDLE || CurState == MOVE || CurState == SKILL_SELECT);
+                        if(canMoveState && _acceptDirectionInput) _actionStateController.Execute(new Command { Id = "move" });
                     }
                     else
                     {
-                        _actionStateController.Execute(new Command { Id = "stop" });
-                        if (_actionStateObservable.CurrentState.Value.Type == SKILL_SELECT)
-                        {
-                            _acceptDirectionInput = true; // Skill選択ステートに遷移した後、一度Direction入力がzeroにならないとDirection入力による移動を受け付けない
-                        }
+                        var isMoveState = (CurState == MOVE);
+                        if(isMoveState) _actionStateController.Execute(new Command { Id = "stop" });
+
+                        // Skill選択ステートに遷移した後、一度Direction入力がzeroにならないとDirection入力による移動を受け付けない
+                        if (_actionStateObservable.CurrentState.Value.Type == SKILL_SELECT) _acceptDirectionInput = true; 
                     }
                 })
                 .AddTo(_disposables);
 
             // Combat
             _characterInput.OnCombat
+                .Where(_ => CurState == IDLE || CurState == MOVE || CurState == COMBAT || CurState == SKILL_SELECT)
                 .Subscribe(_ =>
                 {
                     _actionStateController.Execute(new Command { Id = "combat" });
@@ -188,12 +201,16 @@ namespace HexRPG.Battle.Player
 
             // Combat終了
             _combatObservable.OnFinishCombat
-                .Where(_ => _actionStateObservable.CurrentState.Value.Type == COMBAT)
-                .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
+                .Where(_ => CurState == COMBAT)
+                .Subscribe(_ =>
+                {
+                    _actionStateController.Execute(new Command { Id = "finishCombat" });
+                })
                 .AddTo(_disposables);
 
             // Skill選択
             _characterInput.SelectedSkillIndex
+                .Where(_ => CurState == IDLE || CurState == MOVE || CurState == SKILL_SELECT)
                 .Skip(1)
                 .Subscribe(index =>
                 {
@@ -205,14 +222,17 @@ namespace HexRPG.Battle.Player
 
             // Skillキャンセル時
             _characterInput.OnSkillCancel
+                .Where(_ => CurState == SKILL_SELECT)
                 .Subscribe(_ => _actionStateController.Execute(new Command { Id = "skillCancel" }))
                 .AddTo(_disposables);
             _characterInput.CameraRotateDir
+                .Where(_ => CurState == SKILL_SELECT)
                 .Subscribe(_ => _actionStateController.Execute(new Command { Id = "skillCancel" }))
                 .AddTo(_disposables);
 
             // Skill決定時
             _characterInput.OnSkillDecide
+                .Where(_ => CurState == SKILL_SELECT)
                 .Subscribe(_ =>
                 {
                     _actionStateController.Execute(new Command { Id = "skill" });
@@ -221,8 +241,8 @@ namespace HexRPG.Battle.Player
 
             // Skill終了
             _skillObservable.OnFinishSkill
-                .Where(_ => _actionStateObservable.CurrentState.Value.Type == SKILL)
-                .Subscribe(_ => _actionStateController.ExecuteTransition(IDLE))
+                .Where(_ => CurState == SKILL)
+                .Subscribe(_ => _actionStateController.Execute(new Command { Id = "finishSkill" }))
                 .AddTo(_disposables);
 
             ////// ステートでの詳細処理 //////

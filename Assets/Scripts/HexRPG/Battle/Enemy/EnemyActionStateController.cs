@@ -1,30 +1,31 @@
 using Zenject;
 using UniRx;
 using System;
-using UnityEngine;
 
 namespace HexRPG.Battle.Enemy
 {
-    using Player;
     using static ActionStateType;
 
     public class EnemyActionStateController : IInitializable, IDisposable
     {
-        IAnimatorController _animatorController;
+        IAnimationController _animationController;
         IActionStateController _actionStateController;
         IActionStateObservable _actionStateObservable;
+        IDieObservable _dieObservable;
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
         public EnemyActionStateController(
-            IAnimatorController animatorController,
+            IAnimationController animationController,
             IActionStateController actionStateController,
-            IActionStateObservable actionStateObservable
+            IActionStateObservable actionStateObservable,
+            IDieObservable dieObservable
         )
         {
-            _animatorController = animatorController;
+            _animationController = animationController;
             _actionStateController = actionStateController;
             _actionStateObservable = actionStateObservable;
+            _dieObservable = dieObservable;
         }
 
         void IInitializable.Initialize()
@@ -57,6 +58,9 @@ namespace HexRPG.Battle.Enemy
                 // IDLEに戻る
                 ;
 
+            NewState(DIE)
+                ;
+
             ActionState NewState(ActionStateType type, Action<ActionState> action = null)
             {
                 var s = new ActionState(type);
@@ -68,9 +72,12 @@ namespace HexRPG.Battle.Enemy
 
         void SetUpControl()
         {
-            ////// Execute(PlayerによるCommand) //////
+            _dieObservable.IsDead
+                .Where(isDead => isDead)
+                .Subscribe(_ => _actionStateController.ExecuteTransition(DIE))
+                .AddTo(_disposables);
 
-            ////// ActionStateObservable //////
+            ////// ステートでの詳細処理 //////
 
             // 各モーション再生
             _actionStateObservable
@@ -80,6 +87,7 @@ namespace HexRPG.Battle.Enemy
                     switch (_actionStateObservable.CurrentState.Value.Type)
                     {
                         case IDLE:
+                            _animationController.Play("Idle");
                             break;
 
                         case MOVE:

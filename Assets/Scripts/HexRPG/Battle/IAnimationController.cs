@@ -19,7 +19,11 @@ namespace HexRPG.Battle
     {
         Idle,
         Move,
+
         Damaged,
+
+        Die,
+
         Combat,
         Skill
     }

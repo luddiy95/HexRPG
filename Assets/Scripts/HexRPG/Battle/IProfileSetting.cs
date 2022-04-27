@@ -4,6 +4,7 @@ namespace HexRPG.Battle
 {
     public interface IProfileSetting
     {
+        string Name { get; }
         Sprite Icon { get; }
     }
 }

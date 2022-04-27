@@ -17,7 +17,7 @@ namespace HexRPG.Battle.Skill
         IAttackController _attackController;
         IBattleObservable _battleObservable;
 
-        IAnimationController _memberAnimationController;
+        IAnimationController _animationController;
 
         [SerializeField] protected PlayableDirector _director;
 
@@ -53,10 +53,10 @@ namespace HexRPG.Battle.Skill
             _battleObservable = battleObservable;
         }
 
-        void ISkill.Init(PlayableAsset timeline, ICharacterComponentCollection skillOrigin, IAnimationController memberAnimationController)
+        void ISkill.Init(PlayableAsset timeline, ICharacterComponentCollection skillOrigin, IAnimationController animationController)
         {
             _skillOrigin = skillOrigin;
-            _memberAnimationController = memberAnimationController;
+            _animationController = animationController;
 
             _director.playableAsset = timeline;
 
@@ -89,7 +89,7 @@ namespace HexRPG.Battle.Skill
                 }
             }
 
-            _memberAnimationController.OnFinishSkill
+            _animationController.OnFinishSkill
                 .Subscribe(_ =>
                 {
                     // èIóπèàóù
@@ -141,7 +141,7 @@ namespace HexRPG.Battle.Skill
             }
 
             _director.Play();
-            _memberAnimationController.Play(_director.playableAsset.name);
+            _animationController.Play(_director.playableAsset.name);
         }
 
         protected virtual void StartAttackEnable(int damage)

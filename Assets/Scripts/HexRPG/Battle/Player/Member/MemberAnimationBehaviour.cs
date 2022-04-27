@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Linq;
@@ -12,16 +11,12 @@ using Cysharp.Threading.Tasks;
 using UniRx;
 using Zenject;
 
-namespace HexRPG.Battle.Player
+namespace HexRPG.Battle.Player.Member
 {
-    public class MemberAnimationBehaviour : AbstractAnimationBehaviour, IAnimationController
+    public class MemberAnimationBehaviour : AnimationBehaviour, IAnimationController
     {
-        IAnimatorController _animatorController;
         ICombatSpawnObservable _combatSpawnObservable;
         ISkillSpawnObservable _skillSpawnObservable;
-
-        [SerializeField] AnimationClip[] _clips;
-        [SerializeField] DurationData _durationData;
 
         IObservable<Unit> IAnimationController.OnFinishDamaged => _onFinishDamaged;
         readonly ISubject<Unit> _onFinishDamaged = new Subject<Unit>();
@@ -31,24 +26,6 @@ namespace HexRPG.Battle.Player
 
         IObservable<Unit> IAnimationController.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
-
-        Dictionary<string, AnimationType> _animationTypeMap = new Dictionary<string, AnimationType>();
-
-        // Playable
-        PlayableGraph _graph;
-        List<AnimationClipPlayable> _playables;
-        AnimationMixerPlayable _mixer;
-
-        int _allClipCount;
-
-        struct TimelineClipInfo
-        {
-            public string ClipName { get; set; }
-            public double Duration { get; set; } // Animation全体の長さ(s)(本来の長さにSpeedを掛けたもの、実際にかかる時間)
-            public double Speed { get; set; }
-            public double BlendInDuration { get; set; }
-            public double BlendOutDuration { get; set; }
-        }
         
         // Combat
         class CombatTimelineInfo
@@ -68,21 +45,17 @@ namespace HexRPG.Battle.Player
         List<SkillTimelineInfo> _skillTimelineInfos = new List<SkillTimelineInfo>();
         SkillTimelineInfo _curSkill;
 
-        int _curPlayingIndex = -1, _nextPlayingIndex = -1;
-        int _disposedPlayingIndex = -1;
-
-        float rate = 0f;
-        float fixedRate = 0f; // 遷移中に割り込みが発生したときに本来の遷移がどの程度だったか
-
-        CancellationTokenSource _cancellationTokenSource;
-
         [Inject]
         public void Construct(
+            IProfileSetting profileSetting,
+            IDieSetting dieSetting,
             IAnimatorController animatorController,
             ICombatSpawnObservable combatSpawnObservable,
             ISkillSpawnObservable skillSpawnObservable
         )
         {
+            _profileSetting = profileSetting;
+            _dieSetting = dieSetting;
             _animatorController = animatorController;
             _combatSpawnObservable = combatSpawnObservable;
             _skillSpawnObservable = skillSpawnObservable;
@@ -99,6 +72,8 @@ namespace HexRPG.Battle.Player
             }
             _animationTypeMap.Add(_playables[locomotionClipLength + 1].GetAnimationClip().name, AnimationType.Damaged);
 
+            SetupDieAnimation();
+
             SetupCombatAnimation(_combatSpawnObservable.Combat.Combat.PlayableAsset);
             Array.ForEach(_skillSpawnObservable.SkillList, skill => SetupSkillAnimation(skill.Skill.PlayableAsset));
 
@@ -108,12 +83,12 @@ namespace HexRPG.Battle.Player
         #region AnimationPlayer
 
         //TODO: ここでdurationに引数を渡すのはeditor確認の場合(runtimeではdurationは全てdurationDataから取ってくるようにしたい)
-        void IAnimationController.Play(string clip)
+        void IAnimationController.Play(string nextClip)
         {
             // 最初の遷移
             if (_curPlayingIndex < 0)
             {
-                _curPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == clip);
+                _curPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == nextClip);
 
                 _mixer.SetInputWeight(_curPlayingIndex, 1);
 
@@ -125,57 +100,13 @@ namespace HexRPG.Battle.Player
 
             var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
 
-            float GetFadeLength()
-            {
-                var fadeLength = 0f;
-                if (_animationTypeMap.TryGetValue(curClip, out AnimationType curAnimationType) == false ||
-                    _animationTypeMap.TryGetValue(clip, out AnimationType nextAnimationType) == false) return _durationData.defaultDuration;
-
-                switch (nextAnimationType)
-                {
-                    case AnimationType.Idle:
-                        switch (curAnimationType)
-                        {
-                            case AnimationType.Move: // Move○○ -> Idle
-                            case AnimationType.Damaged: // Damaged -> Idle
-                            case AnimationType.Combat: // Combat -> Idle (中断のみ)
-                                fadeLength = _durationData.defaultBackToIdleDuration;
-                                var backToIdleDurationData = _durationData.backToIdleDurations.FirstOrDefault(data => data.clipBefore == curClip);
-                                if (backToIdleDurationData != null) fadeLength = backToIdleDurationData.duration;
-                                break;
-                            default: fadeLength = _durationData.defaultDuration; break;
-                        }
-                        break;
-                    case AnimationType.Move:
-                        switch (curAnimationType)
-                        {
-                            case AnimationType.Idle:
-                            case AnimationType.Move:
-                                // Idle, Move○○ -> Move○○
-                                fadeLength = _durationData.defaultLocomotionDuration;
-                                var locomotionDurationData = _durationData.locomotionDurations.FirstOrDefault(data => data.clipBefore == curClip && data.clipAfter == clip);
-                                if (locomotionDurationData != null) fadeLength = locomotionDurationData.duration;
-                                break;
-                            default: fadeLength = _durationData.defaultDuration; break;
-                        }
-                        break;
-                    case AnimationType.Damaged:
-                        fadeLength = _durationData.defaultDamagedDuration;
-                        var damagedDurationData = _durationData.damagedDurations.FirstOrDefault(data => data.clipBefore == curClip);
-                        if (damagedDurationData != null) fadeLength = damagedDurationData.duration;
-                        break;
-                    default: fadeLength = _durationData.defaultDuration; break;
-                }
-                return fadeLength;
-            }
-
             if (_cancellationTokenSource == null)
             {
                 // 遷移中などでない場合、自分自身には遷移しない
-                if (_playables[_curPlayingIndex].GetAnimationClip().name == clip) return;
+                if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip) return;
 
                 // Combatですか？
-                if (_combatTimelineInfo.CombatName == clip)
+                if (_combatTimelineInfo.CombatName == nextClip)
                 {
                     if (_curCombat != null) return;
 
@@ -185,7 +116,7 @@ namespace HexRPG.Battle.Player
                 }
 
                 // Skillですか？
-                var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == clip);
+                var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
                 if (skillTimelineInfo != null)
                 {
                     if (_curSkill != null) return;
@@ -195,16 +126,25 @@ namespace HexRPG.Battle.Player
                     return;
                 }
 
+                // Die
+                var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);
+                if (isDieClip)
+                {
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    InternalPlayDie(_cancellationTokenSource.Token).Forget();
+                    return;
+                }
+
                 _cancellationTokenSource = new CancellationTokenSource();
-                if (curClip == "Damaged" && clip == "Idle") _cancellationTokenSource.Token.Register(() => _onFinishDamaged.OnNext(Unit.Default));
-                InternalAnimationTransit(clip, GetFadeLength(), _cancellationTokenSource.Token).Forget();
+                if (curClip == "Damaged" && nextClip == "Idle") _cancellationTokenSource.Token.Register(() => _onFinishDamaged.OnNext(Unit.Default));
+                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
             }
             else
             {
                 //! 割り込み(非同期メソッド実行中 == CrossFade(アニメーション遷移中), Combat/Skill待ち合わせ中)
 
                 // _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
-                if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == clip) return;
+                if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
 
                 // Locomotion->Locomotion遷移中は「Idle, Combat, Skill」割り込み可能
                 var isCrossFadeBtwLocomotion =
@@ -213,7 +153,7 @@ namespace HexRPG.Battle.Player
                 if (isCrossFadeBtwLocomotion)
                 {
                     // Combatですか？
-                    if (_combatTimelineInfo.CombatName == clip)
+                    if (_combatTimelineInfo.CombatName == nextClip)
                     {
                         if (_curCombat != null) return;
 
@@ -227,7 +167,7 @@ namespace HexRPG.Battle.Player
                     }
 
                     // Skillですか？
-                    var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == clip);
+                    var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
                     if (skillTimelineInfo != null)
                     {
                         if (_curSkill != null) return;
@@ -241,20 +181,20 @@ namespace HexRPG.Battle.Player
                         return;
                     }
 
-                    if (clip == "Idle")
+                    if (nextClip == "Idle")
                     {
                         // 割り込み
                         TokenCancel(); // Tokenキャンセルしたらawait後続処理は全て呼ばれない
                         if (_nextPlayingIndex >= 0) fixedRate = rate;
 
                         _cancellationTokenSource = new CancellationTokenSource();
-                        InternalAnimationTransit(clip, GetFadeLength(), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
+                        InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
                         return;
                     }
                 }
 
                 // Damaged
-                var isDamagedClip = (_animationTypeMap.TryGetValue(clip, out type) && type == AnimationType.Damaged);
+                var isDamagedClip = (_animationTypeMap.TryGetValue(nextClip, out type) && type == AnimationType.Damaged);
                 if (isDamagedClip)
                 {
                     TokenCancel();
@@ -265,12 +205,28 @@ namespace HexRPG.Battle.Player
                     if (_nextPlayingIndex >= 0) fixedRate = rate;
 
                     _cancellationTokenSource = new CancellationTokenSource();
-                    InternalAnimationTransit(clip, GetFadeLength(), _cancellationTokenSource.Token).Forget();
+                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                    return;
+                }
+
+                // Die
+                var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out type) && type == AnimationType.Die);
+                if (isDieClip)
+                {
+                    TokenCancel();
+
+                    if (_curCombat != null) FinishCombat();
+                    if (_curSkill != null) FinishSkill();
+
+                    if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    InternalPlayDie(_cancellationTokenSource.Token).Forget();
                     return;
                 }
 
                 // Combat中断
-                var isCombatSuspended = (_curCombat != null && clip == "Idle");
+                var isCombatSuspended = (_curCombat != null && nextClip == "Idle");
                 if (isCombatSuspended)
                 {
                     TokenCancel();
@@ -278,7 +234,7 @@ namespace HexRPG.Battle.Player
 
                     _cancellationTokenSource = new CancellationTokenSource();
                     _cancellationTokenSource.Token.Register(() => FinishCombat());
-                    InternalAnimationTransit(clip, GetFadeLength(), _cancellationTokenSource.Token).Forget();
+                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
                     return;
                 }
             }
@@ -348,96 +304,6 @@ namespace HexRPG.Battle.Player
             FinishSkill();
         }
 
-        async UniTask InternalAnimationTransit(string nextClip, float transitionTime, CancellationToken token)
-        {
-            await InternalCrossFade(nextClip, transitionTime, token);
-
-            // 割り込みがなかった場合のみここまで辿り着く
-            TokenCancel();
-        }
-
-        async UniTask InternalCrossFade(string nextClip, float transitionTime, CancellationToken token, double speed = 1)
-        {
-            _disposedPlayingIndex = _nextPlayingIndex;
-            _nextPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == nextClip);
-
-            //! _curPlayingIndexで割り込む場合
-            if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip)
-            {
-                var inputCount = _mixer.GetInputCount();
-                if (inputCount > _allClipCount) for (int i = inputCount - 1; i >= _allClipCount; i--) _mixer.SetInputCount(_allClipCount);
-                if (_playables.Count > _allClipCount) _playables.RemoveRange(_allClipCount, _playables.Count - _allClipCount);
-
-                // curPlayingIndexと同じClipのPlayableを作成しmixerに繋げる
-                _playables.Add(AnimationClipPlayable.Create(_graph, _clips[_curPlayingIndex]));
-                _mixer.AddInput(_playables[_allClipCount], 0, 0);
-
-                _nextPlayingIndex = _allClipCount;
-            }
-
-            // 次に再生するクリップは最初(time = 0)から再生(こうしないとLoopOffのClipへ遷移するときにtimeが大きすぎて再生されない場合がある)
-            _playables[_nextPlayingIndex].SetTime(0);
-            _playables[_nextPlayingIndex].SetSpeed(speed);
-            _mixer.GetInput(_nextPlayingIndex).SetTime(0);
-            _mixer.GetInput(_nextPlayingIndex).SetSpeed(speed);
-
-            token.Register(() =>
-            {
-                if (_disposedPlayingIndex >= 0)
-                {
-                    _mixer.SetInputWeight(_disposedPlayingIndex, 0);
-                    _disposedPlayingIndex = -1;
-                }
-            });
-            float waitTime = Time.timeSinceLevelLoad + transitionTime;
-
-            await UniTask.WaitWhile(() =>
-            {
-                var diff = waitTime - Time.timeSinceLevelLoad;
-                if (diff <= 0)
-                {
-                    _mixer.SetInputWeight(_curPlayingIndex, 0);
-
-                    _mixer.SetInputWeight(_nextPlayingIndex, 0);
-                    _curPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == _playables[_nextPlayingIndex].GetAnimationClip().name);
-                    _mixer.SetInputWeight(_curPlayingIndex, 1);
-
-                    if(_nextPlayingIndex >= _allClipCount)
-                    {
-                        _playables[_curPlayingIndex].SetTime(_playables[_nextPlayingIndex].GetTime());
-                        _mixer.GetInput(_curPlayingIndex).SetTime(_mixer.GetInput(_nextPlayingIndex).GetTime());
-                    }
-
-                    _nextPlayingIndex = -1;
-                    return false;
-                }
-                else
-                {
-                    rate = Mathf.Clamp01(diff / transitionTime);
-                    if(_disposedPlayingIndex >= 0)
-                    {
-                        _mixer.SetInputWeight(_curPlayingIndex, fixedRate * rate);
-                        _mixer.SetInputWeight(_disposedPlayingIndex, (1 - fixedRate) * rate);
-                        _mixer.SetInputWeight(_nextPlayingIndex, 1 - rate);
-                    }
-                    else
-                    {
-                        _mixer.SetInputWeight(_curPlayingIndex, rate);
-                        _mixer.SetInputWeight(_nextPlayingIndex, 1 - rate);
-                    }
-
-                    return true;
-                }
-            }, cancellationToken: token);
-        }
-
-        void TokenCancel()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
-        }
-
         #endregion
 
         void FinishCombat()
@@ -453,22 +319,6 @@ namespace HexRPG.Battle.Player
         }
 
         #region Setup
-
-        void SetupGraph()
-        {
-            _graph = PlayableGraph.Create();
-            _playables = _clips.Select(clip => AnimationClipPlayable.Create(_graph, clip)).ToList();
-            _mixer = AnimationMixerPlayable.Create(_graph, _playables.Count, normalizeWeights: true);
-
-            for (int i = 0; i < _playables.Count; ++i)
-            {
-                _mixer.ConnectInput(i, _playables[i], 0);
-            }
-
-            var output = AnimationPlayableOutput.Create(_graph, "AnimationPlayer", _animatorController.Animator);
-            output.SetSourcePlayable(_mixer);
-            _graph.Play();
-        }
 
         void SetupCombatAnimation(PlayableAsset playableAsset)
         {
@@ -515,15 +365,6 @@ namespace HexRPG.Battle.Player
 
         void SetupSkillAnimation(PlayableAsset playableAsset)
         {
-            //TODO: この辺はCombatの方で実行するべき
-            /*
-            _skillDirector.stopped += (obj) =>
-            {
-                //TODO: Stop時ではなく再生中のエフェクトが終了するまで続ける？
-                //TODO: Stop時にdisableにする
-            };
-            */
-
             foreach (var trackAsset in (playableAsset as TimelineAsset).GetOutputTracks())
             {
                 if (trackAsset is AnimationTrack)

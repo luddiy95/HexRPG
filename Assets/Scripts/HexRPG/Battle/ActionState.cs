@@ -17,6 +17,8 @@ namespace HexRPG.Battle
         SKILL_SELECT,
         SKILL,
 
+        DIE,
+
         PAUSE
     }
 

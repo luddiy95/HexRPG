@@ -35,6 +35,11 @@ namespace HexRPG.Battle.HUD
                 _selfTransform.anchoredPosition = pos2d;
             })
             .AddTo(this);
+
+            chara.DieObservable.IsDead
+                .Where(isDead => isDead)
+                .Subscribe(_ => DestroyImmediate(gameObject))
+                .AddTo(this);
         }
     }
 }
