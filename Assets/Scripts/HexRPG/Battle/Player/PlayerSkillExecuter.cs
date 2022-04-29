@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Linq;
 using UniRx;
 
 namespace HexRPG.Battle.Player
@@ -9,6 +10,7 @@ namespace HexRPG.Battle.Player
 
     public class PlayerSkillExecuter : ISkillController, ISkillObservable, IDisposable
     {
+        IBattleObservable _battleObservable;
         ITransformController _transformController;
         IMemberObservable _memberObservable;
         ISelectSkillObservable _selectSkillObservable;
@@ -22,12 +24,14 @@ namespace HexRPG.Battle.Player
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
 
         public PlayerSkillExecuter(
+            IBattleObservable battleObservable,
             ITransformController transformController,
             IMemberObservable memberObservable,
             ISelectSkillObservable selectSkillObservable,
             IStageController stageController
         )
         {
+            _battleObservable = battleObservable;
             _transformController = transformController;
             _memberObservable = memberObservable;
             _selectSkillObservable = selectSkillObservable;
@@ -48,9 +52,10 @@ namespace HexRPG.Battle.Player
             runningSkill.SkillObservable.OnSkillAttack
                 .Subscribe(attackRange =>
                 {
-                    //TODO: UŒ‚’…’e’¼Œã‚ÉskillRange“à‚É¶‚«‚Ä‚¢‚é“G‚ª‚¢‚é‚©‚Ç‚¤‚©->‚¢‚È‚¯‚ê‚ÎLiberate
-                    //TODO: “G‚Ì¶Ž€”»’è‚ð‚Ü‚¾Œˆ’è‚µ‚Ä‚¢‚È‚¢‚½‚ßA‚Æ‚è‚ ‚¦‚¸“G‚Ì—L–³/¶Ž€‚É‚©‚©‚í‚ç‚¸Liberate
-                    _stageController.Liberate(attackRange, true);
+                    var isExistAliveEnemyInAttackRange =
+                        _battleObservable.EnemyList.Any(enemy =>
+                            attackRange.Contains(enemy.TransformController.GetLandedHex()) && !enemy.DieObservable.IsDead.Value);
+                    if(!isExistAliveEnemyInAttackRange) _stageController.Liberate(attackRange, true);
                 })
                 .AddTo(_disposables);
             runningSkill.SkillObservable.OnFinishSkill

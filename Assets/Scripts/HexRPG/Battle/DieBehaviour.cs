@@ -1,17 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniRx;
 using Zenject;
+using System;
 
 namespace HexRPG.Battle
 {
     public interface IDieObservable
     {
         IReadOnlyReactiveProperty<bool> IsDead { get; }
+        IObservable<Unit> OnFinishDie { get; }
     }
 
     public class DieBehaviour : MonoBehaviour, IDieObservable
@@ -22,6 +22,9 @@ namespace HexRPG.Battle
 
         IReadOnlyReactiveProperty<bool> IDieObservable.IsDead => _isDead;
         readonly IReactiveProperty<bool> _isDead = new ReactiveProperty<bool>(false);
+
+        IObservable<Unit> IDieObservable.OnFinishDie => _onFinishDie;
+        readonly ISubject<Unit> _onFinishDie = new Subject<Unit>();
 
         [SerializeField] PlayableDirector _director;
 
@@ -65,6 +68,7 @@ namespace HexRPG.Battle
         {
             await UniTask.Delay(2000);
 
+            _onFinishDie.OnNext(Unit.Default);
             DestroyImmediate(gameObject);
         }
     }

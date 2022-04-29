@@ -12,6 +12,7 @@ namespace HexRPG.Battle.Enemy
 
         //TODO: Decorator—p
         IActionStateObservable ActionStateObservable { get; }
+        IProfileSetting ProfileSetting { get; }
     }
 
     public class EnemyOwner : MonoBehaviour, IEnemyComponentCollection
@@ -25,6 +26,7 @@ namespace HexRPG.Battle.Enemy
 
         //TODO: Decorator—p
         [Inject] IActionStateObservable IEnemyComponentCollection.ActionStateObservable { get; }
+        [Inject] IProfileSetting IEnemyComponentCollection.ProfileSetting { get; }
 
         [Inject]
         public void Construct(

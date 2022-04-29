@@ -18,7 +18,7 @@ namespace HexRPG.Battle
 
         Hex PlayerLandedHex { get; }
 
-        List<IEnemyComponentCollection> EnemyList { get; }
+         IReadOnlyReactiveCollection<IEnemyComponentCollection> EnemyList { get; }
 
         CinemachineBrain CinemachineBrain { get; }
         CinemachineVirtualCamera MainVirtualCamera { get; }

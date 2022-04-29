@@ -11,7 +11,7 @@ namespace HexRPG.Battle
     {
         IBattleObservable _battleObservable;
 
-        Text _playerStateText;
+        [SerializeField] Text _playerStateText;
 
         [Inject]
         public void Construct(IBattleObservable battleObservable)
@@ -21,8 +21,6 @@ namespace HexRPG.Battle
 
         void Start()
         {
-            _playerStateText = GetComponent<Text>();
-
             _battleObservable.OnPlayerSpawn
                 .Skip(1)
                 .Subscribe(playerOwner =>

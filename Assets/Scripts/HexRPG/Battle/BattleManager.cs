@@ -36,8 +36,8 @@ namespace HexRPG.Battle
         Hex IBattleObservable.PlayerLandedHex => _playerLandedHex;
         Hex _playerLandedHex = null;
 
-        List<IEnemyComponentCollection> IBattleObservable.EnemyList => _enemyList;
-        List<IEnemyComponentCollection> _enemyList;
+        IReadOnlyReactiveCollection<IEnemyComponentCollection> IBattleObservable.EnemyList => _enemyList;
+        IReactiveCollection<IEnemyComponentCollection> _enemyList = new ReactiveCollection<IEnemyComponentCollection>();
 
         CinemachineBrain IBattleObservable.CinemachineBrain => _cinemachineBrain;
         [SerializeField] CinemachineBrain _cinemachineBrain;
@@ -113,14 +113,25 @@ namespace HexRPG.Battle
 
         async UniTask SpawnEnemies(CancellationToken token)
         {
-            _enemyList = _spawnSettings.EnemySpawnSettings
-                .Select((setting, index) => _enemyFactories[index].Create(_enemyRoot, setting.SpawnHex.transform.position) as IEnemyComponentCollection).ToList();
+            var enemySpawnSettings = _spawnSettings.EnemySpawnSettings;
+            for(int i = 0; i < enemySpawnSettings.Length; i++)
+            {
+                _enemyList.Add(_enemyFactories[i].Create(_enemyRoot, enemySpawnSettings[i].SpawnHex.transform.position));
+            }
 
             await UniTask.WaitUntil(() => _enemyList.All(enemy => enemy.SkillSpawnObservable.IsAllSkillSpawned), cancellationToken: token);
 
-            _enemyList.ForEach(enemy => enemy.AnimationController.Init());
+            foreach (var enemy in _enemyList) enemy.AnimationController.Init();
 
-            _enemyList.ForEach(enemy => _onEnemySpawn.OnNext(enemy));
+            // enemy‚ªŽ€‚ñ‚¾‚çList‚©‚çRemove
+            foreach(var enemy in _enemyList)
+            {
+                enemy.DieObservable.OnFinishDie
+                    .Subscribe(_ => _enemyList.Remove(enemy))
+                    .AddTo(this);
+            }
+
+            foreach (var enemy in _enemyList) _onEnemySpawn.OnNext(enemy);
         }
     }
 }
