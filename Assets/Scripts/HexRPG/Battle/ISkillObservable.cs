@@ -8,7 +8,7 @@ namespace HexRPG.Battle
 
     public interface ISkillObservable
     {
-        IReadOnlyReactiveProperty<Hex[]> OnSkillAttack { get; }
+        IObservable<Hex[]> OnSkillAttack { get; }
         IObservable<Unit> OnFinishSkill { get; }
     }
 }

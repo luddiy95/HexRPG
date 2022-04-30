@@ -15,6 +15,6 @@ namespace HexRPG.Battle
         IObservable<Unit> OnSkillDecide { get; }
         IObservable<Unit> OnSkillCancel { get; }
 
-        IReadOnlyReactiveProperty<int> CameraRotateDir { get; }
+        IObservable<int> CameraRotateDir { get; }
     }
 }

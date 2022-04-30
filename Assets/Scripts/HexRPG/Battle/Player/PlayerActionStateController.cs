@@ -185,7 +185,7 @@ namespace HexRPG.Battle.Player
                         if(isMoveState) _actionStateController.Execute(new Command { Id = "stop" });
 
                         // Skill選択ステートに遷移した後、一度Direction入力がzeroにならないとDirection入力による移動を受け付けない
-                        if (_actionStateObservable.CurrentState.Value.Type == SKILL_SELECT) _acceptDirectionInput = true; 
+                        if (CurState == SKILL_SELECT) _acceptDirectionInput = true; 
                     }
                 })
                 .AddTo(_disposables);
@@ -315,7 +315,7 @@ namespace HexRPG.Battle.Player
                 .OnStart<ActionEventPlayMotion>()
                 .Subscribe(ev =>
                 {
-                    switch (_actionStateObservable.CurrentState.Value.Type)
+                    switch (CurState)
                     {
                         case IDLE:
                         case SKILL_SELECT:

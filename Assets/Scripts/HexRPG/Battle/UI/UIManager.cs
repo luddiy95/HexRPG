@@ -34,7 +34,6 @@ namespace HexRPG.Battle.UI
                 _memberList.TryGetComponent(out _memberListUI))
             {
                 _battleObservable.OnPlayerSpawn
-                    .Skip(1)
                     .Subscribe(playerOwner =>
                     {
                         new List<ICharacterUI>

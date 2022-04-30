@@ -21,9 +21,6 @@ namespace HexRPG.Battle.Player.Combat
         IObservable<Unit> ICombatObservable.OnFinishCombat => _onFinishCombat;
         readonly ISubject<Unit> _onFinishCombat = new Subject<Unit>();
 
-        IReadOnlyReactiveProperty<Vector3> ICombatObservable.Velocity => _velocity;
-        readonly IReactiveProperty<Vector3> _velocity = new ReactiveProperty<Vector3>();
-
         PlayableAsset ICombat.PlayableAsset => _director.playableAsset;
 
         Vector3 ICombat.Velocity => velocity;

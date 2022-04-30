@@ -7,6 +7,5 @@ namespace HexRPG.Battle.Player
     public interface ICombatObservable
     {
         IObservable<Unit> OnFinishCombat { get; }
-        IReadOnlyReactiveProperty<Vector3> Velocity { get; }
     }
 }

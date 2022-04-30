@@ -23,8 +23,8 @@ namespace HexRPG.Battle
         List<EnemyOwner.Factory> _enemyFactories;
         ISpawnSettings _spawnSettings;
 
-        IReadOnlyReactiveProperty<IPlayerComponentCollection> IBattleObservable.OnPlayerSpawn => _onPlayerSpawn;
-        readonly IReactiveProperty<IPlayerComponentCollection> _onPlayerSpawn = new ReactiveProperty<IPlayerComponentCollection>();
+        IObservable<IPlayerComponentCollection> IBattleObservable.OnPlayerSpawn => _onPlayerSpawn;
+        readonly ISubject<IPlayerComponentCollection> _onPlayerSpawn = new Subject<IPlayerComponentCollection>();
 
         IObservable<IEnemyComponentCollection> IBattleObservable.OnEnemySpawn => _onEnemySpawn;
         readonly ISubject<IEnemyComponentCollection> _onEnemySpawn = new Subject<IEnemyComponentCollection>();
@@ -108,7 +108,7 @@ namespace HexRPG.Battle
                 })
                 .AddTo(this);
 
-            _onPlayerSpawn.Value = _playerOwner;
+            _onPlayerSpawn.OnNext(_playerOwner);
         }
 
         async UniTask SpawnEnemies(CancellationToken token)

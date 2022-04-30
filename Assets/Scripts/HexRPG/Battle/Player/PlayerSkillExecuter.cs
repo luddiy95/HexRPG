@@ -18,7 +18,7 @@ namespace HexRPG.Battle.Player
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        IReadOnlyReactiveProperty<Hex[]> ISkillObservable.OnSkillAttack => null;
+        IObservable<Hex[]> ISkillObservable.OnSkillAttack => null;
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();

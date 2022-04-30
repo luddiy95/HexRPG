@@ -1,5 +1,6 @@
 using UnityEngine;
 using UniRx;
+using System;
 using Zenject;
 
 namespace HexRPG.Battle
@@ -8,7 +9,7 @@ namespace HexRPG.Battle
     {
         int Max { get; }
 
-        IReadOnlyReactiveProperty<int> Current { get; }
+        IObservable<int> Current { get; }
 
         void Update(int cv);
     }
@@ -25,7 +26,7 @@ namespace HexRPG.Battle
         int IHealth.Max => _max;
         int _max;
 
-        IReadOnlyReactiveProperty<int> IHealth.Current => _current;
+        IObservable<int> IHealth.Current => _current;
         readonly ReactiveProperty<int> _current = new ReactiveProperty<int>();
 
         public Health(IHealthSetting setting)

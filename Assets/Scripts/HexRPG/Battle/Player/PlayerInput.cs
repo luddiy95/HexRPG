@@ -40,8 +40,8 @@ namespace HexRPG.Battle.Player
         IObservable<Unit> ICharacterInput.OnSkillCancel => _onSkillCancel;
         readonly ISubject<Unit> _onSkillCancel = new Subject<Unit>();
 
-        IReadOnlyReactiveProperty<int> ICharacterInput.CameraRotateDir => _cameraRotateDir;
-        readonly ReactiveProperty<int> _cameraRotateDir = new ReactiveProperty<int>();
+        IObservable<int> ICharacterInput.CameraRotateDir => _cameraRotateDir;
+        readonly ISubject<int> _cameraRotateDir = new Subject<int>();
 
         [Inject]
         public void Construct(IUpdateObservable updateObservable)
@@ -88,7 +88,7 @@ namespace HexRPG.Battle.Player
 
                     if(cameraRotateDir != 0)
                     {
-                        _cameraRotateDir.SetValueAndForceNotify(cameraRotateDir);
+                        _cameraRotateDir.OnNext(cameraRotateDir);
                         cameraRotateDir = 0;
                     }
                 }).AddTo(this);

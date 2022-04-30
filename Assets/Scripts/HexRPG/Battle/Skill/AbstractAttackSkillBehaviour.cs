@@ -26,8 +26,8 @@ namespace HexRPG.Battle.Skill
         List<Vector2> ISkill.FullAttackRange => _fullAttackRange;
         List<Vector2> _fullAttackRange;
 
-        IReadOnlyReactiveProperty<Hex[]> ISkillObservable.OnSkillAttack => _onSkillAttack;
-        readonly IReactiveProperty<Hex[]> _onSkillAttack = new ReactiveProperty<Hex[]>(new Hex[0]);
+        IObservable<Hex[]> ISkillObservable.OnSkillAttack => _onSkillAttack;
+        readonly ISubject<Hex[]> _onSkillAttack = new Subject<Hex[]>();
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
@@ -132,7 +132,7 @@ namespace HexRPG.Battle.Skill
                             .Subscribe(_ =>
                             {
                                 FinishAttackEnable();
-                                _onSkillAttack.Value = _curAttackRange;
+                                _onSkillAttack.OnNext(_curAttackRange);
                                 if (_skillEffectMap.TryGetValue(behaviour.attackEffectTrack, out GameObject effect)) _unverifiedEffect.Remove(effect);
                             })
                             .AddTo(_disposables);

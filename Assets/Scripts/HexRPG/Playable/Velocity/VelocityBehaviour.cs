@@ -8,8 +8,8 @@ namespace HexRPG.Playable
     [Serializable]
     public class VelocityBehaviour : PlayableBehaviour
     {
-        public IReadOnlyReactiveProperty<Vector3> Velocity => _velocity;
-        readonly ReactiveProperty<Vector3> _velocity = new ReactiveProperty<Vector3>();
+        public IObservable<Vector3> Velocity => _velocity;
+        readonly ISubject<Vector3> _velocity = new Subject<Vector3>();
 
         public Vector3 direction;
         public float speed;
@@ -20,7 +20,7 @@ namespace HexRPG.Playable
 
             var velocityPlayable = (ScriptPlayable<VelocityBehaviour>)playable;
             var behaviour = velocityPlayable.GetBehaviour();
-            _velocity.SetValueAndForceNotify(behaviour.direction.normalized * behaviour.speed);
+            _velocity.OnNext(behaviour.direction.normalized * behaviour.speed);
         }
     }
 }

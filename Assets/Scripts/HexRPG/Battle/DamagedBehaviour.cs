@@ -110,6 +110,7 @@ namespace HexRPG.Battle
                 Damage = attackApplicator.CurrentSetting.Power
             };
 
+            //TODO: 【ここから】IPlayerComponentCollectionじゃなくてIMemberComponentCollectionじゃない？(現在DamagedBehaviourがPlayerにアタッチされているが各Memberじゃない？)
             if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-hitData.Damage);
             if (_damagedOwner is IEnemyComponentCollection enemyOwner) enemyOwner.Health.Update(-hitData.Damage);
 

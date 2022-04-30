@@ -17,7 +17,7 @@ namespace HexRPG.Battle.Enemy
 
         public IObservable<Unit> OnFinishSkill => throw new NotImplementedException();
 
-        public IReadOnlyReactiveProperty<Hex[]> OnSkillAttack => throw new NotImplementedException();
+        public IObservable<Hex[]> OnSkillAttack => throw new NotImplementedException();
 
         ISkillComponentCollection ISkillController.StartSkill(int index, Hex landedHex, int skillRotation)
         {
