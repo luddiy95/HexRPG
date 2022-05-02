@@ -13,6 +13,9 @@ namespace HexRPG.Battle
     [Serializable]
     public class BattleData
     {
+        [SerializeField] int _cameraRotateUnit;
+        public int CameraRotateUnit => _cameraRotateUnit;
+
         [SerializeField] Material _hexPlayerLineMat;
         public Material HexPlayerLineMat => _hexPlayerLineMat;
 

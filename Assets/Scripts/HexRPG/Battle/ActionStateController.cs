@@ -25,10 +25,12 @@ namespace HexRPG.Battle
         IDeltaTime _deltaTime;
 
         IReadOnlyReactiveProperty<ActionState> IActionStateObservable.CurrentState => _currentState;
+        ActionState IActionStateObservable.PreviousState => _previousState;
         IReadOnlyReactiveProperty<Command> IActionStateObservable.ExecutedCommand => _executedCommand;
         ICollection<ActionState> IActionStateObservable.StateHistory => _stateHistory;
 
         readonly IReactiveProperty<ActionState> _currentState = new ReactiveProperty<ActionState>();
+        ActionState _previousState;
         readonly IReactiveProperty<Command> _executedCommand = new ReactiveProperty<Command>();
         readonly List<ActionState> _stateHistory = new List<ActionState>();
 
@@ -171,6 +173,7 @@ namespace HexRPG.Battle
             }
 
             // 新しいステートへ入る
+            _previousState = _currentState.Value;
             _currentState.Value = newActionState;
             _currentStateTime = 0f;
 

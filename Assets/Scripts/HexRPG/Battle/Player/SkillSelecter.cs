@@ -32,7 +32,7 @@ namespace HexRPG.Battle.Player
         IReadOnlyReactiveProperty<int> ISelectSkillObservable.SelectedSkillIndex => _selectedSkillIndex;
         readonly ReactiveProperty<int> _selectedSkillIndex = new ReactiveProperty<int>(-1);
 
-        int ISelectSkillObservable.SelectedSkillRotation => _selectedSkillRotation;
+        int ISelectSkillObservable.SelectedSkillRotation => _selectedSkillRotation; //! SelectedSkillRotation: 0, 60, 120, 180, -120, -60
         int _selectedSkillRotation = 0;
 
         int _duplicateSelectedCount = 0;
@@ -60,10 +60,14 @@ namespace HexRPG.Battle.Player
                     if (index >= 0)
                     {
                         var attackRange = _memberObservable.CurMember.Value.SkillSpawnObservable.SkillList[index].Skill.FullAttackRange;
-                        _selectedSkillRotation = (_transformController.DefaultRotation + 30) / 60 * 60 + _duplicateSelectedCount * 60;
+                        _selectedSkillRotation = _duplicateSelectedCount * 60;
+                        if (_selectedSkillRotation > 180) _selectedSkillRotation -= 360;
 
                         var curAttackIndicateHexList =
-                            _stageController.GetHexList(_transformController.GetLandedHex(), attackRange, _selectedSkillRotation);
+                            _stageController.GetHexList(
+                                _transformController.GetLandedHex(), 
+                                attackRange, 
+                                _transformController.DefaultRotation + _selectedSkillRotation);
                         _attackReserve.StartAttackReservation(curAttackIndicateHexList, _memberObservable.CurMember.Value);
                     }
                 })
@@ -72,7 +76,7 @@ namespace HexRPG.Battle.Player
 
         void ISelectSkillController.SelectSkill(int index)
         {
-            if (_selectedSkillIndex.Value == index) ++_duplicateSelectedCount;
+            if (_selectedSkillIndex.Value == index) _duplicateSelectedCount = (_duplicateSelectedCount + 1) % 6;
             else _duplicateSelectedCount = 0;
             _selectedSkillIndex.SetValueAndForceNotify(index);
         }

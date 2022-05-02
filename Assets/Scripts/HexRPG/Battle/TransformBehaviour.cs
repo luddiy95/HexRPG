@@ -25,7 +25,7 @@ namespace HexRPG.Battle
         /// </summary>
         Transform RotateTransform { get; }
         Quaternion Rotation { get; set; }
-        int RotationAngle { set; }
+        int RotationAngle { get; set; }
         int DefaultRotation { get; set; }
 
         /// <summary>
@@ -55,7 +55,16 @@ namespace HexRPG.Battle
             set => Self.RotateTransform.localRotation = value; 
         }
 
-        int ITransformController.RotationAngle { set => _rotation = Quaternion.Euler(0, _defaultRotation + value, 0); }
+        int ITransformController.RotationAngle
+        {
+            get => _rotationAngle; //! _rotation.eulerAngles - _defaultRotation‚Íƒ_ƒ(eulerAngles‚Å0`360‚É•ÏŠ·‚³‚ê‚Ä‚µ‚Ü‚¤‚Ì‚ÅˆÓ}‚¹‚Ê‹““®‚É‚È‚Á‚Ä‚µ‚Ü‚¤)
+            set
+            {
+                _rotationAngle = value;
+                _rotation = Quaternion.Euler(0, _defaultRotation + _rotationAngle, 0);
+            }
+        }
+        int _rotationAngle = 0;
 
         int ITransformController.DefaultRotation { get => _defaultRotation; set => _defaultRotation = value; }
         int _defaultRotation = 0;

@@ -88,7 +88,7 @@ namespace HexRPG.Battle
                     //TODO: テストコード
                     if (Input.GetKeyDown(KeyCode.D))
                     {
-                        if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-1000);
+                        //if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-1000);
                         _onHit.OnNext(new HitData());
                     }
                 })

@@ -1,12 +1,19 @@
 using Zenject;
+using System;
 using UnityEngine;
 
 namespace HexRPG.Battle.Enemy
 {
-    public class EnemyInstaller : MonoInstaller
+    using Skill;
+
+    public class EnemyInstaller : MonoInstaller, ISkillsSetting
     {
         [Inject] Transform _spawnRoot;
         [Inject] Vector3 _spawnPos;
+
+        SkillAsset[] ISkillsSetting.Skills => _skills;
+        [Header("スキルリスト")]
+        [SerializeField] SkillAsset[] _skills;
 
         public override void InstallBindings()
         {
@@ -23,6 +30,13 @@ namespace HexRPG.Battle.Enemy
             Container.BindInterfacesTo<EnemySkillExecuter>().AsSingle();
 
             Container.BindInterfacesTo<Health>().AsSingle();
+
+            Array.ForEach(_skills, skill =>
+            {
+                Container.BindFactory<Transform, Vector3, SkillOwner, SkillOwner.Factory>()
+                    .FromSubContainerResolve()
+                    .ByNewContextPrefab<SkillInstaller>(skill.Prefab);
+            });
         }
     }
 }

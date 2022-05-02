@@ -43,7 +43,7 @@ namespace HexRPG.Battle.Enemy
             var relativePos = playerLandedHex.transform.position - landedHex.transform.position;
             relativePos.y = 0;
 
-            _transformController.Rotation = Quaternion.LookRotation(relativePos);
+            _transformController.RotationAngle = (int)Quaternion.LookRotation(relativePos).eulerAngles.y;
         }
 
         void IDisposable.Dispose()

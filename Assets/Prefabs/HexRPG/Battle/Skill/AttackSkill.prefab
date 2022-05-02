@@ -70,14 +70,14 @@ GameObject:
   m_Component:
   - component: {fileID: 6847573193581859264}
   - component: {fileID: 2777996311144103014}
+  - component: {fileID: 6737259389918104997}
   - component: {fileID: 5846445956313243687}
   - component: {fileID: 3505504371383799877}
   - component: {fileID: 369017925278791130}
   - component: {fileID: 6962153130480823856}
   - component: {fileID: 5664851281790574093}
-  - component: {fileID: 6737259389918104997}
   m_Layer: 0
-  m_Name: Skill
+  m_Name: AttackSkill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -111,6 +111,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 554d57324f27f5345b52c8e8b29b91d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6737259389918104997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5426194334740280399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 084923e7197bcf34491c7bb70f42e7d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _director: {fileID: 510812189149481806}
 --- !u!114 &5846445956313243687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191,20 +204,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dcf0de544fe3654c91db3d449af546c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6737259389918104997
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5426194334740280399}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d58f5e5982554a746a58fc899c99b4c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _skillEffect: {fileID: 0}
-  _director: {fileID: 510812189149481806}
 --- !u!1 &6886716033590331314
 GameObject:
   m_ObjectHideFlags: 0

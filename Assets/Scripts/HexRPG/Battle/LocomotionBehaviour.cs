@@ -1,4 +1,8 @@
 using UnityEngine;
+using UniRx;
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 
 namespace HexRPG.Battle
 {
@@ -7,10 +11,19 @@ namespace HexRPG.Battle
         void SetSpeed(Vector3 direction, float? speed = null);
         void Stop();
 
+        UniTaskVoid Rotate(int rotateAngle, float rotateTime);
+        void ForceRotate(int goalRotateAngle);
+        void StopRotate();
+
         void SnapHexCenter();
     }
 
-    public class LocomotionBehaviour : MonoBehaviour, ILocomotionController
+    public interface ILocomotionObservable
+    {
+        IObservable<Unit> OnFinishRotate { get; }
+    }
+
+    public class LocomotionBehaviour : MonoBehaviour, ILocomotionController, ILocomotionObservable
     {
         protected ITransformController _transformController;
 
@@ -18,13 +31,56 @@ namespace HexRPG.Battle
         [Header("動かすRigidbody。nullならこのオブジェクト")]
         [SerializeField] Rigidbody _rigidbody;
 
+        IObservable<Unit> ILocomotionObservable.OnFinishRotate => _onFinishRotate;
+        readonly ISubject<Unit> _onFinishRotate = new Subject<Unit>();
+
         //TODO: speedはsettingからとってくる(Playerの場合はMemberごとに異なる)
         protected float _speed = 5f;
         protected float _colliderRadius = 0.5f;
 
+        CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
         void Start()
         {
             Initialize();
+        }
+
+        //! 正負つきangleを渡すことで回転方向を指定できる
+        async UniTaskVoid ILocomotionController.Rotate(int rotateAngle, float rotateTime)
+        {
+            float waitTime = Time.timeSinceLevelLoad + rotateTime;
+            var startAngleY = _transformController.RotationAngle;
+
+            TokenCancel();
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            await UniTask.WaitWhile(() =>
+            {
+                var diff = waitTime - Time.timeSinceLevelLoad;
+                if (diff <= 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    var diffAngle = rotateAngle * (rotateTime - diff) / rotateTime;
+                    _transformController.RotationAngle = (int)(startAngleY + diffAngle);
+                    return true;
+                }
+            }, cancellationToken: _cancellationTokenSource.Token);
+
+            TokenCancel();
+            _onFinishRotate.OnNext(Unit.Default);
+        }
+
+        void ILocomotionController.ForceRotate(int goalRotateAngle)
+        {
+            _transformController.RotationAngle = goalRotateAngle;
+        }
+
+        void ILocomotionController.StopRotate()
+        {
+            TokenCancel();
         }
 
         void ILocomotionController.SetSpeed(Vector3 direction, float? speed)
@@ -51,6 +107,18 @@ namespace HexRPG.Battle
         protected virtual void SetSpeed(Vector3 direction, float speed)
         {
 
+        }
+
+        void TokenCancel()
+        {
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
+        }
+
+        void OnDestroy()
+        {
+            TokenCancel();
         }
     }
 }

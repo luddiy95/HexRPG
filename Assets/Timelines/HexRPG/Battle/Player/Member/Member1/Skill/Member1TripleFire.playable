@@ -475,6 +475,7 @@ MonoBehaviour:
     - {x: 0, y: 2}
     - {x: -1, y: 1}
     - {x: -2, y: 2}
+    isOriginOwnerPos: 0
     attackEffectTrack: Attack Effect Track1
 --- !u!114 &-3254372559535421892
 MonoBehaviour:
@@ -706,6 +707,7 @@ MonoBehaviour:
     m_DisplayName: AttackEnable
   m_Markers:
     m_Objects: []
+  skillCenterType: 0
 --- !u!114 &-3158850663214011630
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -886,6 +888,7 @@ MonoBehaviour:
     - {x: 2, y: 2}
     - {x: 1, y: 1}
     - {x: 0, y: 2}
+    isOriginOwnerPos: 0
     attackEffectTrack: Attack Effect Track3
 --- !u!114 &-32693975073010112
 MonoBehaviour:
@@ -1349,6 +1352,7 @@ MonoBehaviour:
     - {x: 1, y: 3}
     - {x: 0, y: 2}
     - {x: -1, y: 3}
+    isOriginOwnerPos: 0
     attackEffectTrack: Attack Effect Track2
 --- !u!114 &7177393486407139980
 MonoBehaviour:

@@ -25,7 +25,6 @@ namespace HexRPG.Battle.Player.Member
         readonly ISubject<Unit> _onFinishCombat = new Subject<Unit>();
 
         IObservable<Unit> IAnimationController.OnFinishSkill => _onFinishSkill;
-        readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
         
         // Combat
         class CombatTimelineInfo
@@ -35,15 +34,6 @@ namespace HexRPG.Battle.Player.Member
         }
         CombatTimelineInfo _combatTimelineInfo;
         CombatTimelineInfo _curCombat;
-
-        // Skill
-        class SkillTimelineInfo
-        {
-            public string SkillName { get; set; }
-            public List<TimelineClipInfo> TimelineClipInfoList { get; set; } = new List<TimelineClipInfo>();
-        }
-        List<SkillTimelineInfo> _skillTimelineInfos = new List<SkillTimelineInfo>();
-        SkillTimelineInfo _curSkill;
 
         [Inject]
         public void Construct(
@@ -64,13 +54,24 @@ namespace HexRPG.Battle.Player.Member
         void IAnimationController.Init()
         {
             SetupGraph();
+
             _animationTypeMap.Add(_playables[0].GetAnimationClip().name, AnimationType.Idle);
             var locomotionClipLength = AnimationExtensions.MoveClips.Length;
             for (int i = 1; i < locomotionClipLength + 1; i++)
             {
                 _animationTypeMap.Add(_playables[i].GetAnimationClip().name, AnimationType.Move);
             }
-            _animationTypeMap.Add(_playables[locomotionClipLength + 1].GetAnimationClip().name, AnimationType.Damaged);
+
+            _animationTypeMap.Add("RotateRight", AnimationType.Rotate);
+            _animationTypeMap.Add("RotateLeft", AnimationType.Rotate);
+            //TODO: âº
+            var playerRotateSpeed = 2f;
+            int index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateRight");
+            _playables[index].SetSpeed(playerRotateSpeed);
+            index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateLeft");
+            _playables[index].SetSpeed(playerRotateSpeed);
+
+            _animationTypeMap.Add("Damaged", AnimationType.Damaged);
 
             SetupDieAnimation();
 
@@ -257,7 +258,7 @@ namespace HexRPG.Battle.Player.Member
                 var exitTime = (float)(timelineClipInfo.Duration - blendOutDuration);
                 float exitWaitTime = Time.timeSinceLevelLoad + exitTime;
 
-                await InternalCrossFade(timelineClipInfo.ClipName, fadeLength, token, timelineClipInfo.Speed);
+                await InternalCrossFade(timelineClipInfo.ClipName, fadeLength, token);
 
                 await UniTask.WaitWhile(() =>
                 {
@@ -272,50 +273,12 @@ namespace HexRPG.Battle.Player.Member
             FinishCombat();
         }
 
-        async UniTask InternalPlaySkill(SkillTimelineInfo skillTimelineInfo, CancellationToken token)
-        {
-            _curSkill = skillTimelineInfo;
-
-            for (int i = 0; i < _curSkill.TimelineClipInfoList.Count; i++)
-            {
-                var timelineClipInfo = _curSkill.TimelineClipInfoList[i];
-
-                var fadeLength = 0f;
-                if (i == 0) fadeLength = _durationData.skillStartDuration;
-                else if (timelineClipInfo.BlendInDuration >= 0) fadeLength = (float)timelineClipInfo.BlendInDuration;
-
-                var blendOutDuration = timelineClipInfo.BlendOutDuration;
-                if (blendOutDuration < 0) blendOutDuration = 0f;
-                var exitTime = (float)(timelineClipInfo.Duration - blendOutDuration);
-                float exitWaitTime = Time.timeSinceLevelLoad + exitTime;
-
-                await InternalCrossFade(timelineClipInfo.ClipName, fadeLength, token, timelineClipInfo.Speed);
-
-                await UniTask.WaitWhile(() =>
-                {
-                    var diff = exitWaitTime - Time.timeSinceLevelLoad;
-                    return (diff > 0);
-                }, cancellationToken: token);
-            }
-
-            // äÑÇËçûÇ›Ç™Ç»Ç©Ç¡ÇΩèÍçáÇÃÇ›Ç±Ç±Ç‹Ç≈íHÇËíÖÇ≠
-            TokenCancel();
-
-            FinishSkill();
-        }
-
         #endregion
 
         void FinishCombat()
         {
             _curCombat = null;
             _onFinishCombat.OnNext(Unit.Default);
-        }
-
-        void FinishSkill()
-        {
-            _curSkill = null;
-            _onFinishSkill.OnNext(Unit.Default);
         }
 
         #region Setup
@@ -339,7 +302,6 @@ namespace HexRPG.Battle.Player.Member
                         {
                             ClipName = clipName,
                             Duration = clip.duration,
-                            Speed = clip.timeScale,
                             BlendInDuration = clip.blendInDuration,
                             BlendOutDuration = clip.blendOutDuration,
                         });
@@ -348,6 +310,7 @@ namespace HexRPG.Battle.Player.Member
                         {
                             _animationTypeMap.Add(clipName, AnimationType.Combat);
                             var playable = AnimationClipPlayable.Create(_graph, clip.animationClip);
+                            playable.SetSpeed(clip.timeScale);
                             _playables.Add(playable);
                             _mixer.AddInput(playable, 0, 0);
                         }
@@ -363,56 +326,7 @@ namespace HexRPG.Battle.Player.Member
             }
         }
 
-        void SetupSkillAnimation(PlayableAsset playableAsset)
-        {
-            foreach (var trackAsset in (playableAsset as TimelineAsset).GetOutputTracks())
-            {
-                if (trackAsset is AnimationTrack)
-                {
-                    List<TimelineClip> clips = new List<TimelineClip>();
-                    foreach (var clip in trackAsset.GetClips()) clips.Add(clip);
-
-                    // skillTimelineInfoListÇ…í«â¡
-                    List<TimelineClipInfo> timelinClipInfoList = new List<TimelineClipInfo>();
-                    foreach (var clip in clips.OrderBy(clip => clip.start))
-                    {
-                        var clipName = clip.animationClip.name;
-
-                        timelinClipInfoList.Add(new TimelineClipInfo
-                        {
-                            ClipName = clipName,
-                            Duration = clip.duration,
-                            Speed = clip.timeScale,
-                            BlendInDuration = clip.blendInDuration,
-                            BlendOutDuration = clip.blendOutDuration,
-                        });
-
-                        if (!_playables.Any(playable => playable.GetAnimationClip().name == clipName))
-                        {
-                            _animationTypeMap.Add(clipName, AnimationType.Skill);
-                            var playable = AnimationClipPlayable.Create(_graph, clip.animationClip);
-                            _playables.Add(playable);
-                            _mixer.AddInput(playable, 0, 0);
-                        }
-                    }
-                    _skillTimelineInfos.Add(new SkillTimelineInfo
-                    {
-                        SkillName = playableAsset.name,
-                        TimelineClipInfoList = timelinClipInfoList
-                    });
-
-                    trackAsset.muted = true;
-                }
-            }
-        }
-
         #endregion
-
-        void OnDestroy()
-        {
-            TokenCancel();
-            _graph.Destroy();
-        }
 
 #if UNITY_EDITOR
 

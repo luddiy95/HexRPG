@@ -11,7 +11,7 @@ namespace HexRPG.Battle.Skill
     using Stage;
     using Playable;
 
-    public abstract class AbstractAttackSkillBehaviour : MonoBehaviour, ISkillObservable, ISkill, IDisposable
+    public class AbstractAttackSkillBehaviour : MonoBehaviour, ISkillObservable, ISkill, IDisposable
     {
         IStageController _stageController;
         IAttackController _attackController;
@@ -25,6 +25,9 @@ namespace HexRPG.Battle.Skill
 
         List<Vector2> ISkill.FullAttackRange => _fullAttackRange;
         List<Vector2> _fullAttackRange;
+
+        SkillCenterType ISkill.SkillCenterType => _skillCenterType;
+        SkillCenterType _skillCenterType;
 
         IObservable<Hex[]> ISkillObservable.OnSkillAttack => _onSkillAttack;
         readonly ISubject<Hex[]> _onSkillAttack = new Subject<Hex[]>();
@@ -63,10 +66,11 @@ namespace HexRPG.Battle.Skill
             // Skillの全範囲を取得
             foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
             {
-                if (trackAsset is AttackEnableTrack)
+                if (trackAsset is AttackEnableTrack attackEnableTrack)
                 {
                     _fullAttackRange = new List<Vector2>();
-                    foreach (var clip in trackAsset.GetClips())
+                    _skillCenterType = attackEnableTrack.skillCenterType;
+                    foreach (var clip in attackEnableTrack.GetClips())
                     {
                         var behaviour = (clip.asset as AttackEnableAsset).behaviour;
                         behaviour.attackRange.ForEach(range =>
@@ -94,7 +98,7 @@ namespace HexRPG.Battle.Skill
                 {
                     // 終了処理
                     FinishAttackEnable();
-                    HideUnVerifiedEffect();
+                    HideUnverifiedEffect();
                     _unverifiedEffect.Clear();
 
                     _disposables.Clear();
@@ -105,13 +109,11 @@ namespace HexRPG.Battle.Skill
                 .AddTo(this);
         }
 
-        void ISkill.StartSkill(Hex landedHex, int skillRotation)
+        void ISkill.StartSkill(Hex skillCenter, int skillRotation)
         {
             foreach(KeyValuePair<string, GameObject> item in _skillEffectMap) _unverifiedEffect.Add(item.Value);
-            HideUnVerifiedEffect();
+            HideUnverifiedEffect();
 
-            //TODO: ↓いつか参考になりそう(isEnemyExistInSkillRange)
-            //var isEnemyExistInSkillRange = _battleObservable.EnemyList.Any(enemy => skillRange.Contains(enemy.TransformController.GetLandedHex()));
             //_cinemachineTrack.muted = !isEnemyExistInSkillRange;
 
             foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
@@ -124,7 +126,7 @@ namespace HexRPG.Battle.Skill
                         var behaviour = (clip.asset as AttackEnableAsset).behaviour;
                         behaviour.OnAttackEnable
                             .Subscribe(_ => {
-                                _curAttackRange = _stageController.GetHexList(landedHex, behaviour.attackRange, skillRotation);
+                                _curAttackRange = _stageController.GetHexList(skillCenter, behaviour.attackRange, skillRotation);
                                 StartAttackEnable(behaviour.damage);
                             })
                             .AddTo(_disposables);
@@ -160,7 +162,7 @@ namespace HexRPG.Battle.Skill
             _attackController.FinishAttack();
         }
 
-        public void HideUnVerifiedEffect()
+        public void HideUnverifiedEffect()
         {
             _unverifiedEffect.ForEach(effect => effect.SetActive(false));
         }

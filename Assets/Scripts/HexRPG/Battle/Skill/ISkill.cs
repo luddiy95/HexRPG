@@ -4,14 +4,16 @@ using UnityEngine.Playables;
 
 namespace HexRPG.Battle.Skill
 {
+    using Playable;
     using Stage;
 
     public interface ISkill
     {
         void Init(PlayableAsset timeline, ICharacterComponentCollection skillOrigin, IAnimationController memberAnimationController);
-        void StartSkill(Hex landedHex, int skillRotation);
+        void StartSkill(Hex skillCenter, int skillRotation);
 
         PlayableAsset PlayableAsset { get; }
         List<Vector2> FullAttackRange { get; }
+        SkillCenterType SkillCenterType { get; }
     }
 }

@@ -1,5 +1,35 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2083231011131786921
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4773111240759286194}
+  m_Layer: 0
+  m_Name: SkillRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4773111240759286194
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2083231011131786921}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 3326055183171308171}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4411070546783468902
 GameObject:
   m_ObjectHideFlags: 0
@@ -29,7 +59,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3326055183171308171}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!320 &1279913346703195795
 PlayableDirector:
@@ -89,6 +119,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 4773111240759286194}
   - {fileID: 1609706617907820296}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -192,7 +223,9 @@ MonoBehaviour:
   _rootTransform: {fileID: 0}
   _moveTransform: {fileID: 0}
   _rotateTransform: {fileID: 0}
-  _spawnRoots: []
+  _spawnRoots:
+  - _transform: {fileID: 4773111240759286194}
+    _spawnObj: Skill
 --- !u!114 &-3323397056586544932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271,6 +304,7 @@ MonoBehaviour:
   - {fileID: 8463418554706351464}
   - {fileID: 4111755355788955245}
   - {fileID: 14830042264568972}
+  - {fileID: 7135533358454013842}
   _identifier: 
   _useSceneContext: 0
   _context: {fileID: 5444327952133001356}
@@ -305,3 +339,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1d2fbeaa9a63e44dafee8d8871dd1b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _skills: []

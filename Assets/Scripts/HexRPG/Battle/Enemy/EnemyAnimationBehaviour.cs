@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.Playables;
 using UniRx;
 using UnityEngine;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Zenject;
@@ -12,23 +13,27 @@ namespace HexRPG.Battle.Enemy
 {
     public class EnemyAnimationBehaviour : AnimationBehaviour, IAnimationController
     {
-        public IObservable<Unit> OnFinishDamaged => _onFinishDamaged;
+        ISkillSpawnObservable _skillSpawnObservable;
+
+        IObservable<Unit> IAnimationController.OnFinishDamaged => _onFinishDamaged;
         readonly ISubject<Unit> _onFinishDamaged = new Subject<Unit>();
 
-        //TODO: 仮
-        public IObservable<Unit> OnFinishCombat => null;
-        public IObservable<Unit> OnFinishSkill => null;
+        IObservable<Unit> IAnimationController.OnFinishCombat => null;
+
+        IObservable<Unit> IAnimationController.OnFinishSkill => _onFinishSkill;
 
         [Inject]
         public void Construct(
             IProfileSetting profileSetting,
             IDieSetting dieSetting,
-            IAnimatorController animatorController
+            IAnimatorController animatorController,
+            ISkillSpawnObservable skillSpawnObservable
         )
         {
             _profileSetting = profileSetting;
             _dieSetting = dieSetting;
             _animatorController = animatorController;
+            _skillSpawnObservable = skillSpawnObservable;
         }
 
         void IAnimationController.Init()
@@ -40,6 +45,8 @@ namespace HexRPG.Battle.Enemy
             _animationTypeMap.Add(_playables[1].GetAnimationClip().name, AnimationType.Die);
 
             SetupDieAnimation();
+
+            Array.ForEach(_skillSpawnObservable.SkillList, skill => SetupSkillAnimation(skill.Skill.PlayableAsset));
 
             _allClipCount = _playables.Count;
         }
@@ -66,6 +73,17 @@ namespace HexRPG.Battle.Enemy
                 // 遷移中などでない場合、自分自身には遷移しない
                 if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip) return;
 
+                // Skillですか？
+                var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
+                if (skillTimelineInfo != null)
+                {
+                    if (_curSkill != null) return;
+
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    InternalPlaySkill(skillTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
+                    return;
+                }
+
                 // Die
                 var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);
                 if (isDieClip)
@@ -85,6 +103,21 @@ namespace HexRPG.Battle.Enemy
 
                 // _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
                 if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
+
+                // Skillですか？
+                var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
+                if (skillTimelineInfo != null)
+                {
+                    if (_curSkill != null) return;
+
+                    // 割り込み
+                    TokenCancel();
+                    if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    InternalPlaySkill(skillTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
+                    return;
+                }
 
                 // Die
                 var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);

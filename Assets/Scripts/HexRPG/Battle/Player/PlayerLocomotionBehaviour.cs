@@ -10,9 +10,11 @@ namespace HexRPG.Battle.Player
         ICharacterInput _characterInput;
         IBattleObservable _battleObservable;
         IMemberObservable _memberObservable;
-
+        BattleData _battleData;
         // Camera
         int _cameraRotateStep = 0;
+        int _cameraRotateStepMax;
+        int _cameraRotateUnit;
         int _cameraAngle = 0;
         CinemachineVirtualCamera _mainVirtualCamera;
         CinemachineOrbitalTransposer _cameraTransposer;
@@ -22,13 +24,15 @@ namespace HexRPG.Battle.Player
             ICharacterInput characterInput,
             IBattleObservable battleObservable,
             ITransformController transformController,
-            IMemberObservable memberObservable
+            IMemberObservable memberObservable,
+            BattleData battleData
         )
         {
             _characterInput = characterInput;
             _battleObservable = battleObservable;
             _transformController = transformController;
             _memberObservable = memberObservable;
+            _battleData = battleData;
         }
 
         protected override void Initialize()
@@ -45,6 +49,8 @@ namespace HexRPG.Battle.Player
                 .AddTo(this);
 
             // Camera
+            _cameraRotateUnit = _battleData.CameraRotateUnit;
+            _cameraRotateStepMax = 360 / _cameraRotateUnit;
             _mainVirtualCamera = _battleObservable.MainVirtualCamera;
             _cameraTransposer = _mainVirtualCamera.GetCinemachineComponent<CinemachineOrbitalTransposer>();
 
@@ -52,7 +58,8 @@ namespace HexRPG.Battle.Player
                 .Subscribe(dir =>
                 {
                     _cameraRotateStep += dir;
-                    _cameraAngle = _cameraRotateStep * 30;
+                    _cameraRotateStep %= (int)Mathf.Sign(_cameraRotateStep) * _cameraRotateStepMax;
+                    _cameraAngle = _cameraRotateStep * _cameraRotateUnit;
 
                     _transformController.DefaultRotation = _cameraAngle;
                     _transformController.RotationAngle = 0;

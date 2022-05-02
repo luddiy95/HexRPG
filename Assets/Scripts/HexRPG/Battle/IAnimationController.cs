@@ -19,6 +19,7 @@ namespace HexRPG.Battle
     {
         Idle,
         Move,
+        Rotate,
 
         Damaged,
 

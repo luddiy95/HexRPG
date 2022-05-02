@@ -40,13 +40,11 @@ namespace HexRPG.Battle.Player
 
         ISkillComponentCollection ISkillController.StartSkill(int index, Hex landedHex, int skillRotation)
         {
-            _transformController.RotationAngle = _selectSkillObservable.SelectedSkillRotation - _transformController.DefaultRotation;
-
             var runningSkill = 
                 _memberObservable.CurMember.Value.SkillController.StartSkill(
                     index, 
-                    _transformController.GetLandedHex(), 
-                    _selectSkillObservable.SelectedSkillRotation
+                    _transformController.GetLandedHex(),
+                    _transformController.DefaultRotation + _selectSkillObservable.SelectedSkillRotation
                 );
             _disposables.Clear();
             runningSkill.SkillObservable.OnSkillAttack
@@ -61,7 +59,6 @@ namespace HexRPG.Battle.Player
             runningSkill.SkillObservable.OnFinishSkill
                 .Subscribe(_ =>
                 {
-                    _transformController.RotationAngle = 0;
                     _onFinishSkill.OnNext(Unit.Default);
                 }).AddTo(_disposables);
 

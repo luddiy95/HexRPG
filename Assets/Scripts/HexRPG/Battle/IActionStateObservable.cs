@@ -8,6 +8,8 @@ namespace HexRPG.Battle
     {
         IReadOnlyReactiveProperty<ActionState> CurrentState { get; }
 
+        ActionState PreviousState { get; }
+
         IObservable<T> OnStart<T>() where T : ActionEvent<T>;
 
         IObservable<T> OnEnd<T>() where T : ActionEvent<T>;

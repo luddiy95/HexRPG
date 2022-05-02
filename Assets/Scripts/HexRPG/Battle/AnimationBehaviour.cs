@@ -6,6 +6,7 @@ using UnityEngine;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using System.Linq;
+using UniRx;
 
 namespace HexRPG.Battle
 {
@@ -14,6 +15,8 @@ namespace HexRPG.Battle
         protected IProfileSetting _profileSetting;
         protected IDieSetting _dieSetting;
         protected IAnimatorController _animatorController;
+
+        protected readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
 
         [SerializeField] protected DurationData _durationData;
 
@@ -29,13 +32,21 @@ namespace HexRPG.Battle
         {
             public string ClipName { get; set; }
             public double Duration { get; set; } // AnimationëSëÃÇÃí∑Ç≥(s)(ñ{óàÇÃí∑Ç≥Ç…SpeedÇä|ÇØÇΩÇ‡ÇÃÅAé¿ç€Ç…Ç©Ç©ÇÈéûä‘)
-            public double Speed { get; set; }
             public double BlendInDuration { get; set; }
             public double BlendOutDuration { get; set; }
         }
 
         // Die Timeline
         protected List<TimelineClipInfo> _dieClipInfoList = new List<TimelineClipInfo>();
+
+        // Skill
+        protected class SkillTimelineInfo
+        {
+            public string SkillName { get; set; }
+            public List<TimelineClipInfo> TimelineClipInfoList { get; set; } = new List<TimelineClipInfo>();
+        }
+        protected List<SkillTimelineInfo> _skillTimelineInfos = new List<SkillTimelineInfo>();
+        protected SkillTimelineInfo _curSkill;
 
         protected int _allClipCount;
 
@@ -92,6 +103,37 @@ namespace HexRPG.Battle
             return fadeLength;
         }
 
+        protected async UniTask InternalPlaySkill(SkillTimelineInfo skillTimelineInfo, CancellationToken token)
+        {
+            _curSkill = skillTimelineInfo;
+
+            for (int i = 0; i < _curSkill.TimelineClipInfoList.Count; i++)
+            {
+                var timelineClipInfo = _curSkill.TimelineClipInfoList[i];
+
+                var fadeLength = 0f;
+                if (i == 0) fadeLength = _durationData.skillStartDuration;
+                else if (timelineClipInfo.BlendInDuration >= 0) fadeLength = (float)timelineClipInfo.BlendInDuration;
+
+                var blendOutDuration = timelineClipInfo.BlendOutDuration;
+                if (blendOutDuration < 0) blendOutDuration = 0f;
+                var exitTime = (float)(timelineClipInfo.Duration - blendOutDuration);
+                float exitWaitTime = Time.timeSinceLevelLoad + exitTime;
+
+                await InternalCrossFade(timelineClipInfo.ClipName, fadeLength, token);
+
+                await UniTask.WaitWhile(() =>
+                {
+                    var diff = exitWaitTime - Time.timeSinceLevelLoad;
+                    return (diff > 0);
+                }, cancellationToken: token);
+            }
+
+            // äÑÇËçûÇ›Ç™Ç»Ç©Ç¡ÇΩèÍçáÇÃÇ›Ç±Ç±Ç‹Ç≈íHÇËíÖÇ≠
+            TokenCancel();
+
+            FinishSkill();
+        }
 
         protected async UniTask InternalPlayDie(CancellationToken token)
         {
@@ -108,7 +150,7 @@ namespace HexRPG.Battle
                 var exitTime = (float)(timelineClipInfo.Duration - blendOutDuration);
                 float exitWaitTime = Time.timeSinceLevelLoad + exitTime;
 
-                await InternalCrossFade(timelineClipInfo.ClipName, fadeLength, token, timelineClipInfo.Speed);
+                await InternalCrossFade(timelineClipInfo.ClipName, fadeLength, token);
 
                 await UniTask.WaitWhile(() =>
                 {
@@ -120,7 +162,7 @@ namespace HexRPG.Battle
             // äÑÇËçûÇ›Ç™Ç»Ç©Ç¡ÇΩèÍçáÇÃÇ›Ç±Ç±Ç‹Ç≈íHÇËíÖÇ≠
             TokenCancel();
 
-            //TODO: FinishDie(àÍíËéûä‘å„Ç…Destroy)
+            //TODO: FinishDie(àÍíËéûä‘å„Ç…Destroy)->DieÇÕäÑÇËçûÇ‹ÇÍÇÈÇ±Ç∆Ç™Ç»Ç¢Ç©ÇÁåªèÛ(DieTimelineÇ™stopéûÇ…Finishèàóù)ÇÃÇ‹Ç‹Ç≈ó«Ç¢ÇÃÇ≈ÇÕ
         }
 
         protected async UniTask InternalAnimationTransit(string nextClip, float transitionTime, CancellationToken token)
@@ -131,7 +173,7 @@ namespace HexRPG.Battle
             TokenCancel();
         }
 
-        protected async UniTask InternalCrossFade(string nextClip, float transitionTime, CancellationToken token, double speed = 1)
+        protected async UniTask InternalCrossFade(string nextClip, float transitionTime, CancellationToken token)
         {
             _disposedPlayingIndex = _nextPlayingIndex;
             _nextPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == nextClip);
@@ -152,9 +194,9 @@ namespace HexRPG.Battle
 
             // éüÇ…çƒê∂Ç∑ÇÈÉNÉäÉbÉvÇÕç≈èâ(time = 0)Ç©ÇÁçƒê∂(Ç±Ç§ÇµÇ»Ç¢Ç∆LoopOffÇÃClipÇ÷ëJà⁄Ç∑ÇÈÇ∆Ç´Ç…timeÇ™ëÂÇ´Ç∑Ç¨Çƒçƒê∂Ç≥ÇÍÇ»Ç¢èÍçáÇ™Ç†ÇÈ)
             _playables[_nextPlayingIndex].SetTime(0);
-            _playables[_nextPlayingIndex].SetSpeed(speed);
+            //_playables[_nextPlayingIndex].SetSpeed(speed);
             _mixer.GetInput(_nextPlayingIndex).SetTime(0);
-            _mixer.GetInput(_nextPlayingIndex).SetSpeed(speed);
+            //_mixer.GetInput(_nextPlayingIndex).SetSpeed(speed);
 
             token.Register(() =>
             {
@@ -213,6 +255,12 @@ namespace HexRPG.Battle
             _cancellationTokenSource = null;
         }
 
+        protected void FinishSkill()
+        {
+            _curSkill = null;
+            _onFinishSkill.OnNext(Unit.Default);
+        }
+
         protected void SetupGraph()
         {
             _graph = PlayableGraph.Create(_profileSetting.Name + " Playable Graph");
@@ -246,7 +294,6 @@ namespace HexRPG.Battle
                         {
                             ClipName = clipName,
                             Duration = clip.duration,
-                            Speed = clip.timeScale,
                             BlendInDuration = clip.blendInDuration,
                             BlendOutDuration = clip.blendOutDuration,
                         });
@@ -255,6 +302,7 @@ namespace HexRPG.Battle
                         {
                             _animationTypeMap.Add(clipName, AnimationType.Die);
                             var playable = AnimationClipPlayable.Create(_graph, clip.animationClip);
+                            playable.SetSpeed(clip.timeScale);
                             _playables.Add(playable);
                             _mixer.AddInput(playable, 0, 0);
                         }
@@ -263,6 +311,55 @@ namespace HexRPG.Battle
                     trackAsset.muted = true;
                 }
             }
+        }
+
+        protected void SetupSkillAnimation(PlayableAsset playableAsset)
+        {
+            foreach (var trackAsset in (playableAsset as TimelineAsset).GetOutputTracks())
+            {
+                if (trackAsset is AnimationTrack)
+                {
+                    List<TimelineClip> clips = new List<TimelineClip>();
+                    foreach (var clip in trackAsset.GetClips()) clips.Add(clip);
+
+                    // skillTimelineInfoListÇ…í«â¡
+                    List<TimelineClipInfo> timelinClipInfoList = new List<TimelineClipInfo>();
+                    foreach (var clip in clips.OrderBy(clip => clip.start))
+                    {
+                        var clipName = clip.animationClip.name;
+
+                        timelinClipInfoList.Add(new TimelineClipInfo
+                        {
+                            ClipName = clipName,
+                            Duration = clip.duration,
+                            BlendInDuration = clip.blendInDuration,
+                            BlendOutDuration = clip.blendOutDuration,
+                        });
+
+                        if (!_playables.Any(playable => playable.GetAnimationClip().name == clipName))
+                        {
+                            _animationTypeMap.Add(clipName, AnimationType.Skill);
+                            var playable = AnimationClipPlayable.Create(_graph, clip.animationClip);
+                            playable.SetSpeed(clip.timeScale);
+                            _playables.Add(playable);
+                            _mixer.AddInput(playable, 0, 0);
+                        }
+                    }
+                    _skillTimelineInfos.Add(new SkillTimelineInfo
+                    {
+                        SkillName = playableAsset.name,
+                        TimelineClipInfoList = timelinClipInfoList
+                    });
+
+                    trackAsset.muted = true;
+                }
+            }
+        }
+
+        void OnDestroy()
+        {
+            TokenCancel();
+            _graph.Destroy();
         }
     }
 }

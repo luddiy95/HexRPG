@@ -11,7 +11,7 @@ namespace HexRPG.Battle.Player.Member
     using Stage;
     using Battle.Skill;
 
-    public class MemberSkillExecuter : ISkillSpawnObservable, ISkillController, IInitializable, IDisposable
+    public class MemberSkillExecuter : ISkillSpawnObservable, ISkillController, IInitializable
     {
         IMemberComponentCollection _memberOwner;
         ITransformController _transformController;
@@ -24,10 +24,6 @@ namespace HexRPG.Battle.Player.Member
 
         bool ISkillSpawnObservable.IsAllSkillSpawned => _isAllSkillSpawned;
         bool _isAllSkillSpawned = false;
-
-        ISkillComponentCollection _runningSkill = null;
-
-        CompositeDisposable _disposables = new CompositeDisposable();
 
         public MemberSkillExecuter(
             IMemberComponentCollection memberOwner,
@@ -56,25 +52,26 @@ namespace HexRPG.Battle.Player.Member
 
         ISkillComponentCollection ISkillController.StartSkill(int index, Hex landedHex, int skillRotation)
         {
-            _runningSkill = _skillList[index];
-            _mental.Update(-_runningSkill.SkillSetting.MPcost);
+            var runningSkill = _skillList[index];
 
-            _disposables.Clear();
-            _runningSkill.SkillObservable.OnFinishSkill
-                .Subscribe(_ =>
-                {
-                    _runningSkill = null;
-                    _disposables.Clear();
-                }).AddTo(_disposables);
+            _mental.Update(-runningSkill.SkillSetting.MPcost);
 
-            _runningSkill.Skill.StartSkill(landedHex, skillRotation);
+            var skillCenter = landedHex;
+            switch (runningSkill.Skill.SkillCenterType)
+            {
+                case Playable.SkillCenterType.SELF:
+                    // é©ï™é©êgÇÃèÍçálandedHexÇÃÇ‹Ç‹Ç≈ó«Ç¢
+                    break;
+                case Playable.SkillCenterType.NEAREST_ENEMY:
+                    // é©ï™Ç©ÇÁç≈Ç‡ãﬂÇ¢ìG
+                    break;
+                default:
+                    break;
+            }
 
-            return _runningSkill;
-        }
+            runningSkill.Skill.StartSkill(skillCenter, skillRotation);
 
-        void IDisposable.Dispose()
-        {
-            _disposables.Dispose();
+            return runningSkill;
         }
     }
 }
