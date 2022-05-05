@@ -93,6 +93,19 @@ namespace HexRPG.Battle
                         default: fadeLength = _durationData.defaultDuration; break;
                     }
                     break;
+                case AnimationType.Rotate:
+                    switch (curAnimationType)
+                    {
+                        case AnimationType.Idle:
+                            // Idle -> Rotate›› 
+                            fadeLength = _durationData.defaultRotateStartDuration;
+                            var rotateStartDurationData = _durationData.rotateStartDurations.FirstOrDefault(data => data.clip == curClip);
+                            if (rotateStartDurationData != null) fadeLength = rotateStartDurationData.duration;
+                            break;
+                        default: fadeLength = _durationData.defaultDuration; break;
+
+                    }
+                    break;
                 case AnimationType.Damaged:
                     fadeLength = _durationData.defaultDamagedDuration;
                     var damagedDurationData = _durationData.damagedDurations.FirstOrDefault(data => data.clip == curClip);

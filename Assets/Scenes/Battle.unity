@@ -23235,9 +23235,7 @@ MonoBehaviour:
   _playerSpawnSetting:
     _prefab: {fileID: 9023172073399153930, guid: 852fb4ad79ea5cd4a8c13b5e3a6bfd8f, type: 3}
     _spawnHex: {fileID: 742981857}
-  _enemySpawnSettings:
-  - _prefab: {fileID: 6462630326340586861, guid: 90e4f3838f4abda428566aacfe682ed1, type: 3}
-    _spawnHex: {fileID: 1732797988}
+  _enemySpawnSettings: []
   _battleDataContainer: {fileID: 11400000, guid: 01737adf5575bcf46a44210c6b1afb2c, type: 2}
   _enemyHealthGaugePrefab: {fileID: 1225845323860411763, guid: 8fbf8de633e2b3d44a645f61a1205af8, type: 3}
 --- !u!114 &2027746548

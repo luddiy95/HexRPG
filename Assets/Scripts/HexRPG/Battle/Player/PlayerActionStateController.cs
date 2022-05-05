@@ -37,7 +37,7 @@ namespace HexRPG.Battle.Player
         bool _acceptDirectionInput = true;
 
         int _rotateAngle = 0;
-        float _rotateTime = 0.26f; //! durationより短いとダメ(予期せぬ遷移中割り込み)
+        float _rotateTime = 0.24f; //! durationより短いとダメ(予期せぬ遷移中割り込み)
 
         CompositeDisposable _disposables = new CompositeDisposable();
         CompositeDisposable _memberChangeDisposables = new CompositeDisposable();
@@ -275,16 +275,10 @@ namespace HexRPG.Battle.Player
                 .AddTo(_disposables);
 
             _locomotionObservable.OnFinishRotate
-                .Where(_ => PrevState == DAMAGED || PrevState == SKILL_SELECT || PrevState == SKILL)
+                .Where(_ => PrevState == DAMAGED || PrevState == SKILL)
                 .Subscribe(_ =>
                 {
-                    switch (PrevState)
-                    {
-                        case DAMAGED:
-                        case SKILL:
-                            _actionStateController.Execute(new Command { Id = "idle" });
-                            break;
-                    }
+                    _actionStateController.Execute(new Command { Id = "idle" });
                 })
                 .AddTo(_disposables);
 

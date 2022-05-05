@@ -269,6 +269,7 @@ MonoBehaviour:
     - {x: 0, y: 0}
     - {x: -1, y: -1}
     - {x: -2, y: 0}
+    - {x: -1, y: 1}
     attackEffectTrack: Attack Effect Track
     attackEffectOffset: {x: 0, y: 0}
 --- !u!114 &-3254372559535421892

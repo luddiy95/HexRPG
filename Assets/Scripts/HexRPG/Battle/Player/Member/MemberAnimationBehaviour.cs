@@ -194,6 +194,19 @@ namespace HexRPG.Battle.Player.Member
                     }
                 }
 
+                // Idle -> Rotate遷移中はIdle割り込み可能
+                if(curClip == "Idle" && nextClip == "Idle" &&
+                    _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type == AnimationType.Rotate)
+                {
+                    // 割り込み
+                    TokenCancel(); // Tokenキャンセルしたらawait後続処理は全て呼ばれない
+                    if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
+                    return;
+                }
+
                 // Damaged
                 var isDamagedClip = (_animationTypeMap.TryGetValue(nextClip, out type) && type == AnimationType.Damaged);
                 if (isDamagedClip)

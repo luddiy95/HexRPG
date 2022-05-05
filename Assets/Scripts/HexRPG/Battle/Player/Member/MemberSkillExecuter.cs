@@ -14,7 +14,6 @@ namespace HexRPG.Battle.Player.Member
     public class MemberSkillExecuter : ISkillSpawnController, ISkillSpawnObservable, ISkillController
     {
         IMemberComponentCollection _memberOwner;
-        ITransformController _transformController;
         IMental _mental;
         List<SkillOwner.Factory> _skillFactories;
         ISkillsSetting _skillsSetting;
@@ -27,14 +26,12 @@ namespace HexRPG.Battle.Player.Member
 
         public MemberSkillExecuter(
             IMemberComponentCollection memberOwner,
-            ITransformController transformController,
             IMental mental,
             List<SkillOwner.Factory> skillFactories,
             ISkillsSetting skillsSetting
         )
         {
             _memberOwner = memberOwner;
-            _transformController = transformController;
             _mental = mental;
             _skillFactories = skillFactories;
             _skillsSetting = skillsSetting;
