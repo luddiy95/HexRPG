@@ -4,6 +4,7 @@ using Zenject;
 using UniRx;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine.Playables;
 
 namespace HexRPG.Battle.Skill
@@ -28,6 +29,14 @@ namespace HexRPG.Battle.Skill
 
         SkillCenterType ISkill.SkillCenterType => _skillCenterType;
         SkillCenterType _skillCenterType;
+
+        Vector2 ISkill.SkillCenter => _skillCenter;
+        Vector2 _skillCenter;
+
+        IObservable<Unit> ISkillObservable.OnStartReservation => _onStartReservation;
+        readonly ISubject<Unit> _onStartReservation = new Subject<Unit>();
+        IObservable<Unit> ISkillObservable.OnFinishReservation => _onFinishReservation;
+        readonly ISubject<Unit> _onFinishReservation = new Subject<Unit>();
 
         IObservable<Hex[]> ISkillObservable.OnSkillAttack => _onSkillAttack;
         readonly ISubject<Hex[]> _onSkillAttack = new Subject<Hex[]>();
@@ -56,13 +65,14 @@ namespace HexRPG.Battle.Skill
             _battleObservable = battleObservable;
         }
 
-        void ISkill.Init(PlayableAsset timeline, ICharacterComponentCollection skillOrigin, IAnimationController animationController)
+        void ISkill.Init(PlayableAsset timeline, List<ActivationBindingData> activationBindingMap, ICharacterComponentCollection skillOrigin, IAnimationController animationController)
         {
             _skillOrigin = skillOrigin;
             _animationController = animationController;
 
             _director.playableAsset = timeline;
 
+            var attackEffectTrack = new List<string>();
             // Skill‚Ì‘S”ÍˆÍ‚ðŽæ“¾
             foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
             {
@@ -70,9 +80,11 @@ namespace HexRPG.Battle.Skill
                 {
                     _fullAttackRange = new List<Vector2>();
                     _skillCenterType = attackEnableTrack.skillCenterType;
+                    _skillCenter = attackEnableTrack.skillCenter;
                     foreach (var clip in attackEnableTrack.GetClips())
                     {
                         var behaviour = (clip.asset as AttackEnableAsset).behaviour;
+                        attackEffectTrack.Add(behaviour.attackEffectTrack);
                         behaviour.attackRange.ForEach(range =>
                         {
                             if (!_fullAttackRange.Contains(range)) _fullAttackRange.Add(range);
@@ -81,15 +93,28 @@ namespace HexRPG.Battle.Skill
                 }
             }
 
-            // Timeline‚Ì‘SEffect‚ðŽæ“¾
+            // EffectŽæ“¾
             foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
             {
                 if (trackAsset is ActivationTrack)
                 {
-                    if (_director.GetGenericBinding(trackAsset) is GameObject skillEffect)
+                    if (attackEffectTrack.Contains(trackAsset.name))
                     {
-                        _skillEffectMap.Add(trackAsset.name, skillEffect);
+                        if (_director.GetGenericBinding(trackAsset) is GameObject skillEffect)
+                        {
+                            _skillEffectMap.Add(trackAsset.name, skillEffect);
+                        }
                     }
+                }
+            }
+
+            // ActivationTrack‚ÌBind
+            foreach (var bind in _director.playableAsset.outputs)
+            {
+                var data = activationBindingMap.FirstOrDefault(data => data.trackName == bind.streamName);
+                if (data != null)
+                {
+                    _director.SetGenericBinding(bind.sourceObject, data.sourceObject);
                 }
             }
 
@@ -100,10 +125,12 @@ namespace HexRPG.Battle.Skill
                     FinishAttackEnable();
                     HideUnverifiedEffect();
                     _unverifiedEffect.Clear();
+                    activationBindingMap.ForEach(data => data.sourceObject.SetActive(false));
 
                     _disposables.Clear();
                     _director.Stop();
 
+                    _onFinishReservation.OnNext(Unit.Default);
                     _onFinishSkill.OnNext(Unit.Default);
                 })
                 .AddTo(this);
@@ -118,11 +145,11 @@ namespace HexRPG.Battle.Skill
 
             foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
             {
-                // Attack”»’è
                 if (trackAsset is AttackEnableTrack)
                 {
                     foreach (var clip in trackAsset.GetClips())
                     {
+                        // Attack”»’è
                         var behaviour = (clip.asset as AttackEnableAsset).behaviour;
                         behaviour.OnAttackEnable
                             .Subscribe(_ => {
@@ -137,6 +164,28 @@ namespace HexRPG.Battle.Skill
                                 _onSkillAttack.OnNext(_curAttackRange);
                                 if (_skillEffectMap.TryGetValue(behaviour.attackEffectTrack, out GameObject effect)) _unverifiedEffect.Remove(effect);
                             })
+                            .AddTo(_disposables);
+
+                        // AttackEffect
+                        if(_skillEffectMap.TryGetValue(behaviour.attackEffectTrack, out GameObject effect))
+                        {
+                            effect.transform.position = _stageController.GetPos(skillCenter, behaviour.attackEffectOffset, skillRotation);
+                            effect.transform.rotation = Quaternion.Euler(new Vector3(0, skillRotation, 0));
+                        }
+                    }
+                }
+
+                // SkillReservation
+                if (trackAsset is SkillReservationTrack)
+                {
+                    foreach (var clip in trackAsset.GetClips())
+                    {
+                        var behaviour = (clip.asset as SkillReservationAsset).behaviour;
+                        behaviour.OnStartReservation
+                            .Subscribe(_ => _onStartReservation.OnNext(Unit.Default))
+                            .AddTo(_disposables);
+                        behaviour.OnFinishReservation
+                            .Subscribe(_ => _onFinishReservation.OnNext(Unit.Default))
                             .AddTo(_disposables);
                     }
                 }

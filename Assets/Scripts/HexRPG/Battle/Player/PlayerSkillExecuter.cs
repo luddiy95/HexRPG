@@ -18,6 +18,8 @@ namespace HexRPG.Battle.Player
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
+        IObservable<Unit> ISkillObservable.OnStartReservation => null;
+        IObservable<Unit> ISkillObservable.OnFinishReservation => null;
         IObservable<Hex[]> ISkillObservable.OnSkillAttack => null;
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
@@ -38,14 +40,15 @@ namespace HexRPG.Battle.Player
             _stageController = stageController;
         }
 
-        ISkillComponentCollection ISkillController.StartSkill(int index, Hex landedHex, int skillRotation)
+        ISkillComponentCollection ISkillController.StartSkill(int index, Hex skillCenter, int skillRotation)
         {
             var runningSkill = 
                 _memberObservable.CurMember.Value.SkillController.StartSkill(
                     index, 
-                    _transformController.GetLandedHex(),
+                    _selectSkillObservable.SkillCenter,
                     _transformController.DefaultRotation + _selectSkillObservable.SelectedSkillRotation
                 );
+
             _disposables.Clear();
             runningSkill.SkillObservable.OnSkillAttack
                 .Subscribe(attackRange =>

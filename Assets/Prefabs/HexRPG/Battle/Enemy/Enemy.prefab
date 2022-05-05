@@ -94,6 +94,7 @@ GameObject:
   - component: {fileID: 439547804308635337}
   - component: {fileID: 8682672011007346387}
   - component: {fileID: 8205341976085822526}
+  - component: {fileID: 8903735977820487127}
   - component: {fileID: -3323397056586544932}
   - component: {fileID: 8463418554706351464}
   - component: {fileID: 4111755355788955245}
@@ -226,6 +227,19 @@ MonoBehaviour:
   _spawnRoots:
   - _transform: {fileID: 4773111240759286194}
     _spawnObj: Skill
+--- !u!114 &8903735977820487127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8860857860763353368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dca8f2215a4dfdb449ba074c078e01d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _rigidbody: {fileID: 0}
 --- !u!114 &-3323397056586544932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -300,6 +314,7 @@ MonoBehaviour:
   - {fileID: 439547804308635337}
   - {fileID: 8682672011007346387}
   - {fileID: 8205341976085822526}
+  - {fileID: 8903735977820487127}
   - {fileID: -3323397056586544932}
   - {fileID: 8463418554706351464}
   - {fileID: 4111755355788955245}

@@ -18,8 +18,8 @@ namespace HexRPG.Playable
 
         public int damage;
         public List<Vector2> attackRange;
-        public bool isOriginOwnerPos;
         public string attackEffectTrack;
+        public Vector2 attackEffectOffset; // SkillCenter‚É‘Î‚·‚éOffset
 
         public override void OnBehaviourPlay(UnityEngine.Playables.Playable playable, FrameData info)
         {

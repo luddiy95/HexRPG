@@ -8,6 +8,7 @@ namespace HexRPG.Battle.Enemy
     {
         IColliderController ColliderController { get; }
         IAnimationController AnimationController { get; }
+        ICharacterActionStateController CharacterActionStateController { get; }
         ISkillSpawnObservable SkillSpawnObservable { get; }
 
         //TODO: Decorator—p
@@ -20,6 +21,7 @@ namespace HexRPG.Battle.Enemy
         [Inject] IColliderController IEnemyComponentCollection.ColliderController { get; }
         [Inject] IDieObservable ICharacterComponentCollection.DieObservable { get; }
         [Inject] IAnimationController IEnemyComponentCollection.AnimationController { get; }
+        [Inject] ICharacterActionStateController IEnemyComponentCollection.CharacterActionStateController { get; }
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
         [Inject] ISkillSpawnObservable IEnemyComponentCollection.SkillSpawnObservable { get; }

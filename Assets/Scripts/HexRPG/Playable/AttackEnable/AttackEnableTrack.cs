@@ -1,19 +1,16 @@
+using UnityEngine;
 using UnityEngine.Timeline;
 
 namespace HexRPG.Playable
 {
-    public enum SkillCenterType
-    {
-        SELF,
-        PLAYER,
-        NEAREST_ENEMY
-    }
+    using Battle.Skill;
 
     [TrackColor(1, 0, 0)]
     [TrackClipType(typeof(AttackEnableAsset))]
     public class AttackEnableTrack : TrackAsset
     {
         public SkillCenterType skillCenterType = SkillCenterType.SELF;
+        public Vector2 skillCenter;
 
         protected override void OnCreateClip(TimelineClip clip)
         {

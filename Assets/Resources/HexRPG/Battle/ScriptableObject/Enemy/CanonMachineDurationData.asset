@@ -16,11 +16,14 @@ MonoBehaviour:
   locomotionDurations: []
   defaultBackToIdleDuration: 0.25
   backToIdleDurations: []
-  combatStartDuration: 0.25
-  skillStartDuration: 0.25
+  defaultCombatStartDuration: 0.25
+  combatStartDurations: []
+  defaultSkillStartDuration: 0.25
+  skillStartDurations:
+  - clip: CanonMachineFire
+    duration: 0.5
   defaultDamagedDuration: 0.25
   damagedDurations: []
-  exitTimeToIdle: 0
-  defaultDieDuration: 0.25
-  dieDurations: []
+  exitTimeToIdle: 0.85
+  dieStartDuration: 0.25
   defaultDuration: 0.25

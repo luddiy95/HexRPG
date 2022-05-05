@@ -8,6 +8,9 @@ namespace HexRPG.Battle
 
     public interface ISkillObservable
     {
+        IObservable<Unit> OnStartReservation { get; }
+        IObservable<Unit> OnFinishReservation { get; }
+
         IObservable<Hex[]> OnSkillAttack { get; }
         IObservable<Unit> OnFinishSkill { get; }
     }

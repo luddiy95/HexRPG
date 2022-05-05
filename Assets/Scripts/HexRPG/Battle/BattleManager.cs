@@ -94,11 +94,9 @@ namespace HexRPG.Battle
             await memberController.SpawnAllMember(token);
             memberController.ChangeMember(0);
 
-            //TODO: PlayerAnimationBehaviour初期化(各MemberのAnimatorBehaviour初期化/Combat, Skillが初期化していなければならない)
-            //TODO: -> PlayerActionStateControllerスタート(?)(PlayerAnimationBehaviourが初期化していないとモーションを再生できない)
+            _playerOwner.CharacterActionStateController.Init(); // 諸々の初期化が終わってからActionStateControllerを初期化
 
             _targetGroup.m_Targets[0].target = _playerOwner.TransformController.MoveTransform;
-
             // Playerの位置を監視
             _playerLandedHex = _playerOwner.TransformController.GetLandedHex();
             _updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
@@ -122,6 +120,7 @@ namespace HexRPG.Battle
             await UniTask.WaitUntil(() => _enemyList.All(enemy => enemy.SkillSpawnObservable.IsAllSkillSpawned), cancellationToken: token);
 
             foreach (var enemy in _enemyList) enemy.AnimationController.Init();
+            foreach (var enemy in _enemyList) enemy.CharacterActionStateController.Init(); // 諸々の初期化が終わってからActionStateControllerを初期化した方が良い
 
             // enemyが死んだらListからRemove
             foreach(var enemy in _enemyList)

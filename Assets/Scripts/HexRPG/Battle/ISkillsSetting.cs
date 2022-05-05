@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 using UnityEngine.Playables;
 
 namespace HexRPG.Battle
@@ -17,5 +18,8 @@ namespace HexRPG.Battle
 
         public PlayableAsset Timeline => _timeline;
         [SerializeField] PlayableAsset _timeline;
+
+        public List<ActivationBindingData> ActivationBindingMap => _activationBindingMap;
+        [SerializeField] List<ActivationBindingData> _activationBindingMap;
     }
 }

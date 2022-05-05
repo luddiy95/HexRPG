@@ -7,6 +7,7 @@ namespace HexRPG.Battle.Player
     {
         IMemberController MemberController { get; }
         IMemberObservable MemberObservable { get; }
+        ICharacterActionStateController CharacterActionStateController { get; }
         ISelectSkillObservable SelectSkillObservable { get; }
 
         //TODO: Decorator—p
@@ -20,6 +21,7 @@ namespace HexRPG.Battle.Player
         IHealth ICharacterComponentCollection.Health => MemberOwner.Health;
         [Inject] IMemberController IPlayerComponentCollection.MemberController { get; }
         [Inject] IMemberObservable IPlayerComponentCollection.MemberObservable { get; }
+        [Inject] ICharacterActionStateController IPlayerComponentCollection.CharacterActionStateController { get; }
         [Inject] ISelectSkillObservable IPlayerComponentCollection.SelectSkillObservable { get; }
 
         //TODO: Decorator—p

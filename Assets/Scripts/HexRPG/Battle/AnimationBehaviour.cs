@@ -70,10 +70,11 @@ namespace HexRPG.Battle
                     switch (curAnimationType)
                     {
                         case AnimationType.Move: // Move○○ -> Idle
+                        case AnimationType.Rotate: // Rotate○○ -> Idle
                         case AnimationType.Damaged: // Damaged -> Idle
                         case AnimationType.Combat: // Combat -> Idle (中断のみ)
                             fadeLength = _durationData.defaultBackToIdleDuration;
-                            var backToIdleDurationData = _durationData.backToIdleDurations.FirstOrDefault(data => data.clipBefore == curClip);
+                            var backToIdleDurationData = _durationData.backToIdleDurations.FirstOrDefault(data => data.clip == curClip);
                             if (backToIdleDurationData != null) fadeLength = backToIdleDurationData.duration;
                             break;
                         default: fadeLength = _durationData.defaultDuration; break;
@@ -94,7 +95,7 @@ namespace HexRPG.Battle
                     break;
                 case AnimationType.Damaged:
                     fadeLength = _durationData.defaultDamagedDuration;
-                    var damagedDurationData = _durationData.damagedDurations.FirstOrDefault(data => data.clipBefore == curClip);
+                    var damagedDurationData = _durationData.damagedDurations.FirstOrDefault(data => data.clip == curClip);
                     if (damagedDurationData != null) fadeLength = damagedDurationData.duration;
                     break;
                 //! DieはTimeline
@@ -112,8 +113,16 @@ namespace HexRPG.Battle
                 var timelineClipInfo = _curSkill.TimelineClipInfoList[i];
 
                 var fadeLength = 0f;
-                if (i == 0) fadeLength = _durationData.skillStartDuration;
-                else if (timelineClipInfo.BlendInDuration >= 0) fadeLength = (float)timelineClipInfo.BlendInDuration;
+                if (i == 0)
+                {
+                    fadeLength = _durationData.defaultSkillStartDuration;
+                    var skillStartDurationData = _durationData.skillStartDurations.FirstOrDefault(data => data.clip == _curSkill.SkillName);
+                    if (skillStartDurationData != null) fadeLength = skillStartDurationData.duration;
+                }
+                else if (timelineClipInfo.BlendInDuration >= 0)
+                {
+                    fadeLength = (float)timelineClipInfo.BlendInDuration;
+                }
 
                 var blendOutDuration = timelineClipInfo.BlendOutDuration;
                 if (blendOutDuration < 0) blendOutDuration = 0f;
@@ -194,9 +203,7 @@ namespace HexRPG.Battle
 
             // 次に再生するクリップは最初(time = 0)から再生(こうしないとLoopOffのClipへ遷移するときにtimeが大きすぎて再生されない場合がある)
             _playables[_nextPlayingIndex].SetTime(0);
-            //_playables[_nextPlayingIndex].SetSpeed(speed);
             _mixer.GetInput(_nextPlayingIndex).SetTime(0);
-            //_mixer.GetInput(_nextPlayingIndex).SetSpeed(speed);
 
             token.Register(() =>
             {
@@ -354,6 +361,12 @@ namespace HexRPG.Battle
                     trackAsset.muted = true;
                 }
             }
+        }
+
+        public void FadeToIdle()
+        {
+            //TODO: Damaged終了通知
+            (this as IAnimationController).Play("Idle");
         }
 
         void OnDestroy()

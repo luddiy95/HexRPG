@@ -1,8 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 
 namespace HexRPG.Battle
 {
+    public interface ICharacterActionStateController
+    {
+        void Init();
+    }
+
     public interface IActionStateController
     {
         void Execute(Command command);

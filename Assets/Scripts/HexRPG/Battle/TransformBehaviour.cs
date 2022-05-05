@@ -57,7 +57,7 @@ namespace HexRPG.Battle
 
         int ITransformController.RotationAngle
         {
-            get => _rotationAngle; //! _rotation.eulerAngles - _defaultRotation‚Íƒ_ƒ(eulerAngles‚Å0`360‚É•ÏŠ·‚³‚ê‚Ä‚µ‚Ü‚¤‚Ì‚ÅˆÓ}‚¹‚Ê‹““®‚É‚È‚Á‚Ä‚µ‚Ü‚¤)
+            get => _rotationAngle; //! DefaultRotation‚ğŠî€‚Æ‚µ‚½‰ñ“]
             set
             {
                 _rotationAngle = value;
@@ -66,7 +66,7 @@ namespace HexRPG.Battle
         }
         int _rotationAngle = 0;
 
-        int ITransformController.DefaultRotation { get => _defaultRotation; set => _defaultRotation = value; }
+        int ITransformController.DefaultRotation { get => _defaultRotation; set => _defaultRotation = value; } //! CameraRotateUnit(60)‚Ì”{”
         int _defaultRotation = 0;
 
         Transform ITransformController.SpawnRootTransform(string spawnObj)
@@ -138,6 +138,21 @@ namespace HexRPG.Battle
 #nullable enable
             return hit.collider?.GetComponent<Hex>();
 #nullable disable
+        }
+
+        /// <summary>
+        /// target‚Ì•û‚ğŒü‚­Û‚ÌŒ»İ‚ÌRotationAngle‚É‘Î‚·‚é‰ñ“](-179`180A60“x’PˆÊ)
+        /// </summary>
+        /// <param name="transformController"></param>
+        /// <param name="targetPos"></param>
+        /// <returns></returns>
+        public static int GetLookRotationAngleY(this ITransformController transformController, Vector3 targetPos)
+        {
+            var relativePos = targetPos - transformController.Position;
+            relativePos.y = 0;
+            var euler = (int)Quaternion.LookRotation(relativePos).eulerAngles.y;
+            euler = (euler + 30) / 60 * 60 - transformController.RotationAngle;
+            return MathUtility.GetIntegerEuler(euler);
         }
     }
 }

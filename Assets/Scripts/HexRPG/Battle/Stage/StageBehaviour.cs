@@ -84,15 +84,21 @@ namespace HexRPG.Battle.Stage
 
     public static class StageExtensions
     {
+        public static Vector3 GetPos(this IStageController stageController, Hex root, Vector2 dir, int rotationAngle)
+        {
+            return root.transform.position + Quaternion.AngleAxis(rotationAngle, Vector3.up) * (stageController.DirX * dir.x + stageController.DirZ * dir.y);
+        }
+
+        public static Hex GetHex(this IStageController stageController, Hex root, Vector2 dir, int rotationAngle)
+        {
+            var position = stageController.GetPos(root, dir, rotationAngle);
+            return TransformExtensions.GetLandedHex(position);
+        }
+
         public static Hex[] GetHexList(this IStageController stageController, Hex root, List<Vector2> range, int rotationAngle)
         {
             return range
-                .Select(dir =>
-                {
-                    Vector3 position = root.transform.position + 
-                        Quaternion.AngleAxis(rotationAngle, Vector3.up) * (stageController.DirX * dir.x + stageController.DirZ * dir.y);
-                    return TransformExtensions.GetLandedHex(position);
-                })
+                .Select(dir => stageController.GetHex(root, dir, rotationAngle))
                 .Where(rangeHex => rangeHex != null).ToArray();
         }
     }

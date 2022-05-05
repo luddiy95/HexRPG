@@ -9,11 +9,12 @@ namespace HexRPG.Battle.Skill
 
     public interface ISkill
     {
-        void Init(PlayableAsset timeline, ICharacterComponentCollection skillOrigin, IAnimationController memberAnimationController);
+        void Init(PlayableAsset timeline, List<ActivationBindingData> activationBindingMap, ICharacterComponentCollection skillOrigin, IAnimationController animationController);
         void StartSkill(Hex skillCenter, int skillRotation);
 
         PlayableAsset PlayableAsset { get; }
         List<Vector2> FullAttackRange { get; }
         SkillCenterType SkillCenterType { get; }
+        Vector2 SkillCenter { get; }
     }
 }

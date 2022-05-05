@@ -27,6 +27,5 @@ MonoBehaviour:
   defaultDamagedDuration: 0.25
   damagedDurations: []
   exitTimeToIdle: 0.85
-  defaultDieDuration: 0.25
-  dieDurations: []
+  dieStartDuration: 0.25
   defaultDuration: 0.25

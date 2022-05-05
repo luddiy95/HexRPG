@@ -20,36 +20,33 @@ namespace HexRPG.Battle
         public float defaultLocomotionDuration = 0.25f;
         public List<LocomotionDurationData> locomotionDurations = new List<LocomotionDurationData>();
 
+        [Serializable]
+        public class ClipDurationData
+        {
+            public string clip;
+            public float duration;
+        }
+
         /// <summary>
         /// Move››, Damaged, Combat’†’f -> Idle‘JˆÚ‚ÌDuration
         /// ¦ Combat‚Ì’ÊíI—¹, SkillI—¹ -> Idle‘JˆÚ‚ÌDuration‚ÍTimelineClip‚©‚çŽæ“¾‚·‚é
         /// </summary>
-        [Serializable]
-        public class BackToIdleDurationData
-        {
-            public string clipBefore;
-            public float duration;
-        }
         public float defaultBackToIdleDuration = 0.25f;
-        public List<BackToIdleDurationData> backToIdleDurations = new List<BackToIdleDurationData>();
+        public List<ClipDurationData> backToIdleDurations = new List<ClipDurationData>();
 
         /// <summary>
         /// Idle, Move›› -> Combat, Skill‘JˆÚ‚ÌDuration
         /// </summary>
-        public float combatStartDuration = 0.25f;
-        public float skillStartDuration = 0.25f;
+        public float defaultCombatStartDuration = 0.25f;
+        public List<ClipDurationData> combatStartDurations = new List<ClipDurationData>();
+        public float defaultSkillStartDuration = 0.25f;
+        public List<ClipDurationData> skillStartDurations = new List<ClipDurationData>();
 
         /// <summary>
         /// ”CˆÓ‚ÌClip -> Damaged‘JˆÚ‚ÌDuration
         /// </summary>
-        [Serializable]
-        public class DamagedDurationData
-        {
-            public string clipBefore;
-            public float duration;
-        }
         public float defaultDamagedDuration = 0.25f;
-        public List<DamagedDurationData> damagedDurations = new List<DamagedDurationData>();
+        public List<ClipDurationData> damagedDurations = new List<ClipDurationData>();
 
         /// <summary>
         /// Damaged -> Idle‘JˆÚ‚ÌExitTime‚ÆDuration

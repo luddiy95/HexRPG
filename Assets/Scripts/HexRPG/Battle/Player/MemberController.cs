@@ -50,10 +50,13 @@ namespace HexRPG.Battle.Player
         async UniTask IMemberController.SpawnAllMember(CancellationToken token)
         {
             _memberList = _memberFactories.Select(factory => factory.Create(_transformController.SpawnRootTransform("Member"), Vector3.zero)).ToArray();
+
+            Array.ForEach(_memberList, member => member.SkillSpawnController.Spawn(_transformController.SpawnRootTransform("Skill")));
             // 全てのCombat/Skillが生成されるのを待つ
             await UniTask.WaitUntil(
                 () => _memberList.All(member => member.CombatSpawnObservable.isCombatSpawned && member.SkillSpawnObservable.IsAllSkillSpawned),
                 cancellationToken: token);
+
             // 各MemberのAnimationBehaviour初期化(MemberのAnimator, Combat, Skillが必要)
             Array.ForEach(_memberList, member => member.AnimationController.Init());
         }

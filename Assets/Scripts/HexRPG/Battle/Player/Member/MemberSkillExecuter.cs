@@ -11,7 +11,7 @@ namespace HexRPG.Battle.Player.Member
     using Stage;
     using Battle.Skill;
 
-    public class MemberSkillExecuter : ISkillSpawnObservable, ISkillController, IInitializable
+    public class MemberSkillExecuter : ISkillSpawnController, ISkillSpawnObservable, ISkillController
     {
         IMemberComponentCollection _memberOwner;
         ITransformController _transformController;
@@ -40,34 +40,22 @@ namespace HexRPG.Battle.Player.Member
             _skillsSetting = skillsSetting;
         }
 
-        void IInitializable.Initialize()
+        void ISkillSpawnController.Spawn(Transform root)
         {
             _skillList = _skillFactories.Select((factory, index) => {
-                ISkillComponentCollection skillOwner = factory.Create(_transformController.SpawnRootTransform("Skill"), Vector3.zero);
-                skillOwner.Skill.Init(_skillsSetting.Skills[index].Timeline, _memberOwner, _memberOwner.AnimationController);
+                ISkillComponentCollection skillOwner = factory.Create(root, Vector3.zero);
+                var skill = _skillsSetting.Skills[index];
+                skillOwner.Skill.Init(skill.Timeline, skill.ActivationBindingMap, _memberOwner, _memberOwner.AnimationController);
                 return skillOwner;
             }).ToArray();
             _isAllSkillSpawned = true;
         }
 
-        ISkillComponentCollection ISkillController.StartSkill(int index, Hex landedHex, int skillRotation)
+        ISkillComponentCollection ISkillController.StartSkill(int index, Hex skillCenter, int skillRotation)
         {
             var runningSkill = _skillList[index];
 
             _mental.Update(-runningSkill.SkillSetting.MPcost);
-
-            var skillCenter = landedHex;
-            switch (runningSkill.Skill.SkillCenterType)
-            {
-                case Playable.SkillCenterType.SELF:
-                    // é©ï™é©êgÇÃèÍçálandedHexÇÃÇ‹Ç‹Ç≈ó«Ç¢
-                    break;
-                case Playable.SkillCenterType.NEAREST_ENEMY:
-                    // é©ï™Ç©ÇÁç≈Ç‡ãﬂÇ¢ìG
-                    break;
-                default:
-                    break;
-            }
 
             runningSkill.Skill.StartSkill(skillCenter, skillRotation);
 

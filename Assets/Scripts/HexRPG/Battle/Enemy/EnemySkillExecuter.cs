@@ -1,4 +1,3 @@
-using HexRPG.Battle.Skill;
 using HexRPG.Battle.Stage;
 using System;
 using System.Linq;
@@ -9,12 +8,17 @@ using UnityEngine;
 
 namespace HexRPG.Battle.Enemy
 {
+    using Skill;
+
     public class EnemySkillExecuter : ISkillSpawnObservable, ISkillController, ISkillObservable, IInitializable, IDisposable
     {
+        IStageController _stageController;
+        IBattleObservable _battleObservable;
         IEnemyComponentCollection _enemyOwner;
         ITransformController _transformController;
         List<SkillOwner.Factory> _skillFactories;
         ISkillsSetting _skillsSetting;
+        IAttackReserve _attackReserve;
 
         ISkillComponentCollection[] ISkillSpawnObservable.SkillList => _skillList;
         ISkillComponentCollection[] _skillList;
@@ -22,6 +26,8 @@ namespace HexRPG.Battle.Enemy
         bool ISkillSpawnObservable.IsAllSkillSpawned => _isAllSkillSpawned;
         bool _isAllSkillSpawned = false;
 
+        IObservable<Unit> ISkillObservable.OnStartReservation => null;
+        IObservable<Unit> ISkillObservable.OnFinishReservation => null;
         IObservable<Hex[]> ISkillObservable.OnSkillAttack => null;
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
@@ -30,23 +36,31 @@ namespace HexRPG.Battle.Enemy
         CompositeDisposable _disposables = new CompositeDisposable();
 
         public EnemySkillExecuter(
+            IStageController stageController1,
+            IBattleObservable battleObservable,
             IEnemyComponentCollection enemyOwner,
             ITransformController transformController,
             List<SkillOwner.Factory> skillFactories,
-            ISkillsSetting skillsSetting
+            ISkillsSetting skillsSetting,
+            IStageController stageController,
+            IAttackReserve attackReservation
         )
         {
+            _stageController = stageController;
+            _battleObservable = battleObservable;
             _enemyOwner = enemyOwner;
             _transformController = transformController;
             _skillFactories = skillFactories;
             _skillsSetting = skillsSetting;
+            _attackReserve = attackReservation;
         }
 
         void IInitializable.Initialize()
         {
             _skillList = _skillFactories.Select((factory, index) => {
                 ISkillComponentCollection skillOwner = factory.Create(_transformController.SpawnRootTransform("Skill"), Vector3.zero);
-                skillOwner.Skill.Init(_skillsSetting.Skills[index].Timeline, _enemyOwner, _enemyOwner.AnimationController);
+                var skill = _skillsSetting.Skills[index];
+                skillOwner.Skill.Init(skill.Timeline, skill.ActivationBindingMap, _enemyOwner, _enemyOwner.AnimationController);
                 return skillOwner;
             }).ToArray();
             _isAllSkillSpawned = true;
@@ -56,28 +70,41 @@ namespace HexRPG.Battle.Enemy
         {
             var runningSkill = _skillList[index];
 
+            var skill = runningSkill.Skill;
+            var skillCenter = _transformController.GetLandedHex();
+            switch (skill.SkillCenterType)
+            {
+                case SkillCenterType.SELF:
+                    // 自分自身の場合landedHexのままで良い
+                    break;
+                case SkillCenterType.PLAYER:
+                    skillCenter = _battleObservable.PlayerLandedHex;
+                    skillRotation = _transformController.GetLookRotationAngleY(_battleObservable.PlayerLandedHex.transform.position);
+                    break;
+                default:
+                    break;
+            }
+
+            var curAttackIndicateHexList =
+                _stageController.GetHexList(
+                    skillCenter,
+                    skill.FullAttackRange,
+                    _transformController.DefaultRotation + _transformController.RotationAngle + skillRotation);
+
             _disposables.Clear();
             runningSkill.SkillObservable.OnFinishSkill
                 .Subscribe(_ =>
                 {
                     _onFinishSkill.OnNext(Unit.Default);
                 }).AddTo(_disposables);
+            runningSkill.SkillObservable.OnStartReservation
+                .Subscribe(_ => _attackReserve.StartAttackReservation(curAttackIndicateHexList, _enemyOwner))
+                .AddTo(_disposables);
+            runningSkill.SkillObservable.OnFinishReservation
+                .Subscribe(_ => _attackReserve.FinishAttackReservation())
+                .AddTo(_disposables);
 
-            var skillCenter = _transformController.GetLandedHex();
-            skillRotation = 0; //TODO: skillRotationどうする？
-            switch (runningSkill.Skill.SkillCenterType)
-            {
-                case Playable.SkillCenterType.SELF:
-                    // 自分自身の場合landedHexのままで良い
-                    break;
-                case Playable.SkillCenterType.PLAYER:
-                    //TODO: Playerの位置にする
-                    break;
-                default:
-                    break;
-            }
-
-            runningSkill.Skill.StartSkill(skillCenter, 0);
+            skill.StartSkill(skillCenter, _transformController.DefaultRotation + _transformController.RotationAngle + skillRotation);
 
             return runningSkill;
         }

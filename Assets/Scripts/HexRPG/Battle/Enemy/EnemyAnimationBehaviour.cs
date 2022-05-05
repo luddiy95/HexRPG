@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.Playables;
-using UniRx;
 using UnityEngine;
+using UnityEngine.Playables;
+using UnityEngine.Animations;
+using UniRx;
+using UnityEditor;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -42,7 +44,8 @@ namespace HexRPG.Battle.Enemy
 
             //TODO: ‰¼
             _animationTypeMap.Add(_playables[0].GetAnimationClip().name, AnimationType.Idle);
-            _animationTypeMap.Add(_playables[1].GetAnimationClip().name, AnimationType.Die);
+            _animationTypeMap.Add(_playables[1].GetAnimationClip().name, AnimationType.Damaged);
+            _animationTypeMap.Add(_playables[2].GetAnimationClip().name, AnimationType.Die);
 
             SetupDieAnimation();
 
@@ -119,8 +122,23 @@ namespace HexRPG.Battle.Enemy
                     return;
                 }
 
+                // Damaged
+                var isDamagedClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Damaged);
+                if (isDamagedClip)
+                {
+                    TokenCancel();
+
+                    if (_curSkill != null) FinishSkill();
+
+                    if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                    return;
+                }
+
                 // Die
-                var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);
+                var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out type) && type == AnimationType.Die);
                 if (isDieClip)
                 {
                     TokenCancel();
@@ -133,5 +151,44 @@ namespace HexRPG.Battle.Enemy
                 }
             }
         }
+
+#if UNITY_EDITOR
+
+        public override void SetupDamaged()
+        {
+            _graph = PlayableGraph.Create();
+            _playables = _clips.Select(clip => AnimationClipPlayable.Create(_graph, clip)).ToList();
+            var damagedClip = _playables.First(playable => playable.GetAnimationClip().name == "Damaged").GetAnimationClip();
+            var damagedToIdleEvent = new AnimationEvent[] {
+                new AnimationEvent()
+                {
+                    time = damagedClip.length * _durationData.exitTimeToIdle,
+                    functionName = "FadeToIdle"
+                }
+            };
+            AnimationUtility.SetAnimationEvents(damagedClip, damagedToIdleEvent);
+            _graph.Destroy();
+        }
+
+        [CustomEditor(typeof(EnemyAnimationBehaviour))]
+        public class MemberAnimationBehaviourInspector : Editor
+        {
+            private void OnEnable()
+            {
+            }
+
+            private void OnDisable()
+            {
+            }
+
+            public override void OnInspectorGUI()
+            {
+                base.OnInspectorGUI();
+
+                ((EnemyAnimationBehaviour)target).OnInspectorGUI();
+            }
+        }
+
+#endif
     }
 }

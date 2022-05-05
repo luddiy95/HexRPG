@@ -82,14 +82,16 @@ namespace HexRPG.Battle
                     var landedHex = _transformController.GetLandedHex();
                     foreach (var attackApplicator in landedHex.AttackApplicatorList)
                     {
+                        if (attackApplicator.AttackOrigin == _damagedOwner) continue;
                         DoHit(attackApplicator);
                     }
 
                     //TODO: テストコード
                     if (Input.GetKeyDown(KeyCode.D))
                     {
-                        //if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-1000);
                         _onHit.OnNext(new HitData());
+                        //if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-1000000);
+                        //if (_damagedOwner is IEnemyComponentCollection enemyOwner) enemyOwner.Health.Update(-1000000000);
                     }
                 })
                 .AddTo(this);
@@ -110,13 +112,14 @@ namespace HexRPG.Battle
                 Damage = attackApplicator.CurrentSetting.Power
             };
 
-            //TODO: 【ここから】IPlayerComponentCollectionじゃなくてIMemberComponentCollectionじゃない？(現在DamagedBehaviourがPlayerにアタッチされているが各Memberじゃない？)
-            if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-hitData.Damage);
-            if (_damagedOwner is IEnemyComponentCollection enemyOwner) enemyOwner.Health.Update(-hitData.Damage);
-
             // コールバック
             _onHit.OnNext(hitData);
             attackApplicator.NotifyAttackHit(hitData);
+
+            //TODO: 【ここから】IPlayerComponentCollectionじゃなくてIMemberComponentCollectionじゃない？(現在DamagedBehaviourがPlayerにアタッチされているが各Memberじゃない？)
+            //TODO: EnemyはCombatが存在しないからAttackEnableはHex経由だけのためColliderがいらない->Playerにアタッチされている？
+            if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-hitData.Damage);
+            if (_damagedOwner is IEnemyComponentCollection enemyOwner) enemyOwner.Health.Update(-hitData.Damage);
         }
     }
 

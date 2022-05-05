@@ -1,3 +1,4 @@
+using UnityEngine;
 
 namespace HexRPG.Battle
 {
@@ -6,6 +7,6 @@ namespace HexRPG.Battle
 
     public interface ISkillController
     {
-        ISkillComponentCollection StartSkill(int index, Hex landedHex = null, int skillRotation = 0);
+        ISkillComponentCollection StartSkill(int index, Hex skillCenter = null, int skillRotation = 0);
     }
 }

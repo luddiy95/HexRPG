@@ -22,12 +22,12 @@ namespace HexRPG.Battle.Enemy
             Container.BindInstance(_spawnPos).WhenInjectedInto<TransformBehaviour>();
 
             Container.BindInterfacesTo<ActionStateController>().AsSingle();
-            Container.BindInterfacesTo<EnemyActionStateController>().AsSingle();
 
             Container.BindInterfacesTo<EnemyMover>().AsSingle();
-            Container.BindInterfacesTo<EnemyTurnToPlayer>().AsSingle();
 
             Container.BindInterfacesTo<EnemySkillExecuter>().AsSingle();
+
+            Container.Bind<IAttackReserve>().To<AttackController>().AsSingle();
 
             Container.BindInterfacesTo<Health>().AsSingle();
 

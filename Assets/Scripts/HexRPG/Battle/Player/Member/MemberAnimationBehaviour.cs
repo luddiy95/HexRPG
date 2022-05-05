@@ -65,7 +65,7 @@ namespace HexRPG.Battle.Player.Member
             _animationTypeMap.Add("RotateRight", AnimationType.Rotate);
             _animationTypeMap.Add("RotateLeft", AnimationType.Rotate);
             //TODO: ‰¼
-            var playerRotateSpeed = 2f;
+            var playerRotateSpeed = 0.5f;
             int index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateRight");
             _playables[index].SetSpeed(playerRotateSpeed);
             index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateLeft");
@@ -250,8 +250,16 @@ namespace HexRPG.Battle.Player.Member
                 var timelineClipInfo = _curCombat.TimelineClipInfoList[i];
 
                 var fadeLength = 0f;
-                if (i == 0) fadeLength = _durationData.combatStartDuration;
-                else if (timelineClipInfo.BlendInDuration >= 0) fadeLength = (float)timelineClipInfo.BlendInDuration;
+                if (i == 0)
+                {
+                    fadeLength = _durationData.defaultCombatStartDuration;
+                    var combatStartDurationData = _durationData.combatStartDurations.FirstOrDefault(data => data.clip == _curCombat.CombatName);
+                    if (combatStartDurationData != null) fadeLength = combatStartDurationData.duration;
+                }
+                else if (timelineClipInfo.BlendInDuration >= 0)
+                {
+                    fadeLength = (float)timelineClipInfo.BlendInDuration;
+                }
 
                 var blendOutDuration = timelineClipInfo.BlendOutDuration;
                 if (blendOutDuration < 0) blendOutDuration = 0f;
@@ -344,12 +352,6 @@ namespace HexRPG.Battle.Player.Member
             };
             AnimationUtility.SetAnimationEvents(damagedClip, damagedToIdleEvent);
             _graph.Destroy();
-        }
-
-        public void FadeToIdle()
-        {
-            //TODO: DamagedI—¹’Ê’m
-            (this as IAnimationController).Play("Idle");
         }
 
         [CustomEditor(typeof(MemberAnimationBehaviour))]

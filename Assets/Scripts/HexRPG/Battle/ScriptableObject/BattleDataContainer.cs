@@ -13,7 +13,7 @@ namespace HexRPG.Battle
     [Serializable]
     public class BattleData
     {
-        [SerializeField] int _cameraRotateUnit;
+        [SerializeField] int _cameraRotateUnit; //TODO: もうこれ60で確定で良いんじゃない？(Skillあたりで60ほぼ確定で使っている)
         public int CameraRotateUnit => _cameraRotateUnit;
 
         [SerializeField] Material _hexPlayerLineMat;

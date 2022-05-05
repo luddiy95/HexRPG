@@ -11,8 +11,15 @@ namespace HexRPG.Battle
         void SetSpeed(Vector3 direction, float? speed = null);
         void Stop();
 
-        UniTaskVoid Rotate(int rotateAngle, float rotateTime);
+        // rotateAngleÇæÇØâÒì]ÇµÇƒÇŸÇµÇ¢
+        void Rotate(int rotateAngle, float eulerVelocity);
+        void FixTimeRotate(int rotateAngle, float rotateTime);
         void ForceRotate(int goalRotateAngle);
+        
+        // posÇÃï˚Ç÷å¸Ç≠ÇÊÇ§Ç…âÒì]ÇµÇƒÇŸÇµÇ¢
+        void LookRotate(Vector3 pos, float eulerVelocity);
+        void ForceLookRotate(Vector3 pos);
+
         void StopRotate();
 
         void SnapHexCenter();
@@ -45,8 +52,23 @@ namespace HexRPG.Battle
             Initialize();
         }
 
-        //! ê≥ïâÇ¬Ç´angleÇìnÇ∑Ç±Ç∆Ç≈âÒì]ï˚å¸ÇéwíËÇ≈Ç´ÇÈ
-        async UniTaskVoid ILocomotionController.Rotate(int rotateAngle, float rotateTime)
+        void ILocomotionController.Rotate(int rotateAngle, float eulerVelocity)
+        {
+            InternalRotate(rotateAngle, Mathf.Abs(rotateAngle) / eulerVelocity).Forget();
+        }
+
+        void ILocomotionController.FixTimeRotate(int rotateAngle, float rotateTime)
+        {
+            InternalRotate(rotateAngle, rotateTime).Forget();
+        }
+
+        void ILocomotionController.LookRotate(Vector3 pos, float eulerVelocity)
+        {
+            var rotateAngle = _transformController.GetLookRotationAngleY(pos);
+            InternalRotate(rotateAngle, Mathf.Abs(rotateAngle) / eulerVelocity).Forget();
+        }
+
+        async UniTaskVoid InternalRotate(int rotateAngle, float rotateTime)
         {
             float waitTime = Time.timeSinceLevelLoad + rotateTime;
             var startAngleY = _transformController.RotationAngle;
@@ -69,6 +91,7 @@ namespace HexRPG.Battle
                 }
             }, cancellationToken: _cancellationTokenSource.Token);
 
+            _transformController.RotationAngle = startAngleY + rotateAngle;
             TokenCancel();
             _onFinishRotate.OnNext(Unit.Default);
         }
@@ -76,6 +99,11 @@ namespace HexRPG.Battle
         void ILocomotionController.ForceRotate(int goalRotateAngle)
         {
             _transformController.RotationAngle = goalRotateAngle;
+        }
+
+        void ILocomotionController.ForceLookRotate(Vector3 pos)
+        {
+            _transformController.RotationAngle += _transformController.GetLookRotationAngleY(pos);
         }
 
         void ILocomotionController.StopRotate()

@@ -7,6 +7,7 @@ namespace HexRPG.Battle.Enemy
 {
     using static ActionStateType;
 
+    //TODO: å„Ç≈è¡Ç∑
     public class EnemyActionStateController : IInitializable, ITickable, IDisposable
     {
         IAnimationController _animationController;
