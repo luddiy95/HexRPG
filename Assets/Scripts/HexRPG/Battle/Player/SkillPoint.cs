@@ -4,7 +4,7 @@ using Zenject;
 
 namespace HexRPG.Battle.Player
 {
-    public interface IMental
+    public interface ISkillPoint
     {
         int Max { get; }
 
@@ -13,22 +13,22 @@ namespace HexRPG.Battle.Player
         void Update(int cv);
     }
 
-    public interface IMentalSetting
+    public interface ISkillPointSetting
     {
         int Max { get; }
     }
 
-    public class Mental : IMental, IInitializable
+    public class SkillPoint : ISkillPoint, IInitializable
     {
-        IMentalSetting _setting;
+        ISkillPointSetting _setting;
 
-        int IMental.Max => _max;
+        int ISkillPoint.Max => _max;
         int _max;
 
-        IReadOnlyReactiveProperty<int> IMental.Current => _current;
+        IReadOnlyReactiveProperty<int> ISkillPoint.Current => _current;
         readonly ReactiveProperty<int> _current = new ReactiveProperty<int>();
 
-        public Mental(IMentalSetting setting)
+        public SkillPoint(ISkillPointSetting setting)
         {
             _setting = setting;
         }
@@ -39,7 +39,7 @@ namespace HexRPG.Battle.Player
             _current.Value = _setting.Max;
         }
 
-        void IMental.Update(int cv)
+        void ISkillPoint.Update(int cv)
         {
             int value = 0;
             if (cv < 0) value = Mathf.Max(0, _current.Value + cv);

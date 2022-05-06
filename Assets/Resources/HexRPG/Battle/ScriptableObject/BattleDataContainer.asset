@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _data:
     _cameraRotateUnit: 60
+    _iconMemberBackgroundDefault: {fileID: 2100000, guid: 743af17a88a94944d8e5d60189167f10, type: 2}
+    _iconMemberBackgroundSelected: {fileID: 2100000, guid: 4c8311565364a0c4ea0f98681d4ccf3f, type: 2}
     _hexPlayerLineMat: {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
     _hexDefaultMat: {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
     _hexAttackIndicatedMat: {fileID: 2100000, guid: fd1f4f7c68e13a14b93550e4bd264e4a, type: 2}

@@ -13,9 +13,17 @@ namespace HexRPG.Battle
     [Serializable]
     public class BattleData
     {
+        // Camera
         [SerializeField] int _cameraRotateUnit; //TODO: もうこれ60で確定で良いんじゃない？(Skillあたりで60ほぼ確定で使っている)
         public int CameraRotateUnit => _cameraRotateUnit;
 
+        // HUD
+        [SerializeField] Material _iconMemberBackgroundDefault;
+        public Material IconMemberBackgroundDefault => _iconMemberBackgroundDefault;
+        [SerializeField] Material _iconMemberBackgroundSelected;
+        public Material IconMemberBackgroundSelected => _iconMemberBackgroundSelected;
+
+        // Hex
         [SerializeField] Material _hexPlayerLineMat;
         public Material HexPlayerLineMat => _hexPlayerLineMat;
 

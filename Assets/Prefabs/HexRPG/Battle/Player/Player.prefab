@@ -209,6 +209,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _party:
   - {fileID: 5075132376415686598, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
+  - {fileID: 2144534376861598438, guid: a4f1b52cc0d0e1a40b03c0ec1f6dc8d1, type: 3}
 --- !u!54 &211437006838392619
 Rigidbody:
   m_ObjectHideFlags: 0

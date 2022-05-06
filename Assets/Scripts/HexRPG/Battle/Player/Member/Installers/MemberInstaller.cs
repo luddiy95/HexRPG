@@ -34,8 +34,8 @@ namespace HexRPG.Battle.Player.Member
             Container.BindInterfacesTo<MemberCombatExecuter>().AsSingle();
             Container.BindInterfacesTo<MemberSkillExecuter>().AsSingle();
 
-            Container.BindInterfacesTo<Mental>().AsSingle();
             Container.BindInterfacesTo<Health>().AsSingle();
+            Container.BindInterfacesTo<SkillPoint>().AsSingle();
 
             Container.BindFactory<Transform, Vector3, CombatOwner, CombatOwner.Factory>()
                 .FromSubContainerResolve()

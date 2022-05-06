@@ -20,13 +20,19 @@ public class ObservableTest : MonoBehaviour
     
     readonly Subject<Test> _value = new Subject<Test>();
 
-    public IObservable<int> Integer => _integer;
-    readonly ISubject<int> _integer = new Subject<int>();
+    public IReadOnlyReactiveProperty<int> Integer => _integer;
+    readonly IReactiveProperty<int> _integer = new ReactiveProperty<int>();
+
+    //public IObservable<int> Integer => _integer;
+    //readonly ISubject<int> _integer = new Subject<int>();
 
     private void Awake()
     {
         _value.OnNext(new Test(0));
         //_value.Value = new Test(0);
+
+        //_integer.OnNext(8);
+        _integer.Value = 8;
     }
 
     private void Start()
@@ -34,9 +40,15 @@ public class ObservableTest : MonoBehaviour
         _value.OnNext(new Test(1));
         //_value.Value = new Test(1);
 
+        /*
         _integer.OnNext(0);
         _integer.OnNext(0);
         _integer.OnNext(0);
         _integer.OnNext(1);
+        */
+        _integer.Value = 0;
+        _integer.Value = 0;
+        _integer.Value = 0;
+        _integer.Value = 1;
     }
 }

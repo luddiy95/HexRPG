@@ -61,7 +61,7 @@ GameObject:
   - component: {fileID: 7545401889667936583}
   - component: {fileID: 1748735777603464265}
   - component: {fileID: 2246625183502063573}
-  - component: {fileID: 4714491127713605631}
+  - component: {fileID: 6676605738343485802}
   - component: {fileID: 1473276372942028488}
   - component: {fileID: 8909680073724217074}
   - component: {fileID: 8761299872914069485}
@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _collider: {fileID: 0}
---- !u!114 &4714491127713605631
+--- !u!114 &6676605738343485802
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -159,7 +159,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3385965354734054584}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b5104451330fa640a8a5bc6bb5aba35, type: 3}
+  m_Script: {fileID: 11500000, guid: 6e9bec7793a977a4397a255de579d332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _gameObject: {fileID: 0}
@@ -236,7 +236,7 @@ MonoBehaviour:
   _moveSpeed: 4
   _rotateSpeed: 4
   _healthMax: 100
-  _mentalMax: 100
+  _skillPointMax: 0
   _dieTimeline: {fileID: 0}
 --- !u!114 &7310130128193326296
 MonoBehaviour:
@@ -252,7 +252,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _components:
   - {fileID: 2246625183502063573}
-  - {fileID: 4714491127713605631}
+  - {fileID: 6676605738343485802}
   - {fileID: 1473276372942028488}
   - {fileID: 8909680073724217074}
   - {fileID: 8761299872914069485}

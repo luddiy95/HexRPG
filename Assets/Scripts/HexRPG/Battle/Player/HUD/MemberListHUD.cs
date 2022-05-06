@@ -6,18 +6,21 @@ namespace HexRPG.Battle.Player.HUD
 
     public class MemberListHUD : MonoBehaviour, ICharacterHUD
     {
-        [SerializeField] Transform _memberStatusList;
-
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
             if (chara is IPlayerComponentCollection playerOwner)
             {
+                // ŠeMemberHud‚ÖBind
                 var memberList = playerOwner.MemberObservable.MemberList;
-
-                for (int i = 0; i < _memberStatusList.childCount; i++)
+                for (int i = 0; i < transform.childCount; i++)
                 {
-                    if (i > memberList.Length - 1) continue;
-                    if(_memberStatusList.GetChild(i).TryGetComponent(out ICharacterHUD hud))
+                    var child = transform.GetChild(i);
+                    if (i > memberList.Length - 1)
+                    {
+                        child.gameObject.SetActive(false);
+                        continue;
+                    }
+                    if(child.TryGetComponent(out ICharacterHUD hud))
                     {
                         hud.Bind(memberList[i]);
                     }

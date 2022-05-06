@@ -10,20 +10,23 @@ public class ObserverTest : MonoBehaviour
     void Awake()
     {
         //Debug.Log(_observable.Value.Value);
+        /*
         _observable.Value
             .Subscribe(value =>
             {
                 Debug.Log(value.test);
             })
             .AddTo(this);
+        */
+    }
 
-        /*
+    private void Start()
+    {
         _observable.Integer
             .Subscribe(value =>
             {
                 Debug.Log(value);
             })
             .AddTo(this);
-        */
     }
 }

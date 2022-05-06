@@ -3,12 +3,12 @@ using UnityEngine.Playables;
 
 namespace HexRPG.Battle.Player.Member
 {
-    public class MemberSetting : MonoBehaviour, IMoveSetting, IHealthSetting, IMentalSetting, IDieSetting, IProfileSetting
+    public class MemberSetting : MonoBehaviour, IMoveSetting, IHealthSetting, ISkillPointSetting, IDieSetting, IProfileSetting
     {
         float IMoveSetting.MoveSpeed => _moveSpeed;
         float IMoveSetting.RotateSpeed => _rotateSpeed;
         int IHealthSetting.Max => _healthMax;
-        int IMentalSetting.Max => _mentalMax;
+        int ISkillPointSetting.Max => _skillPointMax;
         PlayableAsset IDieSetting.Timeline => _dieTimeline;
         string IProfileSetting.Name => _name;
         Sprite IProfileSetting.Icon => _icon;
@@ -23,8 +23,8 @@ namespace HexRPG.Battle.Player.Member
         [SerializeField] float _rotateSpeed;
         [Header("Health’l")]
         [SerializeField] int _healthMax;
-        [Header("Mental’l")]
-        [SerializeField] int _mentalMax;
+        [Header("SkillPoint")]
+        [SerializeField] int _skillPointMax;
         [Header("Ž€‚Ê‚Æ‚«‚ÌTimeline")]
         [SerializeField] PlayableAsset _dieTimeline;
     }

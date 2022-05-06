@@ -14,7 +14,7 @@ namespace HexRPG.Battle.Player.Member
     public class MemberSkillExecuter : ISkillSpawnController, ISkillSpawnObservable, ISkillController
     {
         IMemberComponentCollection _memberOwner;
-        IMental _mental;
+        ISkillPoint _skillPoint;
         List<SkillOwner.Factory> _skillFactories;
         ISkillsSetting _skillsSetting;
 
@@ -26,13 +26,13 @@ namespace HexRPG.Battle.Player.Member
 
         public MemberSkillExecuter(
             IMemberComponentCollection memberOwner,
-            IMental mental,
+            ISkillPoint skillPoint,
             List<SkillOwner.Factory> skillFactories,
             ISkillsSetting skillsSetting
         )
         {
             _memberOwner = memberOwner;
-            _mental = mental;
+            _skillPoint = skillPoint;
             _skillFactories = skillFactories;
             _skillsSetting = skillsSetting;
         }
@@ -52,7 +52,7 @@ namespace HexRPG.Battle.Player.Member
         {
             var runningSkill = _skillList[index];
 
-            _mental.Update(-runningSkill.SkillSetting.MPcost);
+            _skillPoint.Update(-runningSkill.SkillSetting.Cost);
 
             runningSkill.Skill.StartSkill(skillCenter, skillRotation);
 

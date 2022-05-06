@@ -12,9 +12,6 @@ namespace HexRPG.Battle.HUD
         [Header("MemberのHUD実装オブジェクト")]
         [SerializeField] GameObject _memberList;
 
-        [Header("EnemyのHUD実装オブジェクト")]
-        [SerializeField] GameObject _enemyStatus;
-
         [Inject]
         public void Construct(IBattleObservable battleObservable)
         {
@@ -28,14 +25,6 @@ namespace HexRPG.Battle.HUD
             {
                 _battleObservable.OnPlayerSpawn
                     .Subscribe(playerOwner => hud.Bind(playerOwner))
-                    .AddTo(this);
-            });
-
-            var enemyHUD = _enemyStatus.GetComponents<ICharacterHUD>();
-            Array.ForEach(enemyHUD, hud =>
-            {
-                _battleObservable.OnEnemySpawn
-                    .Subscribe(enemyOwner => hud.Bind(enemyOwner))
                     .AddTo(this);
             });
         }

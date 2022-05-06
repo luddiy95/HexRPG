@@ -13,11 +13,8 @@ namespace HexRPG.Battle.UI
         [SerializeField] GameObject _combatBtn;
         [Header("SkillのUI実装オブジェクト")]
         [SerializeField] GameObject _skillList;
-        [Header("MemberのUI実装オブジェクト")]
-        [SerializeField] GameObject _memberList;
         ICharacterUI _combatUI;
         ICharacterUI _skillListUI;
-        ICharacterUI _memberListUI;
 
         [Inject]
         public void Construct(
@@ -30,8 +27,7 @@ namespace HexRPG.Battle.UI
         void Start()
         {
             if(_combatBtn.TryGetComponent(out _combatUI) && 
-                _skillList.TryGetComponent(out _skillListUI) && 
-                _memberList.TryGetComponent(out _memberListUI))
+                _skillList.TryGetComponent(out _skillListUI))
             {
                 _battleObservable.OnPlayerSpawn
                     .Subscribe(playerOwner =>
@@ -39,8 +35,7 @@ namespace HexRPG.Battle.UI
                         new List<ICharacterUI>
                         {
                             _combatUI,
-                            _skillListUI,
-                            _memberListUI
+                            _skillListUI
                         }
                         .ForEach(ui =>
                         {

@@ -10,17 +10,22 @@ namespace HexRPG.Battle
     public class ActiveBehaviour : MonoBehaviour, IActiveController
     {
         [Header("表示を操作したいオブジェクト。nullならこのオブジェクト。")]
-        [SerializeField] GameObject _gameObject;
+        [SerializeField] protected GameObject _gameObject;
 
         void Start()
         {
             if (_gameObject == null) _gameObject = gameObject;
 
             //! 最初は非表示
-            (this as IActiveController).SetActive(false);
+            SetActive(false);
         }
 
         void IActiveController.SetActive(bool visible)
+        {
+            SetActive(visible);
+        }
+
+        protected virtual void SetActive(bool visible)
         {
             _gameObject.SetActive(visible);
         }

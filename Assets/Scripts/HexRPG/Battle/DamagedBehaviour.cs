@@ -90,7 +90,7 @@ namespace HexRPG.Battle
                     if (Input.GetKeyDown(KeyCode.D))
                     {
                         _onHit.OnNext(new HitData());
-                        //if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-1000000);
+                        if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-1000000);
                         //if (_damagedOwner is IEnemyComponentCollection enemyOwner) enemyOwner.Health.Update(-1000000000);
                     }
                 })
