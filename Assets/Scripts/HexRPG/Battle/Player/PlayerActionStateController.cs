@@ -244,8 +244,9 @@ namespace HexRPG.Battle.Player
                 .Skip(1)
                 .Subscribe(index =>
                 {
-                    if (index > _memberObservable.CurMember.Value.SkillSpawnObservable.SkillList.Length - 1) return;
-                    //TODO: MPやチャージ状態を見て選択可能か判断(UIにも反映)、実行できないSkillはそもそも選択できないようにする
+                    var skillList = _memberObservable.CurMember.Value.SkillSpawnObservable.SkillList;
+                    if (index > skillList.Length - 1) return;
+                    if (skillList[index].SkillSetting.Cost > _memberObservable.CurMember.Value.SkillPoint.Current.Value) return;
                     _actionStateController.Execute(new Command { Id = "skillSelect" });
                 })
                 .AddTo(_disposables);

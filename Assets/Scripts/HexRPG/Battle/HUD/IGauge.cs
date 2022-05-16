@@ -3,7 +3,7 @@ namespace HexRPG.Battle.HUD
 {
     public interface IGauge
     {
-        int Amount { set; }
+        void Set(int amount);
         void Init(int maxAmount);
     }
 }

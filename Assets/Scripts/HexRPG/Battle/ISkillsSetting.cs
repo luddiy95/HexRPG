@@ -16,6 +16,9 @@ namespace HexRPG.Battle
         public GameObject Prefab => _prefab;
         [SerializeField] GameObject _prefab;
 
+        public int Cost => _cost;
+        [SerializeField] int _cost;
+
         public PlayableAsset Timeline => _timeline;
         [SerializeField] PlayableAsset _timeline;
 

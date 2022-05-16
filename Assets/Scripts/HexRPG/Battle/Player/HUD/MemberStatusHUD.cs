@@ -16,7 +16,7 @@ namespace HexRPG.Battle.Player.HUD
         [SerializeField] Image _background;
         [SerializeField] Image _icon; 
         [SerializeField] GameObject _healthGauge;
-        [SerializeField] Text _skillPoint;
+        [SerializeField] GameObject _skillPointHUD;
         [SerializeField] Transform _skillList;
         [SerializeField] GameObject _btnChange;
 
@@ -36,13 +36,10 @@ namespace HexRPG.Battle.Player.HUD
                 _icon.sprite = memberOwner.ProfileSetting.Icon;
 
                 // HealthGauge
-                var healthGauge = _healthGauge.GetComponent<ICharacterHUD>();
-                healthGauge.Bind(chara);
+                _healthGauge.GetComponent<ICharacterHUD>().Bind(chara);
 
                 // SkillPoint
-                memberOwner.SkillPoint.Current
-                    .Subscribe(sp => _skillPoint.text = sp.ToString())
-                    .AddTo(this);
+                _skillPointHUD.GetComponent<ICharacterHUD>().Bind(chara);
 
                 // SkillList
                 var skillList = memberOwner.SkillSpawnObservable.SkillList;
@@ -66,12 +63,10 @@ namespace HexRPG.Battle.Player.HUD
                         if (isSelected)
                         {
                             _background.material = _battleData.IconMemberBackgroundSelected;
-                            transform.localScale = Vector3.one * 1.2f;
                         }
                         else
                         {
                             _background.material = _battleData.IconMemberBackgroundDefault;
-                            transform.localScale = Vector3.one;
                         }
                         _btnChange.SetActive(!isSelected);
                     })

@@ -53762,6 +53762,10 @@ PrefabInstance:
       propertyPath: m_ExposedReferences.m_References.Array.data[1].second
       value: 
       objectReference: {fileID: 5082739448436871567}
+    - target: {fileID: 3505504371383799877, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+      propertyPath: _cost
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 5426194334740280399, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
       propertyPath: m_Name
       value: Fire

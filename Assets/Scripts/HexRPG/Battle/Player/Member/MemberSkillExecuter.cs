@@ -43,6 +43,7 @@ namespace HexRPG.Battle.Player.Member
                 ISkillComponentCollection skillOwner = factory.Create(root, Vector3.zero);
                 var skill = _skillsSetting.Skills[index];
                 skillOwner.Skill.Init(skill.Timeline, skill.ActivationBindingMap, _memberOwner, _memberOwner.AnimationController);
+                skillOwner.SkillSetting.SetCost(skill.Cost);
                 return skillOwner;
             }).ToArray();
             _isAllSkillSpawned = true;

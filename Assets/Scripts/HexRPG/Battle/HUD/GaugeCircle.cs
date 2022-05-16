@@ -8,25 +8,20 @@ namespace HexRPG.Battle.HUD
         [SerializeField] bool isClockwiseDecrease; // å∏è≠Ç∑ÇÈÇ∆Ç´Ç…ÉQÅ[ÉWÇéûåvâÒÇËÇ…âÒÇ∑Ç©
 
         protected int _maxAmount;
-        protected int _amount;
-        int IGauge.Amount
+        void IGauge.Set(int amount)
         {
-            set
-            {
-                _amount = value;
 
-                if (_amount < 0) _amount = 0;
-                if (_amount > _maxAmount) _amount = _maxAmount;
+                if (amount < 0) amount = 0;
+                if (amount > _maxAmount) amount = _maxAmount;
 
                 var rotateDir = isClockwiseDecrease ? -1 : 1;
-                _gauge.rotation = Quaternion.Euler(0, 0, rotateDir * 90f * (_maxAmount - _amount) / _maxAmount);
-            }
+        _gauge.rotation = Quaternion.Euler(0, 0, rotateDir* 90f * (_maxAmount - amount) / _maxAmount);
         }
 
         void IGauge.Init(int maxAmount)
         {
             _maxAmount = maxAmount;
-            _amount = maxAmount;
+            (this as IGauge).Set(maxAmount);
         }
     }
 }

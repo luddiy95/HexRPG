@@ -17,10 +17,10 @@ namespace HexRPG.Battle.HUD
         protected void SetGauge(int max, int amount)
         {
             _gauge.Init(max);
-            _gauge.Amount = amount;
+            _gauge.Set(amount);
         }
 
-        protected void UpdateAmount(int amount) => _gauge.Amount = amount;
+        protected void UpdateAmount(int amount) => _gauge.Set(amount);
 
         #endregion
     }
