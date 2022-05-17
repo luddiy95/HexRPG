@@ -1,8 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System;
-using UniRx;
-using Zenject;
 
 namespace HexRPG.Battle.Player.HUD
 {
@@ -11,22 +8,11 @@ namespace HexRPG.Battle.Player.HUD
 
     public class MemberStatusHUD : MonoBehaviour, ICharacterHUD
     {
-        BattleData _battleData;
-
-        [SerializeField] Image _background;
         [SerializeField] Image _icon; 
         [SerializeField] GameObject _healthGauge;
         [SerializeField] GameObject _skillPointHUD;
         [SerializeField] Transform _skillList;
         [SerializeField] GameObject _btnChange;
-
-        [Inject]
-        public void Construct(
-            BattleData battleData
-        )
-        {
-            _battleData = battleData;
-        }
 
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
@@ -55,22 +41,6 @@ namespace HexRPG.Battle.Player.HUD
                     child.GetChild(0).GetComponent<Image>().sprite = skillSetting.Icon;
                     child.GetChild(1).GetComponent<Text>().text = skillSetting.Cost.ToString();
                 }
-
-                // CurMember?
-                memberOwner.SelectedObservable.IsSelected
-                    .Subscribe(isSelected =>
-                    {
-                        if (isSelected)
-                        {
-                            _background.material = _battleData.IconMemberBackgroundSelected;
-                        }
-                        else
-                        {
-                            _background.material = _battleData.IconMemberBackgroundDefault;
-                        }
-                        _btnChange.SetActive(!isSelected);
-                    })
-                    .AddTo(this);
             }
         }
     }
