@@ -11,7 +11,6 @@ namespace HexRPG.Battle.Player.HUD
         [SerializeField] Image _icon; 
         [SerializeField] GameObject _healthGauge;
         [SerializeField] GameObject _skillPointHUD;
-        [SerializeField] Transform _skillList;
         [SerializeField] GameObject _btnChange;
 
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
@@ -28,6 +27,7 @@ namespace HexRPG.Battle.Player.HUD
                 _skillPointHUD.GetComponent<ICharacterHUD>().Bind(chara);
 
                 // SkillList
+                /*
                 var skillList = memberOwner.SkillSpawnObservable.SkillList;
                 for (int i = 0; i < _skillList.childCount; i++)
                 {
@@ -41,6 +41,7 @@ namespace HexRPG.Battle.Player.HUD
                     child.GetChild(0).GetComponent<Image>().sprite = skillSetting.Icon;
                     child.GetChild(1).GetComponent<Text>().text = skillSetting.Cost.ToString();
                 }
+                */
             }
         }
     }

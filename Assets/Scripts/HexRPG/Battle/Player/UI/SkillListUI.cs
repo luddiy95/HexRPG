@@ -14,19 +14,21 @@ namespace HexRPG.Battle.Player.UI
     {
         [SerializeField] Transform _skillBtnList;
 
-        [SerializeField] GameObject _btnBack;
+        [SerializeField] GameObject _btnCancel;
         [SerializeField] Image _btnDecide;
 
         [SerializeField] Sprite _btnDecideEnableSprite;
         [SerializeField] Sprite _btnDecideDisableSprite;
         [SerializeField] Sprite _skillBackgroundDefaultSprite;
         [SerializeField] Sprite _skillBackgroundSelectedSprite;
-        [SerializeField] Material _iconSkillEnableMat;
-        [SerializeField] Material _iconSkillDisableMat;
-        [SerializeField] Material _skillCostEnableMat;
-        [SerializeField] Material _skillCostDisableMat;
 
         ISkillSetting[] _curMemberSkillSettings;
+
+        void Start()
+        {
+            SwitchBtnDecideEnable(false);
+            SwitchBtnCancelVisible(false);
+        }
 
         void ICharacterUI.Bind(ICharacterComponentCollection chara)
         {
@@ -63,7 +65,7 @@ namespace HexRPG.Battle.Player.UI
                             UpdateBtnSelectedStatus(x.Current, true);
                         }
 
-                        SwitchBtnBackVisible(x.Current != -1);
+                        SwitchBtnCancelVisible(x.Current != -1);
                         SwitchBtnDecideEnable(x.Current != -1);
                     })
                     .AddTo(this);
@@ -78,15 +80,18 @@ namespace HexRPG.Battle.Player.UI
             {
                 UpdateBtnSelectedStatus(i, false);
                 var optionBtn = _skillBtnList.GetChild(i);
-                var icon = optionBtn.GetChild(0).GetComponent<Image>();
-                var cost = optionBtn.GetChild(1).GetComponent<Text>();
+                var type = optionBtn.GetChild(0).GetComponent<Image>();
+                var icon = optionBtn.GetChild(1).GetComponent<Image>();
+                var cost = optionBtn.GetChild(3).GetComponent<Text>();
                 if (i > _curMemberSkillSettings.Length - 1)
                 {
+                    type.gameObject.SetActive(false);
                     icon.gameObject.SetActive(false);
                     cost.gameObject.SetActive(false);
                     continue;
                 }
                 var skillSetting = _curMemberSkillSettings[i];
+                //TODO: ëÆê´
                 icon.sprite = skillSetting.Icon;
                 cost.text = skillSetting.Cost.ToString();
             }
@@ -97,19 +102,10 @@ namespace HexRPG.Battle.Player.UI
             for(int i = 0; i < _curMemberSkillSettings.Length; i++)
             {
                 var optionBtn = _skillBtnList.GetChild(i);
-                var icon = optionBtn.GetChild(0).GetComponent<Image>();
-                var cost = optionBtn.GetChild(1).GetComponent<Text>();
+                var icon = optionBtn.GetChild(1).GetComponent<Image>();
+                var cost = optionBtn.GetChild(3).GetComponent<Text>();
                 var skillSetting = _curMemberSkillSettings[i];
-                if (skillSetting.Cost <= sp)
-                {
-                    icon.material = _iconSkillEnableMat;
-                    cost.material = _skillCostEnableMat;
-                }
-                else
-                {
-                    icon.material = _iconSkillDisableMat;
-                    cost.material = _skillCostDisableMat;
-                }
+                optionBtn.GetChild(2).gameObject.SetActive(skillSetting.Cost > sp);
             }
         }
 
@@ -125,9 +121,9 @@ namespace HexRPG.Battle.Player.UI
             }
         }
 
-        void SwitchBtnBackVisible(bool show)
+        void SwitchBtnCancelVisible(bool show)
         {
-            _btnBack.SetActive(show);
+            _btnCancel.SetActive(show);
         }
 
         void SwitchBtnDecideEnable(bool enable)
