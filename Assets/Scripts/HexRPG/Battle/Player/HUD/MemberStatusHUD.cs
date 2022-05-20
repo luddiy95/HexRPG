@@ -6,7 +6,12 @@ namespace HexRPG.Battle.Player.HUD
     using Member;
     using Battle.HUD;
 
-    public class MemberStatusHUD : MonoBehaviour, ICharacterHUD
+    public interface IMemberHUD : ICharacterHUD
+    {
+        void SwitchShowBtnChange(bool show);
+    }
+
+    public class MemberStatusHUD : MonoBehaviour, IMemberHUD
     {
         [SerializeField] Image _icon; 
         [SerializeField] GameObject _healthGauge;
@@ -21,10 +26,10 @@ namespace HexRPG.Battle.Player.HUD
                 _icon.sprite = memberOwner.ProfileSetting.Icon;
 
                 // HealthGauge
-                _healthGauge.GetComponent<ICharacterHUD>().Bind(chara);
+                _healthGauge.GetComponent<ICharacterHUD>().Bind(memberOwner);
 
                 // SkillPoint
-                _skillPointHUD.GetComponent<ICharacterHUD>().Bind(chara);
+                _skillPointHUD.GetComponent<ICharacterHUD>().Bind(memberOwner);
 
                 // SkillList
                 /*
@@ -43,6 +48,11 @@ namespace HexRPG.Battle.Player.HUD
                 }
                 */
             }
+        }
+
+        void IMemberHUD.SwitchShowBtnChange(bool show)
+        {
+            _btnChange.SetActive(show);
         }
     }
 }

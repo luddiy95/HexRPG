@@ -11,6 +11,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: a32779e819e9bd44c9e2e9beb4f7da7e, type: 2}
+    - target: {fileID: 3308819287517607384, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
+      propertyPath: m_Materials.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: d4a3dd9c691755e4894d35d1931249b5, type: 2}
     - target: {fileID: 5075132376415686598, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: m_Name
       value: Member2
@@ -25,7 +29,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5510782246767885481, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _skillPointMax
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5559041374435087740, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: m_RootOrder
@@ -78,7 +82,7 @@ PrefabInstance:
     - target: {fileID: 8720306215907586367, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _skills.Array.data[0]._prefab
       value: 
-      objectReference: {fileID: 4496257026003262569, guid: 0a98c2d4c13d86742b3828ec922be54b, type: 3}
+      objectReference: {fileID: 6832648262429242629, guid: 5bd4110a588fa6743a7449b73693e592, type: 3}
     - target: {fileID: 8720306215907586367, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _skills.Array.data[1]._prefab
       value: 
@@ -86,7 +90,7 @@ PrefabInstance:
     - target: {fileID: 8720306215907586367, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _skills.Array.data[0]._timeline
       value: 
-      objectReference: {fileID: 11400000, guid: bd59377cf55a85b46b8e9416c2b5c2f2, type: 2}
+      objectReference: {fileID: 11400000, guid: bdb810b60d6e53a48acdc5b1a89006ee, type: 2}
     - target: {fileID: 8720306215907586367, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _skills.Array.data[1]._timeline
       value: 

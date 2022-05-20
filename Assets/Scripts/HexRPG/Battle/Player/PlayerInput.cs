@@ -11,6 +11,10 @@ namespace HexRPG.Battle.Player
     {
         IUpdateObservable _updateObservable;
 
+        [Header("カメラ回転ボタン")]
+        [SerializeField] Transform _cameraRotLeft;
+        [SerializeField] Transform _cameraRotRight;
+
         [Header("通常攻撃ボタン")]
         [SerializeField] GameObject _btnCombat;
 
@@ -22,12 +26,14 @@ namespace HexRPG.Battle.Player
         [Header("スキルキャンセルボタン")]
         [SerializeField] GameObject _btnSkillCancel;
 
-        [Header("カメラ回転ボタン")]
-        [SerializeField] Transform _cameraRotLeft;
-        [SerializeField] Transform _cameraRotRight;
+        [Header("メンバーリスト")]
+        [SerializeField] Transform _standingMemberList;
 
         IReadOnlyReactiveProperty<Vector3> ICharacterInput.Direction => _direction;
         readonly ReactiveProperty<Vector3> _direction = new ReactiveProperty<Vector3>();
+
+        IObservable<int> ICharacterInput.CameraRotateDir => _cameraRotateDir;
+        readonly ISubject<int> _cameraRotateDir = new Subject<int>();
 
         IObservable<Unit> ICharacterInput.OnCombat => _onCombat;
         readonly ISubject<Unit> _onCombat = new Subject<Unit>();
@@ -40,8 +46,8 @@ namespace HexRPG.Battle.Player
         IObservable<Unit> ICharacterInput.OnSkillCancel => _onSkillCancel;
         readonly ISubject<Unit> _onSkillCancel = new Subject<Unit>();
 
-        IObservable<int> ICharacterInput.CameraRotateDir => _cameraRotateDir;
-        readonly ISubject<int> _cameraRotateDir = new Subject<int>();
+        IObservable<int> ICharacterInput.SelectedMemberIndex => _selectedMemberIndex;
+        readonly ISubject<int> _selectedMemberIndex = new Subject<int>();
 
         [Inject]
         public void Construct(IUpdateObservable updateObservable)
@@ -51,11 +57,15 @@ namespace HexRPG.Battle.Player
 
         void Start()
         {
+            int cameraRotateDir = 0;
+
             var isBtnCombatClicked = false;
+
             int selectedSkillIndex = -1;
             var isBtnSkillDecideClicked = false;
             var isBtnSkillCancelClicked = false;
-            int cameraRotateDir = 0;
+
+            int selectedMemberIndex = -1;
 
             _updateObservable.OnUpdate((int)UPDATE_ORDER.INPUT)
                 .Subscribe(_ =>
@@ -86,12 +96,28 @@ namespace HexRPG.Battle.Player
                         isBtnSkillCancelClicked = false;
                     }
 
+                    if(selectedMemberIndex != -1)
+                    {
+                        _selectedMemberIndex.OnNext(selectedMemberIndex);
+                        selectedMemberIndex = -1;
+                    }
+
                     if(cameraRotateDir != 0)
                     {
                         _cameraRotateDir.OnNext(cameraRotateDir);
                         cameraRotateDir = 0;
                     }
                 }).AddTo(this);
+
+            _cameraRotLeft.GetChild(2).gameObject.OnClickListener(() =>
+            {
+                cameraRotateDir = +1;
+            }, gameObject);
+
+            _cameraRotRight.GetChild(2).gameObject.OnClickListener(() =>
+            {
+                cameraRotateDir = -1;
+            }, gameObject);
 
             _btnCombat.OnClickListener(() =>
             {
@@ -119,15 +145,17 @@ namespace HexRPG.Battle.Player
                 isBtnSkillCancelClicked = true;
             }, gameObject);
 
-            _cameraRotLeft.GetChild(2).gameObject.OnClickListener(() =>
+            void SetMemberChangeBtnClickEvent(GameObject btn, int index)
             {
-                cameraRotateDir = +1;
-            }, gameObject);
-
-            _cameraRotRight.GetChild(2).gameObject.OnClickListener(() =>
+                btn.OnClickListener(() =>
+                {
+                    selectedMemberIndex = 3 - 1 - index;
+                }, gameObject);
+            }
+            for (int i = 0; i < _standingMemberList.childCount; i++)
             {
-                cameraRotateDir = -1;
-            }, gameObject);
+                SetMemberChangeBtnClickEvent(_standingMemberList.GetChild(i).GetChild(4).gameObject, i);
+            }
         }
 
         void UpdateDirection()

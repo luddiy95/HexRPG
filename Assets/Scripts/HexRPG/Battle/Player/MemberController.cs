@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Zenject;
 
 namespace HexRPG.Battle.Player
 {
@@ -12,7 +13,8 @@ namespace HexRPG.Battle.Player
 
     public interface IMemberObservable
     {
-        IMemberComponentCollection[] MemberList { get; }
+        List<IMemberComponentCollection> MemberList { get; }
+        List<IMemberComponentCollection> StandingMemberList { get; }
         IReadOnlyReactiveProperty<IMemberComponentCollection> CurMember { get; }
         int CurMemberIndex { get; }
     }
@@ -23,13 +25,25 @@ namespace HexRPG.Battle.Player
         void ChangeMember(int index);
     }
 
-    public class MemberController : IMemberController, IMemberObservable, IDisposable
+    public class MemberController : IMemberController, IMemberObservable, IInitializable, IDisposable
     {
+        ICharacterInput _characterInput;
         ITransformController _transformController;
         List<MemberOwner.Factory> _memberFactories;
 
-        IMemberComponentCollection[] IMemberObservable.MemberList => _memberList;
-        IMemberComponentCollection[] _memberList;
+        List<IMemberComponentCollection> IMemberObservable.MemberList => _memberList;
+        List<IMemberComponentCollection> _memberList = new List<IMemberComponentCollection>();
+
+        List<IMemberComponentCollection> IMemberObservable.StandingMemberList => _standingMemberList;
+        List<IMemberComponentCollection> _standingMemberList
+        {
+            get
+            {
+                var memberList = new List<IMemberComponentCollection>(_memberList);
+                memberList.Remove(_curMember.Value);
+                return memberList;
+            }
+        }
 
         IReadOnlyReactiveProperty<IMemberComponentCollection> IMemberObservable.CurMember => _curMember;
         readonly IReactiveProperty<IMemberComponentCollection> _curMember = new ReactiveProperty<IMemberComponentCollection>();
@@ -40,30 +54,44 @@ namespace HexRPG.Battle.Player
         CompositeDisposable _disposables = new CompositeDisposable();
 
         public MemberController(
+            ICharacterInput characterInput,
             ITransformController transformController,
             List<MemberOwner.Factory> memberFactories)
         {
+            _characterInput = characterInput;
             _transformController = transformController;
             _memberFactories = memberFactories;
         }
 
+        void IInitializable.Initialize()
+        {
+            _characterInput.SelectedMemberIndex
+                .Subscribe(index =>
+                {
+                    (this as IMemberController).ChangeMember(_memberList.FindIndex(member => member == _standingMemberList[index]));
+                })
+                .AddTo(_disposables);
+        }
+
         async UniTask IMemberController.SpawnAllMember(CancellationToken token)
         {
-            _memberList = _memberFactories.Select(factory => factory.Create(_transformController.SpawnRootTransform("Member"), Vector3.zero)).ToArray();
+            _memberList = _memberFactories.Select(factory => 
+                factory.Create(_transformController.SpawnRootTransform("Member"), Vector3.zero).GetComponent<IMemberComponentCollection>()).ToList();
 
-            Array.ForEach(_memberList, member => member.SkillSpawnController.Spawn(_transformController.SpawnRootTransform("Skill")));
+            _memberList.ForEach(member => member.SkillSpawnController.Spawn(_transformController.SpawnRootTransform("Skill")));
+
             // 全てのCombat/Skillが生成されるのを待つ
             await UniTask.WaitUntil(
                 () => _memberList.All(member => member.CombatSpawnObservable.isCombatSpawned && member.SkillSpawnObservable.IsAllSkillSpawned),
                 cancellationToken: token);
 
             // 各MemberのAnimationBehaviour初期化(MemberのAnimator, Combat, Skillが必要)
-            Array.ForEach(_memberList, member => member.AnimationController.Init());
+            _memberList.ForEach(member => member.AnimationController.Init());
         }
 
         void IMemberController.ChangeMember(int index)
         {
-            for (int i = 0; i < _memberList.Length; i++)
+            for (int i = 0; i < _memberList.Count; i++)
             {
                 _memberList[i].ActiveController.SetActive(i == index);
             }

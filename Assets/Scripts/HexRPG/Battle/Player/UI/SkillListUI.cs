@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 using System.Linq;
 using UniRx;
 using Cysharp.Threading.Tasks;
@@ -19,15 +19,16 @@ namespace HexRPG.Battle.Player.UI
 
         [SerializeField] Sprite _btnDecideEnableSprite;
         [SerializeField] Sprite _btnDecideDisableSprite;
-        [SerializeField] Sprite _skillBackgroundDefaultSprite;
-        [SerializeField] Sprite _skillBackgroundSelectedSprite;
 
+        List<ISkillUI> _skillUIList = new List<ISkillUI>();
         ISkillSetting[] _curMemberSkillSettings;
 
         void Start()
         {
             SwitchBtnDecideEnable(false);
             SwitchBtnCancelVisible(false);
+
+            for (int i = 0; i < _skillBtnList.childCount; i++) _skillUIList.Add(_skillBtnList.GetChild(i).GetComponent<ISkillUI>());
         }
 
         void ICharacterUI.Bind(ICharacterComponentCollection chara)
@@ -40,7 +41,7 @@ namespace HexRPG.Battle.Player.UI
                     .Subscribe(memberOwner =>
                     {
                         _curMemberSkillSettings = memberOwner.SkillSpawnObservable.SkillList.Select(skill => skill.SkillSetting).ToArray();
-                        UpdateSkillBtn();
+                        UpdateSkillBtn(memberOwner.SkillPoint.Current.Value);
                     })
                     .AddTo(this);
 
@@ -57,12 +58,12 @@ namespace HexRPG.Battle.Player.UI
                     {
                         if (x.Current != x.Previous && x.Previous >= 0)
                         {
-                            UpdateBtnSelectedStatus(x.Previous, false);
+                            _skillUIList[x.Previous].SwitchSelected(false);
                         }
 
                         if (x.Current >= 0)
                         {
-                            UpdateBtnSelectedStatus(x.Current, true);
+                            _skillUIList[x.Current].SwitchSelected(true);
                         }
 
                         SwitchBtnCancelVisible(x.Current != -1);
@@ -74,26 +75,22 @@ namespace HexRPG.Battle.Player.UI
 
         #region View
 
-        void UpdateSkillBtn()
+        void UpdateSkillBtn(int sp)
         {
-            for (int i = 0; i < _skillBtnList.childCount; i++)
+            for (int i = 0; i < _skillUIList.Count; i++)
             {
-                UpdateBtnSelectedStatus(i, false);
-                var optionBtn = _skillBtnList.GetChild(i);
-                var type = optionBtn.GetChild(0).GetComponent<Image>();
-                var icon = optionBtn.GetChild(1).GetComponent<Image>();
-                var cost = optionBtn.GetChild(3).GetComponent<Text>();
-                if (i > _curMemberSkillSettings.Length - 1)
+                var skillUI = _skillUIList[i];
+                skillUI.SwitchSelected(false);
+                if(i > _curMemberSkillSettings.Length - 1)
                 {
-                    type.gameObject.SetActive(false);
-                    icon.gameObject.SetActive(false);
-                    cost.gameObject.SetActive(false);
+                    skillUI.SwitchSkillShow(false);
+                    skillUI.SwitchEnable(true); // skillÇîÒï\é¶Ç…Ç∑ÇÈÇΩÇﬂdisableFilterÇ‡îÒï\é¶
                     continue;
                 }
+                skillUI.SwitchSkillShow(true);
+                UpdateIconSkillEnable(sp);
                 var skillSetting = _curMemberSkillSettings[i];
-                //TODO: ëÆê´
-                icon.sprite = skillSetting.Icon;
-                cost.text = skillSetting.Cost.ToString();
+                skillUI.SetSkill(skillSetting.Icon, skillSetting.Cost); //TODO: ëÆê´
             }
         }
 
@@ -101,23 +98,7 @@ namespace HexRPG.Battle.Player.UI
         {
             for(int i = 0; i < _curMemberSkillSettings.Length; i++)
             {
-                var optionBtn = _skillBtnList.GetChild(i);
-                var icon = optionBtn.GetChild(1).GetComponent<Image>();
-                var cost = optionBtn.GetChild(3).GetComponent<Text>();
-                var skillSetting = _curMemberSkillSettings[i];
-                optionBtn.GetChild(2).gameObject.SetActive(skillSetting.Cost > sp);
-            }
-        }
-
-        void UpdateBtnSelectedStatus(int index, bool isSelected)
-        {
-            if (isSelected)
-            {
-                _skillBtnList.GetChild(index).GetComponent<Image>().sprite = _skillBackgroundSelectedSprite;
-            }
-            else
-            {
-                _skillBtnList.GetChild(index).GetComponent<Image>().sprite = _skillBackgroundDefaultSprite;
+                _skillUIList[i].SwitchEnable(_curMemberSkillSettings[i].Cost <= sp);
             }
         }
 

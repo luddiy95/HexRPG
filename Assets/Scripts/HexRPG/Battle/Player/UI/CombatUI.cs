@@ -8,7 +8,13 @@ namespace HexRPG.Battle.Player.UI
 
     public class CombatUI : MonoBehaviour, ICharacterUI
     {
-        [SerializeField] Transform _combatBtn;
+        [SerializeField] Image _background;
+        [SerializeField] Image _icon;
+
+        [SerializeField] Sprite _combatEnableBackgroundSprite;
+        [SerializeField] Sprite _combatDisableBackgroundSprite;
+        [SerializeField] Material _combatEnableMaterial;
+        [SerializeField] Material _combatDisableMaterial;
 
         void ICharacterUI.Bind(ICharacterComponentCollection chara)
         {
@@ -19,26 +25,31 @@ namespace HexRPG.Battle.Player.UI
                     {
                         var combatIcon = memberOwner.CombatSpawnObservable.Combat.CombatSetting.Icon;
 
-                        UpdateBtnIcon(combatIcon);
+                        _icon.sprite = combatIcon;
                     })
                     .AddTo(this);
 
-                //TODO: Player‚ªDamaged‚âSkillŽÀs’†‚Ì‚Æ‚«‚ÍDisable‚É‚·‚é
+                playerOwner.ActionStateObservable.CurrentState
+                    .Where(state => state != null)
+                    .Subscribe(state =>
+                    {
+                        switch (state.Type)
+                        {
+                            case ActionStateType.IDLE:
+                            case ActionStateType.MOVE:
+                            case ActionStateType.COMBAT:
+                            case ActionStateType.SKILL_SELECT:
+                                _background.sprite = _combatEnableBackgroundSprite;
+                                _icon.material = _combatEnableMaterial;
+                                break;
+                            default:
+                                _background.sprite = _combatDisableBackgroundSprite;
+                                _icon.material = _combatDisableMaterial;
+                                break;
+                        }
+                    })
+                    .AddTo(this);
             }
         }
-
-        #region View
-
-        void UpdateBtnIcon(Sprite combatIcon)
-        {
-            _combatBtn.GetChild(0).GetComponent<Image>().sprite = combatIcon;
-        }
-
-        void SwitchBtnEnable(bool enable)
-        {
-
-        }
-
-        #endregion
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using UniRx;
 
 namespace HexRPG.Battle.Player.Member

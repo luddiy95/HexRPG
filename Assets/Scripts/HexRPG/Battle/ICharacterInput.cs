@@ -8,6 +8,8 @@ namespace HexRPG.Battle
     {
         IReadOnlyReactiveProperty<Vector3> Direction { get; }
 
+        IObservable<int> CameraRotateDir { get; }
+
         IObservable<Unit> OnCombat { get; }
 
         IReadOnlyReactiveProperty<int> SelectedSkillIndex { get; }
@@ -15,6 +17,6 @@ namespace HexRPG.Battle
         IObservable<Unit> OnSkillDecide { get; }
         IObservable<Unit> OnSkillCancel { get; }
 
-        IObservable<int> CameraRotateDir { get; }
+        IObservable<int> SelectedMemberIndex { get; }
     }
 }
