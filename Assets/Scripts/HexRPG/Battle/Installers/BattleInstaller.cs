@@ -29,6 +29,8 @@ namespace HexRPG.Battle
 
             Container.Bind<BattleData>().FromInstance(_battleDataContainer.Data);
 
+            Container.BindInterfacesTo<ScoreController>().AsSingle();
+
             Container.BindInterfacesTo<Pauser>().AsSingle();
 
             Container.BindFactory<Transform, Vector3, PlayerOwner, PlayerOwner.Factory>()

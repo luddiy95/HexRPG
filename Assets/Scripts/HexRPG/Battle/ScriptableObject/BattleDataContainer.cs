@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using System;
 
@@ -16,6 +17,14 @@ namespace HexRPG.Battle
         // Camera
         [SerializeField] int _cameraRotateUnit; //TODO: もうこれ60で確定で良いんじゃない？(Skillあたりで60ほぼ確定で使っている)
         public int CameraRotateUnit => _cameraRotateUnit;
+
+        // Score
+        public List<ScoreInfo> ScoreInfoMap => _scoreInfoMap;
+        [SerializeField] List<ScoreInfo> _scoreInfoMap = new List<ScoreInfo>();
+        public int InitScore => _initScore;
+        [SerializeField] int _initScore;
+        public int ScoreMax => _scoreMax;
+        [SerializeField] int _scoreMax;
 
         // UI
         [SerializeField] Sprite _skillBackgroundDefaultSprite;
