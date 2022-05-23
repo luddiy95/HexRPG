@@ -2002,7 +2002,7 @@ RectTransform:
   m_GameObject: {fileID: 168721001}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.71265, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1098303013}
   m_RootOrder: 0
@@ -3247,9 +3247,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 907f510448d76994598d48fd622e6ff0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _scoreAmountText: {fileID: 0}
-  _scoreMaxText: {fileID: 0}
-  _scoreGauge: {fileID: 0}
+  _scoreAmountText: {fileID: 457076805}
+  _scoreMaxText: {fileID: 214697436}
+  _scoreGaugeObj: {fileID: 2125636072}
   _acquiredMessageList: {fileID: 668503910}
   _acquiredMessagePrefab: {fileID: 1484501074753892093, guid: 63cb747f00def7542b320d34fcaffd75, type: 3}
 --- !u!1 &279619619
@@ -27867,6 +27867,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2125636073}
+  - component: {fileID: 2125636074}
   m_Layer: 5
   m_Name: ScoreGauge
   m_TagString: Untagged
@@ -27895,6 +27896,19 @@ RectTransform:
   m_AnchoredPosition: {x: -182, y: 7}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2125636074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2125636072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a3160aa2682f9144b13cc691fd73f8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _gaugeAmount: {fileID: 168721002}
 --- !u!4 &2127463556 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4000012093006816, guid: dd9a03a16f506fc4f8425ffe0ece5663, type: 3}

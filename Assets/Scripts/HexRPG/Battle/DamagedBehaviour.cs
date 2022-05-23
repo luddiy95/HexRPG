@@ -26,6 +26,8 @@ namespace HexRPG.Battle
 
         private readonly List<AttackCollider> _hitAttacks = new List<AttackCollider>();
 
+        bool _isEnemy = false;
+
         [Inject]
         public void Construct(
             ICharacterComponentCollection owner, 
@@ -40,6 +42,8 @@ namespace HexRPG.Battle
 
         void IInitializable.Initialize()
         {
+            _isEnemy = (_damagedOwner is IEnemyComponentCollection);
+
             // 衝突キューイング
             this.OnTriggerEnterAsObservable()
                 .Subscribe(x =>
@@ -69,8 +73,6 @@ namespace HexRPG.Battle
                 .OnUpdate((int)UPDATE_ORDER.DAMAGED)
                 .Subscribe(_ =>
                 {
-                    //TODO: Enemyの場合とPlayerの場合でダメージを受けるattackOriginが違う->isPlayerなどのフラグ
-
                     // Combat攻撃
                     foreach(var attackCollider in _hitAttacks)
                     {
@@ -99,6 +101,8 @@ namespace HexRPG.Battle
 
         void DoHit(IAttackApplicator attackApplicator)
         {
+            if ((attackApplicator.AttackOrigin is IEnemyComponentCollection) == _isEnemy) return;
+
             // ヒット済みマーク失敗＝すでにヒットしてる
             if (attackApplicator.TryMarkAsHit(_damagedOwner) == false)
             {

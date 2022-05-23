@@ -14,7 +14,7 @@ namespace HexRPG.Battle.Player
         ITransformController _transformController;
         IMemberObservable _memberObservable;
         ISelectSkillObservable _selectSkillObservable;
-        IStageController _stageController;
+        ILiberateController _liberateController;
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -30,14 +30,14 @@ namespace HexRPG.Battle.Player
             ITransformController transformController,
             IMemberObservable memberObservable,
             ISelectSkillObservable selectSkillObservable,
-            IStageController stageController
+            ILiberateController liberateController
         )
         {
             _battleObservable = battleObservable;
             _transformController = transformController;
             _memberObservable = memberObservable;
             _selectSkillObservable = selectSkillObservable;
-            _stageController = stageController;
+            _liberateController = liberateController;
         }
 
         ISkillComponentCollection ISkillController.StartSkill(int index, Hex skillCenter, int skillRotation)
@@ -56,7 +56,7 @@ namespace HexRPG.Battle.Player
                     var isExistAliveEnemyInAttackRange =
                         _battleObservable.EnemyList.Any(enemy =>
                             attackRange.Contains(enemy.TransformController.GetLandedHex()) && !enemy.DieObservable.IsDead.Value);
-                    if(!isExistAliveEnemyInAttackRange) _stageController.Liberate(attackRange, true);
+                    if(!isExistAliveEnemyInAttackRange) _liberateController.Liberate(attackRange);
                 })
                 .AddTo(_disposables);
             runningSkill.SkillObservable.OnFinishSkill

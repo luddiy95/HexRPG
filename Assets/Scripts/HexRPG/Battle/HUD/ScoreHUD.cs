@@ -16,9 +16,11 @@ namespace HexRPG.Battle.HUD
 
         [SerializeField] Text _scoreAmountText;
         [SerializeField] Text _scoreMaxText;
-        [SerializeField] GameObject _scoreGauge;
-        [SerializeField] Transform _acquiredMessageList;
 
+        [SerializeField] GameObject _scoreGaugeObj;
+        IGauge _scoreGauge;
+
+        [SerializeField] Transform _acquiredMessageList;
         [SerializeField] GameObject _acquiredMessagePrefab;
         IAcquiredMessage CurAcquiredMessageHead => _acquiredMessageList.GetChild(0).GetComponent<IAcquiredMessage>();
 
@@ -42,6 +44,18 @@ namespace HexRPG.Battle.HUD
 
         void Start()
         {
+            var scoreMax = _scoreObservable.ScoreMax;
+            _scoreMaxText.text = scoreMax.ToString();
+            _scoreGauge = _scoreGaugeObj.GetComponent<IGauge>();
+            _scoreGauge.Init(scoreMax);
+            _scoreObservable.CurScore
+                .Subscribe(score =>
+                {
+                    _scoreAmountText.text = score.ToString();
+                    _scoreGauge.Set(score);
+                })
+                .AddTo(this);
+
             _scoreObservable.OnAddScoreData
                 .Subscribe(scoreData =>
                 {
@@ -108,17 +122,17 @@ namespace HexRPG.Battle.HUD
             {
                 type = (ScoreType)EditorGUILayout.EnumPopup("ScoreType", type);
                 GUILayout.Label("Count");
-                EditorGUILayout.IntField(count);
+                count = EditorGUILayout.IntField(count);
                 if (GUILayout.Button("OnNext"))
                 {
-                    _scoreController.AquireScore(type, count);
-                    _scoreController.AquireScore(type, count);
-                    _scoreController.AquireScore(type, count);
-                    _scoreController.AquireScore(type, count);
-                    _scoreController.AquireScore(type, count);
-                    _scoreController.AquireScore(type, count);
-                    _scoreController.AquireScore(type, count);
-                    _scoreController.AquireScore(type, count);
+                    _scoreController.AcquireScore(type, count);
+                    _scoreController.AcquireScore(type, count);
+                    _scoreController.AcquireScore(type, count);
+                    _scoreController.AcquireScore(type, count);
+                    _scoreController.AcquireScore(type, count);
+                    _scoreController.AcquireScore(type, count);
+                    _scoreController.AcquireScore(type, count);
+                    _scoreController.AcquireScore(type, count);
                 }
             }
         }

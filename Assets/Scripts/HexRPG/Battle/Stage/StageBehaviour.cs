@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 using System.Linq;
 
 namespace HexRPG.Battle.Stage
@@ -9,8 +8,6 @@ namespace HexRPG.Battle.Stage
     {
         Vector3 DirX { get; }
         Vector3 DirZ { get; }
-
-        void Liberate(Hex[] hexList, bool isPlayer);
     }
 
     public class StageBehaviour : MonoBehaviour, IStageController
@@ -25,15 +22,6 @@ namespace HexRPG.Battle.Stage
 
         [SerializeField] Transform _HexRoot;
         [SerializeField] Hex _hexPrefab;
-
-        //TODO: IAttackController‚âIAttackReserve‚Æ“¯—l‚ÉILiberater‚ðì‚é‚×‚«
-        void IStageController.Liberate(Hex[] hexList, bool isPlayer)
-        {
-            if (isPlayer)
-            {
-                Array.ForEach(hexList, hex => hex.Liberate());
-            }
-        }
 
         #region View
 

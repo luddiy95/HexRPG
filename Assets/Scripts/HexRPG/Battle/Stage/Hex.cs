@@ -77,15 +77,17 @@ namespace HexRPG.Battle.Stage
             _attackApplicatorList.Remove(attackApplicator);
         }
 
-        public void Liberate()
+        public bool Liberate(bool isPlayer)
         {
-            if (_status == Status.PLAYER) return;
+            if (isPlayer == (_status == Status.PLAYER)) return false;
 
             var materials = _renderer.materials;
-            materials[1] = _battleData.HexPlayerLineMat;
+            materials[1] = isPlayer ? _battleData.HexPlayerLineMat : _battleData.HexEnemyLineMat;
             _renderer.materials = materials;
 
-            _status = Status.PLAYER;
+            _status = isPlayer ? Status.PLAYER : Status.ENEMY;
+
+            return true;
         }
     }
 }

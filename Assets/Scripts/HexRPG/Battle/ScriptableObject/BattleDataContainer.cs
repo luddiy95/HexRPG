@@ -35,6 +35,8 @@ namespace HexRPG.Battle
         // Hex
         [SerializeField] Material _hexPlayerLineMat;
         public Material HexPlayerLineMat => _hexPlayerLineMat;
+        [SerializeField] Material _hexEnemyLineMat;
+        public Material HexEnemyLineMat => _hexEnemyLineMat;
 
         [SerializeField] Material _hexDefaultMat;
         public Material HexDefaultMat => _hexDefaultMat;

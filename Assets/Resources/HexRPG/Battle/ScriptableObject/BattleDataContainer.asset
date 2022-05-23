@@ -27,10 +27,11 @@ MonoBehaviour:
     - type: 0
       score: 0
       message: 
-    _initScore: 0
-    _scoreMax: 0
+    _initScore: 20
+    _scoreMax: 200
     _skillBackgroundDefaultSprite: {fileID: 21300000, guid: ae4dd3a93e774244ba170cbc210ea311, type: 3}
     _skillBackgroundSelectedSprite: {fileID: 21300000, guid: 9e9c5ff20c2a4d24082a692dbea18468, type: 3}
     _hexPlayerLineMat: {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
+    _hexEnemyLineMat: {fileID: 0}
     _hexDefaultMat: {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
     _hexAttackIndicatedMat: {fileID: 2100000, guid: fd1f4f7c68e13a14b93550e4bd264e4a, type: 2}
