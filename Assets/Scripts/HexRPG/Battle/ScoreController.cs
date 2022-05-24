@@ -77,9 +77,22 @@ namespace HexRPG.Battle
             _battleObservable.OnPlayerSpawn
                 .Subscribe(playerOwner =>
                 {
+                    // Liberate成功
                     playerOwner.LiberateObservable.SuccessLiberateHexList
                         .Where(hexList => hexList.Length > 0)
                         .Subscribe(hexList => AcquireScore(ScoreType.LIBERATE, hexList.Length))
+                        .AddTo(_disposables);
+
+                    // Enemyへ弱点攻撃/クリティカル攻撃
+                    playerOwner.AttackObservable.OnAttackHit
+                        .Subscribe(hitData =>
+                        {
+                            switch (hitData.HitType)
+                            {
+                                case HitType.WEAK: AcquireScore(ScoreType.WEAK_ATTACK, 1); break;
+                                case HitType.CRITICAL: AcquireScore(ScoreType.CRITICAL_ATTACK, 1); break;
+                            }
+                        })
                         .AddTo(_disposables);
                 })
                 .AddTo(_disposables);

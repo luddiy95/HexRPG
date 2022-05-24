@@ -5,7 +5,7 @@ namespace HexRPG.Battle.Player.Member
 {
     using Combat;
 
-    public class MemberCombatExecuter : ICombatController, ICombatSpawnObservable, IInitializable
+    public class MemberCombatExecuter : ICombatController, ICombatSpawnController, ICombatSpawnObservable
     {
         IMemberComponentCollection _memberOwner;
         CombatOwner.Factory _combatFactory;
@@ -28,10 +28,10 @@ namespace HexRPG.Battle.Player.Member
             _combatSetting = combatSetting;
         }
 
-        void IInitializable.Initialize()
+        void ICombatSpawnController.Spawn(IAttackApplicator attackApplicator)
         {
             _combat = _combatFactory.Create(_combatSetting.SpawnRoot, Vector3.zero);
-            _combat.Combat.Init(_combatSetting.Timeline, _memberOwner, _memberOwner.AnimationController);
+            _combat.Combat.Init(_combatSetting.Timeline, attackApplicator, _memberOwner.AnimationController);
             _isCombatSpawned = true;
         }
 

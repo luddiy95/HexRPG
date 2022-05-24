@@ -13,8 +13,6 @@ namespace HexRPG.Battle.Skill
             Container.BindInterfacesAndSelfTo<SkillOwner>().FromComponentOnRoot();
             Container.BindInstance(_spawnRoot).WhenInjectedInto<TransformBehaviour>();
             Container.BindInstance(_spawnPos).WhenInjectedInto<TransformBehaviour>();
-
-            Container.BindInterfacesTo<AttackController>().AsSingle();
         }
     }
 }

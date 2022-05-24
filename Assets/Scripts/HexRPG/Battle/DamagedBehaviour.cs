@@ -92,7 +92,7 @@ namespace HexRPG.Battle
                     if (Input.GetKeyDown(KeyCode.D))
                     {
                         _onHit.OnNext(new HitData());
-                        if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-10);
+                        //if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-10);
                         //if (_damagedOwner is IEnemyComponentCollection enemyOwner) enemyOwner.Health.Update(-1000000000);
                     }
                 })
@@ -104,16 +104,32 @@ namespace HexRPG.Battle
             if ((attackApplicator.AttackOrigin is IEnemyComponentCollection) == _isEnemy) return;
 
             // ヒット済みマーク失敗＝すでにヒットしてる
-            if (attackApplicator.TryMarkAsHit(_damagedOwner) == false)
+            if (attackApplicator.TryMarkAsHit(_damagedOwner) == false) return;
+
+            //TODO: Criticalかどうか(CriticalとWeak/Resistは両立しない)
+            var hitType = HitType.NONE;
+            if(attackApplicator.CurrentSetting is ISkillAttackSetting skillAttackSetting)
             {
-                return;
+                var attackAttribute = skillAttackSetting.Attribute;
+                var damagedAttribute = _damagedOwner.ProfileSetting.Attribute;
+                if (attackAttribute.IsWeakCompatibity(damagedAttribute)) hitType = HitType.RESIST;
+                else if (damagedAttribute.IsWeakCompatibity(attackAttribute)) hitType = HitType.WEAK;
+            }
+
+            var damage = attackApplicator.CurrentSetting.Power;
+            switch (hitType)
+            {
+                case HitType.WEAK:
+                case HitType.CRITICAL: damage *= 2; break;
+                case HitType.RESIST: damage /= 2; break;
             }
 
             var hitData = new HitData
             {
                 AttackApplicator = attackApplicator,
                 DamagedObject = _damagedOwner,
-                Damage = attackApplicator.CurrentSetting.Power
+                Damage = damage,
+                HitType = hitType
             };
 
             // コールバック
@@ -122,9 +138,20 @@ namespace HexRPG.Battle
 
             //TODO: 【ここから】IPlayerComponentCollectionじゃなくてIMemberComponentCollectionじゃない？(現在DamagedBehaviourがPlayerにアタッチされているが各Memberじゃない？)
             //TODO: EnemyはCombatが存在しないからAttackEnableはHex経由だけのためColliderがいらない->Playerにアタッチされている？
-            if (_damagedOwner is IPlayerComponentCollection playerOwner) playerOwner.MemberObservable.CurMember.Value.Health.Update(-hitData.Damage);
-            if (_damagedOwner is IEnemyComponentCollection enemyOwner) enemyOwner.Health.Update(-hitData.Damage);
+            if (_damagedOwner is IPlayerComponentCollection playerOwner) 
+                playerOwner.MemberObservable.CurMember.Value.Health.Update(-hitData.Damage);
+            if (_damagedOwner is IEnemyComponentCollection enemyOwner) 
+                enemyOwner.Health.Update(-hitData.Damage);
         }
+    }
+
+    public enum HitType
+    {
+        NONE,
+
+        WEAK,
+        RESIST,
+        CRITICAL
     }
 
     public struct HitData
@@ -132,6 +159,7 @@ namespace HexRPG.Battle
         public IAttackApplicator AttackApplicator { get; set; }
         public ICharacterComponentCollection DamagedObject { get; set; }
         public int Damage { get; set; }
+        public HitType HitType { get; set; }
     }
 
 }

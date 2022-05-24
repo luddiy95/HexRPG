@@ -28,6 +28,10 @@ PrefabInstance:
       value: Mamber2
       objectReference: {fileID: 0}
     - target: {fileID: 5510782246767885481, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
+      propertyPath: _attribute
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5510782246767885481, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _skillPointMax
       value: 8
       objectReference: {fileID: 0}

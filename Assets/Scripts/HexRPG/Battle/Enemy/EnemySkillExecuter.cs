@@ -19,6 +19,7 @@ namespace HexRPG.Battle.Enemy
         List<SkillOwner.Factory> _skillFactories;
         ISkillsSetting _skillsSetting;
         IAttackReserve _attackReserve;
+        IAttackController _attackController;
 
         ISkillComponentCollection[] ISkillSpawnObservable.SkillList => _skillList;
         ISkillComponentCollection[] _skillList;
@@ -28,6 +29,8 @@ namespace HexRPG.Battle.Enemy
 
         IObservable<Unit> ISkillObservable.OnStartReservation => null;
         IObservable<Unit> ISkillObservable.OnFinishReservation => null;
+        IObservable<SkillAttackSetting> ISkillObservable.OnSkillAttackEnable => null;
+        IObservable<Unit> ISkillObservable.OnSkillAttackDisable => null;
         IObservable<Hex[]> ISkillObservable.OnSkillAttack => null;
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
@@ -36,14 +39,14 @@ namespace HexRPG.Battle.Enemy
         CompositeDisposable _disposables = new CompositeDisposable();
 
         public EnemySkillExecuter(
-            IStageController stageController1,
+            IStageController stageController,
             IBattleObservable battleObservable,
             IEnemyComponentCollection enemyOwner,
             ITransformController transformController,
             List<SkillOwner.Factory> skillFactories,
             ISkillsSetting skillsSetting,
-            IStageController stageController,
-            IAttackReserve attackReservation
+            IAttackReserve attackReservation,
+            IAttackController attackController
         )
         {
             _stageController = stageController;
@@ -53,6 +56,7 @@ namespace HexRPG.Battle.Enemy
             _skillFactories = skillFactories;
             _skillsSetting = skillsSetting;
             _attackReserve = attackReservation;
+            _attackController = attackController;
         }
 
         void IInitializable.Initialize()
@@ -60,7 +64,7 @@ namespace HexRPG.Battle.Enemy
             _skillList = _skillFactories.Select((factory, index) => {
                 ISkillComponentCollection skillOwner = factory.Create(_transformController.SpawnRootTransform("Skill"), Vector3.zero);
                 var skill = _skillsSetting.Skills[index];
-                skillOwner.Skill.Init(skill.Timeline, skill.ActivationBindingMap, _enemyOwner, _enemyOwner.AnimationController);
+                skillOwner.Skill.Init(skill.Timeline, skill.ActivationBindingMap, _enemyOwner.AnimationController);
                 return skillOwner;
             }).ToArray();
             _isAllSkillSpawned = true;
@@ -92,17 +96,28 @@ namespace HexRPG.Battle.Enemy
                     _transformController.DefaultRotation + _transformController.RotationAngle + skillRotation);
 
             _disposables.Clear();
+            runningSkill.SkillObservable.OnStartReservation
+                .Subscribe(_ => _attackReserve.StartAttackReservation(curAttackIndicateHexList))
+                .AddTo(_disposables);
+            runningSkill.SkillObservable.OnFinishReservation
+                .Subscribe(_ => _attackReserve.FinishAttackReservation())
+                .AddTo(_disposables);
+            runningSkill.SkillObservable.OnSkillAttackEnable
+                .Subscribe(attackSetting =>
+                {
+                    attackSetting.attribute = runningSkill.SkillSetting.Attribute;
+
+                    _attackController.StartAttack(attackSetting);
+                })
+                .AddTo(_disposables);
+            runningSkill.SkillObservable.OnSkillAttackDisable
+                .Subscribe(_ => _attackController.FinishAttack())
+                .AddTo(_disposables);
             runningSkill.SkillObservable.OnFinishSkill
                 .Subscribe(_ =>
                 {
                     _onFinishSkill.OnNext(Unit.Default);
                 }).AddTo(_disposables);
-            runningSkill.SkillObservable.OnStartReservation
-                .Subscribe(_ => _attackReserve.StartAttackReservation(curAttackIndicateHexList, _enemyOwner))
-                .AddTo(_disposables);
-            runningSkill.SkillObservable.OnFinishReservation
-                .Subscribe(_ => _attackReserve.FinishAttackReservation())
-                .AddTo(_disposables);
 
             skill.StartSkill(skillCenter, _transformController.DefaultRotation + _transformController.RotationAngle + skillRotation);
 

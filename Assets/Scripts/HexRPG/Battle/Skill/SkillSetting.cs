@@ -4,6 +4,7 @@ namespace HexRPG.Battle.Skill
 {
     public interface ISkillSetting
     {
+        Attribute Attribute { get; }
         Sprite Icon { get; }
 
         int Cost { get; }
@@ -12,6 +13,8 @@ namespace HexRPG.Battle.Skill
 
     public class SkillSetting : MonoBehaviour, ISkillSetting
     {
+        Attribute ISkillSetting.Attribute => _attribute;
+        [SerializeField] Attribute _attribute;
         Sprite ISkillSetting.Icon => _icon;
         [SerializeField] Sprite _icon;
 

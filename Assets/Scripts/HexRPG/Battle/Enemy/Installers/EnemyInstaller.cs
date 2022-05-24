@@ -27,7 +27,7 @@ namespace HexRPG.Battle.Enemy
 
             Container.BindInterfacesTo<EnemySkillExecuter>().AsSingle();
 
-            Container.Bind<IAttackReserve>().To<AttackController>().AsSingle();
+            Container.Bind(typeof(IAttackReserve), typeof(IAttackController)).To<AttackController>().AsSingle();
 
             Container.BindInterfacesTo<Health>().AsSingle();
 

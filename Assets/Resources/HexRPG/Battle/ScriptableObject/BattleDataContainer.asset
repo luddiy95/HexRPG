@@ -17,13 +17,13 @@ MonoBehaviour:
     _scoreInfoMap:
     - type: 0
       score: 10
-      message: "Liberate\u6210\u529F"
-    - type: 0
-      score: 0
-      message: 
-    - type: 0
-      score: 0
-      message: 
+      message: Liberate!
+    - type: 2
+      score: 20
+      message: Weak!!
+    - type: 3
+      score: 25
+      message: Critical!!
     - type: 0
       score: 0
       message: 

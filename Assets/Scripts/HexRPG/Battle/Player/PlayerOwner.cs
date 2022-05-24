@@ -7,6 +7,7 @@ namespace HexRPG.Battle.Player
     {
         IMemberController MemberController { get; }
         IMemberObservable MemberObservable { get; }
+        IAttackObservable AttackObservable { get; }
         ILiberateObservable LiberateObservable { get; }
         ICharacterActionStateController CharacterActionStateController { get; }
         ISelectSkillObservable SelectSkillObservable { get; }
@@ -17,11 +18,13 @@ namespace HexRPG.Battle.Player
 
     public class PlayerOwner : MonoBehaviour, IPlayerComponentCollection
     {
+        IProfileSetting ICharacterComponentCollection.ProfileSetting => MemberOwner.ProfileSetting;
         IDieObservable ICharacterComponentCollection.DieObservable => null;
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         IHealth ICharacterComponentCollection.Health => MemberOwner.Health;
         [Inject] IMemberController IPlayerComponentCollection.MemberController { get; }
         [Inject] IMemberObservable IPlayerComponentCollection.MemberObservable { get; }
+        [Inject] IAttackObservable IPlayerComponentCollection.AttackObservable { get; }
         [Inject] ILiberateObservable IPlayerComponentCollection.LiberateObservable { get; }
         [Inject] ICharacterActionStateController IPlayerComponentCollection.CharacterActionStateController { get; }
         [Inject] ISelectSkillObservable IPlayerComponentCollection.SelectSkillObservable { get; }

@@ -15,7 +15,6 @@ namespace HexRPG.Battle.Skill
     public class AbstractAttackSkillBehaviour : MonoBehaviour, ISkillObservable, ISkill, IDisposable
     {
         IStageController _stageController;
-        IAttackController _attackController;
         IBattleObservable _battleObservable;
 
         IAnimationController _animationController;
@@ -38,13 +37,17 @@ namespace HexRPG.Battle.Skill
         IObservable<Unit> ISkillObservable.OnFinishReservation => _onFinishReservation;
         readonly ISubject<Unit> _onFinishReservation = new Subject<Unit>();
 
+        IObservable<SkillAttackSetting> ISkillObservable.OnSkillAttackEnable => _onSkillAttackEnable;
+        readonly ISubject<SkillAttackSetting> _onSkillAttackEnable = new Subject<SkillAttackSetting>();
+        IObservable<Unit> ISkillObservable.OnSkillAttackDisable => _onSkillAttackDisable;
+        readonly ISubject<Unit> _onSkillAttackDisable = new Subject<Unit>();
+
         IObservable<Hex[]> ISkillObservable.OnSkillAttack => _onSkillAttack;
         readonly ISubject<Hex[]> _onSkillAttack = new Subject<Hex[]>();
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
 
-        ICharacterComponentCollection _skillOrigin;
         Hex[] _curAttackRange;
         Dictionary<string, GameObject> _skillEffectMap = new Dictionary<string, GameObject>();
         List<GameObject> _unverifiedEffect = new List<GameObject>(); // OnAttackDisableをまだ経過していない(Liberate未検証)->Timeline中断時に非表示にするエフェクト
@@ -56,18 +59,15 @@ namespace HexRPG.Battle.Skill
         [Inject]
         public void Construct(
             IStageController stageController,
-            IAttackController attackController,
             IBattleObservable battleObservable
         )
         {
             _stageController = stageController;
-            _attackController = attackController;
             _battleObservable = battleObservable;
         }
 
-        void ISkill.Init(PlayableAsset timeline, List<ActivationBindingData> activationBindingMap, ICharacterComponentCollection skillOrigin, IAnimationController animationController)
+        void ISkill.Init(PlayableAsset timeline, List<ActivationBindingData> activationBindingMap, IAnimationController animationController)
         {
-            _skillOrigin = skillOrigin;
             _animationController = animationController;
 
             _director.playableAsset = timeline;
@@ -122,7 +122,7 @@ namespace HexRPG.Battle.Skill
                 .Subscribe(_ =>
                 {
                     // 終了処理
-                    FinishAttackEnable();
+                    _onSkillAttackDisable.OnNext(Unit.Default);
                     HideUnverifiedEffect();
                     _unverifiedEffect.Clear();
                     activationBindingMap.ForEach(data => data.sourceObject.SetActive(false));
@@ -154,13 +154,19 @@ namespace HexRPG.Battle.Skill
                         behaviour.OnAttackEnable
                             .Subscribe(_ => {
                                 _curAttackRange = _stageController.GetHexList(skillCenter, behaviour.attackRange, skillRotation);
-                                StartAttackEnable(behaviour.damage);
+
+                                var attackSetting = new SkillAttackSetting
+                                {
+                                    power = behaviour.damage,
+                                    attackRange = _curAttackRange
+                                };
+                                _onSkillAttackEnable.OnNext(attackSetting);
                             })
                             .AddTo(_disposables);
                         behaviour.OnAttackDisable
                             .Subscribe(_ =>
                             {
-                                FinishAttackEnable();
+                                _onSkillAttackDisable.OnNext(Unit.Default);
                                 _onSkillAttack.OnNext(_curAttackRange);
                                 if (_skillEffectMap.TryGetValue(behaviour.attackEffectTrack, out GameObject effect)) _unverifiedEffect.Remove(effect);
                             })
@@ -193,22 +199,6 @@ namespace HexRPG.Battle.Skill
 
             _director.Play();
             _animationController.Play(_director.playableAsset.name);
-        }
-
-        protected virtual void StartAttackEnable(int damage)
-        {
-            var attackSetting = new SkillAttackSetting
-            {
-                power = damage, 
-                attackRange = _curAttackRange
-            };
-
-            _attackController.StartAttack(attackSetting, _skillOrigin);
-        }
-
-        protected virtual void FinishAttackEnable()
-        {
-            _attackController.FinishAttack();
         }
 
         public void HideUnverifiedEffect()

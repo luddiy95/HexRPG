@@ -5,7 +5,7 @@ namespace HexRPG.Battle.Player.Combat
 {
     public interface ICombat
     {
-        void Init(PlayableAsset timeline, ICharacterComponentCollection combatOrigin, IAnimationController memberAnimationController);
+        void Init(PlayableAsset timeline, IAttackApplicator attackApplicator, IAnimationController memberAnimationController);
         void Execute();
 
         PlayableAsset PlayableAsset { get; }

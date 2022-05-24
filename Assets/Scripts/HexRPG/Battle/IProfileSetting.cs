@@ -6,5 +6,7 @@ namespace HexRPG.Battle
     {
         string Name { get; }
         Sprite Icon { get; }
+
+        Attribute Attribute { get; }
     }
 }

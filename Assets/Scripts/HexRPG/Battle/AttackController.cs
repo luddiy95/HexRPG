@@ -24,7 +24,7 @@ namespace HexRPG.Battle
 
     public interface IAttackController
     {
-        void StartAttack(IAttackSetting setting, ICharacterComponentCollection attackOrigin);
+        void StartAttack(IAttackSetting setting);
 
         void FinishAttack();
     }
@@ -36,7 +36,7 @@ namespace HexRPG.Battle
 
     public interface IAttackReserve
     {
-        void StartAttackReservation(Hex[] reservationRange, ICharacterComponentCollection ReservationOrigin);
+        void StartAttackReservation(Hex[] reservationRange);
         void FinishAttackReservation();
     }
 
@@ -47,21 +47,24 @@ namespace HexRPG.Battle
         IAttackSetting IAttackApplicator.CurrentSetting => _currentSetting;
         IAttackSetting _currentSetting = null;
 
-        ICharacterComponentCollection IAttackReservation.ReservationOrigin => _reservationOrigin;
-        ICharacterComponentCollection _reservationOrigin;
+        ICharacterComponentCollection IAttackReservation.ReservationOrigin => _owner;
+        ICharacterComponentCollection IAttackApplicator.AttackOrigin => _owner;
 
-        ICharacterComponentCollection IAttackApplicator.AttackOrigin => _attackOrigin;
-        ICharacterComponentCollection _attackOrigin;
+        ICharacterComponentCollection _owner;
 
         IObservable<HitData> IAttackObservable.OnAttackHit => _onAttackHit;
         readonly ISubject<HitData> _onAttackHit = new Subject<HitData>();
 
         private List<ICharacterComponentCollection> _hitObjects = new List<ICharacterComponentCollection>();
 
-        void IAttackReserve.StartAttackReservation(Hex[] reservationRange, ICharacterComponentCollection reservationOrigin)
+        public AttackController(ICharacterComponentCollection owner)
+        {
+            _owner = owner;
+        }
+
+        void IAttackReserve.StartAttackReservation(Hex[] reservationRange)
         {
             _curReservationRange = reservationRange;
-            _reservationOrigin = reservationOrigin;
             Array.ForEach(_curReservationRange, hex => hex.AddAttackReservation(this));
         }
 
@@ -70,10 +73,9 @@ namespace HexRPG.Battle
             Array.ForEach(_curReservationRange, hex => hex.RemoveAttackReservation(this));
         }
 
-        void IAttackController.StartAttack(IAttackSetting setting, ICharacterComponentCollection attackOrigin)
+        void IAttackController.StartAttack(IAttackSetting setting)
         {
             _currentSetting = setting;
-            _attackOrigin = attackOrigin;
             if (setting is ICombatAttackSetting combatAttackSetting)
             {
                 combatAttackSetting.AttackColliders.ForEach(attackCollider => attackCollider.gameObject.SetActive(true));

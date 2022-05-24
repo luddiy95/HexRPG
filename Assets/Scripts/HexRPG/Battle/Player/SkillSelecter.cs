@@ -96,7 +96,7 @@ namespace HexRPG.Battle.Player
                                 skill.FullAttackRange,
                                 _transformController.DefaultRotation + _selectedSkillRotation);
 
-                        _attackReserve.StartAttackReservation(curAttackIndicateHexList, _memberObservable.CurMember.Value);
+                        _attackReserve.StartAttackReservation(curAttackIndicateHexList);
                     }
                 })
                 .AddTo(_disposables);

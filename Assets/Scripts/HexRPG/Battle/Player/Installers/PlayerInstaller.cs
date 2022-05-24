@@ -29,7 +29,7 @@ namespace HexRPG.Battle.Player
             Container.BindInterfacesTo<SkillSelecter>().AsSingle();
             Container.BindInterfacesTo<PlayerSkillExecuter>().AsSingle();
 
-            Container.Bind<IAttackReserve>().To<AttackController>().AsSingle();
+            Container.BindInterfacesTo<AttackController>().AsSingle();
             Container.BindInterfacesTo<Liberater>().AsSingle();
 
             Container.BindInterfacesTo<PlayerActionStateController>().AsSingle();

@@ -12,11 +12,15 @@ namespace HexRPG.Battle.Player.Combat
 
     public class AbstractCombatBehaviour : MonoBehaviour, ICombat, ICombatObservable, IDisposable
     {
-        IAttackController _attackController;
         IAttackApplicator _attackApplicator;
         ICombatSetting _combatSetting;
 
         [SerializeField] protected PlayableDirector _director;
+
+        IObservable<CombatAttackSetting> ICombatObservable.OnCombatAttackEnable => _onCombatSttackEnable;
+        readonly ISubject<CombatAttackSetting> _onCombatSttackEnable = new Subject<CombatAttackSetting>();
+        IObservable<Unit> ICombatObservable.OnCombatAttackDisable => _onCombatAttackDisable;
+        readonly ISubject<Unit> _onCombatAttackDisable = new Subject<Unit>();
 
         IObservable<Unit> ICombatObservable.OnFinishCombat => _onFinishCombat;
         readonly ISubject<Unit> _onFinishCombat = new Subject<Unit>();
@@ -27,7 +31,6 @@ namespace HexRPG.Battle.Player.Combat
         Vector3 velocity = Vector3.zero;
 
         List<AttackCollider> _attackColliders = new List<AttackCollider>();
-        ICharacterComponentCollection _combatOrigin;
 
         IAnimationController _animationController;
 
@@ -38,20 +41,18 @@ namespace HexRPG.Battle.Player.Combat
 
         [Inject]
         public void Construct(
-            IAttackController attackController,
             IAttackApplicator attackApplicator,
             ICombatSetting combatSetting
         )
         {
-            _attackController = attackController;
             _attackApplicator = attackApplicator;
             _combatSetting = combatSetting;
         }
 
-        void ICombat.Init(PlayableAsset timeline, ICharacterComponentCollection combatOrigin, IAnimationController animationController)
+        void ICombat.Init(PlayableAsset timeline, IAttackApplicator attackApplicator, IAnimationController animationController)
         {
+            _attackApplicator = attackApplicator;
             //_skillEffect.SetActive(false);
-            _combatOrigin = combatOrigin;
             _animationController = animationController;
 
             _director.playableAsset = timeline;
@@ -74,7 +75,7 @@ namespace HexRPG.Battle.Player.Combat
                 {
                     // I—¹ˆ—
                     _isComboInputEnable = false;
-                    FinishAttackEnable();
+                    _onCombatAttackDisable.OnNext(Unit.Default);
                     // velocity‚ÍActionStateController‚ÅCombatStateExitŽž‚É0‚É‚È‚é
 
                     _disposables.Clear();
@@ -119,10 +120,18 @@ namespace HexRPG.Battle.Player.Combat
                         {
                             var behaviour = (clip.asset as AttackColliderAsset).behaviour;
                             behaviour.OnAttackEnable
-                                .Subscribe(_ => StartAttackEnable())
+                                .Subscribe(_ => 
+                                {
+                                    var attackSetting = new CombatAttackSetting
+                                    {
+                                        power = _combatSetting.Damage,
+                                        attackColliders = _attackColliders
+                                    };
+                                    _onCombatSttackEnable.OnNext(attackSetting);
+                                })
                                 .AddTo(_disposables);
                             behaviour.OnAttackDisable
-                                .Subscribe(_ => FinishAttackEnable())
+                                .Subscribe(_ => _onCombatAttackDisable.OnNext(Unit.Default))
                                 .AddTo(_disposables);
                         }
                     }
@@ -157,21 +166,6 @@ namespace HexRPG.Battle.Player.Combat
                 _director.Play();
                 _animationController.Play(_director.playableAsset.name);
             }
-        }
-
-        protected virtual void StartAttackEnable()
-        {
-            var attackSetting = new CombatAttackSetting
-            {
-                power = _combatSetting.Damage, 
-                attackColliders = _attackColliders
-            };
-            _attackController.StartAttack(attackSetting, _combatOrigin);
-        }
-
-        protected virtual void FinishAttackEnable()
-        {
-            _attackController.FinishAttack();
         }
 
         void IDisposable.Dispose()

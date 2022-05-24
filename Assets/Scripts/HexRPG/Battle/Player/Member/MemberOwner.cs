@@ -8,6 +8,7 @@ namespace HexRPG.Battle.Player.Member
         IMemberSelectedObservable SelectedObservable { get; }
         IColliderController ColliderController { get; }
         IAnimationController AnimationController { get; }
+        ICombatSpawnController CombatSpawnController { get; }
         ICombatSpawnObservable CombatSpawnObservable { get; }
         ICombatController CombatController { get; }
         ISkillSpawnController SkillSpawnController { get; }
@@ -15,18 +16,19 @@ namespace HexRPG.Battle.Player.Member
         ISkillController SkillController { get; }
         IActiveController ActiveController { get; }
         ISkillPoint SkillPoint { get; }
-        IProfileSetting ProfileSetting { get; }
         IMoveSetting MoveSetting { get; }
     }
 
     public class MemberOwner : MonoBehaviour, IMemberComponentCollection
     {
-        [Inject] IMemberSelectedObservable IMemberComponentCollection.SelectedObservable { get; }
-        [Inject] IColliderController IMemberComponentCollection.ColliderController { get; }
+        [Inject] IProfileSetting ICharacterComponentCollection.ProfileSetting { get; }
         [Inject] IDieObservable ICharacterComponentCollection.DieObservable { get; }
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
+        [Inject] IMemberSelectedObservable IMemberComponentCollection.SelectedObservable { get; }
+        [Inject] IColliderController IMemberComponentCollection.ColliderController { get; }
         [Inject] IAnimationController IMemberComponentCollection.AnimationController { get; }
+        [Inject] ICombatSpawnController IMemberComponentCollection.CombatSpawnController { get; }
         [Inject] ICombatSpawnObservable IMemberComponentCollection.CombatSpawnObservable { get; }
         [Inject] ICombatController IMemberComponentCollection.CombatController { get; }
         [Inject] ISkillSpawnController IMemberComponentCollection.SkillSpawnController { get; }
@@ -34,7 +36,6 @@ namespace HexRPG.Battle.Player.Member
         [Inject] ISkillController IMemberComponentCollection.SkillController { get; }
         [Inject] IActiveController IMemberComponentCollection.ActiveController { get; }
         [Inject] ISkillPoint IMemberComponentCollection.SkillPoint { get; }
-        [Inject] IProfileSetting IMemberComponentCollection.ProfileSetting { get; }
         [Inject] IMoveSetting IMemberComponentCollection.MoveSetting { get; }
 
         public class Factory : PlaceholderFactory<Transform, Vector3, MemberOwner>
