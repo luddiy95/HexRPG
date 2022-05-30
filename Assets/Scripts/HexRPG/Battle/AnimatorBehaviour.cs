@@ -6,7 +6,7 @@ namespace HexRPG.Battle
     {
         protected IAnimatorController Self => this;
 
-        Animator IAnimatorController.Animator => _animator != null ? _animator : GetComponent<Animator>();
+        Animator IAnimatorController.Animator => _animator ? _animator : _animator = GetComponent<Animator>();
         [Header("動かすAnimator。null ならこのオブジェクト。")]
         [SerializeField] protected Animator _animator;
 

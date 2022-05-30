@@ -22,6 +22,8 @@ namespace HexRPG.Battle.Player
             Container.BindInstance(_spawnRoot).WhenInjectedInto<TransformBehaviour>();
             Container.BindInstance(_spawnPos).WhenInjectedInto<TransformBehaviour>();
 
+            Container.BindInterfacesTo<PlayerColliderController>().AsSingle();
+
             Container.BindInterfacesTo<MemberController>().AsSingle();
 
             Container.BindInterfacesTo<PlayerCombatController>().AsSingle();
@@ -32,8 +34,12 @@ namespace HexRPG.Battle.Player
             Container.BindInterfacesTo<AttackController>().AsSingle();
             Container.BindInterfacesTo<Liberater>().AsSingle();
 
+            Container.BindInterfacesTo<DamagedApplicable>().AsSingle();
+
             Container.BindInterfacesTo<PlayerActionStateController>().AsSingle();
             Container.BindInterfacesTo<ActionStateController>().AsSingle();
+
+            Container.BindInterfacesTo<PlayerDieObservable>().AsSingle();
 
             System.Array.ForEach(_party, memberPrefab =>
             {

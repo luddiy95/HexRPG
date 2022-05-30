@@ -5737,6 +5737,10 @@ PrefabInstance:
       propertyPath: _clips.Array.data[11]
       value: 
       objectReference: {fileID: 7400000, guid: 2f8d8210ab8f12f4a83500c29c5c58ba, type: 2}
+    - target: {fileID: 816612680260102943, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+      propertyPath: _durationDataContainer
+      value: 
+      objectReference: {fileID: 11400000, guid: 43e18a1a943f6764f9ece53a10475aa5, type: 2}
     - target: {fileID: 957518094264357745, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _animator
       value: 
@@ -5827,15 +5831,15 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 46d75f82f71ecda45a54cd746b2ed20a, type: 3}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _name
-      value: Mamber1
+      value: Member1
       objectReference: {fileID: 0}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _attribute
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _healthMax
-      value: 100
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _mentalMax

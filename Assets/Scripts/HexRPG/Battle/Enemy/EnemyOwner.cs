@@ -21,6 +21,7 @@ namespace HexRPG.Battle.Enemy
         [Inject] IDieObservable ICharacterComponentCollection.DieObservable { get; }
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
+        [Inject] IDamageApplicable ICharacterComponentCollection.DamagedApplicable { get; }
         [Inject] IColliderController IEnemyComponentCollection.ColliderController { get; }
         [Inject] IAnimationController IEnemyComponentCollection.AnimationController { get; }
         [Inject] ICharacterActionStateController IEnemyComponentCollection.CharacterActionStateController { get; }

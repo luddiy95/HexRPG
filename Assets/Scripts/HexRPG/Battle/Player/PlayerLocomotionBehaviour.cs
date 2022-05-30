@@ -49,7 +49,7 @@ namespace HexRPG.Battle.Player
                 .AddTo(this);
 
             // Camera
-            _cameraRotateUnit = _battleData.CameraRotateUnit;
+            _cameraRotateUnit = _battleData.cameraRotateUnit;
             _cameraRotateStepMax = 360 / _cameraRotateUnit;
             _mainVirtualCamera = _battleObservable.MainVirtualCamera;
             _cameraTransposer = _mainVirtualCamera.GetCinemachineComponent<CinemachineOrbitalTransposer>();

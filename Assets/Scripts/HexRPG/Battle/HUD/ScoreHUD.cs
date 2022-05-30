@@ -29,7 +29,6 @@ namespace HexRPG.Battle.HUD
         const float _messageAddInterval = 0.35f; //! AcquiredMessageHUD#duration‚æ‚è’·‚­
         float _lastMessageAddedTime;
 
-        CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         CompositeDisposable _disposables = new CompositeDisposable();
 
         [Inject]
@@ -59,7 +58,7 @@ namespace HexRPG.Battle.HUD
             _scoreObservable.OnAddScoreData
                 .Subscribe(scoreData =>
                 {
-                    OnAddScoreData(scoreData, _cancellationTokenSource.Token).Forget();
+                    OnAddScoreData(scoreData, this.GetCancellationTokenOnDestroy()).Forget();
                 })
                 .AddTo(this);
         }
@@ -106,8 +105,6 @@ namespace HexRPG.Battle.HUD
 
         void OnDestroy()
         {
-            _cancellationTokenSource.Cancel();
-            _cancellationTokenSource.Dispose();
             _disposables.Dispose();
         }
 

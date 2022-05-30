@@ -97,7 +97,6 @@ GameObject:
   - component: {fileID: 8903735977820487127}
   - component: {fileID: -3323397056586544932}
   - component: {fileID: 8463418554706351464}
-  - component: {fileID: 4111755355788955245}
   - component: {fileID: 14830042264568972}
   - component: {fileID: 4192941471624449821}
   - component: {fileID: 5444327952133001356}
@@ -224,6 +223,7 @@ MonoBehaviour:
   _rootTransform: {fileID: 0}
   _moveTransform: {fileID: 0}
   _rotateTransform: {fileID: 0}
+  _displayTransform: {fileID: 0}
   _spawnRoots:
   - _transform: {fileID: 4773111240759286194}
     _spawnObj: Skill
@@ -265,20 +265,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76fb8acf8748a3b4ea9c001a3c8b36e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _durationData: {fileID: 0}
   _clips: []
---- !u!114 &4111755355788955245
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8860857860763353368}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff031b9e59c79554a8ded6e14aea480f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &14830042264568972
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293,6 +280,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _name: 
   _icon: {fileID: 0}
+  _attribute: 0
   _moveSpeed: 0
   _rotateSpeed: 0
   _healthMax: 100
@@ -317,7 +305,6 @@ MonoBehaviour:
   - {fileID: 8903735977820487127}
   - {fileID: -3323397056586544932}
   - {fileID: 8463418554706351464}
-  - {fileID: 4111755355788955245}
   - {fileID: 14830042264568972}
   - {fileID: 7135533358454013842}
   _identifier: 

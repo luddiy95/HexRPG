@@ -27,8 +27,6 @@ namespace HexRPG.Battle.Enemy
         ISkillController _skillController;
         ISkillObservable _skillObservable;
 
-        ActionStateType CurState => _actionStateObservable.CurrentState.Value.Type;
-
         CompositeDisposable _disposables = new CompositeDisposable();
         CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -119,10 +117,14 @@ namespace HexRPG.Battle.Enemy
         {
             // Damaged
             _damagedApplicable.OnHit
-                .Subscribe(_ =>
+                .Subscribe(hitData =>
                 {
-                    _cancellationTokenSource.Cancel(); // Sequence’†’f
-                    _actionStateController.Execute(new Command { Id = "damaged" });
+                    var hitType = hitData.HitType;
+                    if(hitType == HitType.WEAK || hitType == HitType.CRITICAL)
+                    {
+                        _cancellationTokenSource.Cancel(); // Sequence’†’f
+                        _actionStateController.Execute(new Command { Id = "damaged" });
+                    }
                 })
                 .AddTo(_disposables);
 

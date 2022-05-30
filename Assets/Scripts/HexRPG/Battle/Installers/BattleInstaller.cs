@@ -18,16 +18,19 @@ namespace HexRPG.Battle
         [Header("Enemyê∂ê¨ê›íË")]
         [SerializeField] SpawnSetting[] _enemySpawnSettings;
 
-        [SerializeField] BattleDataContainer _battleDataContainer;
+        [SerializeField] BattleData _battleData;
 
+        [SerializeField] DisplayDataContainer _displayDataContainer;
         [SerializeField] GameObject _enemyHealthGaugePrefab;
+        [SerializeField] GameObject _damagedPanelPrefab;
 
         public override void InstallBindings()
         {
             Container.BindInterfacesTo<UpdateFeature>().AsSingle();
             Container.BindInterfacesTo<DeltaTime>().AsSingle();
 
-            Container.Bind<BattleData>().FromInstance(_battleDataContainer.Data);
+            Container.Bind<BattleData>().FromInstance(_battleData);
+            Container.Bind<DisplayDataContainer>().FromInstance(_displayDataContainer);
 
             Container.BindInterfacesTo<ScoreController>().AsSingle();
 
@@ -42,7 +45,8 @@ namespace HexRPG.Battle
                     .FromSubContainerResolve()
                     .ByNewContextPrefab<EnemyInstaller>(setting.Prefab);
             });
-            Container.BindFactory<HealthGauge, HealthGauge.Factory>().FromComponentInNewPrefab(_enemyHealthGaugePrefab);
+            Container.BindFactory<HealthGaugeHUD, HealthGaugeHUD.Factory>().FromComponentInNewPrefab(_enemyHealthGaugePrefab);
+            Container.BindFactory<DamagedPanelParentHUD, DamagedPanelParentHUD.Factory>().FromComponentInNewPrefab(_damagedPanelPrefab);
         }
     }
 }

@@ -37,7 +37,7 @@ namespace HexRPG.Battle
         Hex _playerLandedHex = null;
 
         IReadOnlyReactiveCollection<IEnemyComponentCollection> IBattleObservable.EnemyList => _enemyList;
-        IReactiveCollection<IEnemyComponentCollection> _enemyList = new ReactiveCollection<IEnemyComponentCollection>();
+        readonly IReactiveCollection<IEnemyComponentCollection> _enemyList = new ReactiveCollection<IEnemyComponentCollection>();
 
         CinemachineBrain IBattleObservable.CinemachineBrain => _cinemachineBrain;
         [SerializeField] CinemachineBrain _cinemachineBrain;
@@ -92,7 +92,7 @@ namespace HexRPG.Battle
 
             var memberController = _playerOwner.MemberController;
             await memberController.SpawnAllMember(token);
-            memberController.ChangeMember(0);
+            memberController.ChangeMember(0); //! ‚±‚±‚Å‚æ‚¤‚â‚­CurMember‚ª”­s‚³‚ê‚é
 
             _playerOwner.CharacterActionStateController.Init(); // ”X‚Ì‰Šú‰»‚ªI‚í‚Á‚Ä‚©‚çActionStateController‚ğ‰Šú‰»
 

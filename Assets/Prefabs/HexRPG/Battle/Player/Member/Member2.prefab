@@ -25,7 +25,7 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: dd5da3b6f030d984eab6ecc316ebcddd, type: 3}
     - target: {fileID: 5510782246767885481, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _name
-      value: Mamber2
+      value: Member2
       objectReference: {fileID: 0}
     - target: {fileID: 5510782246767885481, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _attribute
@@ -79,6 +79,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7189455204605954145, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
+      propertyPath: _durationDataContainer
+      value: 
+      objectReference: {fileID: 11400000, guid: 23ba3adfa26c14a4091d1f5185a1945b, type: 2}
     - target: {fileID: 8720306215907586367, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _skills.Array.size
       value: 1

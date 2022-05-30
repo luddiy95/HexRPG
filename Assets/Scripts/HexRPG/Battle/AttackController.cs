@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UniRx;
+using UnityEngine;
 
 namespace HexRPG.Battle
 {
@@ -76,11 +77,11 @@ namespace HexRPG.Battle
         void IAttackController.StartAttack(IAttackSetting setting)
         {
             _currentSetting = setting;
-            if (setting is ICombatAttackSetting combatAttackSetting)
+            if (_currentSetting is ICombatAttackSetting combatAttackSetting)
             {
                 combatAttackSetting.AttackColliders.ForEach(attackCollider => attackCollider.gameObject.SetActive(true));
             }
-            if (setting is ISkillAttackSetting skillAttackSetting)
+            if (_currentSetting is ISkillAttackSetting skillAttackSetting)
             {
                 Array.ForEach(skillAttackSetting.AttackRange, hex => hex.AddAttackApplicator(this));
             }

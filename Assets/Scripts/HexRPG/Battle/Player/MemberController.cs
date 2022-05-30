@@ -13,7 +13,7 @@ namespace HexRPG.Battle.Player
 
     public interface IMemberObservable
     {
-        List<IMemberComponentCollection> MemberList { get; }
+        IReadOnlyReactiveCollection<IMemberComponentCollection> MemberList { get; }
         List<IMemberComponentCollection> StandingMemberList { get; }
         IReadOnlyReactiveProperty<IMemberComponentCollection> CurMember { get; }
         int CurMemberIndex { get; }
@@ -32,8 +32,8 @@ namespace HexRPG.Battle.Player
         List<MemberOwner.Factory> _memberFactories;
         IAttackApplicator _attackApplicator;
 
-        List<IMemberComponentCollection> IMemberObservable.MemberList => _memberList;
-        List<IMemberComponentCollection> _memberList = new List<IMemberComponentCollection>();
+        IReadOnlyReactiveCollection<IMemberComponentCollection> IMemberObservable.MemberList => _memberList;
+        readonly IReactiveCollection<IMemberComponentCollection> _memberList = new ReactiveCollection<IMemberComponentCollection>();
 
         List<IMemberComponentCollection> IMemberObservable.StandingMemberList => _standingMemberList;
         List<IMemberComponentCollection> _standingMemberList
@@ -72,18 +72,24 @@ namespace HexRPG.Battle.Player
             _characterInput.SelectedMemberIndex
                 .Subscribe(index =>
                 {
-                    (this as IMemberController).ChangeMember(_memberList.FindIndex(member => member == _standingMemberList[index]));
+                    (this as IMemberController).ChangeMember(_memberList.IndexOf(_standingMemberList[index]));
                 })
                 .AddTo(_disposables);
         }
 
         async UniTask IMemberController.SpawnAllMember(CancellationToken token)
         {
-            _memberList = _memberFactories.Select(factory => 
-                factory.Create(_transformController.SpawnRootTransform("Member"), Vector3.zero).GetComponent<IMemberComponentCollection>()).ToList();
+            _memberFactories.ForEach(factory =>
+            {
+                var member = factory.Create(_transformController.SpawnRootTransform("Member"), Vector3.zero).GetComponent<IMemberComponentCollection>();
+                member.DieObservable.OnFinishDie
+                    .Subscribe(_ => _memberList.Remove(member))
+                    .AddTo(_disposables);
+                _memberList.Add(member);
+            });
 
-            _memberList.ForEach(member => member.CombatSpawnController.Spawn(_attackApplicator));
-            _memberList.ForEach(member => member.SkillSpawnController.Spawn(_transformController.SpawnRootTransform("Skill")));
+            foreach (var member in _memberList) member.CombatSpawnController.Spawn(_attackApplicator);
+            foreach (var member in _memberList) member.SkillSpawnController.Spawn(_transformController.SpawnRootTransform("Skill"));
 
             // 全てのCombat/Skillが生成されるのを待つ
             await UniTask.WaitUntil(
@@ -91,7 +97,7 @@ namespace HexRPG.Battle.Player
                 cancellationToken: token);
 
             // 各MemberのAnimationBehaviour初期化(MemberのAnimator, Combat, Skillが必要)
-            _memberList.ForEach(member => member.AnimationController.Init());
+            foreach (var member in _memberList) member.AnimationController.Init();
         }
 
         void IMemberController.ChangeMember(int index)

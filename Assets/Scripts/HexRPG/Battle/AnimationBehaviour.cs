@@ -18,7 +18,7 @@ namespace HexRPG.Battle
 
         protected readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
 
-        [SerializeField] protected DurationData _durationData;
+        protected DurationDataContainer _durationDataContainer;
 
         // Playable
         protected PlayableGraph _graph;
@@ -62,7 +62,7 @@ namespace HexRPG.Battle
         {
             var fadeLength = 0f;
             if (_animationTypeMap.TryGetValue(curClip, out AnimationType curAnimationType) == false ||
-                _animationTypeMap.TryGetValue(nextClip, out AnimationType nextAnimationType) == false) return _durationData.defaultDuration;
+                _animationTypeMap.TryGetValue(nextClip, out AnimationType nextAnimationType) == false) return _durationDataContainer.defaultDuration;
 
             switch (nextAnimationType)
             {
@@ -73,11 +73,11 @@ namespace HexRPG.Battle
                         case AnimationType.Rotate: // Rotate›› -> Idle
                         case AnimationType.Damaged: // Damaged -> Idle
                         case AnimationType.Combat: // Combat -> Idle (’†’f‚Ì‚Ý)
-                            fadeLength = _durationData.defaultBackToIdleDuration;
-                            var backToIdleDurationData = _durationData.backToIdleDurations.FirstOrDefault(data => data.clip == curClip);
+                            fadeLength = _durationDataContainer.defaultBackToIdleDuration;
+                            var backToIdleDurationData = _durationDataContainer.backToIdleDurations.FirstOrDefault(data => data.clip == curClip);
                             if (backToIdleDurationData != null) fadeLength = backToIdleDurationData.duration;
                             break;
-                        default: fadeLength = _durationData.defaultDuration; break;
+                        default: fadeLength = _durationDataContainer.defaultDuration; break;
                     }
                     break;
                 case AnimationType.Move:
@@ -86,11 +86,11 @@ namespace HexRPG.Battle
                         case AnimationType.Idle:
                         case AnimationType.Move:
                             // Idle, Move›› -> Move››
-                            fadeLength = _durationData.defaultLocomotionDuration;
-                            var locomotionDurationData = _durationData.locomotionDurations.FirstOrDefault(data => data.clipBefore == curClip && data.clipAfter == nextClip);
+                            fadeLength = _durationDataContainer.defaultLocomotionDuration;
+                            var locomotionDurationData = _durationDataContainer.locomotionDurations.FirstOrDefault(data => data.clipBefore == curClip && data.clipAfter == nextClip);
                             if (locomotionDurationData != null) fadeLength = locomotionDurationData.duration;
                             break;
-                        default: fadeLength = _durationData.defaultDuration; break;
+                        default: fadeLength = _durationDataContainer.defaultDuration; break;
                     }
                     break;
                 case AnimationType.Rotate:
@@ -98,21 +98,21 @@ namespace HexRPG.Battle
                     {
                         case AnimationType.Idle:
                             // Idle -> Rotate›› 
-                            fadeLength = _durationData.defaultRotateStartDuration;
-                            var rotateStartDurationData = _durationData.rotateStartDurations.FirstOrDefault(data => data.clip == curClip);
+                            fadeLength = _durationDataContainer.defaultRotateStartDuration;
+                            var rotateStartDurationData = _durationDataContainer.rotateStartDurations.FirstOrDefault(data => data.clip == curClip);
                             if (rotateStartDurationData != null) fadeLength = rotateStartDurationData.duration;
                             break;
-                        default: fadeLength = _durationData.defaultDuration; break;
+                        default: fadeLength = _durationDataContainer.defaultDuration; break;
 
                     }
                     break;
                 case AnimationType.Damaged:
-                    fadeLength = _durationData.defaultDamagedDuration;
-                    var damagedDurationData = _durationData.damagedDurations.FirstOrDefault(data => data.clip == curClip);
+                    fadeLength = _durationDataContainer.defaultDamagedDuration;
+                    var damagedDurationData = _durationDataContainer.damagedDurations.FirstOrDefault(data => data.clip == curClip);
                     if (damagedDurationData != null) fadeLength = damagedDurationData.duration;
                     break;
                 //! Die‚ÍTimeline
-                default: fadeLength = _durationData.defaultDuration; break;
+                default: fadeLength = _durationDataContainer.defaultDuration; break;
             }
             return fadeLength;
         }
@@ -128,8 +128,8 @@ namespace HexRPG.Battle
                 var fadeLength = 0f;
                 if (i == 0)
                 {
-                    fadeLength = _durationData.defaultSkillStartDuration;
-                    var skillStartDurationData = _durationData.skillStartDurations.FirstOrDefault(data => data.clip == _curSkill.SkillName);
+                    fadeLength = _durationDataContainer.defaultSkillStartDuration;
+                    var skillStartDurationData = _durationDataContainer.skillStartDurations.FirstOrDefault(data => data.clip == _curSkill.SkillName);
                     if (skillStartDurationData != null) fadeLength = skillStartDurationData.duration;
                 }
                 else if (timelineClipInfo.BlendInDuration >= 0)
@@ -164,7 +164,7 @@ namespace HexRPG.Battle
                 var timelineClipInfo = _dieClipInfoList[i];
 
                 var fadeLength = 0f;
-                if (i == 0) fadeLength = _durationData.dieStartDuration;
+                if (i == 0) fadeLength = _durationDataContainer.dieStartDuration;
                 else if (timelineClipInfo.BlendInDuration >= 0) fadeLength = (float)timelineClipInfo.BlendInDuration;
 
                 var blendOutDuration = timelineClipInfo.BlendOutDuration;

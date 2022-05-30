@@ -57,8 +57,8 @@ namespace HexRPG.Battle.Player.UI
 
         void ISkillUI.SwitchSelected(bool selected)
         {
-            if (selected) _background.sprite = _battleData.SkillBackgroundSelectedSprite;
-            else _background.sprite = _battleData.SkillBackgroundDefaultSprite;
+            if (selected) _background.sprite = _battleData.skillBackgroundSelectedSprite;
+            else _background.sprite = _battleData.skillBackgroundDefaultSprite;
         }
     }
 }

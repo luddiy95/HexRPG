@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79d2e370a640ee744a741cf0a932b4ef, type: 3}
+  m_Name: BattleData
+  m_EditorClassIdentifier: 
+  cameraRotateUnit: 60
+  scoreInfoMap:
+  - type: 0
+    score: 10
+    message: "Liberate\u6210\u529F!"
+  - type: 1
+    score: 30
+    message: "\u8907\u6570Enemy\u540C\u6642\u6483\u7834"
+  - type: 2
+    score: 20
+    message: WEAK!!
+  - type: 3
+    score: 20
+    message: CRITICAL!!
+  initScore: 20
+  scoreMax: 200
+  damagedDisplayMatMap:
+  - hitType: 0
+    material: {fileID: 2100000, guid: e81848a9022863140b5d530a3850e43a, type: 2}
+  - hitType: 1
+    material: {fileID: 2100000, guid: ff869f6f7af605d44989a5cee137cd2f, type: 2}
+  - hitType: 2
+    material: {fileID: 2100000, guid: 6a8cadda010d1e74989cef5fc6e59d29, type: 2}
+  - hitType: 3
+    material: {fileID: 2100000, guid: 9e99eb2515b36a148946bbcc4a9295b6, type: 2}
+  skillBackgroundDefaultSprite: {fileID: 21300000, guid: ae4dd3a93e774244ba170cbc210ea311, type: 3}
+  skillBackgroundSelectedSprite: {fileID: 21300000, guid: 9e9c5ff20c2a4d24082a692dbea18468, type: 3}
+  hexPlayerLineMat: {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
+  hexEnemyLineMat: {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  hexDefaultMat: {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
+  hexAttackIndicatedMat: {fileID: 2100000, guid: fd1f4f7c68e13a14b93550e4bd264e4a, type: 2}

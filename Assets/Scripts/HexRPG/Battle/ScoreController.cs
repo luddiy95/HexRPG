@@ -71,8 +71,8 @@ namespace HexRPG.Battle
 
         void IInitializable.Initialize()
         {
-            _scoreMax = _battleData.ScoreMax;
-            _curScore.Value = _battleData.InitScore;
+            _scoreMax = _battleData.scoreMax;
+            _curScore.Value = _battleData.initScore;
 
             _battleObservable.OnPlayerSpawn
                 .Subscribe(playerOwner =>
@@ -105,7 +105,7 @@ namespace HexRPG.Battle
 
         void AcquireScore(ScoreType type, int acquireCount)
         {
-            var scoreInfo = _battleData.ScoreInfoMap.FirstOrDefault(data => data.type == type);
+            var scoreInfo = _battleData.scoreInfoMap.FirstOrDefault(data => data.type == type);
             if (scoreInfo == null) return;
 
             var score = _curScore.Value + scoreInfo.score * acquireCount;

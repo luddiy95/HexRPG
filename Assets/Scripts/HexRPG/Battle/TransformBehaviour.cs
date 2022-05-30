@@ -29,6 +29,11 @@ namespace HexRPG.Battle
         int DefaultRotation { get; set; }
 
         /// <summary>
+        /// HUDを表示させるときのTransform
+        /// </summary>
+        Transform DisplayTransform { get; }
+
+        /// <summary>
         /// spawnObjを生成する際に親となるTransform
         /// </summary>
         Transform SpawnRootTransform(string spawnObj);
@@ -38,22 +43,24 @@ namespace HexRPG.Battle
     {
         ITransformController Self => this;
 
-        Transform ITransformController.RootTransform => _rootTransform != null ? _rootTransform : transform;
+        Transform ITransformController.RootTransform => _rootTransform ? _rootTransform : _rootTransform = transform;
 
-        Transform ITransformController.MoveTransform => _moveTransform != null ? _moveTransform : transform;
+        Transform ITransformController.MoveTransform => _moveTransform ? _moveTransform : _moveTransform = transform;
         Vector3 ITransformController.Position 
         { 
             get => Self.MoveTransform.localPosition; 
             set => Self.MoveTransform.localPosition = value; 
         }
 
-        Transform ITransformController.RotateTransform => _rotateTransform != null ? _rotateTransform : transform;
+        Transform ITransformController.RotateTransform => _rotateTransform ? _rotateTransform : _rotateTransform = transform;
         Quaternion ITransformController.Rotation { get => _rotation; set => _rotation = value; }
         Quaternion _rotation 
         { 
             get => Self.RotateTransform.localRotation; 
             set => Self.RotateTransform.localRotation = value; 
         }
+
+        Transform ITransformController.DisplayTransform => _displayTransform ? _displayTransform! : _displayTransform = transform;
 
         int ITransformController.RotationAngle
         {
@@ -75,14 +82,21 @@ namespace HexRPG.Battle
             return (spawnRootTransform != null && spawnRootTransform.Transform != null) ? spawnRootTransform.Transform : transform;
         }
 
+#nullable enable
+
         [Header("RootとなるTransform。null ならこのオブジェクト。")]
-        [SerializeField] Transform _rootTransform;
+        [SerializeField] Transform? _rootTransform;
 
         [Header("動かすTransform。null ならこのオブジェクト。")]
-        [SerializeField] Transform _moveTransform;
+        [SerializeField] Transform? _moveTransform;
 
         [Header("回転させるTransform。null ならこのオブジェクト。")]
-        [SerializeField] Transform _rotateTransform;
+        [SerializeField] Transform? _rotateTransform;
+
+        [Header("HUDを表示させるときのTransform。null ならこのオブジェクト。")]
+        [SerializeField] Transform? _displayTransform;
+
+#nullable disable
 
         [Header("何かを生成する際に親となるTransform。null ならこのオブジェクト。")]
         [SerializeField] SpawnRoot[] _spawnRoots;

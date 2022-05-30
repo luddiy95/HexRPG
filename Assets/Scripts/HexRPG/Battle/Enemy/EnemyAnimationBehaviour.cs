@@ -40,6 +40,10 @@ namespace HexRPG.Battle.Enemy
 
         void IAnimationController.Init()
         {
+            var name = _profileSetting.Name;
+            _durationDataContainer = Resources.Load<DurationDataContainer>
+                ("HexRPG/Battle/ScriptableObject/Enemy/" + name + "/" + name + "DurationDataContainer");
+
             SetupGraph();
 
             //TODO: ‰¼
@@ -162,7 +166,7 @@ namespace HexRPG.Battle.Enemy
             var damagedToIdleEvent = new AnimationEvent[] {
                 new AnimationEvent()
                 {
-                    time = damagedClip.length * _durationData.exitTimeToIdle,
+                    time = damagedClip.length * _durationDataContainer.exitTimeToIdle,
                     functionName = "FadeToIdle"
                 }
             };

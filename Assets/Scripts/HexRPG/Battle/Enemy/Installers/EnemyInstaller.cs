@@ -29,6 +29,8 @@ namespace HexRPG.Battle.Enemy
 
             Container.Bind(typeof(IAttackReserve), typeof(IAttackController)).To<AttackController>().AsSingle();
 
+            Container.BindInterfacesTo<DamagedApplicable>().AsSingle();
+
             Container.BindInterfacesTo<Health>().AsSingle();
 
             Array.ForEach(_skills, skill =>

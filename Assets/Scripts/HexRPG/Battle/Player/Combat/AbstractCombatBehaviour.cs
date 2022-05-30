@@ -17,8 +17,8 @@ namespace HexRPG.Battle.Player.Combat
 
         [SerializeField] protected PlayableDirector _director;
 
-        IObservable<CombatAttackSetting> ICombatObservable.OnCombatAttackEnable => _onCombatSttackEnable;
-        readonly ISubject<CombatAttackSetting> _onCombatSttackEnable = new Subject<CombatAttackSetting>();
+        IObservable<CombatAttackSetting> ICombatObservable.OnCombatAttackEnable => _onCombatAttackEnable;
+        readonly ISubject<CombatAttackSetting> _onCombatAttackEnable = new Subject<CombatAttackSetting>();
         IObservable<Unit> ICombatObservable.OnCombatAttackDisable => _onCombatAttackDisable;
         readonly ISubject<Unit> _onCombatAttackDisable = new Subject<Unit>();
 
@@ -127,7 +127,7 @@ namespace HexRPG.Battle.Player.Combat
                                         power = _combatSetting.Damage,
                                         attackColliders = _attackColliders
                                     };
-                                    _onCombatSttackEnable.OnNext(attackSetting);
+                                    _onCombatAttackEnable.OnNext(attackSetting);
                                 })
                                 .AddTo(_disposables);
                             behaviour.OnAttackDisable

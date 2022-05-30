@@ -53,6 +53,10 @@ namespace HexRPG.Battle.Player.Member
 
         void IAnimationController.Init()
         {
+            var name = _profileSetting.Name;
+            _durationDataContainer = Resources.Load<DurationDataContainer>
+                ("HexRPG/Battle/ScriptableObject/Player/" + name + "/" + name + "DurationDataContainer");
+
             SetupGraph();
 
             _animationTypeMap.Add(_playables[0].GetAnimationClip().name, AnimationType.Idle);
@@ -265,8 +269,8 @@ namespace HexRPG.Battle.Player.Member
                 var fadeLength = 0f;
                 if (i == 0)
                 {
-                    fadeLength = _durationData.defaultCombatStartDuration;
-                    var combatStartDurationData = _durationData.combatStartDurations.FirstOrDefault(data => data.clip == _curCombat.CombatName);
+                    fadeLength = _durationDataContainer.defaultCombatStartDuration;
+                    var combatStartDurationData = _durationDataContainer.combatStartDurations.FirstOrDefault(data => data.clip == _curCombat.CombatName);
                     if (combatStartDurationData != null) fadeLength = combatStartDurationData.duration;
                 }
                 else if (timelineClipInfo.BlendInDuration >= 0)
@@ -359,7 +363,7 @@ namespace HexRPG.Battle.Player.Member
             var damagedToIdleEvent = new AnimationEvent[] {
                 new AnimationEvent()
                 {
-                    time = damagedClip.length * _durationData.exitTimeToIdle,
+                    time = damagedClip.length * _durationDataContainer.exitTimeToIdle,
                     functionName = "FadeToIdle"
                 }
             };

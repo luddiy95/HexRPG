@@ -5,8 +5,6 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using DG.Tweening.Plugins.Options;
-using DG.Tweening.Core;
 
 namespace HexRPG.Battle.HUD
 {
@@ -33,7 +31,7 @@ namespace HexRPG.Battle.HUD
         const float _duration = 0.325f;
         const float _showInterval = 1.5f;
 
-        CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        CancellationToken _token;
 
         void Awake()
         {
@@ -41,15 +39,16 @@ namespace HexRPG.Battle.HUD
 
             _defaultPositionX = _rectTransform.anchoredPosition.x;
             _rectTransform.anchoredPosition = Vector3.zero;
+
+            _token = this.GetCancellationTokenOnDestroy();
         }
 
         void IAcquiredMessage.Show(string message)
         {
-            _cancellationTokenSource = new CancellationTokenSource();
-            StartShowInterval(_cancellationTokenSource.Token).Forget();
+            StartShowInterval(_token).Forget();
 
             _rectTransform.anchoredPosition = Vector3.zero;
-            DOAnchorPosX(_rectTransform, _defaultPositionX, _duration);
+            TransformUtility.DOAnchorPosX(_rectTransform, _defaultPositionX, _duration);
             _message.text = message;
         }
 
@@ -57,7 +56,7 @@ namespace HexRPG.Battle.HUD
         {
             if(_hideTweener == null)
             {
-                _hideTweener = DOAnchorPosX(_rectTransform, 0, _duration)
+                _hideTweener = TransformUtility.DOAnchorPosX(_rectTransform, 0, _duration)
                     .OnComplete(() => DestroyImmediate(gameObject));
             }
         }
@@ -71,15 +70,6 @@ namespace HexRPG.Battle.HUD
         void OnDestroy()
         {
             _onDestroy.OnNext(Unit.Default);
-            _cancellationTokenSource.Cancel();
-            _cancellationTokenSource.Dispose();
-        }
-
-        TweenerCore<Vector2, Vector2, VectorOptions> DOAnchorPosX(RectTransform target, float endValue, float duration, bool snapping = false)
-        {
-            TweenerCore<Vector2, Vector2, VectorOptions> t = DOTween.To(() => target.anchoredPosition, x => target.anchoredPosition = x, new Vector2(endValue, 0), duration);
-            t.SetOptions(AxisConstraint.X, snapping).SetTarget(target);
-            return t;
         }
     }
 }

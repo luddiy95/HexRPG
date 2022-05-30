@@ -30,8 +30,8 @@ namespace HexRPG.Battle.Stage
             {
                 _isAttackIndicate = value;
                 var materials = _renderer.materials;
-                if (_isAttackIndicate) materials[0] = _battleData.HexAttackIndicatedMat;
-                else materials[0] = _battleData.HexDefaultMat;
+                if (_isAttackIndicate) materials[0] = _battleData.hexAttackIndicatedMat;
+                else materials[0] = _battleData.hexDefaultMat;
                 _renderer.materials = materials;
             }
         }
@@ -82,7 +82,7 @@ namespace HexRPG.Battle.Stage
             if (isPlayer == (_status == Status.PLAYER)) return false;
 
             var materials = _renderer.materials;
-            materials[1] = isPlayer ? _battleData.HexPlayerLineMat : _battleData.HexEnemyLineMat;
+            materials[1] = isPlayer ? _battleData.hexPlayerLineMat : _battleData.hexEnemyLineMat;
             _renderer.materials = materials;
 
             _status = isPlayer ? Status.PLAYER : Status.ENEMY;
