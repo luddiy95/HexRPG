@@ -32,10 +32,5 @@ namespace HexRPG.Battle.HUD
         {
             _disposables.Dispose();
         }
-
-        public class Factory : PlaceholderFactory<HealthGaugeHUD>
-        {
-
-        }
     }
 }

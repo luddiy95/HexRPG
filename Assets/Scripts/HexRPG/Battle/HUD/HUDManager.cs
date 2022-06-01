@@ -5,6 +5,8 @@ using Zenject;
 
 namespace HexRPG.Battle.HUD
 {
+    using Enemy.HUD;
+
     public class HUDManager : MonoBehaviour
     {
         IBattleObservable _battleObservable;
@@ -13,8 +15,8 @@ namespace HexRPG.Battle.HUD
         [SerializeField] GameObject _memberListHUD;
 
         // EnemyHealth
-        HealthGaugeHUD.Factory _healthGaugeFactory;
-        [SerializeField] Transform _enemyHealthGaugeRoot;
+        EnemyStatusHUD.Factory _enemyStatusFactory;
+        [SerializeField] Transform _enemyStatusRoot;
 
         DamagedPanelParentHUD.Factory _damagedPanelFactory;
         [SerializeField] Transform _damagedPanelRoot;
@@ -22,12 +24,12 @@ namespace HexRPG.Battle.HUD
         [Inject]
         public void Construct(
             IBattleObservable battleObservable,
-            HealthGaugeHUD.Factory healthGaugeFactory,
+            EnemyStatusHUD.Factory enemyStatusFactory,
             DamagedPanelParentHUD.Factory damagedPanelFactory
         )
         {
             _battleObservable = battleObservable;
-            _healthGaugeFactory = healthGaugeFactory;
+            _enemyStatusFactory = enemyStatusFactory;
             _damagedPanelFactory = damagedPanelFactory;
         }
 
@@ -42,12 +44,12 @@ namespace HexRPG.Battle.HUD
                     .AddTo(this);
             });
 
-            // EnemyHealthGauge
+            // EnemyStatus
             _battleObservable.OnEnemySpawn
                 .Subscribe(enemyOwner =>
                 {
-                    var clone = _healthGaugeFactory.Create();
-                    clone.transform.SetParent(_enemyHealthGaugeRoot);
+                    var clone = _enemyStatusFactory.Create();
+                    clone.transform.SetParent(_enemyStatusRoot);
                     var huds = clone.GetComponents<ICharacterHUD>();
                     Array.ForEach(huds, hud => hud.Bind(enemyOwner));
                 })

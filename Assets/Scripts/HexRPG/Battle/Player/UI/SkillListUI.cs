@@ -89,8 +89,7 @@ namespace HexRPG.Battle.Player.UI
                 }
                 skillUI.SwitchSkillShow(true);
                 UpdateIconSkillEnable(sp);
-                var skillSetting = _curMemberSkillSettings[i];
-                skillUI.SetSkill(skillSetting.Icon, skillSetting.Cost); //TODO: ëÆê´
+                skillUI.SetSkill(_curMemberSkillSettings[i]);
             }
         }
 

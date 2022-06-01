@@ -6,6 +6,7 @@ using Zenject;
 namespace HexRPG.Battle.Player
 {
     using Battle.UI;
+    using HUD;
 
     public class PlayerInput : MonoBehaviour, ICharacterInput
     {
@@ -27,7 +28,7 @@ namespace HexRPG.Battle.Player
         [SerializeField] GameObject _btnSkillCancel;
 
         [Header("メンバーリスト")]
-        [SerializeField] Transform _standingMemberList;
+        [SerializeField] Transform _allMemberList;
 
         IReadOnlyReactiveProperty<Vector3> ICharacterInput.Direction => _direction;
         readonly ReactiveProperty<Vector3> _direction = new ReactiveProperty<Vector3>();
@@ -50,7 +51,9 @@ namespace HexRPG.Battle.Player
         readonly ISubject<int> _selectedMemberIndex = new Subject<int>();
 
         [Inject]
-        public void Construct(IUpdateObservable updateObservable)
+        public void Construct(
+            IUpdateObservable updateObservable
+        )
         {
             _updateObservable = updateObservable;
         }
@@ -149,12 +152,12 @@ namespace HexRPG.Battle.Player
             {
                 btn.OnClickListener(() =>
                 {
-                    selectedMemberIndex = 3 - 1 - index;
+                    selectedMemberIndex = index;
                 }, gameObject);
             }
-            for (int i = 0; i < _standingMemberList.childCount; i++)
+            for (int i = 0; i < _allMemberList.childCount; i++)
             {
-                SetMemberChangeBtnClickEvent(_standingMemberList.GetChild(i).GetChild(4).gameObject, i);
+                SetMemberChangeBtnClickEvent(_allMemberList.GetChild(i).GetComponent<IMemberHUD>().BtnChange, i);
             }
         }
 

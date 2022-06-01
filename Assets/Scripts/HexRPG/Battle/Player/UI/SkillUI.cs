@@ -4,9 +4,11 @@ using Zenject;
 
 namespace HexRPG.Battle.Player.UI
 {
+    using Skill;
+
     public interface ISkillUI
     {
-        void SetSkill(Sprite sprite, int cost); //TODO: ëÆê´
+        void SetSkill(ISkillSetting setting);
         void SwitchSkillShow(bool isShow);
         void SwitchEnable(bool enable);
         void SwitchSelected(bool selected);
@@ -17,7 +19,7 @@ namespace HexRPG.Battle.Player.UI
         BattleData _battleData;
 
         Image _background;
-        Image _skillType;
+        Image _attribute;
         Image _icon;
         GameObject _disableFilter;
         Text _cost;
@@ -31,21 +33,22 @@ namespace HexRPG.Battle.Player.UI
         void Start()
         {
             _background = GetComponent<Image>();
-            _skillType = transform.GetChild(0).GetComponent<Image>();
+            _attribute = transform.GetChild(0).GetComponent<Image>();
             _icon = transform.GetChild(1).GetComponent<Image>();
             _disableFilter = transform.GetChild(2).gameObject;
             _cost = transform.GetChild(3).GetComponent<Text>();
         }
 
-        void ISkillUI.SetSkill(Sprite sprite, int cost)
+        void ISkillUI.SetSkill(ISkillSetting setting)
         {
-            _icon.sprite = sprite;
-            _cost.text = cost.ToString();
+            _icon.sprite = setting.Icon;
+            _cost.text = setting.Cost.ToString();
+            if (_battleData.skillAttributeMaterialMap.Table.TryGetValue(setting.Attribute, out Material mat)) _attribute.material = mat;
         }
 
         void ISkillUI.SwitchSkillShow(bool isShow)
         {
-            _skillType.gameObject.SetActive(isShow);
+            _attribute.gameObject.SetActive(isShow);
             _icon.gameObject.SetActive(isShow);
             _cost.gameObject.SetActive(isShow);
         }

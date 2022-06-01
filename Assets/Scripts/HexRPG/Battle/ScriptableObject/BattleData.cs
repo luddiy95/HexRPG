@@ -1,14 +1,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Kogane;
 
 namespace HexRPG.Battle
 {
     [CreateAssetMenu(fileName = "BattleData", menuName = "ScriptableObjects/BattleData")]
     public class BattleData : ScriptableObject
     {
+        // Member
+        public int maxMemberCount = 4;
+
         // Camera
         public int cameraRotateUnit;
+
+        // Attribute
+        [Serializable] public class AttributeIconValuePair : SerializableKeyValuePair<Attribute, Sprite> { }
+        [Serializable] public class AttributeIconDictionary : SerializableDictionary<Attribute, Sprite, AttributeIconValuePair> { }
+        public AttributeIconDictionary attributeIconMap = new AttributeIconDictionary();
+        [Serializable] public class SkillAttributeMaterialValuePair : SerializableKeyValuePair<Attribute, Material> { }
+        [Serializable] public class SkillAttributeMaterialDictionary : SerializableDictionary<Attribute, Material, SkillAttributeMaterialValuePair> { }
+        public SkillAttributeMaterialDictionary skillAttributeMaterialMap = new SkillAttributeMaterialDictionary();
 
         // Score
         public List<ScoreInfo> scoreInfoMap = new List<ScoreInfo>();

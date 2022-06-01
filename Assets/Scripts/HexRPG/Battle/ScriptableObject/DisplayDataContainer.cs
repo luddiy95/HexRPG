@@ -19,7 +19,7 @@ namespace HexRPG.Battle
         public class DisplayData
         {
             public string name;
-            public Vector2 gaugeOffset;
+            public Vector2 statusOffset;
             public Vector2 damagedPanelOffset;
             public Vector2 damagedPanelSize;
         }

@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayDataMap:
   - name: Member1
-    gaugeOffset: {x: 0, y: 0}
+    statusOffset: {x: 0, y: 0}
     damagedPanelOffset: {x: -25, y: 90}
     damagedPanelSize: {x: 30, y: 40}
   - name: Member2
-    gaugeOffset: {x: 0, y: 0}
+    statusOffset: {x: 0, y: 0}
     damagedPanelOffset: {x: -25, y: 90}
     damagedPanelSize: {x: 30, y: 40}
   - name: CanonMachine
-    gaugeOffset: {x: 0, y: -30}
+    statusOffset: {x: 0, y: -20}
     damagedPanelOffset: {x: 25, y: 90}
     damagedPanelSize: {x: 30, y: 40}

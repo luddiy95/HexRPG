@@ -15343,6 +15343,10 @@ PrefabInstance:
       value: CanonMachine
       objectReference: {fileID: 0}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _attribute
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _healthMax
       value: 300
       objectReference: {fileID: 0}

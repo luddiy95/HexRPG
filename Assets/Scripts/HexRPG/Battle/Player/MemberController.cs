@@ -14,7 +14,6 @@ namespace HexRPG.Battle.Player
     public interface IMemberObservable
     {
         IReadOnlyReactiveCollection<IMemberComponentCollection> MemberList { get; }
-        List<IMemberComponentCollection> StandingMemberList { get; }
         IReadOnlyReactiveProperty<IMemberComponentCollection> CurMember { get; }
         int CurMemberIndex { get; }
     }
@@ -34,17 +33,6 @@ namespace HexRPG.Battle.Player
 
         IReadOnlyReactiveCollection<IMemberComponentCollection> IMemberObservable.MemberList => _memberList;
         readonly IReactiveCollection<IMemberComponentCollection> _memberList = new ReactiveCollection<IMemberComponentCollection>();
-
-        List<IMemberComponentCollection> IMemberObservable.StandingMemberList => _standingMemberList;
-        List<IMemberComponentCollection> _standingMemberList
-        {
-            get
-            {
-                var memberList = new List<IMemberComponentCollection>(_memberList);
-                memberList.Remove(_curMember.Value);
-                return memberList;
-            }
-        }
 
         IReadOnlyReactiveProperty<IMemberComponentCollection> IMemberObservable.CurMember => _curMember;
         readonly IReactiveProperty<IMemberComponentCollection> _curMember = new ReactiveProperty<IMemberComponentCollection>();
@@ -70,10 +58,7 @@ namespace HexRPG.Battle.Player
         void IInitializable.Initialize()
         {
             _characterInput.SelectedMemberIndex
-                .Subscribe(index =>
-                {
-                    (this as IMemberController).ChangeMember(_memberList.IndexOf(_standingMemberList[index]));
-                })
+                .Subscribe(index => (this as IMemberController).ChangeMember(index))
                 .AddTo(_disposables);
         }
 

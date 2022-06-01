@@ -1,5 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
+using UniRx;
+using TMPro;
+using System;
 
 namespace HexRPG.Battle.Player.HUD
 {
@@ -8,51 +12,107 @@ namespace HexRPG.Battle.Player.HUD
 
     public interface IMemberHUD : ICharacterHUD
     {
+        GameObject BtnChange { get; }
+
+        bool IsSelected { get; set; }
         void SwitchShowBtnChange(bool show);
     }
 
-    public class MemberStatusHUD : MonoBehaviour, IMemberHUD
+    public class MemberStatusHUD : MonoBehaviour, IMemberHUD, IDisposable
     {
-        [SerializeField] Image _icon; 
+        BattleData _battleData;
+
+        [SerializeField] Image _icon;
+        [SerializeField] GameObject _selectedFilter;
+        [SerializeField] GameObject _deadFilter;
         [SerializeField] GameObject _healthGauge;
+        [SerializeField] TextMeshProUGUI _hpAmountText;
         [SerializeField] GameObject _skillPointHUD;
         [SerializeField] GameObject _btnChange;
+        [SerializeField] Image _iconAttribute;
+        [SerializeField] GameObject _selectedArrow;
+
+        GameObject IMemberHUD.BtnChange => _btnChange;
+
+        CompositeDisposable _disposables = new CompositeDisposable();
+
+        bool IMemberHUD.IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+
+                _selectedArrow.SetActive(_isSelected);
+                UpdateShowFilter();
+                (this as IMemberHUD).SwitchShowBtnChange(!_isSelected);
+            }
+        }
+        bool _isSelected = false;
+
+        bool _isDead = false;
+
+        [Inject]
+        public void Construct(
+            BattleData battleData
+        )
+        {
+            _battleData = battleData;
+        }
 
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
+            _disposables.Clear();
             if (chara is IMemberComponentCollection memberOwner)
             {
+                var profile = memberOwner.ProfileSetting;
                 // Icon
-                _icon.sprite = memberOwner.ProfileSetting.Icon;
+                _icon.sprite = profile.Icon;
+
+                // Filter
+                chara.DieObservable.OnFinishDie
+                    .Subscribe(_ =>
+                    {
+                        _isDead = true;
+                        UpdateShowFilter();
+                        (this as IMemberHUD).SwitchShowBtnChange(false);
+                    })
+                    .AddTo(_disposables);
 
                 // HealthGauge
                 _healthGauge.GetComponent<ICharacterHUD>().Bind(memberOwner);
+                memberOwner.Health.Current
+                    .Subscribe(hp => _hpAmountText.text = hp.ToString())
+                    .AddTo(_disposables);
 
                 // SkillPoint
                 _skillPointHUD.GetComponent<ICharacterHUD>().Bind(memberOwner);
 
-                // SkillList
-                /*
-                var skillList = memberOwner.SkillSpawnObservable.SkillList;
-                for (int i = 0; i < _skillList.childCount; i++)
-                {
-                    var child = _skillList.GetChild(i);
-                    if (i > skillList.Length - 1)
-                    {
-                        child.gameObject.SetActive(false);
-                        continue;
-                    }
-                    var skillSetting = skillList[i].SkillSetting;
-                    child.GetChild(0).GetComponent<Image>().sprite = skillSetting.Icon;
-                    child.GetChild(1).GetComponent<Text>().text = skillSetting.Cost.ToString();
-                }
-                */
+                // Attribute
+                if (_battleData.attributeIconMap.Table.TryGetValue(profile.Attribute, out Sprite sprite)) _iconAttribute.sprite = sprite;
             }
+        }
+
+        void UpdateShowFilter()
+        {
+            _deadFilter.SetActive(false); _selectedFilter.SetActive(false);
+            if (_isDead)
+            {
+                _deadFilter.SetActive(true);
+                return;
+            }
+            if (_isSelected) _selectedFilter.SetActive(true);
         }
 
         void IMemberHUD.SwitchShowBtnChange(bool show)
         {
+            if ((_isSelected || _isDead) && show) return;
             _btnChange.SetActive(show);
+        }
+
+        void IDisposable.Dispose()
+        {
+            _disposables.Dispose();
         }
     }
 }
