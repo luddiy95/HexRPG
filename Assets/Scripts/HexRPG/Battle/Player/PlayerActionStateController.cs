@@ -149,6 +149,7 @@ namespace HexRPG.Battle.Player
 
             NewState(DAMAGED)
                 .AddEvent(new ActionEventPlayMotion(0f))
+                .AddEvent(new ActionEventCancel("damaged", DAMAGED))
                 .AddEvent(new ActionEventCancel("rotate", ROTATE))
                 .AddEvent(new ActionEventCancel("finishDamaged", IDLE))
                 ;

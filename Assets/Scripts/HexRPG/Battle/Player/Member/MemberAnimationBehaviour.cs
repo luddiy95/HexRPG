@@ -19,7 +19,6 @@ namespace HexRPG.Battle.Player.Member
         ISkillSpawnObservable _skillSpawnObservable;
 
         IObservable<Unit> IAnimationController.OnFinishDamaged => _onFinishDamaged;
-        readonly ISubject<Unit> _onFinishDamaged = new Subject<Unit>();
 
         IObservable<Unit> IAnimationController.OnFinishCombat => _onFinishCombat;
         readonly ISubject<Unit> _onFinishCombat = new Subject<Unit>();
@@ -87,7 +86,6 @@ namespace HexRPG.Battle.Player.Member
 
         #region AnimationPlayer
 
-        //TODO: ここでdurationに引数を渡すのはeditor確認の場合(runtimeではdurationは全てdurationDataから取ってくるようにしたい)
         void IAnimationController.Play(string nextClip)
         {
             // 最初の遷移
@@ -105,9 +103,18 @@ namespace HexRPG.Battle.Player.Member
 
             var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
 
-            if (_cancellationTokenSource == null)
+            AnimationType type;
+            if (_cancellationTokenSource == null) //! 「Animation間遷移 & Combat/Skill/Die待ち合わせ中」ではない
             {
-                // 遷移中などでない場合、自分自身には遷移しない
+                //! Damagedの場合のみ自分自身(Damaged)に遷移できる
+                if(_playables[_curPlayingIndex].GetAnimationClip().name == "Damaged" && nextClip == "Damaged")
+                {
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                    return;
+                }
+
+                //! 遷移中などでない場合、(Damaged -> Damaged)以外は自分自身には遷移しない
                 if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip) return;
 
                 // Combatですか？
@@ -132,7 +139,7 @@ namespace HexRPG.Battle.Player.Member
                 }
 
                 // Die
-                var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);
+                var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out type) && type == AnimationType.Die);
                 if (isDieClip)
                 {
                     _cancellationTokenSource = new CancellationTokenSource();
@@ -141,20 +148,34 @@ namespace HexRPG.Battle.Player.Member
                 }
 
                 _cancellationTokenSource = new CancellationTokenSource();
-                if (curClip == "Damaged" && nextClip == "Idle") _cancellationTokenSource.Token.Register(() => _onFinishDamaged.OnNext(Unit.Default));
                 InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
             }
             else
             {
-                //! 割り込み(非同期メソッド実行中 == CrossFade(アニメーション遷移中), Combat/Skill待ち合わせ中)
+                //! 割り込み(非同期メソッド実行中 == 「CrossFade(アニメーション遷移中) || Combat/Skill/Die待ち合わせ中」)
 
-                // _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
+                //! Damagedへ遷移中(_nextPlayingIndex = Damaged)のみ_nextPlayingIndex(Damaged)で割り込み可能
+                if(_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == "Damaged" && nextClip == "Damaged")
+                {
+                    TokenCancel();
+
+                    if (_curCombat != null) FinishCombat();
+                    if (_curSkill != null) FinishSkill();
+
+                    if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
+                    return;
+                }
+
+                //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
                 if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
 
                 // Locomotion->Locomotion遷移中は「Idle, Combat, Skill」割り込み可能
                 var isCrossFadeBtwLocomotion =
-                    (_animationTypeMap.TryGetValue(_playables[_curPlayingIndex].GetAnimationClip().name, out AnimationType type) && type.IsLocomotionType()) &&
-                    (_animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType());
+                    (_animationTypeMap.TryGetValue(_playables[_curPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType()) &&
+                    (_nextPlayingIndex >= 0 && _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType());
                 if (isCrossFadeBtwLocomotion)
                 {
                     // Combatですか？
@@ -199,7 +220,7 @@ namespace HexRPG.Battle.Player.Member
                 }
 
                 // Idle -> Rotate遷移中はIdle割り込み可能
-                if(curClip == "Idle" && nextClip == "Idle" &&
+                if(curClip == "Idle" && nextClip == "Idle" && _nextPlayingIndex >= 0 &&
                     _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type == AnimationType.Rotate)
                 {
                     // 割り込み
@@ -212,8 +233,7 @@ namespace HexRPG.Battle.Player.Member
                 }
 
                 // Damaged
-                var isDamagedClip = (_animationTypeMap.TryGetValue(nextClip, out type) && type == AnimationType.Damaged);
-                if (isDamagedClip)
+                if (nextClip == "Damaged")
                 {
                     TokenCancel();
 
@@ -363,7 +383,7 @@ namespace HexRPG.Battle.Player.Member
             var damagedToIdleEvent = new AnimationEvent[] {
                 new AnimationEvent()
                 {
-                    time = damagedClip.length * _durationDataContainer.exitTimeToIdle,
+                    time = damagedClip.length * 0.9f,
                     functionName = "FadeToIdle"
                 }
             };

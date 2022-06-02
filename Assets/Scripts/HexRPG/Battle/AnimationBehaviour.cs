@@ -16,6 +16,8 @@ namespace HexRPG.Battle
         protected IDieSetting _dieSetting;
         protected IAnimatorController _animatorController;
 
+        protected readonly ISubject<Unit> _onFinishDamaged = new Subject<Unit>();
+
         protected readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
 
         protected DurationDataContainer _durationDataContainer;
@@ -189,29 +191,32 @@ namespace HexRPG.Battle
 
         protected async UniTask InternalAnimationTransit(string nextClip, float transitionTime, CancellationToken token)
         {
+            var isCurDamagedClip = _playables[_curPlayingIndex].GetAnimationClip().name == "Damaged";
+
             await InternalCrossFade(nextClip, transitionTime, token);
 
             // Š„‚è‚İ‚ª‚È‚©‚Á‚½ê‡‚Ì‚İ‚±‚±‚Ü‚Å’H‚è’…‚­
+            if (isCurDamagedClip && nextClip == "Idle") _onFinishDamaged.OnNext(Unit.Default);
             TokenCancel();
         }
 
         protected async UniTask InternalCrossFade(string nextClip, float transitionTime, CancellationToken token)
         {
             _disposedPlayingIndex = _nextPlayingIndex;
-            _nextPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == nextClip);
 
-            //! _curPlayingIndex‚ÅŠ„‚è‚Şê‡
-            if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip)
+            //! _curPlayingIndex || _nextPlayingIndex‚ÅŠ„‚è‚Şê‡
+            if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip || 
+                (_nextPlayingIndex != -1 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip))
             {
-                var inputCount = _mixer.GetInputCount();
-                if (inputCount > _allClipCount) for (int i = inputCount - 1; i >= _allClipCount; i--) _mixer.SetInputCount(_allClipCount);
-                if (_playables.Count > _allClipCount) _playables.RemoveRange(_allClipCount, _playables.Count - _allClipCount);
+                // curPlayingIndex || nextPlayingIndex‚Æ“¯‚¶Clip‚ÌPlayable‚ğì¬‚µmixer‚ÉŒq‚°‚é
+                _playables.Add(AnimationClipPlayable.Create(_graph, _clips.FirstOrDefault(clip => clip.name == nextClip)));
+                _mixer.AddInput(_playables[_playables.Count - 1], 0, 0);
 
-                // curPlayingIndex‚Æ“¯‚¶Clip‚ÌPlayable‚ğì¬‚µmixer‚ÉŒq‚°‚é
-                _playables.Add(AnimationClipPlayable.Create(_graph, _clips[_curPlayingIndex]));
-                _mixer.AddInput(_playables[_allClipCount], 0, 0);
-
-                _nextPlayingIndex = _allClipCount;
+                _nextPlayingIndex = _playables.Count - 1;
+            }
+            else
+            {
+                _nextPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == nextClip);
             }
 
             // Ÿ‚ÉÄ¶‚·‚éƒNƒŠƒbƒv‚ÍÅ‰(time = 0)‚©‚çÄ¶(‚±‚¤‚µ‚È‚¢‚ÆLoopOff‚ÌClip‚Ö‘JˆÚ‚·‚é‚Æ‚«‚Étime‚ª‘å‚«‚·‚¬‚ÄÄ¶‚³‚ê‚È‚¢ê‡‚ª‚ ‚é)
@@ -234,6 +239,11 @@ namespace HexRPG.Battle
                 if (diff <= 0)
                 {
                     _mixer.SetInputWeight(_curPlayingIndex, 0);
+                    if(_disposedPlayingIndex >= 0)
+                    {
+                        _mixer.SetInputWeight(_disposedPlayingIndex, 0);
+                        _disposedPlayingIndex = -1;
+                    }
 
                     _mixer.SetInputWeight(_nextPlayingIndex, 0);
                     _curPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == _playables[_nextPlayingIndex].GetAnimationClip().name);
@@ -266,6 +276,10 @@ namespace HexRPG.Battle
                     return true;
                 }
             }, cancellationToken: token);
+
+            // ‘‚â‚µ‚½playable‚ğÁ‚·
+            _mixer.SetInputCount(_allClipCount);
+            if (_playables.Count > _allClipCount) _playables.RemoveRange(_allClipCount, _playables.Count - _allClipCount);
         }
 
         protected void TokenCancel()

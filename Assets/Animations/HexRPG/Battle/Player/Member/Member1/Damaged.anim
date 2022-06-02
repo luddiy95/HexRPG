@@ -104138,7 +104138,7 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 1
   m_Events:
-  - time: 1.7283336
+  - time: 1.8300002
     functionName: FadeToIdle
     data: 
     objectReferenceParameter: {fileID: 0}

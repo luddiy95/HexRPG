@@ -18,7 +18,6 @@ namespace HexRPG.Battle.Enemy
         ISkillSpawnObservable _skillSpawnObservable;
 
         IObservable<Unit> IAnimationController.OnFinishDamaged => _onFinishDamaged;
-        readonly ISubject<Unit> _onFinishDamaged = new Subject<Unit>();
 
         IObservable<Unit> IAnimationController.OnFinishCombat => null;
 
@@ -101,7 +100,6 @@ namespace HexRPG.Battle.Enemy
                 }
 
                 _cancellationTokenSource = new CancellationTokenSource();
-                if (curClip == "Damaged" && nextClip == "Idle") _cancellationTokenSource.Token.Register(() => _onFinishDamaged.OnNext(Unit.Default));
                 InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
             }
             else
@@ -127,8 +125,7 @@ namespace HexRPG.Battle.Enemy
                 }
 
                 // Damaged
-                var isDamagedClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Damaged);
-                if (isDamagedClip)
+                if (nextClip == "Damaged")
                 {
                     TokenCancel();
 
@@ -142,7 +139,7 @@ namespace HexRPG.Battle.Enemy
                 }
 
                 // Die
-                var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out type) && type == AnimationType.Die);
+                var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);
                 if (isDieClip)
                 {
                     TokenCancel();
@@ -166,7 +163,7 @@ namespace HexRPG.Battle.Enemy
             var damagedToIdleEvent = new AnimationEvent[] {
                 new AnimationEvent()
                 {
-                    time = damagedClip.length * _durationDataContainer.exitTimeToIdle,
+                    time = damagedClip.length * 0.9f,
                     functionName = "FadeToIdle"
                 }
             };

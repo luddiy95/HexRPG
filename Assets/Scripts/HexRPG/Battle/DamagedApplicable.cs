@@ -100,7 +100,7 @@ namespace HexRPG.Battle
                         {
                             DamagedObject = _damagedOwner,
                             Damage = 10,
-                            HitType = HitType.RESIST
+                            HitType = HitType.WEAK
                         };
                         _onHit.OnNext(hitData);
                         if (_damagedOwner is IPlayerComponentCollection playerOwner)
@@ -115,6 +115,12 @@ namespace HexRPG.Battle
         void DoHit(IAttackApplicator attackApplicator)
         {
             if ((attackApplicator.AttackOrigin is IEnemyComponentCollection) == _isEnemy) return;
+
+            if(_damagedOwner is IEnemyComponentCollection enemyOwner)
+            {
+                //! Enemyの場合、Damagedステート時は攻撃を受けない
+                if (enemyOwner.ActionStateObservable.CurrentState.Value.Type == ActionStateType.DAMAGED) return;
+            }
 
             // ヒット済みマーク失敗＝すでにヒットしてる
             if (attackApplicator.TryMarkAsHit(_damagedOwner) == false) return;
@@ -150,10 +156,10 @@ namespace HexRPG.Battle
             attackApplicator.NotifyAttackHit(hitData);
 
             //! EnemyはCombatが存在しないからAttackEnableはHex経由だけのためColliderがいらない->Playerにアタッチされている
-            if (_damagedOwner is IPlayerComponentCollection playerOwner) 
-                playerOwner.MemberObservable.CurMember.Value.Health.Update(-hitData.Damage);
-            if (_damagedOwner is IEnemyComponentCollection enemyOwner) 
-                enemyOwner.Health.Update(-hitData.Damage);
+            if (_damagedOwner is IPlayerComponentCollection player)
+                player.MemberObservable.CurMember.Value.Health.Update(-hitData.Damage);
+            if (_damagedOwner is IEnemyComponentCollection enemy)
+                enemy.Health.Update(-hitData.Damage);
         }
 
         void IDisposable.Dispose()

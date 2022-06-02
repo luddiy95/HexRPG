@@ -14,16 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultLocomotionDuration: 0.25
   locomotionDurations: []
+  defaultRotateStartDuration: 0.25
+  rotateStartDurations: []
   defaultBackToIdleDuration: 0.25
   backToIdleDurations:
-  - clipBefore: ComboSword1
+  - clip: 
     duration: 0.75
-  - clipBefore: ComboSword2
+  - clip: 
     duration: 0.75
-  - clipBefore: ComboSword3
+  - clip: 
     duration: 0.75
-  combatStartDuration: 0.25
-  skillStartDuration: 0.25
+  defaultCombatStartDuration: 0.25
+  combatStartDurations: []
+  defaultSkillStartDuration: 0.25
+  skillStartDurations: []
   defaultDamagedDuration: 0.25
   damagedDurations: []
   exitTimeToIdle: 0.85
