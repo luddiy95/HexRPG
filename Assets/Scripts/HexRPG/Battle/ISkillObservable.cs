@@ -15,6 +15,7 @@ namespace HexRPG.Battle
         IObservable<Unit> OnSkillAttackDisable { get; }
 
         IObservable<Hex[]> OnSkillAttack { get; }
+
         IObservable<Unit> OnFinishSkill { get; }
     }
 }

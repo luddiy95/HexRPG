@@ -142,7 +142,11 @@ namespace HexRPG.Battle.Enemy
             // Die
             _dieObservable.IsDead
                 .Where(isDead => isDead)
-                .Subscribe(_ => _actionStateController.ExecuteTransition(DIE))
+                .Subscribe(_ =>
+                {
+                    _cancellationTokenSource.Cancel(); // Sequence中断
+                    _actionStateController.ExecuteTransition(DIE);
+                })
                 .AddTo(_disposables);
 
             ////// ステートでの詳細処理 //////
@@ -191,7 +195,7 @@ namespace HexRPG.Battle.Enemy
             while (true)
             {
                 // Idle
-                await UniTask.Delay(7000, cancellationToken: token);
+                await UniTask.Delay(1000000000, cancellationToken: token);
 
                 // Playerの方へ回転
                 _actionStateController.Execute(new Command { Id = "rotate" });

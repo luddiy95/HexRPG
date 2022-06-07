@@ -14,12 +14,12 @@ namespace HexRPG.Battle.HUD
     {
         BattleData _battleData;
         DisplayDataContainer _displayDataContainer;
-        IFloatingHUD _floatingHUD;
+        ITrackingHUD _trackingHUD;
 
         RectTransform _transform;
         [SerializeField] ObjectPool _objectPool;
-        //! DamagedDisplay表示時、CharacterのDamagedモーションなどを追ってしまわないようにDamagedDisplayのParent(DamagedPanelHUD)とFloatingHUDは別にする
-        [SerializeField] GameObject _floatingPanel;
+        //! DamagedDisplay表示時、CharacterのDamagedモーションなどを追ってしまわないようにDamagedDisplayのParent(DamagedPanelHUD)とTrackingHUDは別にする
+        [SerializeField] GameObject _trackingPanel;
 
         [Inject]
         public void Construct(
@@ -34,14 +34,11 @@ namespace HexRPG.Battle.HUD
         void Awake()
         {
             _transform = GetComponent<RectTransform>();
-            _floatingHUD = _floatingPanel.GetComponent<IFloatingHUD>();
+            _trackingHUD = _trackingPanel.GetComponent<ITrackingHUD>();
         }
 
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
-            var hud = _floatingPanel.GetComponent<ICharacterHUD>();
-            hud.Bind(chara);
-
             if (chara is IPlayerComponentCollection playerOwner)
             {
                 playerOwner.MemberObservable.CurMember
@@ -58,31 +55,34 @@ namespace HexRPG.Battle.HUD
                 UpdateDisplay();
             }
 
-            chara.DamagedApplicable.OnHit
-                .Subscribe(hitData =>
-                {
-                    _transform.anchoredPosition = _floatingHUD.AnchoredPos;
+            if(chara is IHostileComponentCollection hostileOwner)
+            {
+                hostileOwner.DamageApplicable.OnHit
+                    .Subscribe(hitData =>
+                    {
+                        _transform.anchoredPosition = _trackingHUD.AnchoredPos;
 
-                    var damagedDisplay = _objectPool.Instantiate().GetComponent<DamagedDisplay>();
-                    damagedDisplay.AnchoredPos = new Vector2(_size.x * Random.value, _size.y * Random.value);
-                    damagedDisplay.Damage = hitData.Damage;
-                    var data = _battleData.damagedDisplayMatMap.FirstOrDefault(data => data.hitType == hitData.HitType);
-                    if (data != null) damagedDisplay.Material = data.material;
+                        var damagedDisplay = _objectPool.Instantiate().GetComponent<DamagedDisplay>();
+                        damagedDisplay.AnchoredPos = new Vector2(_size.x * Random.value, _size.y * Random.value);
+                        damagedDisplay.Damage = hitData.Damage;
+                        var data = _battleData.damagedDisplayMatMap.FirstOrDefault(data => data.hitType == hitData.HitType);
+                        if (data != null) damagedDisplay.Material = data.material;
 
-                    DOTween.Sequence()
-                        .Append(TransformUtility.DOAnchorPosY(damagedDisplay.RectTransform, -18f, 0.3f).SetRelative(true).SetEase(Ease.OutBounce, 10))
-                        .AppendInterval(0.3f)
-                        .AppendCallback(() => _objectPool.Free(damagedDisplay.gameObject));
+                        DOTween.Sequence()
+                            .Append(TransformUtility.DOAnchorPosY(damagedDisplay.RectTransform, -18f, 0.3f).SetRelative(true).SetEase(Ease.OutBounce, 10))
+                            .AppendInterval(0.3f)
+                            .AppendCallback(() => _objectPool.Free(damagedDisplay.gameObject));
 
-                })
-                .AddTo(this);
+                    })
+                    .AddTo(this);
+            }
         }
 
         public void UpdateDisplay()
         {
             var data = _displayDataContainer.displayDataMap.FirstOrDefault(data => data.name == _name);
             if (data == null) return;
-            _floatingHUD.Offset = data.damagedPanelOffset;
+            _trackingHUD.Offset = data.damagedPanelOffset;
             _size = data.damagedPanelSize;
             _transform.sizeDelta = _size;
         }

@@ -76,7 +76,9 @@ namespace HexRPG.Battle.Enemy
 
             if (_cancellationTokenSource == null)
             {
-                // 遷移中などでない場合、自分自身には遷移しない
+                //! EnemyはDamagedモーション中(ダウン中)にWEAKヒットしても再度ダウンしない(ダウンを継続)
+
+                //! 遷移中などでない場合、自分自身には遷移しない
                 if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip) return;
 
                 // Skillですか？
@@ -106,7 +108,9 @@ namespace HexRPG.Battle.Enemy
             {
                 //! 割り込み(非同期メソッド実行中 == CrossFade(アニメーション遷移中), Combat/Skill待ち合わせ中)
 
-                // _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
+                //! EnemyはDamagedモーション中(ダウン中)にWEAKヒットしても再度ダウンしない(ダウンを継続)
+
+                //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
                 if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
 
                 // Skillですか？
@@ -143,6 +147,8 @@ namespace HexRPG.Battle.Enemy
                 if (isDieClip)
                 {
                     TokenCancel();
+
+                    if (_curSkill != null) FinishSkill();
 
                     if (_nextPlayingIndex >= 0) fixedRate = rate;
 

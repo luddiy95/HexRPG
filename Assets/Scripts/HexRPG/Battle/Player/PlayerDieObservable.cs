@@ -8,10 +8,10 @@ namespace HexRPG.Battle.Player
     {
         IMemberObservable _memberObservable;
 
-        IReadOnlyReactiveProperty<bool> IDieObservable.IsDead => _isDead;
-        readonly IReactiveProperty<bool> _isDead = new ReactiveProperty<bool>(false);
+        IReadOnlyReactiveProperty<bool> IDieObservable.IsDead => null;
 
-        IObservable<Unit> IDieObservable.OnFinishDie => null;
+        IObservable<Unit> IDieObservable.OnFinishDie => _onFinishDie;
+        readonly ISubject<Unit> _onFinishDie = new Subject<Unit>();
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -28,7 +28,7 @@ namespace HexRPG.Battle.Player
                 .Where(count => count == 0)
                 .Subscribe(_ =>
                 {
-                    _isDead.Value = true;
+                    _onFinishDie.OnNext(Unit.Default);
                 })
                 .AddTo(_disposables);
         }

@@ -4,7 +4,7 @@ using UniRx;
 
 namespace HexRPG.Battle.Enemy
 {
-    public interface IEnemyComponentCollection : ICharacterComponentCollection
+    public interface IEnemyComponentCollection : ICharacterComponentCollection, IHostileComponentCollection
     {
         IColliderController ColliderController { get; }
         IAnimationController AnimationController { get; }
@@ -21,7 +21,11 @@ namespace HexRPG.Battle.Enemy
         [Inject] IDieObservable ICharacterComponentCollection.DieObservable { get; }
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
-        [Inject] IDamageApplicable ICharacterComponentCollection.DamagedApplicable { get; }
+
+        [Inject] IAttackController IHostileComponentCollection.AttackController { get; }
+        [Inject] IAttackObservable IHostileComponentCollection.AttackObservable { get; }
+        [Inject] IDamageApplicable IHostileComponentCollection.DamageApplicable { get; }
+
         [Inject] IColliderController IEnemyComponentCollection.ColliderController { get; }
         [Inject] IAnimationController IEnemyComponentCollection.AnimationController { get; }
         [Inject] ICharacterActionStateController IEnemyComponentCollection.CharacterActionStateController { get; }

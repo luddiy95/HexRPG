@@ -19,7 +19,7 @@ namespace HexRPG.Battle.Enemy.HUD
         [SerializeField] TextMeshProUGUI _hpAmount;
         [SerializeField] Image _iconAttribute;
 
-        IFloatingHUD _floatingHUD;
+        ITrackingHUD _trackingHUD;
 
         [Inject]
         public void Construct(
@@ -33,20 +33,24 @@ namespace HexRPG.Battle.Enemy.HUD
 
         void Awake()
         {
-            _floatingHUD = GetComponent<IFloatingHUD>();
+            _trackingHUD = GetComponent<ITrackingHUD>();
         }
 
         void ICharacterHUD.Bind(ICharacterComponentCollection character)
         {
-            if (character is IEnemyComponentCollection) // Œ»óFloating‚ÈStatusHUD‚ÍEnemy‚Ì‚Ý
+            if (character is IEnemyComponentCollection)
             {
+                character.DieObservable.IsDead
+                    .Where(isDead => isDead)
+                    .Subscribe(_ => DestroyImmediate(gameObject))
+                    .AddTo(this);
+
                 if(_healthGauge.TryGetComponent(out ICharacterHUD hud)) hud.Bind(character);
 
                 character.Health.Current
                     .Subscribe(hp => _hpAmount.text = hp.ToString())
                     .AddTo(this);
-                    
-
+                
                 var profile = character.ProfileSetting;
                 // Attribute
                 if (_battleData.attributeIconMap.Table.TryGetValue(profile.Attribute, out Sprite sprite)) _iconAttribute.sprite = sprite;
@@ -61,7 +65,7 @@ namespace HexRPG.Battle.Enemy.HUD
             var data = _displayDataContainer.displayDataMap.FirstOrDefault(data => data.name == _name);
             if (data != null)
             {
-                _floatingHUD.Offset = data.statusOffset;
+                _trackingHUD.Offset = data.statusOffset;
             }
         }
 

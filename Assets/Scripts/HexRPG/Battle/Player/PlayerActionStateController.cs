@@ -197,7 +197,7 @@ namespace HexRPG.Battle.Player
             /// ※ UPDATE_ORDER.INPUTで同時にInputされた場合(例えばDirection, Combat)、↓のSubscribe記述順にCommandが実行されるため記述の順序に注意
 
             // Damaged
-            _damagedApplicable.OnHit
+            _damagedApplicable.OnHit //! PlayerはHitTypeに依らずDamagedモーションを取る
                 .Subscribe(_ => _actionStateController.Execute(new Command { Id = "damaged" }))
                 .AddTo(_disposables);
 

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UniRx;
 using System;
+using System.Linq;
 using Zenject;
 
 namespace HexRPG.Battle.Player
@@ -82,9 +83,9 @@ namespace HexRPG.Battle.Player
 
                                 break;
                             case SkillCenterType.EIM_ENEMY:
-                                var enemyList = _battleObservable.EnemyList;
+                                var enemyList = _battleObservable.EnemyList.Where(enemy => enemy.DieObservable.IsDead.Value == false).ToArray();
                                 //TODO: EnemyÇ™Ç¢Ç»Ç©Ç¡ÇΩèÍçá
-                                _skillCenter = enemyList[_duplicateSelectedCount % enemyList.Count].TransformController.GetLandedHex();
+                                _skillCenter = enemyList[_duplicateSelectedCount % enemyList.Length].TransformController.GetLandedHex();
                                 _selectedSkillRotation = _transformController.GetLookRotationAngleY(_skillCenter.transform.position);
 
                                 break;

@@ -25,7 +25,7 @@ namespace HexRPG.Battle.Player.Member
         [Inject] IDieObservable ICharacterComponentCollection.DieObservable { get; }
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
-        IDamageApplicable ICharacterComponentCollection.DamagedApplicable => null;
+
         [Inject] IMemberSelectedObservable IMemberComponentCollection.SelectedObservable { get; }
         [Inject] IColliderController IMemberComponentCollection.ColliderController { get; }
         [Inject] IAnimationController IMemberComponentCollection.AnimationController { get; }

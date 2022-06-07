@@ -7,6 +7,5 @@ namespace HexRPG.Battle
         IDieObservable DieObservable { get; }
         ITransformController TransformController { get; }
         IHealth Health { get; }
-        IDamageApplicable DamagedApplicable { get; }
     }
 }

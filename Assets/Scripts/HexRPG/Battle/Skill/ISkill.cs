@@ -4,7 +4,6 @@ using UnityEngine.Playables;
 
 namespace HexRPG.Battle.Skill
 {
-    using Playable;
     using Stage;
 
     public interface ISkill

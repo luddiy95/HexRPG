@@ -3,11 +3,10 @@ using Zenject;
 
 namespace HexRPG.Battle.Player
 {
-    public interface IPlayerComponentCollection : ICharacterComponentCollection
+    public interface IPlayerComponentCollection : ICharacterComponentCollection, IHostileComponentCollection
     {
         IMemberController MemberController { get; }
         IMemberObservable MemberObservable { get; }
-        IAttackObservable AttackObservable { get; }
         ILiberateObservable LiberateObservable { get; }
         ICharacterActionStateController CharacterActionStateController { get; }
         ISelectSkillObservable SelectSkillObservable { get; }
@@ -22,10 +21,13 @@ namespace HexRPG.Battle.Player
         [Inject] IDieObservable ICharacterComponentCollection.DieObservable { get; }
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         IHealth ICharacterComponentCollection.Health => MemberOwner.Health;
-        [Inject] IDamageApplicable ICharacterComponentCollection.DamagedApplicable { get; }
+
+        [Inject] IAttackController IHostileComponentCollection.AttackController { get; }
+        [Inject] IAttackObservable IHostileComponentCollection.AttackObservable { get; }
+        [Inject] IDamageApplicable IHostileComponentCollection.DamageApplicable { get; }
+
         [Inject] IMemberController IPlayerComponentCollection.MemberController { get; }
         [Inject] IMemberObservable IPlayerComponentCollection.MemberObservable { get; }
-        [Inject] IAttackObservable IPlayerComponentCollection.AttackObservable { get; }
         [Inject] ILiberateObservable IPlayerComponentCollection.LiberateObservable { get; }
         [Inject] ICharacterActionStateController IPlayerComponentCollection.CharacterActionStateController { get; }
         [Inject] ISelectSkillObservable IPlayerComponentCollection.SelectSkillObservable { get; }

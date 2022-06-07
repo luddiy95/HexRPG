@@ -99,14 +99,24 @@ namespace HexRPG.Battle
                         var hitData = new HitData
                         {
                             DamagedObject = _damagedOwner,
-                            Damage = 10,
+                            Damage = 100,
                             HitType = HitType.WEAK
                         };
-                        _onHit.OnNext(hitData);
-                        if (_damagedOwner is IPlayerComponentCollection playerOwner)
+                        if (_damagedOwner is IPlayerComponentCollection playerOwner && 
+                                playerOwner.MemberObservable.CurMember.Value.DieObservable.IsDead.Value == false)
+                        {
+                            //TODO: 【ここから】playerOwner.IsDeadとplayerOwner.Healthを使うように
+                            //TODO: CurMemberがDestroyされたときも考慮して
+                            //TODO: CurMemberの参照を確認する
+                            //TODO: CurMemberを参照しているところを、Enemyも持っているならばPlayer経由でnull許容にしたり
+                            _onHit.OnNext(hitData);
                             playerOwner.MemberObservable.CurMember.Value.Health.Update(-hitData.Damage);
-                        if (_damagedOwner is IEnemyComponentCollection enemyOwner)
+                        }
+                        if (_damagedOwner is IEnemyComponentCollection enemyOwner && enemyOwner.DieObservable.IsDead.Value == false)
+                        {
+                            _onHit.OnNext(hitData);
                             enemyOwner.Health.Update(-hitData.Damage);
+                        }
                     }
                 })
                 .AddTo(_disposables);
@@ -114,13 +124,11 @@ namespace HexRPG.Battle
 
         void DoHit(IAttackApplicator attackApplicator)
         {
-            if ((attackApplicator.AttackOrigin is IEnemyComponentCollection) == _isEnemy) return;
+            // 死亡中はHitしない
+            if (_isEnemy) if (_damagedOwner.DieObservable.IsDead.Value) return;
+            else if(_damagedOwner is IPlayerComponentCollection playerOwner) if (playerOwner.MemberObservable.CurMember.Value.DieObservable.IsDead.Value) return;
 
-            if(_damagedOwner is IEnemyComponentCollection enemyOwner)
-            {
-                //! Enemyの場合、Damagedステート時は攻撃を受けない
-                if (enemyOwner.ActionStateObservable.CurrentState.Value.Type == ActionStateType.DAMAGED) return;
-            }
+            if ((attackApplicator.AttackOrigin is IEnemyComponentCollection) == _isEnemy) return;
 
             // ヒット済みマーク失敗＝すでにヒットしてる
             if (attackApplicator.TryMarkAsHit(_damagedOwner) == false) return;

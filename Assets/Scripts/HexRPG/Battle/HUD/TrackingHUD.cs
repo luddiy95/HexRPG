@@ -1,18 +1,16 @@
 using UnityEngine;
-using UnityEditor;
 using UniRx;
 using Zenject;
-using System.Linq;
 
 namespace HexRPG.Battle.HUD
 {
-    public interface IFloatingHUD
+    public interface ITrackingHUD
     {
         Vector2 AnchoredPos { get; }
         Vector2 Offset { set; }
     };
 
-    public class FloatingHUD : MonoBehaviour, ICharacterHUD, IFloatingHUD
+    public class TrackingHUD : MonoBehaviour, ICharacterHUD, ITrackingHUD
     {
         ITransformController _characterTransform;
         IUpdateObservable _updateObservable;
@@ -20,9 +18,9 @@ namespace HexRPG.Battle.HUD
         private Canvas _parentCanvas;
         private RectTransform _selfTransform;
 
-        Vector2 IFloatingHUD.AnchoredPos => _selfTransform.anchoredPosition;
+        Vector2 ITrackingHUD.AnchoredPos => _selfTransform.anchoredPosition;
 
-        Vector2 IFloatingHUD.Offset { set => _offset = value; }
+        Vector2 ITrackingHUD.Offset { set => _offset = value; }
         protected Vector2 _offset;
 
         [Inject]
@@ -39,11 +37,6 @@ namespace HexRPG.Battle.HUD
             _selfTransform = GetComponent<RectTransform>();
 
             _characterTransform = chara.TransformController;
-
-            chara.DieObservable.IsDead
-                .Where(isDead => isDead)
-                .Subscribe(_ => DestroyImmediate(gameObject))
-                .AddTo(this);
 
             _updateObservable.OnUpdate((int)UPDATE_ORDER.CAMERA)
             .Subscribe(_ =>

@@ -15,6 +15,7 @@ namespace HexRPG.Battle.Player
         IMemberObservable _memberObservable;
         ISelectSkillObservable _selectSkillObservable;
         IAttackController _attackController;
+        IAttackObservable _attackObservable;
         ILiberateController _liberateController;
 
         CompositeDisposable _disposables = new CompositeDisposable();
@@ -34,6 +35,7 @@ namespace HexRPG.Battle.Player
             IMemberObservable memberObservable,
             ISelectSkillObservable selectSkillObservable,
             IAttackController attackController,
+            IAttackObservable attackObservable,
             ILiberateController liberateController
         )
         {
@@ -42,6 +44,7 @@ namespace HexRPG.Battle.Player
             _memberObservable = memberObservable;
             _selectSkillObservable = selectSkillObservable;
             _attackController = attackController;
+            _attackObservable = attackObservable;
             _liberateController = liberateController;
         }
 
@@ -66,7 +69,7 @@ namespace HexRPG.Battle.Player
             runningSkill.SkillObservable.OnSkillAttackDisable
                 .Subscribe(_ => _attackController.FinishAttack())
                 .AddTo(_disposables);
-            runningSkill.SkillObservable.OnSkillAttack
+            runningSkill.SkillObservable.OnSkillAttack // LiberateŒŸØ
                 .Subscribe(attackRange =>
                 {
                     var isExistAliveEnemyInAttackRange =

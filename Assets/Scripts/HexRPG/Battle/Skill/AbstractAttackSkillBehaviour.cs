@@ -161,14 +161,25 @@ namespace HexRPG.Battle.Skill
                                     attackRange = _curAttackRange
                                 };
                                 _onSkillAttackEnable.OnNext(attackSetting);
+
+                                //TODO: ƒqƒbƒg‚µ‚½‚çunverifiedEffect‚©‚çremove‚·‚é‚æ‚¤‚Èw“Ç“o˜^‚ð‚µ‚½‚¢(OnAttackDisableŽž‚É‰ðœ)
+                                //TODO: ‚à‚¤PlayerOwner, EnemyOwner‚ð“n‚µ‚ÄAttackController, AttackObservable‚ð‚±‚Á‚¿‚ÅŒ©‚ê‚é‚æ‚¤‚É‚µ‚½•û‚ª‚æ‚­‚È‚¢H
+                                //TODO: -> ‚»‚Ìê‡ICharacterComponentCollection‚É’Ç‰Á‚·‚é‚±‚Æ‚É‚È‚é‚ªMemberOwner‚Í‚±‚ê‚ðŽ‚½‚È‚¢‚Ì‚Å‚¿‚å‚Á‚Æ—Ç‚­‚È‚¢
+                                //TODO: -> Owner‚ð“n‚·‚Ì‚Å‚Í‚È‚­AttackController, AttackObservable‚»‚ê‚¼‚ê“n‚¹‚Î‚æ‚¢
+                                //TODO: IMemberComponentCollection‚ªICharacterComponentCollection‚ðŒp³‚µ‚È‚¢•û–@‚ÍH
+                                //TODO: ISkill‚ÆISkillSetting‚ÌŽg‚¢‚Ç‚±‚ë‚ª‚æ‚­‚í‚©‚ç‚ñ(“Á‚ÉISkillSetting)
                             })
                             .AddTo(_disposables);
                         behaviour.OnAttackDisable
                             .Subscribe(_ =>
                             {
                                 _onSkillAttackDisable.OnNext(Unit.Default);
-                                _onSkillAttack.OnNext(_curAttackRange);
-                                if (_skillEffectMap.TryGetValue(behaviour.attackEffectTrack, out GameObject effect)) _unverifiedEffect.Remove(effect);
+
+                                _onSkillAttack.OnNext(_curAttackRange); // ’…’e‚µ‚½ƒ^ƒCƒ~ƒ“ƒO‚ÅLiberateŒŸØ
+                                if (_skillEffectMap.TryGetValue(behaviour.attackEffectTrack, out GameObject effect)) // ’…’e‚µ‚½‚çƒGƒtƒFƒNƒg‚ðÅŒã‚Ü‚ÅÄ¶‚·‚é
+                                {
+                                    _unverifiedEffect.Remove(effect);
+                                }
                             })
                             .AddTo(_disposables);
 
@@ -201,7 +212,7 @@ namespace HexRPG.Battle.Skill
             _animationController.Play(_director.playableAsset.name);
         }
 
-        public void HideUnverifiedEffect()
+        void HideUnverifiedEffect()
         {
             _unverifiedEffect.ForEach(effect => effect.SetActive(false));
         }
