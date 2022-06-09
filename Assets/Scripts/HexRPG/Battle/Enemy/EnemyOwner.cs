@@ -45,13 +45,6 @@ namespace HexRPG.Battle.Enemy
                 .AddTo(this);
         }
 
-        void Start()
-        {
-            (this as ICharacterComponentCollection).DieObservable.OnFinishDie
-                .Subscribe(_ => DestroyImmediate(gameObject))
-                .AddTo(this);
-        }
-
         public class Factory : PlaceholderFactory<Transform, Vector3, EnemyOwner>
         {
 

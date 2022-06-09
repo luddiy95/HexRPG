@@ -17,6 +17,13 @@ namespace HexRPG.Battle
 
     public class BattleManager : MonoBehaviour, IBattleObservable
     {
+        enum GameResultType
+        {
+            NONE,
+            WIN,
+            LOSE
+        }
+
         IUpdater _updater;
         IUpdateObservable _updateObservable;
         PlayerOwner.Factory _playerFactory;
@@ -49,6 +56,8 @@ namespace HexRPG.Battle
         [SerializeField] Transform _playerRoot;
         [SerializeField] Transform _enemyRoot;
 
+        GameResultType _resultType = GameResultType.NONE;
+
         [Inject]
         public void Construct(
             IUpdater updater,
@@ -73,9 +82,11 @@ namespace HexRPG.Battle
         {
             await PlayStartSequence(token);
 
-            await _onPlayerSpawn.Value.DieObservable.OnFinishDie;
+            SetFinishGameRule();
 
-            Debug.Log("GAME OVER");
+            await UniTask.WaitWhile(() => _resultType == GameResultType.NONE);
+
+            PlayEndSequence().Forget();
         }
 
         async UniTask PlayStartSequence(CancellationToken token)
@@ -119,10 +130,29 @@ namespace HexRPG.Battle
 
         async UniTask SpawnEnemies(CancellationToken token)
         {
+            async UniTaskVoid DestroyEnemy(GameObject enemyObj)
+            {
+                await UniTask.Yield(); // enemy‚ÌOnFinishDieŽž‚ÉHUD‚àDestroy‚·‚é‚Ì‚Åˆê‰ž
+                DestroyImmediate(enemyObj);
+            }
+
             var enemySpawnSettings = _spawnSettings.EnemySpawnSettings;
             for(int i = 0; i < enemySpawnSettings.Length; i++)
             {
-                _enemyList.Add(_enemyFactories[i].Create(_enemyRoot, enemySpawnSettings[i].SpawnHex.transform.position));
+                var enemy = _enemyFactories[i].Create(_enemyRoot, enemySpawnSettings[i].SpawnHex.transform.position);
+                _enemyList.Add(enemy);
+
+                // enemy‚ªŽ€‚ñ‚¾‚çList‚©‚çRemove
+                if (enemy is IEnemyComponentCollection enemyOwner)
+                {
+                    enemyOwner.DieObservable.OnFinishDie
+                        .Subscribe(_ =>
+                        {
+                            _enemyList.Remove(enemyOwner);
+                            DestroyEnemy(enemy.gameObject).Forget();
+                        })
+                        .AddTo(this);
+                }
             }
 
             await UniTask.WaitUntil(() => _enemyList.All(enemy => enemy.SkillSpawnObservable.IsAllSkillSpawned), cancellationToken: token);
@@ -130,15 +160,28 @@ namespace HexRPG.Battle
             foreach (var enemy in _enemyList) enemy.AnimationController.Init();
             foreach (var enemy in _enemyList) enemy.CharacterActionStateController.Init(); // ”X‚Ì‰Šú‰»‚ªI‚í‚Á‚Ä‚©‚çActionStateController‚ð‰Šú‰»‚µ‚½•û‚ª—Ç‚¢
 
-            // enemy‚ªŽ€‚ñ‚¾‚çList‚©‚çRemove
-            foreach(var enemy in _enemyList)
-            {
-                enemy.DieObservable.OnFinishDie
-                    .Subscribe(_ => _enemyList.Remove(enemy))
-                    .AddTo(this);
-            }
-
             foreach (var enemy in _enemyList) _onEnemySpawn.OnNext(enemy);
+        }
+
+        async UniTask PlayEndSequence()
+        {
+            switch (_resultType)
+            {
+                case GameResultType.WIN: Debug.Log("WIN"); break;
+                case GameResultType.LOSE: Debug.Log("LOSE"); break;
+            }
+        }
+
+        void SetFinishGameRule()
+        {
+            _onPlayerSpawn.Value.DieObservable.OnFinishDie
+                .Subscribe(_ => _resultType = GameResultType.LOSE)
+                .AddTo(this);
+
+            _enemyList.ObserveCountChanged()
+                .Where(_ => _enemyList.Count == 0)
+                .Subscribe(_ => _resultType = GameResultType.WIN)
+                .AddTo(this);
         }
     }
 }

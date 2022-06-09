@@ -99,22 +99,22 @@ namespace HexRPG.Battle
                         var hitData = new HitData
                         {
                             DamagedObject = _damagedOwner,
-                            Damage = 10,
+                            Damage = 1000,
                             HitType = HitType.WEAK
                         };
-                        /*
                         if (_damagedOwner is IPlayerComponentCollection playerOwner && 
                                 playerOwner.MemberObservable.CurMember.Value.DieObservable.IsDead.Value == false)
                         {
                             _onHit.OnNext(hitData);
                             playerOwner.Health.Update(-hitData.Damage);
                         }
-                        */
+                        /*
                         if (_damagedOwner is IEnemyComponentCollection enemyOwner && enemyOwner.DieObservable.IsDead.Value == false)
                         {
                             _onHit.OnNext(hitData);
                             enemyOwner.Health.Update(-hitData.Damage);
                         }
+                        */
                     }
                 })
                 .AddTo(_disposables);
@@ -123,8 +123,14 @@ namespace HexRPG.Battle
         void DoHit(IAttackApplicator attackApplicator)
         {
             // Ž€–S’†‚ÍHit‚µ‚È‚¢
-            if (_isEnemy) if (_damagedOwner.DieObservable.IsDead.Value) return;
-            else if(_damagedOwner is IPlayerComponentCollection playerOwner) if (playerOwner.MemberObservable.CurMember.Value.DieObservable.IsDead.Value) return;
+            if (_isEnemy)
+            {
+                if (_damagedOwner.DieObservable.IsDead.Value) return;
+            }
+            else if (_damagedOwner is IPlayerComponentCollection playerOwner)
+            {
+                if (playerOwner.MemberObservable.CurMember.Value.DieObservable.IsDead.Value) return;
+            }
 
             if ((attackApplicator.AttackOrigin is IEnemyComponentCollection) == _isEnemy) return;
 
