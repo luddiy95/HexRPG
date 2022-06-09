@@ -37,12 +37,12 @@ namespace HexRPG.Battle.Player.Member
             _skillsSetting = skillsSetting;
         }
 
-        void ISkillSpawnController.Spawn(Transform root)
+        void ISkillSpawnController.Spawn(IAttackComponentCollection attackOwner, Transform root)
         {
             _skillList = _skillFactories.Select((factory, index) => {
                 ISkillComponentCollection skillOwner = factory.Create(root, Vector3.zero);
                 var skill = _skillsSetting.Skills[index];
-                skillOwner.Skill.Init(skill.Timeline, skill.ActivationBindingMap, _memberOwner.AnimationController);
+                skillOwner.Skill.Init(attackOwner, _memberOwner.AnimationController, skill.Timeline, skill.ActivationBindingMap);
                 skillOwner.SkillSetting.SetCost(skill.Cost);
                 return skillOwner;
             }).ToArray();

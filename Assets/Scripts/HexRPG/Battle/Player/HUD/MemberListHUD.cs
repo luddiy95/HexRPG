@@ -13,7 +13,7 @@ namespace HexRPG.Battle.Player.HUD
         BattleData _battleData;
 
         [SerializeField] GameObject _selectedMember;
-        IMemberHUD _selectedMemberHUD;
+        ICharacterHUD _selectedMemberHUD;
 
         [SerializeField] Transform _allMemberList;
 
@@ -27,7 +27,7 @@ namespace HexRPG.Battle.Player.HUD
 
         void Start()
         {
-            _selectedMemberHUD = _selectedMember.GetComponent<IMemberHUD>();
+            _selectedMemberHUD = _selectedMember.GetComponent<ICharacterHUD>();
             _maxMemberCount = _battleData.maxMemberCount;
         }
 

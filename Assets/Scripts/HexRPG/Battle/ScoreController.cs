@@ -75,6 +75,7 @@ namespace HexRPG.Battle
             _curScore.Value = _battleData.initScore;
 
             _battleObservable.OnPlayerSpawn
+                .Skip(1)
                 .Subscribe(playerOwner =>
                 {
                     // Liberate¬Œ÷

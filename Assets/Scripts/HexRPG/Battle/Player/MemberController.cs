@@ -14,8 +14,11 @@ namespace HexRPG.Battle.Player
     public interface IMemberObservable
     {
         IReadOnlyReactiveCollection<IMemberComponentCollection> MemberList { get; }
+
         IReadOnlyReactiveProperty<IMemberComponentCollection> CurMember { get; }
         int CurMemberIndex { get; }
+
+        IObservable<Unit> OnAllMemberDead { get; }
     }
 
     public interface IMemberController
@@ -29,6 +32,7 @@ namespace HexRPG.Battle.Player
         ICharacterInput _characterInput;
         ITransformController _transformController;
         List<MemberOwner.Factory> _memberFactories;
+        IAttackComponentCollection _attackOwner;
         IAttackApplicator _attackApplicator;
 
         IReadOnlyReactiveCollection<IMemberComponentCollection> IMemberObservable.MemberList => _memberList;
@@ -40,18 +44,24 @@ namespace HexRPG.Battle.Player
         int IMemberObservable.CurMemberIndex => _curMemberIndex;
         int _curMemberIndex = 0;
 
+        IObservable<Unit> IMemberObservable.OnAllMemberDead => _onAllMemberDead;
+        readonly ISubject<Unit> _onAllMemberDead = new Subject<Unit>();
+
+        IDisposable _memberChangeDisposable;
         CompositeDisposable _disposables = new CompositeDisposable();
 
         public MemberController(
             ICharacterInput characterInput,
             ITransformController transformController,
             List<MemberOwner.Factory> memberFactories,
+            IAttackComponentCollection attackOwner,
             IAttackApplicator attackApplicator
         )
         {
             _characterInput = characterInput;
             _transformController = transformController;
             _memberFactories = memberFactories;
+            _attackOwner = attackOwner;
             _attackApplicator = attackApplicator;
         }
 
@@ -60,21 +70,31 @@ namespace HexRPG.Battle.Player
             _characterInput.SelectedMemberIndex
                 .Subscribe(index => (this as IMemberController).ChangeMember(index))
                 .AddTo(_disposables);
+
+            _curMember
+                .Skip(1)
+                .Subscribe(curMember =>
+                {
+                    _memberChangeDisposable?.Dispose();
+                    _memberChangeDisposable = curMember.DieObservable.OnFinishDie
+                        .Subscribe(_ =>
+                        {
+                            var changeableMember = _memberList.FirstOrDefault(member => member.DieObservable.IsDead.Value == false);
+                            if (changeableMember == null) _onAllMemberDead.OnNext(Unit.Default);
+                            else (this as IMemberController).ChangeMember(_memberList.IndexOf(changeableMember));
+                        });
+                }).AddTo(_disposables);
         }
 
         async UniTask IMemberController.SpawnAllMember(CancellationToken token)
         {
             _memberFactories.ForEach(factory =>
             {
-                var member = factory.Create(_transformController.SpawnRootTransform("Member"), Vector3.zero).GetComponent<IMemberComponentCollection>();
-                member.DieObservable.OnFinishDie
-                    .Subscribe(_ => _memberList.Remove(member))
-                    .AddTo(_disposables);
-                _memberList.Add(member);
+                _memberList.Add(factory.Create(_transformController.SpawnRootTransform("Member"), Vector3.zero).GetComponent<IMemberComponentCollection>());
             });
 
             foreach (var member in _memberList) member.CombatSpawnController.Spawn(_attackApplicator);
-            foreach (var member in _memberList) member.SkillSpawnController.Spawn(_transformController.SpawnRootTransform("Skill"));
+            foreach (var member in _memberList) member.SkillSpawnController.Spawn(_attackOwner, _transformController.SpawnRootTransform("Skill"));
 
             // ëSÇƒÇÃCombat/SkillÇ™ê∂ê¨Ç≥ÇÍÇÈÇÃÇë“Ç¬
             await UniTask.WaitUntil(
@@ -98,6 +118,7 @@ namespace HexRPG.Battle.Player
 
         void IDisposable.Dispose()
         {
+            _memberChangeDisposable?.Dispose();
             _disposables.Dispose();
         }
     }

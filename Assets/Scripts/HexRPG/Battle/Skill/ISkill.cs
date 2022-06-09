@@ -8,7 +8,7 @@ namespace HexRPG.Battle.Skill
 
     public interface ISkill
     {
-        void Init(PlayableAsset timeline, List<ActivationBindingData> activationBindingMap, IAnimationController animationController);
+        void Init(IAttackComponentCollection attackOwner, IAnimationController animationController, PlayableAsset timeline, List<ActivationBindingData> activationBindingMap);
         void StartSkill(Hex skillCenter, int skillRotation);
 
         PlayableAsset PlayableAsset { get; }

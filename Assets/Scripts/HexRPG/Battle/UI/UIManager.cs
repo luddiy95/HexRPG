@@ -30,6 +30,7 @@ namespace HexRPG.Battle.UI
                 _skillList.TryGetComponent(out _skillListUI))
             {
                 _battleObservable.OnPlayerSpawn
+                .Skip(1)
                     .Subscribe(playerOwner =>
                     {
                         new List<ICharacterUI>

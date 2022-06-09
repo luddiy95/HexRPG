@@ -11,9 +11,6 @@ namespace HexRPG.Battle
         IObservable<Unit> OnStartReservation { get; }
         IObservable<Unit> OnFinishReservation { get; }
 
-        IObservable<SkillAttackSetting> OnSkillAttackEnable { get; }
-        IObservable<Unit> OnSkillAttackDisable { get; }
-
         IObservable<Hex[]> OnSkillAttack { get; }
 
         IObservable<Unit> OnFinishSkill { get; }

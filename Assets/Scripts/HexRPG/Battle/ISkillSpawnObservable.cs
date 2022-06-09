@@ -6,7 +6,7 @@ namespace HexRPG.Battle
 
     public interface ISkillSpawnController
     {
-        void Spawn(Transform root);
+        void Spawn(IAttackComponentCollection attackOwner, Transform root);
     }
 
     public interface ISkillSpawnObservable

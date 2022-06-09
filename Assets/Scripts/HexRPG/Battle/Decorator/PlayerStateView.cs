@@ -22,6 +22,7 @@ namespace HexRPG.Battle
         void Start()
         {
             _battleObservable.OnPlayerSpawn
+                .Skip(1)
                 .Subscribe(playerOwner =>
                 {
                     playerOwner.ActionStateObservable.CurrentState

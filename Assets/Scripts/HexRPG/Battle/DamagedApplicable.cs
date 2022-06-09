@@ -99,19 +99,17 @@ namespace HexRPG.Battle
                         var hitData = new HitData
                         {
                             DamagedObject = _damagedOwner,
-                            Damage = 100,
+                            Damage = 10,
                             HitType = HitType.WEAK
                         };
+                        /*
                         if (_damagedOwner is IPlayerComponentCollection playerOwner && 
                                 playerOwner.MemberObservable.CurMember.Value.DieObservable.IsDead.Value == false)
                         {
-                            //TODO: 【ここから】playerOwner.IsDeadとplayerOwner.Healthを使うように
-                            //TODO: CurMemberがDestroyされたときも考慮して
-                            //TODO: CurMemberの参照を確認する
-                            //TODO: CurMemberを参照しているところを、Enemyも持っているならばPlayer経由でnull許容にしたり
                             _onHit.OnNext(hitData);
-                            playerOwner.MemberObservable.CurMember.Value.Health.Update(-hitData.Damage);
+                            playerOwner.Health.Update(-hitData.Damage);
                         }
+                        */
                         if (_damagedOwner is IEnemyComponentCollection enemyOwner && enemyOwner.DieObservable.IsDead.Value == false)
                         {
                             _onHit.OnNext(hitData);
@@ -164,10 +162,7 @@ namespace HexRPG.Battle
             attackApplicator.NotifyAttackHit(hitData);
 
             //! EnemyはCombatが存在しないからAttackEnableはHex経由だけのためColliderがいらない->Playerにアタッチされている
-            if (_damagedOwner is IPlayerComponentCollection player)
-                player.MemberObservable.CurMember.Value.Health.Update(-hitData.Damage);
-            if (_damagedOwner is IEnemyComponentCollection enemy)
-                enemy.Health.Update(-hitData.Damage);
+            _damagedOwner.Health.Update(-hitData.Damage);
         }
 
         void IDisposable.Dispose()

@@ -55,9 +55,9 @@ namespace HexRPG.Battle.HUD
                 UpdateDisplay();
             }
 
-            if(chara is IHostileComponentCollection hostileOwner)
+            if(chara is IAttackComponentCollection owner)
             {
-                hostileOwner.DamageApplicable.OnHit
+                owner.DamageApplicable.OnHit
                     .Subscribe(hitData =>
                     {
                         _transform.anchoredPosition = _trackingHUD.AnchoredPos;

@@ -1,7 +1,7 @@
 
 namespace HexRPG.Battle
 {
-    public interface IHostileComponentCollection
+    public interface IAttackComponentCollection : ICharacterComponentCollection
     {
         IAttackController AttackController { get; }
         IAttackObservable AttackObservable { get; }

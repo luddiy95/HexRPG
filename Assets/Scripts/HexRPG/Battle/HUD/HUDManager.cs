@@ -36,13 +36,13 @@ namespace HexRPG.Battle.HUD
         void Start()
         {
             // MemberList
-            var playerHUD = _memberListHUD.GetComponents<ICharacterHUD>();
-            Array.ForEach(playerHUD, hud =>
-            {
-                _battleObservable.OnPlayerSpawn
-                    .Subscribe(playerOwner => hud.Bind(playerOwner))
-                    .AddTo(this);
-            });
+            _battleObservable.OnPlayerSpawn
+                .Skip(1)
+                .Subscribe(playerOwner => {
+                    var playerHUD = _memberListHUD.GetComponents<ICharacterHUD>();
+                    Array.ForEach(playerHUD, hud => hud.Bind(playerOwner));
+                })
+                .AddTo(this);
 
             // EnemyStatus
             _battleObservable.OnEnemySpawn
@@ -64,7 +64,11 @@ namespace HexRPG.Battle.HUD
                 Array.ForEach(huds, hud => hud.Bind(chara));
             }
             _battleObservable.OnPlayerSpawn
-                .Subscribe(playerOwner => SpawnDamagedPanel(playerOwner))
+                .Skip(1)
+                .Subscribe(playerOwner =>
+                {
+                    SpawnDamagedPanel(playerOwner);
+                })
                 .AddTo(this);
             _battleObservable.OnEnemySpawn
                 .Subscribe(enemyOwner => SpawnDamagedPanel(enemyOwner))

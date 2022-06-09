@@ -4,9 +4,8 @@ using UniRx;
 
 namespace HexRPG.Battle.Enemy
 {
-    public interface IEnemyComponentCollection : ICharacterComponentCollection, IHostileComponentCollection
+    public interface IEnemyComponentCollection : IAttackComponentCollection
     {
-        IColliderController ColliderController { get; }
         IAnimationController AnimationController { get; }
         ICharacterActionStateController CharacterActionStateController { get; }
         ISkillSpawnObservable SkillSpawnObservable { get; }
@@ -22,11 +21,10 @@ namespace HexRPG.Battle.Enemy
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
 
-        [Inject] IAttackController IHostileComponentCollection.AttackController { get; }
-        [Inject] IAttackObservable IHostileComponentCollection.AttackObservable { get; }
-        [Inject] IDamageApplicable IHostileComponentCollection.DamageApplicable { get; }
+        [Inject] IAttackController IAttackComponentCollection.AttackController { get; }
+        [Inject] IAttackObservable IAttackComponentCollection.AttackObservable { get; }
+        [Inject] IDamageApplicable IAttackComponentCollection.DamageApplicable { get; }
 
-        [Inject] IColliderController IEnemyComponentCollection.ColliderController { get; }
         [Inject] IAnimationController IEnemyComponentCollection.AnimationController { get; }
         [Inject] ICharacterActionStateController IEnemyComponentCollection.CharacterActionStateController { get; }
         [Inject] ISkillSpawnObservable IEnemyComponentCollection.SkillSpawnObservable { get; }
@@ -44,6 +42,13 @@ namespace HexRPG.Battle.Enemy
                 .Subscribe(_ => {
                     activeController.SetActive(true);
                 })
+                .AddTo(this);
+        }
+
+        void Start()
+        {
+            (this as ICharacterComponentCollection).DieObservable.OnFinishDie
+                .Subscribe(_ => DestroyImmediate(gameObject))
                 .AddTo(this);
         }
 

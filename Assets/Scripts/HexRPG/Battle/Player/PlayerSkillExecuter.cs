@@ -14,16 +14,12 @@ namespace HexRPG.Battle.Player
         ITransformController _transformController;
         IMemberObservable _memberObservable;
         ISelectSkillObservable _selectSkillObservable;
-        IAttackController _attackController;
-        IAttackObservable _attackObservable;
         ILiberateController _liberateController;
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
         IObservable<Unit> ISkillObservable.OnStartReservation => null;
         IObservable<Unit> ISkillObservable.OnFinishReservation => null;
-        IObservable<SkillAttackSetting> ISkillObservable.OnSkillAttackEnable => null;
-        IObservable<Unit> ISkillObservable.OnSkillAttackDisable => null;
         IObservable<Hex[]> ISkillObservable.OnSkillAttack => null;
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
@@ -34,8 +30,6 @@ namespace HexRPG.Battle.Player
             ITransformController transformController,
             IMemberObservable memberObservable,
             ISelectSkillObservable selectSkillObservable,
-            IAttackController attackController,
-            IAttackObservable attackObservable,
             ILiberateController liberateController
         )
         {
@@ -43,8 +37,6 @@ namespace HexRPG.Battle.Player
             _transformController = transformController;
             _memberObservable = memberObservable;
             _selectSkillObservable = selectSkillObservable;
-            _attackController = attackController;
-            _attackObservable = attackObservable;
             _liberateController = liberateController;
         }
 
@@ -58,17 +50,6 @@ namespace HexRPG.Battle.Player
                 );
 
             _disposables.Clear();
-            runningSkill.SkillObservable.OnSkillAttackEnable
-                .Subscribe(attackSetting =>
-                {
-                    attackSetting.attribute = runningSkill.SkillSetting.Attribute;
-
-                    _attackController.StartAttack(attackSetting);
-                })
-                .AddTo(_disposables);
-            runningSkill.SkillObservable.OnSkillAttackDisable
-                .Subscribe(_ => _attackController.FinishAttack())
-                .AddTo(_disposables);
             runningSkill.SkillObservable.OnSkillAttack // LiberateŒŸØ
                 .Subscribe(attackRange =>
                 {

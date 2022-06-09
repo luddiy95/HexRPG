@@ -195,7 +195,7 @@ namespace HexRPG.Battle.Enemy
             while (true)
             {
                 // Idle
-                await UniTask.Delay(1000000000, cancellationToken: token);
+                await UniTask.Delay(1000, cancellationToken: token);
 
                 // Player‚Ì•û‚Ö‰ñ“]
                 _actionStateController.Execute(new Command { Id = "rotate" });

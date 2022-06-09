@@ -3,7 +3,7 @@ using Zenject;
 
 namespace HexRPG.Battle.Player
 {
-    public interface IPlayerComponentCollection : ICharacterComponentCollection, IHostileComponentCollection
+    public interface IPlayerComponentCollection : IAttackComponentCollection
     {
         IMemberController MemberController { get; }
         IMemberObservable MemberObservable { get; }
@@ -22,9 +22,9 @@ namespace HexRPG.Battle.Player
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         IHealth ICharacterComponentCollection.Health => MemberOwner.Health;
 
-        [Inject] IAttackController IHostileComponentCollection.AttackController { get; }
-        [Inject] IAttackObservable IHostileComponentCollection.AttackObservable { get; }
-        [Inject] IDamageApplicable IHostileComponentCollection.DamageApplicable { get; }
+        [Inject] IAttackController IAttackComponentCollection.AttackController { get; }
+        [Inject] IAttackObservable IAttackComponentCollection.AttackObservable { get; }
+        [Inject] IDamageApplicable IAttackComponentCollection.DamageApplicable { get; }
 
         [Inject] IMemberController IPlayerComponentCollection.MemberController { get; }
         [Inject] IMemberObservable IPlayerComponentCollection.MemberObservable { get; }

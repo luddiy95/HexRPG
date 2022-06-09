@@ -845,13 +845,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 853949415}
-  _selectedFilter: {fileID: 385390138}
-  _deadFilter: {fileID: 1230528364}
   _healthGauge: {fileID: 299755780}
   _hpAmountText: {fileID: 913305586}
   _skillPointHUD: {fileID: 22761373}
+  _attribute: {fileID: 452955695}
+  _selectedFilter: {fileID: 385390138}
+  _deadFilter: {fileID: 1230528364}
   _btnChange: {fileID: 658098326}
-  _iconAttribute: {fileID: 498456550}
   _selectedArrow: {fileID: 858484701}
 --- !u!4 &44842480 stripped
 Transform:
@@ -8750,13 +8750,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 80799598}
-  _selectedFilter: {fileID: 475837193}
-  _deadFilter: {fileID: 141887959}
   _healthGauge: {fileID: 395068869}
   _hpAmountText: {fileID: 177632058}
   _skillPointHUD: {fileID: 343395955}
+  _attribute: {fileID: 1812825179}
+  _selectedFilter: {fileID: 475837193}
+  _deadFilter: {fileID: 141887959}
   _btnChange: {fileID: 13499829}
-  _iconAttribute: {fileID: 913389120}
   _selectedArrow: {fileID: 1788489467}
 --- !u!1 &540633097
 GameObject:
@@ -15775,13 +15775,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 494883380}
-  _selectedFilter: {fileID: 2065740823}
-  _deadFilter: {fileID: 1028571787}
   _healthGauge: {fileID: 1041525966}
   _hpAmountText: {fileID: 1090741594}
   _skillPointHUD: {fileID: 605269429}
+  _attribute: {fileID: 1594107261}
+  _selectedFilter: {fileID: 2065740823}
+  _deadFilter: {fileID: 1028571787}
   _btnChange: {fileID: 2027047633}
-  _iconAttribute: {fileID: 581237368}
   _selectedArrow: {fileID: 533219073}
 --- !u!1 &963194225
 GameObject:
@@ -16505,18 +16505,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 984640705}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4bf743ff4081fc3438fbafe8271515e4, type: 3}
+  m_Script: {fileID: 11500000, guid: ca5103ae90fb3ce4387baac326155b52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 870939663}
-  _selectedFilter: {fileID: 0}
-  _deadFilter: {fileID: 0}
   _healthGauge: {fileID: 1964323510}
   _hpAmountText: {fileID: 820629700}
   _skillPointHUD: {fileID: 817231656}
-  _btnChange: {fileID: 0}
   _iconAttribute: {fileID: 502408080}
-  _selectedArrow: {fileID: 0}
 --- !u!1001 &990722527
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -30494,9 +30490,7 @@ MonoBehaviour:
   _playerSpawnSetting:
     _prefab: {fileID: 9023172073399153930, guid: 852fb4ad79ea5cd4a8c13b5e3a6bfd8f, type: 3}
     _spawnHex: {fileID: 742981857}
-  _enemySpawnSettings:
-  - _prefab: {fileID: 6462630326340586861, guid: 90e4f3838f4abda428566aacfe682ed1, type: 3}
-    _spawnHex: {fileID: 494984253}
+  _enemySpawnSettings: []
   _battleData: {fileID: 11400000, guid: 01737adf5575bcf46a44210c6b1afb2c, type: 2}
   _displayDataContainer: {fileID: 11400000, guid: c47707733cf334f49b5bacec5ff5d23d, type: 2}
   _enemyStatusPrefab: {fileID: 6498212038004763138, guid: 2955179fdbfdc5041bfaccc55c4e96c1, type: 3}
@@ -32300,11 +32294,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _icon: {fileID: 1951833396}
-  _selectedFilter: {fileID: 787735302}
-  _deadFilter: {fileID: 1855545735}
   _healthGauge: {fileID: 1255888962}
   _hpAmountText: {fileID: 532129914}
   _skillPointHUD: {fileID: 1901811793}
+  _attribute: {fileID: 377684719}
+  _selectedFilter: {fileID: 787735302}
+  _deadFilter: {fileID: 1855545735}
   _btnChange: {fileID: 1346110715}
-  _iconAttribute: {fileID: 882294574}
   _selectedArrow: {fileID: 550083372}

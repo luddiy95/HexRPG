@@ -24,11 +24,11 @@ namespace HexRPG.Battle.Player
 
         void IInitializable.Initialize()
         {
-            _memberObservable.MemberList.ObserveCountChanged()
-                .Where(count => count == 0)
+            _memberObservable.OnAllMemberDead
                 .Subscribe(_ =>
                 {
                     _onFinishDie.OnNext(Unit.Default);
+                    _onFinishDie.OnCompleted();
                 })
                 .AddTo(_disposables);
         }

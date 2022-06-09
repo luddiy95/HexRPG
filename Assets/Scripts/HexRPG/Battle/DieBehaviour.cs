@@ -50,7 +50,7 @@ namespace HexRPG.Battle
             _director.playableAsset = _dieSetting.Timeline;
             _director.stopped += (obj) =>
             {
-                DestroySelf(_cancellationToken).Forget();
+                FinishDie(_cancellationToken).Forget();
             };
 
             _health.Current
@@ -64,12 +64,11 @@ namespace HexRPG.Battle
                 .AddTo(this);
         }
 
-        async UniTaskVoid DestroySelf(CancellationToken token)
+        async UniTaskVoid FinishDie(CancellationToken token)
         {
             await UniTask.Delay(2000);
 
             _onFinishDie.OnNext(Unit.Default);
-            DestroyImmediate(gameObject);
         }
     }
 }

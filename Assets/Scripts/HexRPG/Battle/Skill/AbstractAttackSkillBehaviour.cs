@@ -16,7 +16,9 @@ namespace HexRPG.Battle.Skill
     {
         IStageController _stageController;
         IBattleObservable _battleObservable;
+        ISkillSetting _skillSetting;
 
+        IAttackComponentCollection _attackOwner;
         IAnimationController _animationController;
 
         [SerializeField] protected PlayableDirector _director;
@@ -37,11 +39,6 @@ namespace HexRPG.Battle.Skill
         IObservable<Unit> ISkillObservable.OnFinishReservation => _onFinishReservation;
         readonly ISubject<Unit> _onFinishReservation = new Subject<Unit>();
 
-        IObservable<SkillAttackSetting> ISkillObservable.OnSkillAttackEnable => _onSkillAttackEnable;
-        readonly ISubject<SkillAttackSetting> _onSkillAttackEnable = new Subject<SkillAttackSetting>();
-        IObservable<Unit> ISkillObservable.OnSkillAttackDisable => _onSkillAttackDisable;
-        readonly ISubject<Unit> _onSkillAttackDisable = new Subject<Unit>();
-
         IObservable<Hex[]> ISkillObservable.OnSkillAttack => _onSkillAttack;
         readonly ISubject<Hex[]> _onSkillAttack = new Subject<Hex[]>();
 
@@ -54,20 +51,29 @@ namespace HexRPG.Battle.Skill
 
         TrackAsset _cinemachineTrack;
 
+        IDisposable _attackHitDisposable;
         CompositeDisposable _disposables = new CompositeDisposable();
 
         [Inject]
         public void Construct(
             IStageController stageController,
-            IBattleObservable battleObservable
+            IBattleObservable battleObservable,
+            ISkillSetting skillSetting
         )
         {
             _stageController = stageController;
             _battleObservable = battleObservable;
+            _skillSetting = skillSetting;
         }
 
-        void ISkill.Init(PlayableAsset timeline, List<ActivationBindingData> activationBindingMap, IAnimationController animationController)
+        void ISkill.Init(
+            IAttackComponentCollection attackOwner,
+            IAnimationController animationController,
+            PlayableAsset timeline, 
+            List<ActivationBindingData> activationBindingMap
+        )
         {
+            _attackOwner = attackOwner;
             _animationController = animationController;
 
             _director.playableAsset = timeline;
@@ -122,15 +128,17 @@ namespace HexRPG.Battle.Skill
                 .Subscribe(_ =>
                 {
                     // èIóπèàóù
-                    _onSkillAttackDisable.OnNext(Unit.Default);
+                    OnFinishReservation();
+                    OnAttackDisable();
+
                     HideUnverifiedEffect();
                     _unverifiedEffect.Clear();
+
                     activationBindingMap.ForEach(data => data.sourceObject.SetActive(false));
 
                     _disposables.Clear();
                     _director.Stop();
 
-                    _onFinishReservation.OnNext(Unit.Default);
                     _onFinishSkill.OnNext(Unit.Default);
                 })
                 .AddTo(this);
@@ -158,28 +166,23 @@ namespace HexRPG.Battle.Skill
                                 var attackSetting = new SkillAttackSetting
                                 {
                                     power = behaviour.damage,
-                                    attackRange = _curAttackRange
+                                    attackRange = _curAttackRange,
+                                    attribute = _skillSetting.Attribute
                                 };
-                                _onSkillAttackEnable.OnNext(attackSetting);
+                                _attackOwner.AttackController.StartAttack(attackSetting);
 
-                                //TODO: ÉqÉbÉgÇµÇΩÇÁunverifiedEffectÇ©ÇÁremoveÇ∑ÇÈÇÊÇ§Ç»çwì«ìoò^ÇÇµÇΩÇ¢(OnAttackDisableéûÇ…âèú)
-                                //TODO: Ç‡Ç§PlayerOwner, EnemyOwnerÇìnÇµÇƒAttackController, AttackObservableÇÇ±Ç¡ÇøÇ≈å©ÇÍÇÈÇÊÇ§Ç…ÇµÇΩï˚Ç™ÇÊÇ≠Ç»Ç¢ÅH
-                                //TODO: -> ÇªÇÃèÍçáICharacterComponentCollectionÇ…í«â¡Ç∑ÇÈÇ±Ç∆Ç…Ç»ÇÈÇ™MemberOwnerÇÕÇ±ÇÍÇéùÇΩÇ»Ç¢ÇÃÇ≈ÇøÇÂÇ¡Ç∆ó«Ç≠Ç»Ç¢
-                                //TODO: -> OwnerÇìnÇ∑ÇÃÇ≈ÇÕÇ»Ç≠AttackController, AttackObservableÇªÇÍÇºÇÍìnÇπÇŒÇÊÇ¢
-                                //TODO: IMemberComponentCollectionÇ™ICharacterComponentCollectionÇåpè≥ÇµÇ»Ç¢ï˚ñ@ÇÕÅH
-                                //TODO: ISkillÇ∆ISkillSettingÇÃégÇ¢Ç«Ç±ÇÎÇ™ÇÊÇ≠ÇÌÇ©ÇÁÇÒ(ì¡Ç…ISkillSetting)
+                                _attackHitDisposable?.Dispose();
+                                _attackHitDisposable = _attackOwner.AttackObservable.OnAttackHit
+                                    .Subscribe(_ => RemoveUnverifiedEffect(behaviour.attackEffectTrack));
                             })
                             .AddTo(_disposables);
                         behaviour.OnAttackDisable
                             .Subscribe(_ =>
                             {
-                                _onSkillAttackDisable.OnNext(Unit.Default);
+                                OnAttackDisable();
 
                                 _onSkillAttack.OnNext(_curAttackRange); // íÖíeÇµÇΩÉ^ÉCÉ~ÉìÉOÇ≈Liberateåüèÿ
-                                if (_skillEffectMap.TryGetValue(behaviour.attackEffectTrack, out GameObject effect)) // íÖíeÇµÇΩÇÁÉGÉtÉFÉNÉgÇç≈å„Ç‹Ç≈çƒê∂Ç∑ÇÈ
-                                {
-                                    _unverifiedEffect.Remove(effect);
-                                }
+                                RemoveUnverifiedEffect(behaviour.attackEffectTrack);
                             })
                             .AddTo(_disposables);
 
@@ -202,7 +205,7 @@ namespace HexRPG.Battle.Skill
                             .Subscribe(_ => _onStartReservation.OnNext(Unit.Default))
                             .AddTo(_disposables);
                         behaviour.OnFinishReservation
-                            .Subscribe(_ => _onFinishReservation.OnNext(Unit.Default))
+                            .Subscribe(_ => OnFinishReservation())
                             .AddTo(_disposables);
                     }
                 }
@@ -210,6 +213,25 @@ namespace HexRPG.Battle.Skill
 
             _director.Play();
             _animationController.Play(_director.playableAsset.name);
+        }
+
+        void OnFinishReservation()
+        {
+            _onFinishReservation.OnNext(Unit.Default);
+        }
+
+        void OnAttackDisable()
+        {
+            _attackHitDisposable?.Dispose();
+            _attackOwner.AttackController.FinishAttack();
+        }
+
+        void RemoveUnverifiedEffect(string effectTrackName)
+        {
+            if (_skillEffectMap.TryGetValue(effectTrackName, out GameObject effect)) // íÖíeÇµÇΩÇÁÉGÉtÉFÉNÉgÇç≈å„Ç‹Ç≈çƒê∂Ç∑ÇÈ
+            {
+                _unverifiedEffect.Remove(effect);
+            }
         }
 
         void HideUnverifiedEffect()

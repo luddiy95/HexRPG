@@ -23,8 +23,8 @@ namespace HexRPG.Battle
         List<EnemyOwner.Factory> _enemyFactories;
         ISpawnSettings _spawnSettings;
 
-        IObservable<IPlayerComponentCollection> IBattleObservable.OnPlayerSpawn => _onPlayerSpawn;
-        readonly ISubject<IPlayerComponentCollection> _onPlayerSpawn = new Subject<IPlayerComponentCollection>();
+        IReadOnlyReactiveProperty<IPlayerComponentCollection> IBattleObservable.OnPlayerSpawn => _onPlayerSpawn;
+        readonly IReactiveProperty<IPlayerComponentCollection> _onPlayerSpawn = new ReactiveProperty<IPlayerComponentCollection>();
 
         IObservable<IEnemyComponentCollection> IBattleObservable.OnEnemySpawn => _onEnemySpawn;
         readonly ISubject<IEnemyComponentCollection> _onEnemySpawn = new Subject<IEnemyComponentCollection>();
@@ -32,7 +32,6 @@ namespace HexRPG.Battle
         IObservable<Unit> IBattleObservable.OnBattleStart => _onBattleStart;
         readonly ISubject<Unit> _onBattleStart = new Subject<Unit>();
 
-        IPlayerComponentCollection _playerOwner;
         Hex IBattleObservable.PlayerLandedHex => _playerLandedHex;
         Hex _playerLandedHex = null;
 
@@ -67,10 +66,19 @@ namespace HexRPG.Battle
 
         void Start()
         {
-            PlayStartSequence(this.GetCancellationTokenOnDestroy()).Forget();
+            PlayGameSequence(this.GetCancellationTokenOnDestroy()).Forget();
         }
 
-        async UniTaskVoid PlayStartSequence(CancellationToken token)
+        async UniTaskVoid PlayGameSequence(CancellationToken token)
+        {
+            await PlayStartSequence(token);
+
+            await _onPlayerSpawn.Value.DieObservable.OnFinishDie;
+
+            Debug.Log("GAME OVER");
+        }
+
+        async UniTask PlayStartSequence(CancellationToken token)
         {
             await UniTask.Yield(token); // HUD, UIの初期化処理が終わってから(OnPlayerSpawnは良いがEnemyは複数いるためOnEnemySpawnがHUD, UIの初期化前に発行されたら意味がない)
 
@@ -88,25 +96,25 @@ namespace HexRPG.Battle
         async UniTask SpawnPlayer(CancellationToken token)
         {
             var playerSpawnSetting = _spawnSettings.PlayerSpawnSetting;
-            _playerOwner = _playerFactory.Create(_playerRoot, playerSpawnSetting.SpawnHex.transform.position);
+            var playerOwner = _playerFactory.Create(_playerRoot, playerSpawnSetting.SpawnHex.transform.position) as IPlayerComponentCollection;
 
-            var memberController = _playerOwner.MemberController;
+            var memberController = playerOwner.MemberController;
             await memberController.SpawnAllMember(token);
             memberController.ChangeMember(0); //! ここでようやくCurMemberが発行される
 
-            _playerOwner.CharacterActionStateController.Init(); // 諸々の初期化が終わってからActionStateControllerを初期化
+            playerOwner.CharacterActionStateController.Init(); // 諸々の初期化が終わってからActionStateControllerを初期化
 
-            _targetGroup.m_Targets[0].target = _playerOwner.TransformController.MoveTransform;
+            _targetGroup.m_Targets[0].target = playerOwner.TransformController.MoveTransform;
             // Playerの位置を監視
-            _playerLandedHex = _playerOwner.TransformController.GetLandedHex();
+            _playerLandedHex = playerOwner.TransformController.GetLandedHex();
             _updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
                 .Subscribe(_ =>
                 {
-                    _playerLandedHex = _playerOwner.TransformController.GetLandedHex();
+                    _playerLandedHex = playerOwner.TransformController.GetLandedHex();
                 })
                 .AddTo(this);
 
-            _onPlayerSpawn.OnNext(_playerOwner);
+            _onPlayerSpawn.Value = playerOwner;
         }
 
         async UniTask SpawnEnemies(CancellationToken token)

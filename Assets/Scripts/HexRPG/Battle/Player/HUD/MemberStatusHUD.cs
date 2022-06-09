@@ -3,14 +3,13 @@ using UnityEngine.UI;
 using Zenject;
 using UniRx;
 using TMPro;
-using System;
 
 namespace HexRPG.Battle.Player.HUD
 {
     using Member;
     using Battle.HUD;
 
-    public interface IMemberHUD : ICharacterHUD
+    public interface IMemberHUD
     {
         GameObject BtnChange { get; }
 
@@ -18,18 +17,18 @@ namespace HexRPG.Battle.Player.HUD
         void SwitchShowBtnChange(bool show);
     }
 
-    public class MemberStatusHUD : MonoBehaviour, IMemberHUD, IDisposable
+    public class MemberStatusHUD : MonoBehaviour, IMemberHUD, ICharacterHUD
     {
         BattleData _battleData;
 
         [SerializeField] Image _icon;
-        [SerializeField] GameObject _selectedFilter;
-        [SerializeField] GameObject _deadFilter;
         [SerializeField] GameObject _healthGauge;
         [SerializeField] TextMeshProUGUI _hpAmountText;
         [SerializeField] GameObject _skillPointHUD;
+        [SerializeField] Transform _attribute;
+        [SerializeField] GameObject _selectedFilter;
+        [SerializeField] GameObject _deadFilter;
         [SerializeField] GameObject _btnChange;
-        [SerializeField] Image _iconAttribute;
         [SerializeField] GameObject _selectedArrow;
 
         GameObject IMemberHUD.BtnChange => _btnChange;
@@ -43,7 +42,7 @@ namespace HexRPG.Battle.Player.HUD
             {
                 _isSelected = value;
 
-                _selectedArrow.SetActive(_isSelected);
+                SwitchShowSelected(_isSelected);
                 UpdateShowFilter();
                 (this as IMemberHUD).SwitchShowBtnChange(!_isSelected);
             }
@@ -76,6 +75,8 @@ namespace HexRPG.Battle.Player.HUD
                         _isDead = true;
                         UpdateShowFilter();
                         (this as IMemberHUD).SwitchShowBtnChange(false);
+                        _skillPointHUD.SetActive(false);
+                        _attribute.gameObject.SetActive(false);
                     })
                     .AddTo(_disposables);
 
@@ -89,19 +90,26 @@ namespace HexRPG.Battle.Player.HUD
                 _skillPointHUD.GetComponent<ICharacterHUD>().Bind(memberOwner);
 
                 // Attribute
-                if (_battleData.attributeIconMap.Table.TryGetValue(profile.Attribute, out Sprite sprite)) _iconAttribute.sprite = sprite;
+                if (_battleData.attributeIconMap.Table.TryGetValue(profile.Attribute, out Sprite sprite))
+                    _attribute.GetChild(0).GetComponent<Image>().sprite = sprite;
             }
         }
 
         void UpdateShowFilter()
         {
-            _deadFilter.SetActive(false); _selectedFilter.SetActive(false);
+            _deadFilter.SetActive(false); SwitchShowSelected(false);
             if (_isDead)
             {
                 _deadFilter.SetActive(true);
                 return;
             }
-            if (_isSelected) _selectedFilter.SetActive(true);
+            if (_isSelected) SwitchShowSelected(true);
+        }
+
+        void SwitchShowSelected(bool show)
+        {
+            _selectedFilter.SetActive(show);
+            _selectedArrow.SetActive(show);
         }
 
         void IMemberHUD.SwitchShowBtnChange(bool show)
@@ -110,7 +118,7 @@ namespace HexRPG.Battle.Player.HUD
             _btnChange.SetActive(show);
         }
 
-        void IDisposable.Dispose()
+        void OnDestroy()
         {
             _disposables.Dispose();
         }

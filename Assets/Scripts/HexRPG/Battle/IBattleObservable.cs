@@ -11,7 +11,7 @@ namespace HexRPG.Battle
 
     public interface IBattleObservable
     {
-        IObservable<IPlayerComponentCollection> OnPlayerSpawn { get; }
+        IReadOnlyReactiveProperty<IPlayerComponentCollection> OnPlayerSpawn { get; }
         IObservable<IEnemyComponentCollection> OnEnemySpawn { get; }
 
         IObservable<Unit> OnBattleStart { get; }
