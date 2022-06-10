@@ -13,12 +13,10 @@ namespace HexRPG.Battle.Player
 
     public interface IMemberObservable
     {
-        IReadOnlyReactiveCollection<IMemberComponentCollection> MemberList { get; }
+        List<IMemberComponentCollection> MemberList { get; }
 
         IReadOnlyReactiveProperty<IMemberComponentCollection> CurMember { get; }
         int CurMemberIndex { get; }
-
-        IObservable<Unit> OnAllMemberDead { get; }
     }
 
     public interface IMemberController
@@ -35,17 +33,14 @@ namespace HexRPG.Battle.Player
         IAttackComponentCollection _attackOwner;
         IAttackApplicator _attackApplicator;
 
-        IReadOnlyReactiveCollection<IMemberComponentCollection> IMemberObservable.MemberList => _memberList;
-        readonly IReactiveCollection<IMemberComponentCollection> _memberList = new ReactiveCollection<IMemberComponentCollection>();
+        List<IMemberComponentCollection> IMemberObservable.MemberList => _memberList;
+        readonly List<IMemberComponentCollection> _memberList = new List<IMemberComponentCollection>();
 
         IReadOnlyReactiveProperty<IMemberComponentCollection> IMemberObservable.CurMember => _curMember;
         readonly IReactiveProperty<IMemberComponentCollection> _curMember = new ReactiveProperty<IMemberComponentCollection>();
 
         int IMemberObservable.CurMemberIndex => _curMemberIndex;
         int _curMemberIndex = 0;
-
-        IObservable<Unit> IMemberObservable.OnAllMemberDead => _onAllMemberDead;
-        readonly ISubject<Unit> _onAllMemberDead = new Subject<Unit>();
 
         IDisposable _memberChangeDisposable;
         CompositeDisposable _disposables = new CompositeDisposable();
@@ -70,20 +65,6 @@ namespace HexRPG.Battle.Player
             _characterInput.SelectedMemberIndex
                 .Subscribe(index => (this as IMemberController).ChangeMember(index))
                 .AddTo(_disposables);
-
-            _curMember
-                .Skip(1)
-                .Subscribe(curMember =>
-                {
-                    _memberChangeDisposable?.Dispose();
-                    _memberChangeDisposable = curMember.DieObservable.OnFinishDie
-                        .Subscribe(_ =>
-                        {
-                            var changeableMember = _memberList.FirstOrDefault(member => member.DieObservable.IsDead.Value == false);
-                            if (changeableMember == null) _onAllMemberDead.OnNext(Unit.Default);
-                            else (this as IMemberController).ChangeMember(_memberList.IndexOf(changeableMember));
-                        });
-                }).AddTo(_disposables);
         }
 
         async UniTask IMemberController.SpawnAllMember(CancellationToken token)

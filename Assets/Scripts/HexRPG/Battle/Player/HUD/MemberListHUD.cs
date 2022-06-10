@@ -37,7 +37,7 @@ namespace HexRPG.Battle.Player.HUD
             {
                 for(int i = 0; i < _maxMemberCount; i++)
                 {
-                    var memberList = playerOwner.MemberObservable.MemberList.ToList();
+                    var memberList = playerOwner.MemberObservable.MemberList;
 
                     var child = _allMemberList.GetChild(i);
                     if (i >= memberList.Count)
@@ -53,12 +53,11 @@ namespace HexRPG.Battle.Player.HUD
                     {
                         _selectedMemberHUD.Bind(curMember);
 
-                        var memberList = playerOwner.MemberObservable.MemberList.ToList();
                         for(int i = 0; i < _maxMemberCount; i++)
                         {
                             var hud = _allMemberList.GetChild(i).GetComponent<IMemberHUD>();
                             if (hud.IsSelected) hud.IsSelected = false;
-                            if (i == memberList.IndexOf(curMember)) hud.IsSelected = true;
+                            if (i == playerOwner.MemberObservable.MemberList.IndexOf(curMember)) hud.IsSelected = true;
                         }
                     })
                     .AddTo(this);

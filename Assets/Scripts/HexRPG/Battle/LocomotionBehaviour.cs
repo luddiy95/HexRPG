@@ -64,7 +64,8 @@ namespace HexRPG.Battle
 
         void ILocomotionController.LookRotate(Vector3 pos, float eulerVelocity)
         {
-            var rotateAngle = _transformController.GetLookRotationAngleY(pos);
+            var rotateAngle = _transformController.GetLookRotationAngleY(pos) - _transformController.RotationAngle;
+            rotateAngle = MathUtility.GetIntegerEuler(rotateAngle);
             InternalRotate(rotateAngle, Mathf.Abs(rotateAngle) / eulerVelocity).Forget();
         }
 
@@ -103,7 +104,9 @@ namespace HexRPG.Battle
 
         void ILocomotionController.ForceLookRotate(Vector3 pos)
         {
-            _transformController.RotationAngle += _transformController.GetLookRotationAngleY(pos);
+            var rotateAngle = _transformController.GetLookRotationAngleY(pos) - _transformController.RotationAngle;
+            rotateAngle = MathUtility.GetIntegerEuler(rotateAngle);
+            _transformController.RotationAngle += rotateAngle;
         }
 
         void ILocomotionController.StopRotate()

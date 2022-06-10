@@ -81,7 +81,8 @@ namespace HexRPG.Battle.Enemy
                     break;
                 case SkillCenterType.PLAYER:
                     skillCenter = _battleObservable.PlayerLandedHex;
-                    skillRotation = _transformController.GetLookRotationAngleY(_battleObservable.PlayerLandedHex.transform.position);
+                    skillRotation = _transformController.GetLookRotationAngleY(_battleObservable.PlayerLandedHex.transform.position)
+                         - _transformController.DefaultRotation - _transformController.RotationAngle;
                     break;
                 default:
                     break;
@@ -91,7 +92,7 @@ namespace HexRPG.Battle.Enemy
                 _stageController.GetHexList(
                     skillCenter,
                     skill.FullAttackRange,
-                    _transformController.DefaultRotation + _transformController.RotationAngle + skillRotation);
+                    MathUtility.GetIntegerEuler60(_transformController.DefaultRotation + _transformController.RotationAngle + skillRotation));
 
             _disposables.Clear();
             runningSkill.SkillObservable.OnStartReservation
@@ -106,7 +107,8 @@ namespace HexRPG.Battle.Enemy
                     _onFinishSkill.OnNext(Unit.Default);
                 }).AddTo(_disposables);
 
-            skill.StartSkill(skillCenter, _transformController.DefaultRotation + _transformController.RotationAngle + skillRotation);
+            skill.StartSkill(skillCenter,
+                MathUtility.GetIntegerEuler60(_transformController.DefaultRotation + _transformController.RotationAngle + skillRotation));
 
             return runningSkill;
         }

@@ -155,7 +155,7 @@ namespace HexRPG.Battle
         }
 
         /// <summary>
-        /// targetの方を向く際の現在のRotationAngleに対する回転(-179～180、60度単位)
+        /// targetの方を向く際に必要なWorld回転
         /// </summary>
         /// <param name="transformController"></param>
         /// <param name="targetPos"></param>
@@ -164,9 +164,9 @@ namespace HexRPG.Battle
         {
             var relativePos = targetPos - transformController.Position;
             relativePos.y = 0;
-            var euler = (int)Quaternion.LookRotation(relativePos).eulerAngles.y;
-            euler = (euler + 30) / 60 * 60 - transformController.RotationAngle;
-            return MathUtility.GetIntegerEuler(euler);
+            return (int)Quaternion.LookRotation(relativePos).eulerAngles.y;
+            //euler = (euler + 30) / 60 * 60 - transformController.RotationAngle;
+            //return MathUtility.GetIntegerEuler(euler);
         }
     }
 }
