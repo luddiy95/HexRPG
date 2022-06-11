@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
-using System.Linq;
 using UniRx;
 
 namespace HexRPG.Battle.Player.HUD
@@ -15,18 +13,11 @@ namespace HexRPG.Battle.Player.HUD
         [SerializeField] Text _spAmountText;
         [SerializeField] Text _spMaxText;
 
-        [SerializeField] GameObject _spGaugeObj;
-        IGauge _spGauge;
+        [SerializeField] GameObject _skillPointGauge;
 
         ISkillPoint _memberSkillPoint;
 
         CompositeDisposable _disposables = new CompositeDisposable();
-
-        void Start()
-        {
-            _spGauge = _spGaugeObj.GetComponent<IGauge>();
-            _spGauge.Init(100);
-        }
 
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
@@ -37,11 +28,9 @@ namespace HexRPG.Battle.Player.HUD
                 _spMaxText.text = _memberSkillPoint.Max.ToString();
 
                 _disposables.Clear();
+                _skillPointGauge.GetComponent<ICharacterHUD>().Bind(memberOwner);
                 _memberSkillPoint.Current
                     .Subscribe(sp => _spAmountText.text = sp.ToString())
-                    .AddTo(_disposables);
-                _memberSkillPoint.ChargeRate
-                    .Subscribe(rate => _spGauge.Set((int)(rate * 100)))
                     .AddTo(_disposables);
             }
         }

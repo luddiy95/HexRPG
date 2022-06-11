@@ -5,7 +5,7 @@ namespace HexRPG.Battle.HUD
     public class AbstractGaugeBehaviour : MonoBehaviour
     {
         [SerializeField] GameObject _gaugeObj;
-        IGauge _gauge;
+        protected IGauge _gauge;
 
         protected virtual void Awake()
         {

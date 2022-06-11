@@ -9,7 +9,7 @@ namespace HexRPG.Battle.Player.HUD
     using Member;
     using Battle.HUD;
 
-    public interface IMemberHUD
+    public interface IMemberHUD : ICharacterHUD
     {
         GameObject BtnChange { get; }
 
@@ -17,7 +17,7 @@ namespace HexRPG.Battle.Player.HUD
         void SwitchShowBtnChange(bool show);
     }
 
-    public class MemberStatusHUD : MonoBehaviour, IMemberHUD, ICharacterHUD
+    public class MemberStatusHUD : MonoBehaviour, IMemberHUD
     {
         BattleData _battleData;
 
@@ -121,6 +121,11 @@ namespace HexRPG.Battle.Player.HUD
         void OnDestroy()
         {
             _disposables.Dispose();
+        }
+
+        public class Factory : PlaceholderFactory<MemberStatusHUD>
+        {
+
         }
     }
 }

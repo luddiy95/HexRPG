@@ -33,7 +33,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5510782246767885481, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _healthMax
-      value: 1000
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 5510782246767885481, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _skillPointMax

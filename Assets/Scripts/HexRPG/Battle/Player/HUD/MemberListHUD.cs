@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using System.Linq;
@@ -7,55 +8,51 @@ namespace HexRPG.Battle.Player.HUD
 {
     using Battle.HUD;
 
-    //TODO: HP=0Ç…Ç»Ç¡ÇΩMemberÇ«Ç§Ç∑ÇÈÅH
     public class MemberListHUD : MonoBehaviour, ICharacterHUD
     {
-        BattleData _battleData;
+        MemberStatusHUD.Factory _memberStatusFactory;
 
         [SerializeField] GameObject _selectedMember;
         ICharacterHUD _selectedMemberHUD;
 
-        [SerializeField] Transform _allMemberList;
-
-        int _maxMemberCount;
+        [SerializeField] Transform _memberListRoot;
+        List<IMemberHUD> _memberList = new List<IMemberHUD>();
 
         [Inject]
-        public void Construct(BattleData battleData)
+        public void Construct(
+            MemberStatusHUD.Factory memberStatusFactory
+        )
         {
-            _battleData = battleData;
+            _memberStatusFactory = memberStatusFactory;
         }
 
         void Start()
         {
             _selectedMemberHUD = _selectedMember.GetComponent<ICharacterHUD>();
-            _maxMemberCount = _battleData.maxMemberCount;
         }
 
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
             if (chara is IPlayerComponentCollection playerOwner)
             {
-                for(int i = 0; i < _maxMemberCount; i++)
+                var memberList = playerOwner.MemberObservable.MemberList;
+                memberList.ForEach(member =>
                 {
-                    var memberList = playerOwner.MemberObservable.MemberList;
-
-                    var child = _allMemberList.GetChild(i);
-                    if (i >= memberList.Count)
-                    {
-                        child.gameObject.SetActive(false);
-                        continue;
-                    }
-                    child.GetComponent<ICharacterHUD>().Bind(memberList[i]);
-                }
+                    var clone = _memberStatusFactory.Create();
+                    clone.transform.SetParent(_memberListRoot);
+                    var hud = clone.GetComponent<IMemberHUD>();
+                    _memberList.Add(hud);
+                    hud.Bind(member);
+                });
 
                 playerOwner.MemberObservable.CurMember
                     .Subscribe(curMember =>
                     {
                         _selectedMemberHUD.Bind(curMember);
 
-                        for(int i = 0; i < _maxMemberCount; i++)
+                        for(int i = 0; i < _memberList.Count; i++)
                         {
-                            var hud = _allMemberList.GetChild(i).GetComponent<IMemberHUD>();
+                            var hud = _memberList[i];
                             if (hud.IsSelected) hud.IsSelected = false;
                             if (i == playerOwner.MemberObservable.MemberList.IndexOf(curMember)) hud.IsSelected = true;
                         }
@@ -66,13 +63,11 @@ namespace HexRPG.Battle.Player.HUD
                     .Where(state => state != null)
                     .Subscribe(state =>
                     {
-                        for (int i = 0; i < _maxMemberCount; i++)
+                        _memberList.ForEach(hud =>
                         {
-                            if (i >= playerOwner.MemberObservable.MemberList.Count) continue;
                             var type = state.Type;
-                            _allMemberList.GetChild(i).GetComponent<IMemberHUD>().SwitchShowBtnChange(
-                                type == ActionStateType.IDLE || type == ActionStateType.MOVE || type == ActionStateType.SKILL_SELECT);
-                        }
+                            hud.SwitchShowBtnChange(type == ActionStateType.IDLE || type == ActionStateType.MOVE || type == ActionStateType.SKILL_SELECT);
+                        });
                     })
                     .AddTo(this);
             }

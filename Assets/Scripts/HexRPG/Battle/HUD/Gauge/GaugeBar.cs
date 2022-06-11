@@ -8,9 +8,12 @@ namespace HexRPG.Battle.HUD
 
         float _defaultAmountWidth;
 
-        float _scaleX;
-
         protected int _maxAmount;
+
+        void Awake()
+        {
+            _defaultAmountWidth = _gaugeAmount.sizeDelta.x;
+        }
 
         void IGauge.Set(int amount)
         {
@@ -18,12 +21,6 @@ namespace HexRPG.Battle.HUD
             if (amount > _maxAmount) amount = _maxAmount;
 
             _gaugeAmount.sizeDelta = new Vector2(_defaultAmountWidth * amount / _maxAmount, _gaugeAmount.sizeDelta.y);
-        }
-
-        protected virtual void Awake()
-        {
-            _defaultAmountWidth = _gaugeAmount.sizeDelta.x;
-            _scaleX = GetComponent<RectTransform>().localScale.x;
         }
 
         void IGauge.Init(int maxAmount)

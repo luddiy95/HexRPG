@@ -3,26 +3,21 @@ using UniRx;
 
 namespace HexRPG.Battle.HUD
 {
-    public class HealthGaugeHUD : AbstractGaugeBehaviour, ICharacterHUD, IDisposable
+    public class HealthGaugeHUD : AbstractGaugeBehaviour, ICharacterHUD
     {
-        CompositeDisposable _disposables = new CompositeDisposable();
+        IDisposable _disposable;
 
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
             var health = chara.Health;
             SetGauge(health.Max, health.Max);
 
-            health.Current
+            _disposable?.Dispose();
+            _disposable = health.Current
                 .Subscribe(v =>
                 {
                     UpdateAmount(v);
-                })
-                .AddTo(_disposables);
-        }
-
-        void IDisposable.Dispose()
-        {
-            _disposables.Dispose();
+                });
         }
     }
 }

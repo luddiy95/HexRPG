@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using UniRx;
+using UniRx.Triggers;
 using Zenject;
 
 namespace HexRPG.Battle.Player
@@ -28,7 +29,7 @@ namespace HexRPG.Battle.Player
         [SerializeField] GameObject _btnSkillCancel;
 
         [Header("メンバーリスト")]
-        [SerializeField] Transform _allMemberList;
+        [SerializeField] Transform _memberList;
 
         IReadOnlyReactiveProperty<Vector3> ICharacterInput.Direction => _direction;
         readonly ReactiveProperty<Vector3> _direction = new ReactiveProperty<Vector3>();
@@ -155,10 +156,15 @@ namespace HexRPG.Battle.Player
                     selectedMemberIndex = index;
                 }, gameObject);
             }
-            for (int i = 0; i < _allMemberList.childCount; i++)
-            {
-                SetMemberChangeBtnClickEvent(_allMemberList.GetChild(i).GetComponent<IMemberHUD>().BtnChange, i);
-            }
+
+            var trigger = _memberList.gameObject.AddComponent<ObservableTransformChangedTrigger>();
+            trigger.OnTransformChildrenChangedAsObservable()
+                .Subscribe(_ =>
+                {
+                    var index = _memberList.childCount - 1;
+                    SetMemberChangeBtnClickEvent(_memberList.GetChild(index).GetComponent<IMemberHUD>().BtnChange, index);
+                })
+                .AddTo(this);
         }
 
         void UpdateDirection()

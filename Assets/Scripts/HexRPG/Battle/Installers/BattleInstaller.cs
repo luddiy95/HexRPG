@@ -5,6 +5,7 @@ using Zenject;
 namespace HexRPG.Battle
 {
     using Player;
+    using Player.HUD;
     using Enemy;
     using Enemy.HUD;
     using HUD;
@@ -22,6 +23,8 @@ namespace HexRPG.Battle
         [SerializeField] BattleData _battleData;
 
         [SerializeField] DisplayDataContainer _displayDataContainer;
+
+        [SerializeField] GameObject _memberStatusPrefab;
         [SerializeField] GameObject _enemyStatusPrefab;
         [SerializeField] GameObject _damagedPanelPrefab;
 
@@ -46,6 +49,7 @@ namespace HexRPG.Battle
                     .FromSubContainerResolve()
                     .ByNewContextPrefab<EnemyInstaller>(setting.Prefab);
             });
+            Container.BindFactory<MemberStatusHUD, MemberStatusHUD.Factory>().FromComponentInNewPrefab(_memberStatusPrefab);
             Container.BindFactory<EnemyStatusHUD, EnemyStatusHUD.Factory>().FromComponentInNewPrefab(_enemyStatusPrefab);
             Container.BindFactory<DamagedPanelParentHUD, DamagedPanelParentHUD.Factory>().FromComponentInNewPrefab(_damagedPanelPrefab);
         }

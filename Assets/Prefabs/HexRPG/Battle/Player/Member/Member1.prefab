@@ -5839,7 +5839,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _healthMax
-      value: 1
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _mentalMax
@@ -5851,7 +5851,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 4d57825585c05d24c9aea73bee0f7119, type: 2}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skillPointMax
-      value: 700
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2717514595689543170, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: m_RootOrder

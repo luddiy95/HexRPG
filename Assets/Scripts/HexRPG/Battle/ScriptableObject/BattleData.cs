@@ -8,9 +8,6 @@ namespace HexRPG.Battle
     [CreateAssetMenu(fileName = "BattleData", menuName = "ScriptableObjects/BattleData")]
     public class BattleData : ScriptableObject
     {
-        // Member
-        public int maxMemberCount = 4;
-
         // Camera
         public int cameraRotateUnit;
 

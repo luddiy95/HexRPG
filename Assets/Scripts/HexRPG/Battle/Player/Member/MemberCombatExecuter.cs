@@ -1,5 +1,4 @@
 using UnityEngine;
-using Zenject;
 
 namespace HexRPG.Battle.Player.Member
 {
