@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 using System.Linq;
-using Zenject;
 using UniRx;
 using Cysharp.Threading.Tasks;
 
@@ -42,7 +40,7 @@ namespace HexRPG.Battle.Player.Member
             _skillList = _skillFactories.Select((factory, index) => {
                 ISkillComponentCollection skillOwner = factory.Create(root, Vector3.zero);
                 var skill = _skillsSetting.Skills[index];
-                skillOwner.Skill.Init(attackOwner, _memberOwner.AnimationController, skill.Timeline, skill.ActivationBindingMap);
+                skillOwner.Skill.Init(attackOwner, _memberOwner.AnimationController, skill.Timeline, skill.ActivationBindingObjMap);
                 skillOwner.SkillSetting.SetCost(skill.Cost);
                 return skillOwner;
             }).ToArray();

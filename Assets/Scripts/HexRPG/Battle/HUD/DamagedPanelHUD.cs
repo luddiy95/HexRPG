@@ -65,8 +65,7 @@ namespace HexRPG.Battle.HUD
                         var damagedDisplay = _objectPool.Instantiate().GetComponent<DamagedDisplay>();
                         damagedDisplay.AnchoredPos = new Vector2(_size.x * Random.value, _size.y * Random.value);
                         damagedDisplay.Damage = hitData.Damage;
-                        var data = _battleData.damagedDisplayMatMap.FirstOrDefault(data => data.hitType == hitData.HitType);
-                        if (data != null) damagedDisplay.Material = data.material;
+                        if (_battleData.damagedDisplayMatMap.Table.TryGetValue(hitData.HitType, out Material mat)) damagedDisplay.Material = mat;
 
                         DOTween.Sequence()
                             .Append(TransformUtility.DOAnchorPosY(damagedDisplay.RectTransform, -18f, 0.3f).SetRelative(true).SetEase(Ease.OutBounce, 10))

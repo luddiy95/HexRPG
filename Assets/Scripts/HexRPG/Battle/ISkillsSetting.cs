@@ -22,7 +22,7 @@ namespace HexRPG.Battle
         public PlayableAsset Timeline => _timeline;
         [SerializeField] PlayableAsset _timeline;
 
-        public List<ActivationBindingData> ActivationBindingMap => _activationBindingMap;
-        [SerializeField] List<ActivationBindingData> _activationBindingMap;
+        public ActivationBindingObjDictionary ActivationBindingObjMap => _activationBindingObjMap;
+        [SerializeField] ActivationBindingObjDictionary _activationBindingObjMap;
     }
 }

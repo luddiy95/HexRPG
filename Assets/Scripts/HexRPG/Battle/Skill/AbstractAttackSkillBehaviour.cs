@@ -69,8 +69,8 @@ namespace HexRPG.Battle.Skill
         void ISkill.Init(
             IAttackComponentCollection attackOwner,
             IAnimationController animationController,
-            PlayableAsset timeline, 
-            List<ActivationBindingData> activationBindingMap
+            PlayableAsset timeline,
+            ActivationBindingObjDictionary activationBindingObjMap
         )
         {
             _attackOwner = attackOwner;
@@ -117,11 +117,7 @@ namespace HexRPG.Battle.Skill
             // ActivationTrack‚ÌBind
             foreach (var bind in _director.playableAsset.outputs)
             {
-                var data = activationBindingMap.FirstOrDefault(data => data.trackName == bind.streamName);
-                if (data != null)
-                {
-                    _director.SetGenericBinding(bind.sourceObject, data.sourceObject);
-                }
+                if (activationBindingObjMap.Table.TryGetValue(bind.streamName, out GameObject obj)) _director.SetGenericBinding(bind.sourceObject, obj);
             }
 
             _animationController.OnFinishSkill
@@ -134,7 +130,7 @@ namespace HexRPG.Battle.Skill
                     HideUnverifiedEffect();
                     _unverifiedEffect.Clear();
 
-                    activationBindingMap.ForEach(data => data.sourceObject.SetActive(false));
+                    foreach (var data in activationBindingObjMap.Table) data.Value.SetActive(false);
 
                     _disposables.Clear();
                     _director.Stop();

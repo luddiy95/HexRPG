@@ -86,41 +86,75 @@ namespace HexRPG.Battle.Player.Member
 
         #region AnimationPlayer
 
-        void IAnimationController.Play(string nextClip)
+        void IAnimationController.Play(string clip)
         {
-            // 最初の遷移
-            if (_curPlayingIndex < 0)
+            Play(clip);
+        }
+
+        protected override void PlayWithoutInterrupt(string nextClip)
+        {
+            //! Damagedの場合のみ自分自身(Damaged)に遷移できる
+            var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
+            if (_playables[_curPlayingIndex].GetAnimationClip().name == "Damaged" && nextClip == "Damaged")
             {
-                _curPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == nextClip);
-
-                _mixer.SetInputWeight(_curPlayingIndex, 1);
-
-                _mixer.SetTime(0);
-                _playables[_curPlayingIndex].SetTime(0);
-
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
                 return;
             }
 
-            var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
+            //! 遷移中などでない場合、(Damaged -> Damaged)以外は自分自身には遷移しない
+            if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip) return;
 
-            AnimationType type;
-            if (_cancellationTokenSource == null) //! 「Animation間遷移 & Combat/Skill/Die待ち合わせ中」ではない
+            // Combatですか？
+            if (_combatTimelineInfo.CombatName == nextClip)
             {
-                //! Damagedの場合のみ自分自身(Damaged)に遷移できる
-                if(_playables[_curPlayingIndex].GetAnimationClip().name == "Damaged" && nextClip == "Damaged")
-                {
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
-                    return;
-                }
+                if (_curCombat != null) return;
 
-                //! 遷移中などでない場合、(Damaged -> Damaged)以外は自分自身には遷移しない
-                if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip) return;
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalPlayCombat(_combatTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
+                return;
+            }
 
+            base.PlayWithoutInterrupt(nextClip);
+        }
+
+        protected override void PlayWithInterrupt(string nextClip)
+        {
+            var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
+            AnimationType type;
+
+            //! Damagedへ遷移中(_nextPlayingIndex = Damaged)のみ_nextPlayingIndex(Damaged)で割り込み可能
+            if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == "Damaged" && nextClip == "Damaged")
+            {
+                TokenCancel();
+
+                if (_curCombat != null) FinishCombat();
+                if (_curSkill != null) FinishSkill();
+
+                if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
+                return;
+            }
+
+            //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
+            if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
+
+            // Locomotion->Locomotion遷移中は「Idle, Combat, Skill」割り込み可能
+            var isCrossFadeBtwLocomotion =
+                (_animationTypeMap.TryGetValue(_playables[_curPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType()) &&
+                (_nextPlayingIndex >= 0 && _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType());
+            if (isCrossFadeBtwLocomotion)
+            {
                 // Combatですか？
                 if (_combatTimelineInfo.CombatName == nextClip)
                 {
                     if (_curCombat != null) return;
+
+                    // 割り込み
+                    TokenCancel();
+                    if (_nextPlayingIndex >= 0) fixedRate = rate;
 
                     _cancellationTokenSource = new CancellationTokenSource();
                     InternalPlayCombat(_combatTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
@@ -133,95 +167,16 @@ namespace HexRPG.Battle.Player.Member
                 {
                     if (_curSkill != null) return;
 
+                    // 割り込み
+                    TokenCancel();
+                    if (_nextPlayingIndex >= 0) fixedRate = rate;
+
                     _cancellationTokenSource = new CancellationTokenSource();
                     InternalPlaySkill(skillTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
                     return;
                 }
 
-                // Die
-                var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out type) && type == AnimationType.Die);
-                if (isDieClip)
-                {
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    InternalPlayDie(_cancellationTokenSource.Token).Forget();
-                    return;
-                }
-
-                _cancellationTokenSource = new CancellationTokenSource();
-                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
-            }
-            else
-            {
-                //! 割り込み(非同期メソッド実行中 == 「CrossFade(アニメーション遷移中) || Combat/Skill/Die待ち合わせ中」)
-
-                //! Damagedへ遷移中(_nextPlayingIndex = Damaged)のみ_nextPlayingIndex(Damaged)で割り込み可能
-                if(_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == "Damaged" && nextClip == "Damaged")
-                {
-                    TokenCancel();
-
-                    if (_curCombat != null) FinishCombat();
-                    if (_curSkill != null) FinishSkill();
-
-                    if (_nextPlayingIndex >= 0) fixedRate = rate;
-
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
-                    return;
-                }
-
-                //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
-                if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
-
-                // Locomotion->Locomotion遷移中は「Idle, Combat, Skill」割り込み可能
-                var isCrossFadeBtwLocomotion =
-                    (_animationTypeMap.TryGetValue(_playables[_curPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType()) &&
-                    (_nextPlayingIndex >= 0 && _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType());
-                if (isCrossFadeBtwLocomotion)
-                {
-                    // Combatですか？
-                    if (_combatTimelineInfo.CombatName == nextClip)
-                    {
-                        if (_curCombat != null) return;
-
-                        // 割り込み
-                        TokenCancel();
-                        if (_nextPlayingIndex >= 0) fixedRate = rate;
-
-                        _cancellationTokenSource = new CancellationTokenSource();
-                        InternalPlayCombat(_combatTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
-                        return;
-                    }
-
-                    // Skillですか？
-                    var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
-                    if (skillTimelineInfo != null)
-                    {
-                        if (_curSkill != null) return;
-
-                        // 割り込み
-                        TokenCancel();
-                        if (_nextPlayingIndex >= 0) fixedRate = rate;
-
-                        _cancellationTokenSource = new CancellationTokenSource();
-                        InternalPlaySkill(skillTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
-                        return;
-                    }
-
-                    if (nextClip == "Idle")
-                    {
-                        // 割り込み
-                        TokenCancel(); // Tokenキャンセルしたらawait後続処理は全て呼ばれない
-                        if (_nextPlayingIndex >= 0) fixedRate = rate;
-
-                        _cancellationTokenSource = new CancellationTokenSource();
-                        InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
-                        return;
-                    }
-                }
-
-                // Idle -> Rotate遷移中はIdle割り込み可能
-                if(curClip == "Idle" && nextClip == "Idle" && _nextPlayingIndex >= 0 &&
-                    _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type == AnimationType.Rotate)
+                if (nextClip == "Idle")
                 {
                     // 割り込み
                     TokenCancel(); // Tokenキャンセルしたらawait後続処理は全て呼ばれない
@@ -231,51 +186,66 @@ namespace HexRPG.Battle.Player.Member
                     InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
                     return;
                 }
-
-                // Damaged
-                if (nextClip == "Damaged")
-                {
-                    TokenCancel();
-
-                    if (_curCombat != null) FinishCombat();
-                    if (_curSkill != null) FinishSkill();
-
-                    if (_nextPlayingIndex >= 0) fixedRate = rate;
-
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
-                    return;
-                }
-
-                // Die
-                var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out type) && type == AnimationType.Die);
-                if (isDieClip)
-                {
-                    TokenCancel();
-
-                    if (_curCombat != null) FinishCombat();
-                    if (_curSkill != null) FinishSkill();
-
-                    if (_nextPlayingIndex >= 0) fixedRate = rate;
-
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    InternalPlayDie(_cancellationTokenSource.Token).Forget();
-                    return;
-                }
-
-                // Combat中断
-                var isCombatSuspended = (_curCombat != null && nextClip == "Idle");
-                if (isCombatSuspended)
-                {
-                    TokenCancel();
-                    if (_nextPlayingIndex >= 0) fixedRate = rate;
-
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    _cancellationTokenSource.Token.Register(() => FinishCombat());
-                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
-                    return;
-                }
             }
+
+            // Idle -> Rotate遷移中はIdle割り込み可能
+            if (curClip == "Idle" && nextClip == "Idle" && _nextPlayingIndex >= 0 &&
+                _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type == AnimationType.Rotate)
+            {
+                // 割り込み
+                TokenCancel(); // Tokenキャンセルしたらawait後続処理は全て呼ばれない
+                if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget(); // 待ち合わせる必要なし
+                return;
+            }
+
+            // Damaged
+            if (nextClip == "Damaged")
+            {
+                TokenCancel();
+
+                if (_curCombat != null) FinishCombat();
+                if (_curSkill != null) FinishSkill();
+
+                if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                return;
+            }
+
+            // Die
+            var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out type) && type == AnimationType.Die);
+            if (isDieClip)
+            {
+                TokenCancel();
+
+                if (_curCombat != null) FinishCombat();
+                if (_curSkill != null) FinishSkill();
+
+                if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalPlayDie(_cancellationTokenSource.Token).Forget();
+                return;
+            }
+
+            // Combat中断
+            var isCombatSuspended = (_curCombat != null && nextClip == "Idle");
+            if (isCombatSuspended)
+            {
+                TokenCancel();
+                if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                _cancellationTokenSource = new CancellationTokenSource();
+                _cancellationTokenSource.Token.Register(() => FinishCombat());
+                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                return;
+            }
+
+            base.PlayWithInterrupt(nextClip);
         }
 
         async UniTask InternalPlayCombat(CombatTimelineInfo combatTimelineInfo, CancellationToken token)

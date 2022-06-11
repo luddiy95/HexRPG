@@ -23,7 +23,7 @@ namespace HexRPG.Battle.Player.UI
         List<ISkillUI> _skillUIList = new List<ISkillUI>();
         ISkillSetting[] _curMemberSkillSettings;
 
-        void Start()
+        void Awake()
         {
             SwitchBtnDecideEnable(false);
             SwitchBtnCancelVisible(false);

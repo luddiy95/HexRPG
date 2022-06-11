@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79d2e370a640ee744a741cf0a932b4ef, type: 3}
   m_Name: BattleData
   m_EditorClassIdentifier: 
-  maxMemberCount: 4
   cameraRotateUnit: 60
   attributeIconMap:
     m_list:
@@ -24,7 +23,7 @@ MonoBehaviour:
       m_value: {fileID: 21300000, guid: 50284684a5b3ed24b8974fdb26c7f35d, type: 3}
     - m_key: 3
       m_value: {fileID: 21300000, guid: 50f0a586239945a49b79662d7e2d5b5a, type: 3}
-  skillAttributeMaterialMap:
+  skillAttributeMatMap:
     m_list:
     - m_key: 0
       m_value: {fileID: 2100000, guid: 04b0e90bd86651f4387cd28e01b62b89, type: 2}
@@ -50,14 +49,15 @@ MonoBehaviour:
   initScore: 20
   scoreMax: 200
   damagedDisplayMatMap:
-  - hitType: 0
-    material: {fileID: 2100000, guid: e81848a9022863140b5d530a3850e43a, type: 2}
-  - hitType: 1
-    material: {fileID: 2100000, guid: ff869f6f7af605d44989a5cee137cd2f, type: 2}
-  - hitType: 2
-    material: {fileID: 2100000, guid: 6a8cadda010d1e74989cef5fc6e59d29, type: 2}
-  - hitType: 3
-    material: {fileID: 2100000, guid: 9e99eb2515b36a148946bbcc4a9295b6, type: 2}
+    m_list:
+    - m_key: 0
+      m_value: {fileID: 2100000, guid: e81848a9022863140b5d530a3850e43a, type: 2}
+    - m_key: 1
+      m_value: {fileID: 2100000, guid: ff869f6f7af605d44989a5cee137cd2f, type: 2}
+    - m_key: 2
+      m_value: {fileID: 2100000, guid: 6a8cadda010d1e74989cef5fc6e59d29, type: 2}
+    - m_key: 3
+      m_value: {fileID: 2100000, guid: 9e99eb2515b36a148946bbcc4a9295b6, type: 2}
   skillBackgroundDefaultSprite: {fileID: 21300000, guid: ae4dd3a93e774244ba170cbc210ea311, type: 3}
   skillBackgroundSelectedSprite: {fileID: 21300000, guid: 9e9c5ff20c2a4d24082a692dbea18468, type: 3}
   hexPlayerLineMat: {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}

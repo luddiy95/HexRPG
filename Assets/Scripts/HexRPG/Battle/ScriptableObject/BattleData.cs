@@ -15,9 +15,9 @@ namespace HexRPG.Battle
         [Serializable] public class AttributeIconValuePair : SerializableKeyValuePair<Attribute, Sprite> { }
         [Serializable] public class AttributeIconDictionary : SerializableDictionary<Attribute, Sprite, AttributeIconValuePair> { }
         public AttributeIconDictionary attributeIconMap = new AttributeIconDictionary();
-        [Serializable] public class SkillAttributeMaterialValuePair : SerializableKeyValuePair<Attribute, Material> { }
-        [Serializable] public class SkillAttributeMaterialDictionary : SerializableDictionary<Attribute, Material, SkillAttributeMaterialValuePair> { }
-        public SkillAttributeMaterialDictionary skillAttributeMaterialMap = new SkillAttributeMaterialDictionary();
+        [Serializable] public class SkillAttributeMatValuePair : SerializableKeyValuePair<Attribute, Material> { }
+        [Serializable] public class SkillAttributeMatDictionary : SerializableDictionary<Attribute, Material, SkillAttributeMatValuePair> { }
+        public SkillAttributeMatDictionary skillAttributeMatMap = new SkillAttributeMatDictionary();
 
         // Score
         public List<ScoreInfo> scoreInfoMap = new List<ScoreInfo>();
@@ -25,13 +25,9 @@ namespace HexRPG.Battle
         public int scoreMax;
 
         // DamagedDisplay
-        [Serializable]
-        public class DamagedDisplayMatData
-        {
-            public HitType hitType;
-            public Material material;
-        }
-        public List<DamagedDisplayMatData> damagedDisplayMatMap = new List<DamagedDisplayMatData>();
+        [Serializable] public class DamagedDisplayMatValuePair : SerializableKeyValuePair<HitType, Material> { }
+        [Serializable] public class DamagedDisplayMatDictionary : SerializableDictionary<HitType, Material, DamagedDisplayMatValuePair> { }
+        public DamagedDisplayMatDictionary damagedDisplayMatMap = new DamagedDisplayMatDictionary();
 
         // UI
         public Sprite skillBackgroundDefaultSprite;

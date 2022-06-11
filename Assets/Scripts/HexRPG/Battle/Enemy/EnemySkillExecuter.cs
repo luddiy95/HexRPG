@@ -62,7 +62,7 @@ namespace HexRPG.Battle.Enemy
             _skillList = _skillFactories.Select((factory, index) => {
                 ISkillComponentCollection skillOwner = factory.Create(_transformController.SpawnRootTransform("Skill"), Vector3.zero);
                 var skill = _skillsSetting.Skills[index];
-                skillOwner.Skill.Init(_attackOwner, _enemyOwner.AnimationController, skill.Timeline, skill.ActivationBindingMap);
+                skillOwner.Skill.Init(_attackOwner, _enemyOwner.AnimationController, skill.Timeline, skill.ActivationBindingObjMap);
                 return skillOwner;
             }).ToArray();
             _isAllSkillSpawned = true;

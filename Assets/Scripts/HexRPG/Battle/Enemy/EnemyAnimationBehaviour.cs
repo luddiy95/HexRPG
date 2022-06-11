@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Animations;
@@ -59,104 +57,69 @@ namespace HexRPG.Battle.Enemy
 
         void IAnimationController.Play(string nextClip)
         {
-            // 最初の遷移
-            if (_curPlayingIndex < 0)
+            Play(nextClip);
+        }
+
+        protected override void PlayWithoutInterrupt(string nextClip)
+        {
+            //! 遷移中などでない場合、自分自身には遷移しない
+            if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip) return;
+
+            base.PlayWithoutInterrupt(nextClip);
+        }
+
+        protected override void PlayWithInterrupt(string nextClip)
+        {
+            var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
+
+            //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
+            if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
+
+            // Skillですか？
+            var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
+            if (skillTimelineInfo != null)
             {
-                _curPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == nextClip);
+                if (_curSkill != null) return;
 
-                _mixer.SetInputWeight(_curPlayingIndex, 1);
+                // 割り込み
+                TokenCancel();
+                if (_nextPlayingIndex >= 0) fixedRate = rate;
 
-                _mixer.SetTime(0);
-                _playables[_curPlayingIndex].SetTime(0);
-
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalPlaySkill(skillTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
                 return;
             }
 
-            var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
-
-            if (_cancellationTokenSource == null)
+            // Damaged
+            if (nextClip == "Damaged")
             {
-                //! EnemyはDamagedモーション中(ダウン中)にWEAKヒットしても再度ダウンしない(ダウンを継続)
+                TokenCancel();
 
-                //! 遷移中などでない場合、自分自身には遷移しない
-                if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip) return;
+                if (_curSkill != null) FinishSkill();
 
-                // Skillですか？
-                var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
-                if (skillTimelineInfo != null)
-                {
-                    if (_curSkill != null) return;
-
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    InternalPlaySkill(skillTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
-                    return;
-                }
-
-                // Die
-                var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);
-                if (isDieClip)
-                {
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    InternalPlayDie(_cancellationTokenSource.Token).Forget();
-                    return;
-                }
+                if (_nextPlayingIndex >= 0) fixedRate = rate;
 
                 _cancellationTokenSource = new CancellationTokenSource();
                 InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                return;
             }
-            else
+
+            // Die
+            var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);
+            if (isDieClip)
             {
-                //! 割り込み(非同期メソッド実行中 == CrossFade(アニメーション遷移中), Combat/Skill待ち合わせ中)
+                TokenCancel();
 
-                //! EnemyはDamagedモーション中(ダウン中)にWEAKヒットしても再度ダウンしない(ダウンを継続)
+                if (_curSkill != null) FinishSkill();
 
-                //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
-                if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
+                if (_nextPlayingIndex >= 0) fixedRate = rate;
 
-                // Skillですか？
-                var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
-                if (skillTimelineInfo != null)
-                {
-                    if (_curSkill != null) return;
-
-                    // 割り込み
-                    TokenCancel();
-                    if (_nextPlayingIndex >= 0) fixedRate = rate;
-
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    InternalPlaySkill(skillTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
-                    return;
-                }
-
-                // Damaged
-                if (nextClip == "Damaged")
-                {
-                    TokenCancel();
-
-                    if (_curSkill != null) FinishSkill();
-
-                    if (_nextPlayingIndex >= 0) fixedRate = rate;
-
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
-                    return;
-                }
-
-                // Die
-                var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);
-                if (isDieClip)
-                {
-                    TokenCancel();
-
-                    if (_curSkill != null) FinishSkill();
-
-                    if (_nextPlayingIndex >= 0) fixedRate = rate;
-
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    InternalPlayDie(_cancellationTokenSource.Token).Forget();
-                    return;
-                }
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalPlayDie(_cancellationTokenSource.Token).Forget();
+                return;
             }
+
+            base.PlayWithInterrupt(nextClip);
         }
 
 #if UNITY_EDITOR

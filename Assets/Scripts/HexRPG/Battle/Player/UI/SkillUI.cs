@@ -30,7 +30,7 @@ namespace HexRPG.Battle.Player.UI
             _battleData = battleData;
         }
 
-        void Start()
+        void Awake()
         {
             _background = GetComponent<Image>();
             _attribute = transform.GetChild(0).GetComponent<Image>();
@@ -43,7 +43,7 @@ namespace HexRPG.Battle.Player.UI
         {
             _icon.sprite = setting.Icon;
             _cost.text = setting.Cost.ToString();
-            if (_battleData.skillAttributeMaterialMap.Table.TryGetValue(setting.Attribute, out Material mat)) _attribute.material = mat;
+            if (_battleData.skillAttributeMatMap.Table.TryGetValue(setting.Attribute, out Material mat)) _attribute.material = mat;
         }
 
         void ISkillUI.SwitchSkillShow(bool isShow)

@@ -15467,11 +15467,23 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7135533358454013842, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _skills.Array.data[0]._activationBindingObjMap.m_list.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7135533358454013842, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _skills.Array.data[0]._activationBindingMap.Array.data[0].trackName
       value: Laser Track
       objectReference: {fileID: 0}
     - target: {fileID: 7135533358454013842, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _skills.Array.data[0]._activationBindingMap.Array.data[0].sourceObject
+      value: 
+      objectReference: {fileID: 4457941690067879553}
+    - target: {fileID: 7135533358454013842, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _skills.Array.data[0]._activationBindingObjMap.m_list.Array.data[0].m_key
+      value: Laser Track
+      objectReference: {fileID: 0}
+    - target: {fileID: 7135533358454013842, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _skills.Array.data[0]._activationBindingObjMap.m_list.Array.data[0].m_value
       value: 
       objectReference: {fileID: 4457941690067879553}
     - target: {fileID: 8205341976085822526, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}

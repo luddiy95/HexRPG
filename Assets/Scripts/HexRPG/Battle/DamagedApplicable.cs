@@ -99,7 +99,7 @@ namespace HexRPG.Battle
                         var hitData = new HitData
                         {
                             DamagedObject = _damagedOwner,
-                            Damage = 100,
+                            Damage = 10,
                             HitType = HitType.WEAK
                         };
                         if (_damagedOwner is IPlayerComponentCollection playerOwner && 

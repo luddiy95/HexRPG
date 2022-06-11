@@ -119,6 +119,57 @@ namespace HexRPG.Battle
             return fadeLength;
         }
 
+        protected void Play(string nextClip)
+        {
+            // ç≈èâÇÃëJà⁄
+            if (_curPlayingIndex < 0)
+            {
+                _curPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == nextClip);
+
+                _mixer.SetInputWeight(_curPlayingIndex, 1);
+
+                _mixer.SetTime(0);
+                _playables[_curPlayingIndex].SetTime(0);
+
+                return;
+            }
+
+            if (_cancellationTokenSource == null) PlayWithoutInterrupt(nextClip);
+            else PlayWithInterrupt(nextClip);
+        }
+
+        protected virtual void PlayWithoutInterrupt(string nextClip) // äÑÇËçûÇ›Ç»Çµ
+        {
+            // SkillÇ≈Ç∑Ç©ÅH
+            var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
+            if (skillTimelineInfo != null)
+            {
+                if (_curSkill != null) return;
+
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalPlaySkill(skillTimelineInfo, _cancellationTokenSource.Token).Forget(); // ë“ÇøçáÇÌÇπÇ∑ÇÈïKóvÇÕÇ»Ç¢
+                return;
+            }
+
+            // Die
+            var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);
+            if (isDieClip)
+            {
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalPlayDie(_cancellationTokenSource.Token).Forget();
+                return;
+            }
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
+            InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+        }
+
+        protected virtual void PlayWithInterrupt(string nextClip) // äÑÇËçûÇ›
+        {
+
+        }
+
         protected async UniTask InternalPlaySkill(SkillTimelineInfo skillTimelineInfo, CancellationToken token)
         {
             _curSkill = skillTimelineInfo;

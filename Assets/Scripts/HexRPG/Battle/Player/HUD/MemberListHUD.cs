@@ -26,7 +26,7 @@ namespace HexRPG.Battle.Player.HUD
             _memberStatusFactory = memberStatusFactory;
         }
 
-        void Start()
+        void Awake()
         {
             _selectedMemberHUD = _selectedMember.GetComponent<ICharacterHUD>();
         }
