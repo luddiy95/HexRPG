@@ -443,7 +443,6 @@ namespace HexRPG.Battle
 
         public void FadeToIdle()
         {
-            //TODO: DamagedèIóπí ím
             (this as IAnimationController).Play("Idle");
         }
 

@@ -30,7 +30,6 @@ namespace HexRPG.Battle.Player.UI
                     .AddTo(this);
 
                 playerOwner.ActionStateObservable.CurrentState
-                    .Where(state => state != null)
                     .Subscribe(state =>
                     {
                         switch (state.Type)

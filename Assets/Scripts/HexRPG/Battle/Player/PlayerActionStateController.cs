@@ -34,6 +34,9 @@ namespace HexRPG.Battle.Player
         ActionStateType CurState => _actionStateObservable.CurrentState.Value.Type;
         ActionStateType PrevState => _actionStateObservable.PreviousState.Type;
 
+        bool _isFirstMember = true;
+        ActionState _idle;
+
         bool _acceptDirectionInput = true;
 
         int _rotateAngle = 0;
@@ -79,20 +82,20 @@ namespace HexRPG.Battle.Player
         {
             BuildActionStates();
 
-            _actionStateObservable.CurrentState
-                .Where(state => state != null)
-                .First() //! 初期化時CurMemberが設定されてからIDLEステートに遷移したときの最初の一回
-                .Subscribe(_ =>
-                {
-                    SetUpControl();
-                })
-                .AddTo(_disposables);
-
             // Member変更
             _memberObservable.CurMember
                 .Subscribe(member =>
                 {
-                    _actionStateController.ExecuteTransition(IDLE);
+                    if (_isFirstMember)
+                    {
+                        _actionStateController.SetInitialState(_idle);
+                        SetUpControl();
+                        _isFirstMember = false;
+                    }
+                    else
+                    {
+                        _actionStateController.ExecuteTransition(IDLE);
+                    }
 
                     _memberChangeDisposables.Clear();
                     member.AnimationController.OnFinishDamaged
@@ -120,7 +123,7 @@ namespace HexRPG.Battle.Player
 
         void BuildActionStates()
         {
-            NewState(IDLE)
+            _idle = NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventIdle(0f))
                 .AddEvent(new ActionEventCancel("move", 0.35f, MOVE))

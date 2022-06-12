@@ -78,7 +78,7 @@ namespace HexRPG.Battle
 
         Transform ITransformController.SpawnRootTransform(string spawnObj)
         {
-            var spawnRootTransform = _spawnRoots.ToList().FirstOrDefault(x => x.SpawnObj == spawnObj);
+            var spawnRootTransform = _spawnRoots.FirstOrDefault(x => x.SpawnObj == spawnObj);
             return (spawnRootTransform != null && spawnRootTransform.Transform != null) ? spawnRootTransform.Transform : transform;
         }
 

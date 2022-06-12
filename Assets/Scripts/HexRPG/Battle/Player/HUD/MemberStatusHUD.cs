@@ -76,7 +76,6 @@ namespace HexRPG.Battle.Player.HUD
                         UpdateShowFilter();
                         (this as IMemberHUD).SwitchShowBtnChange(false);
                         _skillPointHUD.SetActive(false);
-                        _attribute.gameObject.SetActive(false);
                     })
                     .AddTo(_disposables);
 

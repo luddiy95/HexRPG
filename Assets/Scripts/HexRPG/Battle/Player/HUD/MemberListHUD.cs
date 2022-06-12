@@ -60,7 +60,6 @@ namespace HexRPG.Battle.Player.HUD
                     .AddTo(this);
 
                 playerOwner.ActionStateObservable.CurrentState
-                    .Where(state => state != null)
                     .Subscribe(state =>
                     {
                         _memberList.ForEach(hud =>

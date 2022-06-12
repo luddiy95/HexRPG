@@ -11,6 +11,7 @@ namespace HexRPG.Battle.Player.HUD
 
     public class SelectedMemberStatusHUD : MonoBehaviour, ICharacterHUD
     {
+        IBattleObservable _battleObservable;
         BattleData _battleData;
 
         [SerializeField] Image _icon;
@@ -23,10 +24,25 @@ namespace HexRPG.Battle.Player.HUD
 
         [Inject]
         public void Construct(
+            IBattleObservable battleObservable,
             BattleData battleData
         )
         {
+            _battleObservable = battleObservable;
             _battleData = battleData;
+        }
+
+        void Start()
+        {
+            _battleObservable.OnPlayerSpawn
+                .Skip(1)
+                .Subscribe(playerOwner =>
+                {
+                    playerOwner.DieObservable.OnFinishDie
+                        .Subscribe(_ => _skillPointHUD.SetActive(false))
+                        .AddTo(this);
+                })
+                .AddTo(this);
         }
 
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
