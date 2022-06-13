@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UniRx;
 using UniRx.Triggers;
 using Zenject;
@@ -56,6 +57,8 @@ namespace HexRPG.Battle
         [SerializeField] Transform _playerRoot;
         [SerializeField] Transform _enemyRoot;
 
+        [SerializeField] NavMeshSurface _enemySurface;
+
         GameResultType _resultType = GameResultType.NONE;
 
         [Inject]
@@ -93,6 +96,8 @@ namespace HexRPG.Battle
         {
             await UniTask.Yield(token); // HUD, UI‚Ì‰Šú‰»ˆ—‚ªI‚í‚Á‚Ä‚©‚ç(OnPlayerSpawn‚Í—Ç‚¢‚ªEnemy‚Í•¡”‚¢‚é‚½‚ßOnEnemySpawn‚ªHUD, UI‚Ì‰Šú‰»‘O‚É”­s‚³‚ê‚½‚çˆÓ–¡‚ª‚È‚¢)
 
+            _enemySurface.BuildNavMesh();
+
             await SpawnPlayer(token);
 
             await SpawnEnemies(token);
@@ -123,6 +128,10 @@ namespace HexRPG.Battle
                 {
                     _playerLandedHex = playerOwner.TransformController.GetLandedHex();
                 })
+                .AddTo(this);
+            // Player‚ªLiberate‚µ‚½‚çNavMesh‚ðÄBake
+            playerOwner.LiberateObservable.SuccessLiberateHexList
+                .Subscribe(_ => _enemySurface.BuildNavMesh())
                 .AddTo(this);
 
             _onPlayerSpawn.Value = playerOwner;

@@ -18,7 +18,9 @@ namespace HexRPG.Battle
         
         // posの方へ向くように回転してほしい
         void LookRotate(Vector3 pos, float eulerVelocity);
+        void LookRotate60(Vector3 pos, float eulerVelocity);
         void ForceLookRotate(Vector3 pos);
+        void ForceLookRotate60(Vector3 pos);
 
         void StopRotate();
 
@@ -27,14 +29,14 @@ namespace HexRPG.Battle
 
     public interface ILocomotionObservable
     {
-        IObservable<Unit> OnFinishRotate { get; }
+        IObservable<Unit> OnFinishRotate { get; } //! 割り込みされることなく回転できたときのみ発行
     }
 
     public class LocomotionBehaviour : MonoBehaviour, ILocomotionController, ILocomotionObservable
     {
         protected ITransformController _transformController;
 
-        protected Rigidbody Rigidbody => _rigidbody != null ? _rigidbody : GetComponent<Rigidbody>();
+        protected Rigidbody Rigidbody => _rigidbody ? _rigidbody : GetComponent<Rigidbody>();
         [Header("動かすRigidbody。nullならこのオブジェクト")]
         [SerializeField] Rigidbody _rigidbody;
 
@@ -65,6 +67,13 @@ namespace HexRPG.Battle
         void ILocomotionController.LookRotate(Vector3 pos, float eulerVelocity)
         {
             var rotateAngle = _transformController.GetLookRotationAngleY(pos) - _transformController.RotationAngle;
+            rotateAngle = MathUtility.GetIntegerEuler(rotateAngle);
+            InternalRotate(rotateAngle, Mathf.Abs(rotateAngle) / eulerVelocity).Forget();
+        }
+
+        void ILocomotionController.LookRotate60(Vector3 pos, float eulerVelocity)
+        {
+            var rotateAngle = MathUtility.GetIntegerEuler60(_transformController.GetLookRotationAngleY(pos)) - _transformController.RotationAngle;
             rotateAngle = MathUtility.GetIntegerEuler(rotateAngle);
             InternalRotate(rotateAngle, Mathf.Abs(rotateAngle) / eulerVelocity).Forget();
         }
@@ -105,6 +114,13 @@ namespace HexRPG.Battle
         void ILocomotionController.ForceLookRotate(Vector3 pos)
         {
             var rotateAngle = _transformController.GetLookRotationAngleY(pos) - _transformController.RotationAngle;
+            rotateAngle = MathUtility.GetIntegerEuler(rotateAngle);
+            _transformController.RotationAngle += rotateAngle;
+        }
+
+        void ILocomotionController.ForceLookRotate60(Vector3 pos)
+        {
+            var rotateAngle = MathUtility.GetIntegerEuler60(_transformController.GetLookRotationAngleY(pos)) - _transformController.RotationAngle;
             rotateAngle = MathUtility.GetIntegerEuler(rotateAngle);
             _transformController.RotationAngle += rotateAngle;
         }

@@ -15326,7 +15326,6 @@ MonoBehaviour:
   _clips:
   - {fileID: 7400000, guid: 3f7471cd242c1924c9e182d3ebf3e55e, type: 2}
   - {fileID: 7400000, guid: 1cf81bdff83d29c4ebbc63f750bd6eb4, type: 2}
-  - {fileID: 7400000, guid: 2a2fd446a32f0964ab84651a48263fa5, type: 2}
 --- !u!1001 &2546776026939493493
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15525,6 +15524,7 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 1228451948668117657, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
     - {fileID: 8463418554706351464, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+    - {fileID: 5383831384830552414, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
 --- !u!136 &2614510168799195314 stripped
 CapsuleCollider:

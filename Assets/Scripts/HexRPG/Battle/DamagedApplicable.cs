@@ -102,19 +102,19 @@ namespace HexRPG.Battle
                             Damage = 100,
                             HitType = HitType.WEAK
                         };
+                        /*
                         if (_damagedOwner is IPlayerComponentCollection playerOwner && 
                                 playerOwner.MemberObservable.CurMember.Value.DieObservable.IsDead.Value == false)
                         {
                             _onHit.OnNext(hitData);
                             playerOwner.Health.Update(-hitData.Damage);
                         }
-                        /*
+                        */
                         if (_damagedOwner is IEnemyComponentCollection enemyOwner && enemyOwner.DieObservable.IsDead.Value == false)
                         {
                             _onHit.OnNext(hitData);
                             enemyOwner.Health.Update(-hitData.Damage);
                         }
-                        */
                     }
                 })
                 .AddTo(_disposables);

@@ -9,8 +9,9 @@ namespace HexRPG
         /// </summary>
         /// <param name="euler"></param>
         /// <returns></returns>
-        public static int GetIntegerEuler(int euler)
+        public static int GetIntegerEuler(float e)
         {
+            int euler = (int)e;
             euler %= 360;
             if (euler <= -180) euler += 360;
             if (euler > 180) euler -= 360;
@@ -22,8 +23,9 @@ namespace HexRPG
         /// </summary>
         /// <param name="euler"></param>
         /// <returns></returns>
-        public static int GetIntegerEuler60(int euler)
+        public static int GetIntegerEuler60(float e)
         {
+            int euler = (int)e;
             euler = (euler + 30) / 60 * 60;
             return GetIntegerEuler(euler);
         }

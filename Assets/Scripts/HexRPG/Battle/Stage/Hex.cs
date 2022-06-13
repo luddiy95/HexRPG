@@ -85,6 +85,8 @@ namespace HexRPG.Battle.Stage
             materials[1] = isPlayer ? _battleData.hexPlayerLineMat : _battleData.hexEnemyLineMat;
             _renderer.materials = materials;
 
+            gameObject.layer = LayerMask.NameToLayer(TransformExtensions.PlayerHex);
+
             _status = isPlayer ? Status.PLAYER : Status.ENEMY;
 
             return true;

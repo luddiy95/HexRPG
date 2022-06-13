@@ -138,7 +138,12 @@ namespace HexRPG.Battle
 
     public static class TransformExtensions
     {
-        readonly static string HEX = "Hex";
+        readonly public static string PlayerHex = "PlayerHex";
+        readonly public static string EnemyHex = "EnemyHex";
+        readonly public static string NeutralHex = "NeutralHex";
+
+        readonly static LayerMask hexLayerMask = 
+            (1 << LayerMask.NameToLayer(PlayerHex) | 1 << LayerMask.NameToLayer(EnemyHex) | 1 << LayerMask.NameToLayer(NeutralHex));
 
         public static Hex GetLandedHex(this ITransformController transformController) => 
             GetHitHex(new Ray(transformController.Position + Vector3.up * 0.15f, Vector3.down), 0.3f);
@@ -148,10 +153,8 @@ namespace HexRPG.Battle
 
         static Hex GetHitHex(Ray ray, float maxDistance = Mathf.Infinity)
         {
-            Physics.Raycast(ray, out var hit, maxDistance, LayerMask.GetMask(HEX));
-#nullable enable
+            Physics.Raycast(ray, out var hit, maxDistance, hexLayerMask);
             return hit.collider?.GetComponent<Hex>();
-#nullable disable
         }
 
         /// <summary>

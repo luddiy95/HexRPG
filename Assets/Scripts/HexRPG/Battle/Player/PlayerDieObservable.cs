@@ -47,7 +47,6 @@ namespace HexRPG.Battle.Player
                             if (changeableMember == null)
                             {
                                 _onFinishDie.OnNext(Unit.Default);
-                                _onFinishDie.OnCompleted();
                                 return;
                             }
                             _memberController.ChangeMember(memberList.IndexOf(changeableMember));

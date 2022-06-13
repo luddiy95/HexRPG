@@ -58,21 +58,17 @@ namespace HexRPG.Battle.Player.Member
 
             SetupGraph();
 
-            _animationTypeMap.Add(_playables[0].GetAnimationClip().name, AnimationType.Idle);
-            var locomotionClipLength = AnimationExtensions.MoveClips.Length;
-            for (int i = 1; i < locomotionClipLength + 1; i++)
-            {
-                _animationTypeMap.Add(_playables[i].GetAnimationClip().name, AnimationType.Move);
-            }
+            _animationTypeMap.Add("Idle", AnimationType.Idle);
+            Array.ForEach(AnimationExtensions.MoveClips, clipName => _animationTypeMap.Add(clipName, AnimationType.Move));
 
             _animationTypeMap.Add("RotateRight", AnimationType.Rotate);
             _animationTypeMap.Add("RotateLeft", AnimationType.Rotate);
             //TODO: ‰¼
             var playerRotateSpeed = 0.5f;
             int index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateRight");
-            _playables[index].SetSpeed(playerRotateSpeed);
+            if (index >= 0) _playables[index].SetSpeed(playerRotateSpeed);
             index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateLeft");
-            _playables[index].SetSpeed(playerRotateSpeed);
+            if (index >= 0) _playables[index].SetSpeed(playerRotateSpeed);
 
             _animationTypeMap.Add("Damaged", AnimationType.Damaged);
 

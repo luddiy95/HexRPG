@@ -89,5 +89,21 @@ namespace HexRPG.Battle.Stage
                 .Select(dir => stageController.GetHex(root, dir, rotationAngle))
                 .Where(rangeHex => rangeHex != null).ToArray();
         }
+
+        /// <summary>
+        /// LandedHex‚©‚çangle‚Ì•ûŒü‚Öi‚ñ‚¾‚ÉÅ‚à‹ß‚¢EnemyHex
+        /// </summary>
+        /// <param name="angle"></param>
+        /// <returns></returns>
+        public static Hex GetNearestEnemyHexFromAngle(this IStageController stageController, Hex root, int angle)
+        {
+            while (true)
+            {
+                root = stageController.GetHex(root, new Vector2(0, 1), angle);
+                if (root == null) break;
+                if (root.IsPlayerHex == false) break;
+            }
+            return root;
+        }
     }
 }

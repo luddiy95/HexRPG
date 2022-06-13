@@ -43,10 +43,19 @@ namespace HexRPG.Battle.Enemy
 
             SetupGraph();
 
+            _animationTypeMap.Add("Idle", AnimationType.Idle);
+            Array.ForEach(AnimationExtensions.MoveClips, clipName => _animationTypeMap.Add(clipName, AnimationType.Move));
+
+            _animationTypeMap.Add("RotateRight", AnimationType.Rotate);
+            _animationTypeMap.Add("RotateLeft", AnimationType.Rotate);
             //TODO: ‰¼
-            _animationTypeMap.Add(_playables[0].GetAnimationClip().name, AnimationType.Idle);
-            _animationTypeMap.Add(_playables[1].GetAnimationClip().name, AnimationType.Damaged);
-            _animationTypeMap.Add(_playables[2].GetAnimationClip().name, AnimationType.Die);
+            var playerRotateSpeed = 0.5f;
+            int index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateRight");
+            if (index >= 0) _playables[index].SetSpeed(playerRotateSpeed);
+            index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateLeft");
+            if (index >= 0) _playables[index].SetSpeed(playerRotateSpeed);
+
+            _animationTypeMap.Add("Damaged", AnimationType.Damaged);
 
             SetupDieAnimation();
 
