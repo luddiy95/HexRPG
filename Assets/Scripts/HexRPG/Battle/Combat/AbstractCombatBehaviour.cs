@@ -12,15 +12,12 @@ namespace HexRPG.Battle.Combat
 
     public class AbstractCombatBehaviour : MonoBehaviour, ICombat, ICombatObservable, IDisposable
     {
-        IAttackApplicator _attackApplicator;
         ICombatSetting _combatSetting;
 
-        [SerializeField] protected PlayableDirector _director;
+        IAttackComponentCollection _attackOwner;
+        IAnimationController _animationController;
 
-        IObservable<CombatAttackSetting> ICombatObservable.OnCombatAttackEnable => _onCombatAttackEnable;
-        readonly ISubject<CombatAttackSetting> _onCombatAttackEnable = new Subject<CombatAttackSetting>();
-        IObservable<Unit> ICombatObservable.OnCombatAttackDisable => _onCombatAttackDisable;
-        readonly ISubject<Unit> _onCombatAttackDisable = new Subject<Unit>();
+        [SerializeField] protected PlayableDirector _director;
 
         IObservable<Unit> ICombatObservable.OnFinishCombat => _onFinishCombat;
         readonly ISubject<Unit> _onFinishCombat = new Subject<Unit>();
@@ -30,28 +27,30 @@ namespace HexRPG.Battle.Combat
         Vector3 ICombat.Velocity => velocity;
         Vector3 velocity = Vector3.zero;
 
-        List<AttackCollider> _attackColliders = new List<AttackCollider>();
-
-        IAnimationController _animationController;
+        protected List<AttackCollider> _attackColliders = new List<AttackCollider>();
 
         bool _isComboInputEnable = false;
         bool _isComboInputted = false;
 
-        CompositeDisposable _disposables = new CompositeDisposable();
+        IDisposable _attackHitDisposable;
+        protected CompositeDisposable _disposables = new CompositeDisposable();
 
         [Inject]
         public void Construct(
-            IAttackApplicator attackApplicator,
             ICombatSetting combatSetting
         )
         {
-            _attackApplicator = attackApplicator;
             _combatSetting = combatSetting;
         }
 
-        void ICombat.Init(PlayableAsset timeline, IAttackApplicator attackApplicator, IAnimationController animationController)
+        void ICombat.Init(IAttackComponentCollection attackOwner, IAnimationController animationController, PlayableAsset timeline)
         {
-            _attackApplicator = attackApplicator;
+            InternalInit(attackOwner, animationController, timeline);
+        }
+
+        protected virtual void InternalInit(IAttackComponentCollection attackOwner, IAnimationController animationController, PlayableAsset timeline)
+        {
+            _attackOwner = attackOwner;
             //_skillEffect.SetActive(false);
             _animationController = animationController;
 
@@ -62,26 +61,18 @@ namespace HexRPG.Battle.Combat
             {
                 if (trackAsset is AttackColliderTrack)
                 {
-                    if(_director.GetGenericBinding(trackAsset) is AttackCollider attackCollider)
+                    if (_director.GetGenericBinding(trackAsset) is AttackCollider attackCollider)
                     {
                         _attackColliders.Add(attackCollider);
                     }
                 }
             }
-            _attackColliders.ForEach(attackCollider => attackCollider.AttackApplicator = _attackApplicator);
+            _attackColliders.ForEach(attackCollider => attackCollider.AttackApplicator = _attackOwner.AttackApplicator);
 
             _animationController.OnFinishCombat
                 .Subscribe(_ =>
                 {
-                    // 終了処理
-                    _isComboInputEnable = false;
-                    _onCombatAttackDisable.OnNext(Unit.Default);
-                    // velocityはActionStateControllerでCombatStateExit時に0になる
-
-                    _disposables.Clear();
-                    _director.Stop();
-
-                    _onFinishCombat.OnNext(Unit.Default);
+                    OnFinishCombat();
                 }).AddTo(this);
         }
 
@@ -94,82 +85,113 @@ namespace HexRPG.Battle.Combat
                 return;
             }
 
-            if(!isPlaying)
+            if (!isPlaying) InternalExecute();
+        }
+
+        protected virtual void InternalExecute()
+        {
+            foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
             {
-                foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
+                // Velocity取得
+                if (trackAsset is VelocityTrack)
                 {
-                    // Velocity取得
-                    if (trackAsset is VelocityTrack)
+                    foreach (var clip in trackAsset.GetClips())
                     {
-                        foreach (var clip in trackAsset.GetClips())
-                        {
-                            var behaviour = (clip.asset as VelocityAsset).behaviour;
-                            behaviour.Velocity
-                                .Subscribe(velocity =>
-                                {
-                                    this.velocity = velocity;
-                                })
-                                .AddTo(_disposables);
-                        }
-                    }
-
-                    // Attack判定
-                    if (trackAsset is AttackColliderTrack)
-                    {
-                        foreach (var clip in trackAsset.GetClips())
-                        {
-                            var behaviour = (clip.asset as AttackColliderAsset).behaviour;
-                            behaviour.OnAttackEnable
-                                .Subscribe(_ => 
-                                {
-                                    var attackSetting = new CombatAttackSetting
-                                    {
-                                        power = _combatSetting.Damage,
-                                        attackColliders = _attackColliders
-                                    };
-                                    _onCombatAttackEnable.OnNext(attackSetting);
-                                })
-                                .AddTo(_disposables);
-                            behaviour.OnAttackDisable
-                                .Subscribe(_ => _onCombatAttackDisable.OnNext(Unit.Default))
-                                .AddTo(_disposables);
-                        }
-                    }
-
-                    // コンボ入力
-                    if (trackAsset is ComboInputEnableTrack)
-                    {
-                        foreach (var clip in trackAsset.GetClips())
-                        {
-                            var behaviour = (clip.asset as ComboInputEnableAsset).behaviour;
-                            behaviour.OnComboInputEnable
-                                .Subscribe(_ => 
-                                {
-                                    _isComboInputted = false;
-                                    _isComboInputEnable = true;
-                                })
-                                .AddTo(_disposables);
-                            behaviour.OnComboInputDisable
-                                .Subscribe(_ =>
-                                {
-                                    if (!_isComboInputted)
-                                    {
-                                        _animationController.Play("Idle");
-                                    }
-                                    _isComboInputEnable = false;
-                                })
-                                .AddTo(_disposables);
-                        }
+                        var behaviour = (clip.asset as VelocityAsset).behaviour;
+                        behaviour.Velocity
+                            .Subscribe(velocity =>
+                            {
+                                this.velocity = velocity;
+                            })
+                            .AddTo(_disposables);
                     }
                 }
 
-                _director.Play();
-                _animationController.Play(_director.playableAsset.name);
+                // Attack判定
+                if (trackAsset is AttackColliderTrack)
+                {
+                    foreach (var clip in trackAsset.GetClips())
+                    {
+                        var behaviour = (clip.asset as AttackColliderAsset).behaviour;
+                        behaviour.OnAttackEnable
+                            .Subscribe(_ =>
+                            {
+                                var attackSetting = new CombatAttackSetting
+                                {
+                                    power = _combatSetting.Damage,
+                                    attackColliders = _attackColliders
+                                };
+                                _attackOwner.AttackController.StartAttack(attackSetting);
+
+                                _attackHitDisposable?.Dispose();
+                                _attackHitDisposable = _attackOwner.AttackObservable.OnAttackHit
+                                    .Subscribe(_ => OnAttackHit());
+                            })
+                            .AddTo(_disposables);
+                        behaviour.OnAttackDisable
+                            .Subscribe(_ => OnAttackDisable())
+                            .AddTo(_disposables);
+                    }
+                }
+
+                // コンボ入力
+                if (trackAsset is ComboInputEnableTrack)
+                {
+                    foreach (var clip in trackAsset.GetClips())
+                    {
+                        var behaviour = (clip.asset as ComboInputEnableAsset).behaviour;
+                        behaviour.OnComboInputEnable
+                            .Subscribe(_ =>
+                            {
+                                _isComboInputted = false;
+                                _isComboInputEnable = true;
+                            })
+                            .AddTo(_disposables);
+                        behaviour.OnComboInputDisable
+                            .Subscribe(_ =>
+                            {
+                                if (!_isComboInputted)
+                                {
+                                    _animationController.Play("Idle");
+                                }
+                                _isComboInputEnable = false;
+                            })
+                            .AddTo(_disposables);
+                    }
+                }
             }
+
+            _director.Play();
+            _animationController.Play(_director.playableAsset.name);
+        }
+
+        protected virtual void OnAttackHit()
+        {
+
+        }
+
+        protected virtual void OnFinishCombat()
+        {
+            // 終了処理
+            _isComboInputEnable = false;
+            OnAttackDisable();
+            // velocityはActionStateControllerでCombatStateExit時に0になる
+
+            _disposables.Clear();
+            _director.Stop();
+
+            _onFinishCombat.OnNext(Unit.Default);
+        }
+
+        protected void OnAttackDisable()
+        {
+            _attackHitDisposable?.Dispose();
+            _attackOwner.AttackController.FinishAttack();
         }
 
         void IDisposable.Dispose()
         {
+            _attackHitDisposable?.Dispose();
             _disposables.Dispose();
         }
     }

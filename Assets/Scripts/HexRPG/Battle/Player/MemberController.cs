@@ -31,7 +31,6 @@ namespace HexRPG.Battle.Player
         ITransformController _transformController;
         List<MemberOwner.Factory> _memberFactories;
         IAttackComponentCollection _attackOwner;
-        IAttackApplicator _attackApplicator;
 
         List<IMemberComponentCollection> IMemberObservable.MemberList => _memberList;
         readonly List<IMemberComponentCollection> _memberList = new List<IMemberComponentCollection>();
@@ -49,15 +48,13 @@ namespace HexRPG.Battle.Player
             ICharacterInput characterInput,
             ITransformController transformController,
             List<MemberOwner.Factory> memberFactories,
-            IAttackComponentCollection attackOwner,
-            IAttackApplicator attackApplicator
+            IAttackComponentCollection attackOwner
         )
         {
             _characterInput = characterInput;
             _transformController = transformController;
             _memberFactories = memberFactories;
             _attackOwner = attackOwner;
-            _attackApplicator = attackApplicator;
         }
 
         void IInitializable.Initialize()
@@ -74,7 +71,7 @@ namespace HexRPG.Battle.Player
                 _memberList.Add(factory.Create(_transformController.SpawnRootTransform("Member"), Vector3.zero).GetComponent<IMemberComponentCollection>());
             });
 
-            foreach (var member in _memberList) member.CombatSpawnController.Spawn(_attackApplicator);
+            foreach (var member in _memberList) member.CombatSpawnController.Spawn(_attackOwner);
             foreach (var member in _memberList) member.SkillSpawnController.Spawn(_attackOwner, _transformController.SpawnRootTransform("Skill"));
 
             // ëSÇƒÇÃCombat/SkillÇ™ê∂ê¨Ç≥ÇÍÇÈÇÃÇë“Ç¬

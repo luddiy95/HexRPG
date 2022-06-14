@@ -164,6 +164,7 @@ namespace HexRPG.Battle
                 }
             }
 
+            await UniTask.WaitUntil(() => _enemyList.All(enemy => enemy.CombatSpawnObservable.isCombatSpawned), cancellationToken: token);
             await UniTask.WaitUntil(() => _enemyList.All(enemy => enemy.SkillSpawnObservable.IsAllSkillSpawned), cancellationToken: token);
 
             foreach (var enemy in _enemyList) enemy.AnimationController.Init();

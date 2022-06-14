@@ -26,7 +26,7 @@ namespace HexRPG.Battle.Player
 
             Container.BindInterfacesTo<MemberController>().AsSingle();
 
-            Container.BindInterfacesTo<PlayerCombatController>().AsSingle();
+            Container.BindInterfacesTo<PlayerCombatExecuter>().AsSingle();
 
             Container.BindInterfacesTo<SkillSelecter>().AsSingle();
             Container.BindInterfacesTo<PlayerSkillExecuter>().AsSingle();

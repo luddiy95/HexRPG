@@ -3,6 +3,6 @@ namespace HexRPG.Battle
 {
     public interface ICombatSpawnController
     {
-        void Spawn(IAttackApplicator attackApplicator);
+        void Spawn(IAttackComponentCollection attackOwner);
     }
 }

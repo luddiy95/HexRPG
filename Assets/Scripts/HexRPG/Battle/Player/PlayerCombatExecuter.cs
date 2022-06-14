@@ -5,15 +5,12 @@ namespace HexRPG.Battle.Player
 {
     using Combat;
 
-    public class PlayerCombatController : ICombatController, ICombatObservable, IDisposable
+    public class PlayerCombatExecuter : ICombatController, ICombatObservable, IDisposable
     {
         IUpdateObservable _updateObservable;
         ILocomotionController _locomotionController;
         IMemberObservable _memberObservable;
-        IAttackController _attackController;
 
-        IObservable<CombatAttackSetting> ICombatObservable.OnCombatAttackEnable => null;
-        IObservable<Unit> ICombatObservable.OnCombatAttackDisable => null;
         IObservable<Unit> ICombatObservable.OnFinishCombat => _onFinishCombat;
         readonly ISubject<Unit> _onFinishCombat = new Subject<Unit>();
 
@@ -21,17 +18,15 @@ namespace HexRPG.Battle.Player
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        public PlayerCombatController(
+        public PlayerCombatExecuter(
             IUpdateObservable updateObservable,
             ILocomotionController locomotionController,
-            IMemberObservable memberObservable,
-            IAttackController attackController
+            IMemberObservable memberObservable
         )
         {
             _updateObservable = updateObservable;
             _locomotionController = locomotionController;
             _memberObservable = memberObservable;
-            _attackController = attackController;
         }
 
         ICombatComponentCollection ICombatController.Combat()
@@ -49,12 +44,6 @@ namespace HexRPG.Battle.Player
                 _runningCombat = combatController.Combat();
 
                 _disposables.Clear();
-                _runningCombat.CombatObservable.OnCombatAttackEnable
-                    .Subscribe(attackSetting => _attackController.StartAttack(attackSetting))
-                    .AddTo(_disposables);
-                _runningCombat.CombatObservable.OnCombatAttackDisable
-                    .Subscribe(_ => _attackController.FinishAttack())
-                    .AddTo(_disposables);
                 // I—¹ˆ—
                 _runningCombat.CombatObservable.OnFinishCombat
                     .Subscribe(_ =>

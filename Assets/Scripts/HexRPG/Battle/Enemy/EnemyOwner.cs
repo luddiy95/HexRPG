@@ -7,6 +7,8 @@ namespace HexRPG.Battle.Enemy
     public interface IEnemyComponentCollection : IAttackComponentCollection
     {
         IAnimationController AnimationController { get; }
+        ICombatSpawnObservable CombatSpawnObservable { get; }
+        ICombatController CombatController { get; }
         ICharacterActionStateController CharacterActionStateController { get; }
         ISkillSpawnObservable SkillSpawnObservable { get; }
 
@@ -21,11 +23,14 @@ namespace HexRPG.Battle.Enemy
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
 
+        [Inject] IAttackApplicator IAttackComponentCollection.AttackApplicator { get; }
         [Inject] IAttackController IAttackComponentCollection.AttackController { get; }
         [Inject] IAttackObservable IAttackComponentCollection.AttackObservable { get; }
         [Inject] IDamageApplicable IAttackComponentCollection.DamageApplicable { get; }
 
         [Inject] IAnimationController IEnemyComponentCollection.AnimationController { get; }
+        [Inject] ICombatSpawnObservable IEnemyComponentCollection.CombatSpawnObservable { get; }
+        [Inject] ICombatController IEnemyComponentCollection.CombatController { get; }
         [Inject] ICharacterActionStateController IEnemyComponentCollection.CharacterActionStateController { get; }
         [Inject] ISkillSpawnObservable IEnemyComponentCollection.SkillSpawnObservable { get; }
 

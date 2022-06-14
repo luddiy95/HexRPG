@@ -58,7 +58,7 @@ namespace HexRPG.Battle.Player
 
         void IDisposable.Dispose()
         {
-            _memberChangeDisposable.Dispose();
+            _memberChangeDisposable?.Dispose();
             _disposables.Dispose();
         }
     }

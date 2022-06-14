@@ -432,7 +432,7 @@ namespace HexRPG.Battle.Player
         void IDisposable.Dispose()
         {
             _disposables.Dispose();
-            _memberChangeDisposables.Dispose();
+            _memberChangeDisposables?.Dispose();
         }
     }
 }

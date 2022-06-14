@@ -7,33 +7,15 @@ using UnityEditor;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Zenject;
 
 namespace HexRPG.Battle.Enemy
 {
     public class EnemyAnimationBehaviour : AnimationBehaviour, IAnimationController
     {
-        ISkillSpawnObservable _skillSpawnObservable;
-
         IObservable<Unit> IAnimationController.OnFinishDamaged => _onFinishDamaged;
 
-        IObservable<Unit> IAnimationController.OnFinishCombat => null;
-
+        IObservable<Unit> IAnimationController.OnFinishCombat => _onFinishCombat;
         IObservable<Unit> IAnimationController.OnFinishSkill => _onFinishSkill;
-
-        [Inject]
-        public void Construct(
-            IProfileSetting profileSetting,
-            IDieSetting dieSetting,
-            IAnimatorController animatorController,
-            ISkillSpawnObservable skillSpawnObservable
-        )
-        {
-            _profileSetting = profileSetting;
-            _dieSetting = dieSetting;
-            _animatorController = animatorController;
-            _skillSpawnObservable = skillSpawnObservable;
-        }
 
         void IAnimationController.Init()
         {
@@ -41,27 +23,7 @@ namespace HexRPG.Battle.Enemy
             _durationDataContainer = Resources.Load<DurationDataContainer>
                 ("HexRPG/Battle/ScriptableObject/Enemy/" + name + "/" + name + "DurationDataContainer");
 
-            SetupGraph();
-
-            _animationTypeMap.Add("Idle", AnimationType.Idle);
-            Array.ForEach(AnimationExtensions.MoveClips, clipName => _animationTypeMap.Add(clipName, AnimationType.Move));
-
-            _animationTypeMap.Add("RotateRight", AnimationType.Rotate);
-            _animationTypeMap.Add("RotateLeft", AnimationType.Rotate);
-            //TODO: 仮
-            var playerRotateSpeed = 0.5f;
-            int index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateRight");
-            if (index >= 0) _playables[index].SetSpeed(playerRotateSpeed);
-            index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateLeft");
-            if (index >= 0) _playables[index].SetSpeed(playerRotateSpeed);
-
-            _animationTypeMap.Add("Damaged", AnimationType.Damaged);
-
-            SetupDieAnimation();
-
-            Array.ForEach(_skillSpawnObservable.SkillList, skill => SetupSkillAnimation(skill.Skill.PlayableAsset));
-
-            _allClipCount = _playables.Count;
+            InternalInit();
         }
 
         void IAnimationController.Play(string nextClip)
@@ -84,6 +46,20 @@ namespace HexRPG.Battle.Enemy
             //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
             if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
 
+            // Combatですか？
+            if (_combatTimelineInfo?.CombatName == nextClip)
+            {
+                if (_curCombat != null) return;
+
+                // 割り込み
+                TokenCancel();
+                if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalPlayCombat(_combatTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
+                return;
+            }
+
             // Skillですか？
             var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
             if (skillTimelineInfo != null)
@@ -96,35 +72,6 @@ namespace HexRPG.Battle.Enemy
 
                 _cancellationTokenSource = new CancellationTokenSource();
                 InternalPlaySkill(skillTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
-                return;
-            }
-
-            // Damaged
-            if (nextClip == "Damaged")
-            {
-                TokenCancel();
-
-                if (_curSkill != null) FinishSkill();
-
-                if (_nextPlayingIndex >= 0) fixedRate = rate;
-
-                _cancellationTokenSource = new CancellationTokenSource();
-                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
-                return;
-            }
-
-            // Die
-            var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);
-            if (isDieClip)
-            {
-                TokenCancel();
-
-                if (_curSkill != null) FinishSkill();
-
-                if (_nextPlayingIndex >= 0) fixedRate = rate;
-
-                _cancellationTokenSource = new CancellationTokenSource();
-                InternalPlayDie(_cancellationTokenSource.Token).Forget();
                 return;
             }
 

@@ -237,6 +237,7 @@ namespace HexRPG.Battle.Skill
 
         void IDisposable.Dispose()
         {
+            _attackHitDisposable?.Dispose();
             _disposables.Dispose();
         }
 

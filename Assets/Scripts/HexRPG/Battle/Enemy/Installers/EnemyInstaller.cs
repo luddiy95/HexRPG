@@ -1,17 +1,27 @@
 using Zenject;
 using System;
 using UnityEngine;
+using UnityEngine.Playables;
 
 namespace HexRPG.Battle.Enemy
 {
+    using Combat;
     using Skill;
 
-    public class EnemyInstaller : MonoInstaller, ISkillsSetting
+    public class EnemyInstaller : MonoInstaller, ICombatEquipment, ISkillsEquipment
     {
         [Inject] Transform _spawnRoot;
         [Inject] Vector3 _spawnPos;
 
-        SkillAsset[] ISkillsSetting.Skills => _skills;
+        GameObject ICombatEquipment.Prefab => _combatPrefab;
+        Transform ICombatEquipment.SpawnRoot => _combatSpawnRoot;
+        PlayableAsset ICombatEquipment.Timeline => _combatTimeline;
+        [Header("通常攻撃")]
+        [SerializeField] GameObject _combatPrefab;
+        [SerializeField] Transform _combatSpawnRoot;
+        [SerializeField] PlayableAsset _combatTimeline;
+
+        SkillAsset[] ISkillsEquipment.Skills => _skills;
         [Header("スキルリスト")]
         [SerializeField] SkillAsset[] _skills;
 
@@ -25,13 +35,21 @@ namespace HexRPG.Battle.Enemy
 
             Container.BindInterfacesTo<EnemyMover>().AsSingle();
 
+            Container.BindInterfacesTo<EnemyCombatExecuter>().AsSingle();
             Container.BindInterfacesTo<EnemySkillExecuter>().AsSingle();
 
-            Container.Bind(typeof(IAttackReserve), typeof(IAttackController), typeof(IAttackObservable)).To<AttackController>().AsSingle();
+            Container.BindInterfacesTo<AttackController>().AsSingle();
 
             Container.BindInterfacesTo<DamagedApplicable>().AsSingle();
 
             Container.BindInterfacesTo<Health>().AsSingle();
+
+            if(_combatPrefab != null)
+            {
+                Container.BindFactory<Transform, Vector3, CombatOwner, CombatOwner.Factory>()
+                    .FromSubContainerResolve()
+                    .ByNewContextPrefab<CombatInstaller>(_combatPrefab);
+            }
 
             Array.ForEach(_skills, skill =>
             {

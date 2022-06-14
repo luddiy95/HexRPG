@@ -22,6 +22,7 @@ namespace HexRPG.Battle.Player
         [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         IHealth ICharacterComponentCollection.Health => MemberOwner.Health;
 
+        [Inject] IAttackApplicator IAttackComponentCollection.AttackApplicator { get; }
         [Inject] IAttackController IAttackComponentCollection.AttackController { get; }
         [Inject] IAttackObservable IAttackComponentCollection.AttackObservable { get; }
         [Inject] IDamageApplicable IAttackComponentCollection.DamageApplicable { get; }

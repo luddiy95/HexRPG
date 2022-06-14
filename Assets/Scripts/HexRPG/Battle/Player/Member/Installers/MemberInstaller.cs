@@ -8,22 +8,22 @@ namespace HexRPG.Battle.Player.Member
     using Combat;
     using Skill;
 
-    public class MemberInstaller : MonoInstaller, ICombatSetting, ISkillsSetting
+    public class MemberInstaller : MonoInstaller, ICombatEquipment, ISkillsEquipment
     {
-        GameObject ICombatSetting.Prefab => _combatPrefab;
-        Transform ICombatSetting.SpawnRoot => _combatSpawnRoot;
-        PlayableAsset ICombatSetting.Timeline => _combatTimeline;
+        [Inject] Transform _spawnRoot;
+        [Inject] Vector3 _spawnPos;
+
+        GameObject ICombatEquipment.Prefab => _combatPrefab;
+        Transform ICombatEquipment.SpawnRoot => _combatSpawnRoot;
+        PlayableAsset ICombatEquipment.Timeline => _combatTimeline;
         [Header("通常攻撃")]
         [SerializeField] GameObject _combatPrefab;
         [SerializeField] Transform _combatSpawnRoot;
         [SerializeField] PlayableAsset _combatTimeline;
 
-        SkillAsset[] ISkillsSetting.Skills => _skills;
+        SkillAsset[] ISkillsEquipment.Skills => _skills;
         [Header("スキルリスト")]
         [SerializeField] SkillAsset[] _skills;
-
-        [Inject] Transform _spawnRoot;
-        [Inject] Vector3 _spawnPos;
 
         public override void InstallBindings()
         {

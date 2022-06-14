@@ -11,10 +11,10 @@ namespace HexRPG.Battle.Player.Member
 
     public class MemberSkillExecuter : ISkillSpawnController, ISkillSpawnObservable, ISkillController
     {
-        IMemberComponentCollection _memberOwner;
+        IAnimationController _animationController;
         ISkillPoint _skillPoint;
         List<SkillOwner.Factory> _skillFactories;
-        ISkillsSetting _skillsSetting;
+        ISkillsEquipment _skillsEquipment;
 
         ISkillComponentCollection[] ISkillSpawnObservable.SkillList => _skillList;
         ISkillComponentCollection[] _skillList;
@@ -23,24 +23,24 @@ namespace HexRPG.Battle.Player.Member
         bool _isAllSkillSpawned = false;
 
         public MemberSkillExecuter(
-            IMemberComponentCollection memberOwner,
+            IAnimationController animationController,
             ISkillPoint skillPoint,
             List<SkillOwner.Factory> skillFactories,
-            ISkillsSetting skillsSetting
+            ISkillsEquipment skillsEquipment
         )
         {
-            _memberOwner = memberOwner;
+            _animationController = animationController;
             _skillPoint = skillPoint;
             _skillFactories = skillFactories;
-            _skillsSetting = skillsSetting;
+            _skillsEquipment = skillsEquipment;
         }
 
         void ISkillSpawnController.Spawn(IAttackComponentCollection attackOwner, Transform root)
         {
             _skillList = _skillFactories.Select((factory, index) => {
                 ISkillComponentCollection skillOwner = factory.Create(root, Vector3.zero);
-                var skill = _skillsSetting.Skills[index];
-                skillOwner.Skill.Init(attackOwner, _memberOwner.AnimationController, skill.Timeline, skill.ActivationBindingObjMap);
+                var skill = _skillsEquipment.Skills[index];
+                skillOwner.Skill.Init(attackOwner, _animationController, skill.Timeline, skill.ActivationBindingObjMap);
                 skillOwner.SkillSetting.SetCost(skill.Cost);
                 return skillOwner;
             }).ToArray();

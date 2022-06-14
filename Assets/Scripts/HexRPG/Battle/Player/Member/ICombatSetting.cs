@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.Playables;
 
-namespace HexRPG.Battle.Player.Member
+namespace HexRPG.Battle
 {
-    public interface ICombatSetting
+    public interface ICombatEquipment
     {
         GameObject Prefab { get; }
         Transform SpawnRoot { get; }

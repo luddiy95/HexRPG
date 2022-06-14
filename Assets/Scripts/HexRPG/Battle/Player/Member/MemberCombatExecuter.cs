@@ -6,9 +6,9 @@ namespace HexRPG.Battle.Player.Member
 
     public class MemberCombatExecuter : ICombatController, ICombatSpawnController, ICombatSpawnObservable
     {
-        IMemberComponentCollection _memberOwner;
+        IAnimationController _animationController;
         CombatOwner.Factory _combatFactory;
-        ICombatSetting _combatSetting;
+        ICombatEquipment _combatEquipment;
 
         ICombatComponentCollection ICombatSpawnObservable.Combat => _combat;
         ICombatComponentCollection _combat;
@@ -17,20 +17,20 @@ namespace HexRPG.Battle.Player.Member
         bool _isCombatSpawned = false;
 
         public MemberCombatExecuter(
-            IMemberComponentCollection memberOwner,
+            IAnimationController animationController,
             CombatOwner.Factory combatFactory,
-            ICombatSetting combatSetting
+            ICombatEquipment combatEquipment
         )
         {
-            _memberOwner = memberOwner;
+            _animationController = animationController;
             _combatFactory = combatFactory;
-            _combatSetting = combatSetting;
+            _combatEquipment = combatEquipment;
         }
 
-        void ICombatSpawnController.Spawn(IAttackApplicator attackApplicator)
+        void ICombatSpawnController.Spawn(IAttackComponentCollection attackOwner)
         {
-            _combat = _combatFactory.Create(_combatSetting.SpawnRoot, Vector3.zero);
-            _combat.Combat.Init(_combatSetting.Timeline, attackApplicator, _memberOwner.AnimationController);
+            _combat = _combatFactory.Create(_combatEquipment.SpawnRoot, Vector3.zero);
+            _combat.Combat.Init(attackOwner, _animationController, _combatEquipment.Timeline);
             _isCombatSpawned = true;
         }
 

@@ -17,7 +17,7 @@ namespace HexRPG.Battle.Enemy
         IEnemyComponentCollection _enemyOwner;
         ITransformController _transformController;
         List<SkillOwner.Factory> _skillFactories;
-        ISkillsSetting _skillsSetting;
+        ISkillsEquipment _skillsEquipment;
         IAttackComponentCollection _attackOwner;
         IAttackReserve _attackReserve;
 
@@ -42,7 +42,7 @@ namespace HexRPG.Battle.Enemy
             IEnemyComponentCollection enemyOwner,
             ITransformController transformController,
             List<SkillOwner.Factory> skillFactories,
-            ISkillsSetting skillsSetting,
+            ISkillsEquipment skillsEquipment,
             IAttackComponentCollection attackOwner,
             IAttackReserve attackReservation
         )
@@ -52,7 +52,7 @@ namespace HexRPG.Battle.Enemy
             _enemyOwner = enemyOwner;
             _transformController = transformController;
             _skillFactories = skillFactories;
-            _skillsSetting = skillsSetting;
+            _skillsEquipment = skillsEquipment;
             _attackOwner = attackOwner;
             _attackReserve = attackReservation;
         }
@@ -61,7 +61,7 @@ namespace HexRPG.Battle.Enemy
         {
             _skillList = _skillFactories.Select((factory, index) => {
                 ISkillComponentCollection skillOwner = factory.Create(_transformController.SpawnRootTransform("Skill"), Vector3.zero);
-                var skill = _skillsSetting.Skills[index];
+                var skill = _skillsEquipment.Skills[index];
                 skillOwner.Skill.Init(_attackOwner, _enemyOwner.AnimationController, skill.Timeline, skill.ActivationBindingObjMap);
                 return skillOwner;
             }).ToArray();

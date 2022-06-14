@@ -5,19 +5,24 @@ using UnityEngine.Timeline;
 using UnityEngine;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using System;
 using System.Linq;
 using UniRx;
+using Zenject;
 
 namespace HexRPG.Battle
 {
     public class AnimationBehaviour : AbstractAnimationBehaviour
     {
         protected IProfileSetting _profileSetting;
-        protected IDieSetting _dieSetting;
-        protected IAnimatorController _animatorController;
+        IDieSetting _dieSetting;
+        IAnimatorController _animatorController;
+        ICombatSpawnObservable _combatSpawnObservable;
+        ISkillSpawnObservable _skillSpawnObservable;
 
         protected readonly ISubject<Unit> _onFinishDamaged = new Subject<Unit>();
-
+        
+        protected readonly ISubject<Unit> _onFinishCombat = new Subject<Unit>();
         protected readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
 
         protected DurationDataContainer _durationDataContainer;
@@ -41,6 +46,15 @@ namespace HexRPG.Battle
         // Die Timeline
         protected List<TimelineClipInfo> _dieClipInfoList = new List<TimelineClipInfo>();
 
+        // Combat
+        protected class CombatTimelineInfo
+        {
+            public string CombatName { get; set; }
+            public List<TimelineClipInfo> TimelineClipInfoList { get; set; } = new List<TimelineClipInfo>();
+        }
+        protected CombatTimelineInfo _combatTimelineInfo;
+        protected CombatTimelineInfo _curCombat;
+
         // Skill
         protected class SkillTimelineInfo
         {
@@ -59,6 +73,22 @@ namespace HexRPG.Battle
         protected float fixedRate = 0f; // ‘JˆÚ’†‚ÉŠ„‚èž‚Ý‚ª”­¶‚µ‚½‚Æ‚«‚É–{—ˆ‚Ì‘JˆÚ‚ª‚Ç‚Ì’ö“x‚¾‚Á‚½‚©
 
         protected CancellationTokenSource _cancellationTokenSource;
+
+        [Inject]
+        public void Construct(
+            IProfileSetting profileSetting,
+            IDieSetting dieSetting,
+            IAnimatorController animatorController,
+            ICombatSpawnObservable combatSpawnObservable,
+            ISkillSpawnObservable skillSpawnObservable
+        )
+        {
+            _profileSetting = profileSetting;
+            _dieSetting = dieSetting;
+            _animatorController = animatorController;
+            _combatSpawnObservable = combatSpawnObservable;
+            _skillSpawnObservable = skillSpawnObservable;
+        }
 
         protected float GetFadeLength(string curClip, string nextClip)
         {
@@ -140,6 +170,16 @@ namespace HexRPG.Battle
 
         protected virtual void PlayWithoutInterrupt(string nextClip) // Š„‚èž‚Ý‚È‚µ
         {
+            // Combat‚Å‚·‚©H
+            if (_combatTimelineInfo?.CombatName == nextClip)
+            {
+                if (_curCombat != null) return;
+
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalPlayCombat(_combatTimelineInfo, _cancellationTokenSource.Token).Forget(); // ‘Ò‚¿‡‚í‚¹‚·‚é•K—v‚Í‚È‚¢
+                return;
+            }
+
             // Skill‚Å‚·‚©H
             var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
             if (skillTimelineInfo != null)
@@ -167,7 +207,79 @@ namespace HexRPG.Battle
 
         protected virtual void PlayWithInterrupt(string nextClip) // Š„‚èž‚Ý
         {
+            var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
+            AnimationType type;
 
+            // Damaged
+            if (nextClip == "Damaged")
+            {
+                TokenCancel();
+
+                if (_curCombat != null) FinishCombat();
+                if (_curSkill != null) FinishSkill();
+
+                if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                return;
+            }
+
+            // Die
+            var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out type) && type == AnimationType.Die);
+            if (isDieClip)
+            {
+                TokenCancel();
+
+                if (_curCombat != null) FinishCombat();
+                if (_curSkill != null) FinishSkill();
+
+                if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                _cancellationTokenSource = new CancellationTokenSource();
+                InternalPlayDie(_cancellationTokenSource.Token).Forget();
+                return;
+            }
+        }
+
+        protected async UniTask InternalPlayCombat(CombatTimelineInfo combatTimelineInfo, CancellationToken token)
+        {
+            _curCombat = combatTimelineInfo;
+
+            for (int i = 0; i < _curCombat.TimelineClipInfoList.Count; i++)
+            {
+                var timelineClipInfo = _curCombat.TimelineClipInfoList[i];
+
+                var fadeLength = 0f;
+                if (i == 0)
+                {
+                    fadeLength = _durationDataContainer.defaultCombatStartDuration;
+                    var combatStartDurationData = _durationDataContainer.combatStartDurations.FirstOrDefault(data => data.clip == _curCombat.CombatName);
+                    if (combatStartDurationData != null) fadeLength = combatStartDurationData.duration;
+                }
+                else if (timelineClipInfo.BlendInDuration >= 0)
+                {
+                    fadeLength = (float)timelineClipInfo.BlendInDuration;
+                }
+
+                var blendOutDuration = timelineClipInfo.BlendOutDuration;
+                if (blendOutDuration < 0) blendOutDuration = 0f;
+                var exitTime = (float)(timelineClipInfo.Duration - blendOutDuration);
+                float exitWaitTime = Time.timeSinceLevelLoad + exitTime;
+
+                await InternalCrossFade(timelineClipInfo.ClipName, fadeLength, token);
+
+                await UniTask.WaitWhile(() =>
+                {
+                    var diff = exitWaitTime - Time.timeSinceLevelLoad;
+                    return (diff > 0);
+                }, cancellationToken: token);
+            }
+
+            // Š„‚èž‚Ý‚ª‚È‚©‚Á‚½ê‡‚Ì‚Ý‚±‚±‚Ü‚Å’H‚è’…‚­
+            TokenCancel();
+
+            FinishCombat();
         }
 
         protected async UniTask InternalPlaySkill(SkillTimelineInfo skillTimelineInfo, CancellationToken token)
@@ -340,13 +452,45 @@ namespace HexRPG.Battle
             _cancellationTokenSource = null;
         }
 
+        protected void FinishCombat()
+        {
+            _curCombat = null;
+            _onFinishCombat.OnNext(Unit.Default);
+        }
+
         protected void FinishSkill()
         {
             _curSkill = null;
             _onFinishSkill.OnNext(Unit.Default);
         }
 
-        protected void SetupGraph()
+        protected void InternalInit()
+        {
+            SetupGraph();
+
+            _animationTypeMap.Add("Idle", AnimationType.Idle);
+            Array.ForEach(AnimationExtensions.MoveClips, clipName => _animationTypeMap.Add(clipName, AnimationType.Move));
+
+            _animationTypeMap.Add("RotateRight", AnimationType.Rotate);
+            _animationTypeMap.Add("RotateLeft", AnimationType.Rotate);
+            //TODO: ‰¼
+            var playerRotateSpeed = 0.5f;
+            int index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateRight");
+            if (index >= 0) _playables[index].SetSpeed(playerRotateSpeed);
+            index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateLeft");
+            if (index >= 0) _playables[index].SetSpeed(playerRotateSpeed);
+
+            _animationTypeMap.Add("Damaged", AnimationType.Damaged);
+
+            SetupDieAnimation();
+
+            if(_combatSpawnObservable.Combat != null) SetupCombatAnimation(_combatSpawnObservable.Combat.Combat.PlayableAsset);
+            Array.ForEach(_skillSpawnObservable.SkillList, skill => SetupSkillAnimation(skill.Skill.PlayableAsset));
+
+            _allClipCount = _playables.Count;
+        }
+
+        void SetupGraph()
         {
             _graph = PlayableGraph.Create(_profileSetting.Name + " Playable Graph");
             _playables = _clips.Select(clip => AnimationClipPlayable.Create(_graph, clip)).ToList();
@@ -392,6 +536,49 @@ namespace HexRPG.Battle
                             _mixer.AddInput(playable, 0, 0);
                         }
                     }
+
+                    trackAsset.muted = true;
+                }
+            }
+        }
+
+        void SetupCombatAnimation(PlayableAsset playableAsset)
+        {
+            foreach (var trackAsset in (playableAsset as TimelineAsset).GetOutputTracks())
+            {
+                if (trackAsset is AnimationTrack)
+                {
+                    List<TimelineClip> clips = new List<TimelineClip>();
+                    foreach (var clip in trackAsset.GetClips()) clips.Add(clip);
+
+                    // combatTimelineInfoList‚É’Ç‰Á
+                    List<TimelineClipInfo> timelinClipInfoList = new List<TimelineClipInfo>();
+                    foreach (var clip in clips.OrderBy(clip => clip.start))
+                    {
+                        var clipName = clip.animationClip.name;
+
+                        timelinClipInfoList.Add(new TimelineClipInfo
+                        {
+                            ClipName = clipName,
+                            Duration = clip.duration,
+                            BlendInDuration = clip.blendInDuration,
+                            BlendOutDuration = clip.blendOutDuration,
+                        });
+
+                        if (!_playables.Any(playable => playable.GetAnimationClip().name == clipName))
+                        {
+                            _animationTypeMap.Add(clipName, AnimationType.Combat);
+                            var playable = AnimationClipPlayable.Create(_graph, clip.animationClip);
+                            playable.SetSpeed(clip.timeScale);
+                            _playables.Add(playable);
+                            _mixer.AddInput(playable, 0, 0);
+                        }
+                    }
+                    _combatTimelineInfo = new CombatTimelineInfo
+                    {
+                        CombatName = playableAsset.name,
+                        TimelineClipInfoList = timelinClipInfoList
+                    };
 
                     trackAsset.muted = true;
                 }
