@@ -139,12 +139,6 @@ namespace HexRPG.Battle
 
         async UniTask SpawnEnemies(CancellationToken token)
         {
-            async UniTaskVoid DestroyEnemy(GameObject enemyObj)
-            {
-                await UniTask.Yield(); // enemy‚ÌOnFinishDieŽž‚ÉHUD‚àDestroy‚·‚é‚Ì‚Åˆê‰ž
-                DestroyImmediate(enemyObj);
-            }
-
             var enemySpawnSettings = _spawnSettings.EnemySpawnSettings;
             for(int i = 0; i < enemySpawnSettings.Length; i++)
             {
@@ -158,7 +152,7 @@ namespace HexRPG.Battle
                         .Subscribe(_ =>
                         {
                             _enemyList.Remove(enemyOwner);
-                            DestroyEnemy(enemy.gameObject).Forget();
+                            Destroy(enemy.gameObject);
                         })
                         .AddTo(this);
                 }

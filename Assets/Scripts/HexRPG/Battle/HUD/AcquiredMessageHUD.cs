@@ -57,7 +57,7 @@ namespace HexRPG.Battle.HUD
             if(_hideTweener == null)
             {
                 _hideTweener = TransformUtility.DOAnchorPosX(_rectTransform, 0, _duration)
-                    .OnComplete(() => DestroyImmediate(gameObject));
+                    .OnComplete(() => Destroy(gameObject));
             }
         }
 

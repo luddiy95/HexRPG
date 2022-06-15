@@ -1,7 +1,7 @@
 
 namespace HexRPG.Battle.Combat
 {
-    public class ComboSword : AbstractCombatBehaviour
+    public class ComboSword : AbstractProximityCombat
     {
     }
 }

@@ -6,6 +6,7 @@ namespace HexRPG.Battle.Player.Member
 
     public class MemberCombatExecuter : ICombatController, ICombatSpawnController, ICombatSpawnObservable
     {
+        ITransformController _transformController;
         IAnimationController _animationController;
         CombatOwner.Factory _combatFactory;
         ICombatEquipment _combatEquipment;
@@ -17,11 +18,13 @@ namespace HexRPG.Battle.Player.Member
         bool _isCombatSpawned = false;
 
         public MemberCombatExecuter(
+            ITransformController transformController,
             IAnimationController animationController,
             CombatOwner.Factory combatFactory,
             ICombatEquipment combatEquipment
         )
         {
+            _transformController = transformController;
             _animationController = animationController;
             _combatFactory = combatFactory;
             _combatEquipment = combatEquipment;
@@ -29,7 +32,15 @@ namespace HexRPG.Battle.Player.Member
 
         void ICombatSpawnController.Spawn(IAttackComponentCollection attackOwner)
         {
-            _combat = _combatFactory.Create(_combatEquipment.SpawnRoot, Vector3.zero);
+            var equipment = Object.Instantiate(_combatEquipment.EquipmentPrefab, _combatEquipment.SpawnRoot);
+
+            _combat = _combatEquipment.CombatType switch
+            {
+                CombatType.PROXIMITY => _combatFactory.Create(equipment.transform, Vector3.zero),
+                CombatType.PROJECTILE => _combatFactory.Create(_transformController.SpawnRootTransform("Combat"), Vector3.zero),
+                _ => throw new System.InvalidOperationException()
+            };
+
             _combat.Combat.Init(attackOwner, _animationController, _combatEquipment.Timeline);
             _isCombatSpawned = true;
         }

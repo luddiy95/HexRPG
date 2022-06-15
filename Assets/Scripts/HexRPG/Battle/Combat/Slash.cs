@@ -1,55 +1,34 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Timeline;
-using UniRx;
+using UnityEngine.VFX;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace HexRPG.Battle.Combat
 {
-    using Playable;
-
-    public class Slash : AbstractCombatBehaviour
+    public class Slash : AbstractProjectileCombat
     {
-        protected override void InternalExecute()
+        protected override async UniTaskVoid Emit(CancellationToken token, AttackCollider collider)
         {
-            foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
-            {
-                // Attack”»’è
-                if (trackAsset is AttackColliderTrack)
-                {
-                    foreach (var clip in trackAsset.GetClips())
-                    {
-                        var behaviour = (clip.asset as AttackColliderAsset).behaviour;
-                        behaviour.OnAttackEnable
-                            .Subscribe(_ =>
-                            {
-                                _attackColliders.ForEach(collider => 
-                                { 
-                                    if(collider.TryGetComponent(out Rigidbody rigidbody)) rigidbody.velocity = collider.transform.forward * 5f;
-                                });
-                            })
-                            .AddTo(_disposables);
-                    }
-                }
-            }
-            base.InternalExecute();
+            if (collider.TryGetComponent(out Rigidbody rigidbody)) rigidbody.velocity = collider.transform.forward * 8f;
+
+            await UniTask.Delay(250, cancellationToken: token);
+
+            var effect = collider.transform.GetChild(0).GetComponent<VisualEffect>();
+            effect.playRate = 0;
+
+            TokenCancel();
         }
 
-        protected override void OnAttackHit()
+        protected override void OnTimelineStopped()
         {
-            OnAttackDisable();
-            base.OnAttackHit();
-        }
-
-        protected override void OnFinishCombat()
-        {
+            base.OnTimelineStopped();
             _attackColliders.ForEach(collider =>
             {
                 if (collider.TryGetComponent(out Rigidbody rigidbody)) rigidbody.velocity = Vector3.zero;
-                collider.transform.position = Vector3.up * collider.transform.position.y;
-            });
 
-            base.OnFinishCombat();
+                var effect = collider.transform.GetChild(0).GetComponent<VisualEffect>();
+                effect.playRate = 1;
+            });
         }
     }
 }

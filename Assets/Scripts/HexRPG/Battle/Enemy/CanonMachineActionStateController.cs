@@ -154,7 +154,7 @@ namespace HexRPG.Battle.Enemy
             // Rotate
             _actionStateObservable
                 .OnStart<ActionEventRotate>()
-                .Subscribe(_ => _locomotionController.LookRotate(_battleObservable.PlayerLandedHex.transform.position, 240f))
+                .Subscribe(_ => _locomotionController.LookRotate(_battleObservable.OnPlayerSpawn.Value.TransformController.Position, 240f))
                 .AddTo(_disposables);
 
             _actionStateObservable
@@ -195,7 +195,7 @@ namespace HexRPG.Battle.Enemy
             while (true)
             {
                 // Idle
-                await UniTask.Delay(2000, cancellationToken: token);
+                await UniTask.Delay(2000000, cancellationToken: token);
 
                 // Player‚Ì•û‚Ö‰ñ“]
                 _actionStateController.Execute(new Command { Id = "rotate" });

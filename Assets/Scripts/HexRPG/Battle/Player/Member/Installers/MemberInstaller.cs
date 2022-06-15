@@ -13,10 +13,14 @@ namespace HexRPG.Battle.Player.Member
         [Inject] Transform _spawnRoot;
         [Inject] Vector3 _spawnPos;
 
-        GameObject ICombatEquipment.Prefab => _combatPrefab;
+        GameObject ICombatEquipment.EquipmentPrefab => _equipmentPrefab;
+        CombatType ICombatEquipment.CombatType => _combatType;
+        GameObject ICombatEquipment.CombatPrefab => _combatPrefab;
         Transform ICombatEquipment.SpawnRoot => _combatSpawnRoot;
         PlayableAsset ICombatEquipment.Timeline => _combatTimeline;
         [Header("’ÊíUŒ‚")]
+        [SerializeField] GameObject _equipmentPrefab;
+        [SerializeField] CombatType _combatType;
         [SerializeField] GameObject _combatPrefab;
         [SerializeField] Transform _combatSpawnRoot;
         [SerializeField] PlayableAsset _combatTimeline;

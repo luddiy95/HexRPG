@@ -29,7 +29,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2717514595689543170}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!320 &3060399751353251934
 PlayableDirector:
@@ -88,6 +88,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 6885623368119258436}
   - {fileID: 2970877968978056995}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -191,7 +192,10 @@ MonoBehaviour:
   _rootTransform: {fileID: 0}
   _moveTransform: {fileID: 0}
   _rotateTransform: {fileID: 0}
-  _spawnRoots: []
+  _displayTransform: {fileID: 0}
+  _spawnRoots:
+  - _transform: {fileID: 6885623368119258436}
+    _spawnObj: Combat
 --- !u!114 &8761299872914069485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -217,7 +221,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 339e0cbff42c3b544b38b3473be651b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _durationData: {fileID: 0}
   _clips: []
 --- !u!114 &2659684322474483671
 MonoBehaviour:
@@ -233,6 +236,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _name: 
   _icon: {fileID: 0}
+  _attribute: 0
   _moveSpeed: 4
   _rotateSpeed: 4
   _healthMax: 100
@@ -293,7 +297,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239936bbef0af934fa2d37a3dc0b41df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _equipmentPrefab: {fileID: 0}
+  _combatType: 0
   _combatPrefab: {fileID: 0}
   _combatSpawnRoot: {fileID: 0}
   _combatTimeline: {fileID: 0}
   _skills: []
+--- !u!1 &6712042300306701093
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6885623368119258436}
+  m_Layer: 0
+  m_Name: ProjectileCombatRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6885623368119258436
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6712042300306701093}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2717514595689543170}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

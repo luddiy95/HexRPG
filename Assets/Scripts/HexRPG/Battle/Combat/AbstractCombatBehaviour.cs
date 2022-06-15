@@ -10,17 +10,17 @@ namespace HexRPG.Battle.Combat
 {
     using Playable;
 
-    public class AbstractCombatBehaviour : MonoBehaviour, ICombat, ICombatObservable, IDisposable
+    public abstract class AbstractCombatBehaviour : MonoBehaviour, ICombat, ICombatObservable, IDisposable
     {
         ICombatSetting _combatSetting;
 
-        IAttackComponentCollection _attackOwner;
+        protected IAttackComponentCollection _attackOwner;
         IAnimationController _animationController;
 
         [SerializeField] protected PlayableDirector _director;
 
         IObservable<Unit> ICombatObservable.OnFinishCombat => _onFinishCombat;
-        readonly ISubject<Unit> _onFinishCombat = new Subject<Unit>();
+        protected readonly ISubject<Unit> _onFinishCombat = new Subject<Unit>();
 
         PlayableAsset ICombat.PlayableAsset => _director.playableAsset;
 
@@ -32,7 +32,7 @@ namespace HexRPG.Battle.Combat
         bool _isComboInputEnable = false;
         bool _isComboInputted = false;
 
-        IDisposable _attackHitDisposable;
+        protected IDisposable _attackHitDisposable;
         protected CompositeDisposable _disposables = new CompositeDisposable();
 
         [Inject]
@@ -90,6 +90,8 @@ namespace HexRPG.Battle.Combat
 
         protected virtual void InternalExecute()
         {
+            _attackColliders.ForEach(collider => collider.gameObject.SetActive(false));
+
             foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
             {
                 // VelocityéÊìæ
@@ -114,19 +116,7 @@ namespace HexRPG.Battle.Combat
                     {
                         var behaviour = (clip.asset as AttackColliderAsset).behaviour;
                         behaviour.OnAttackEnable
-                            .Subscribe(_ =>
-                            {
-                                var attackSetting = new CombatAttackSetting
-                                {
-                                    power = _combatSetting.Damage,
-                                    attackColliders = _attackColliders
-                                };
-                                _attackOwner.AttackController.StartAttack(attackSetting);
-
-                                _attackHitDisposable?.Dispose();
-                                _attackHitDisposable = _attackOwner.AttackObservable.OnAttackHit
-                                    .Subscribe(_ => OnAttackHit());
-                            })
+                            .Subscribe(_ => OnAttackEnable())
                             .AddTo(_disposables);
                         behaviour.OnAttackDisable
                             .Subscribe(_ => OnAttackDisable())
@@ -165,16 +155,42 @@ namespace HexRPG.Battle.Combat
             _animationController.Play(_director.playableAsset.name);
         }
 
+        protected virtual void OnAttackEnable()
+        {
+            // Attack
+            var attackSetting = new CombatAttackSetting
+            {
+                power = _combatSetting.Damage,
+                attackColliders = _attackColliders
+            };
+            _attackOwner.AttackController.StartAttack(attackSetting);
+
+            // hitåüím
+            _attackHitDisposable?.Dispose();
+            _attackHitDisposable = _attackOwner.AttackObservable.OnAttackHit
+                .Subscribe(_ => OnAttackHit());
+        }
+
         protected virtual void OnAttackHit()
         {
 
+        }
+
+        protected virtual void OnAttackDisable()
+        {
+
+        }
+
+        protected virtual void FinishAttack()
+        {
+            _attackOwner.AttackController.FinishAttack();
+            _attackHitDisposable?.Dispose();
         }
 
         protected virtual void OnFinishCombat()
         {
             // èIóπèàóù
             _isComboInputEnable = false;
-            OnAttackDisable();
             // velocityÇÕActionStateControllerÇ≈CombatStateExitéûÇ…0Ç…Ç»ÇÈ
 
             _disposables.Clear();
@@ -183,13 +199,12 @@ namespace HexRPG.Battle.Combat
             _onFinishCombat.OnNext(Unit.Default);
         }
 
-        protected void OnAttackDisable()
+        void IDisposable.Dispose()
         {
-            _attackHitDisposable?.Dispose();
-            _attackOwner.AttackController.FinishAttack();
+            OnDisposed();
         }
 
-        void IDisposable.Dispose()
+        protected virtual void OnDisposed()
         {
             _attackHitDisposable?.Dispose();
             _disposables.Dispose();
