@@ -32,6 +32,9 @@ namespace HexRPG.Battle.Enemy
         IDamageApplicable _damagedApplicable;
         IDieObservable _dieObservable;
 
+        ICombatController _combatController;
+        ICombatObservable _combatObservable;
+
         ISkillController _skillController;
         ISkillObservable _skillObservable;
 
@@ -56,6 +59,8 @@ namespace HexRPG.Battle.Enemy
             IActionStateObservable actionStateObservable,
             IDamageApplicable damageApplicable,
             IDieObservable dieObservable,
+            ICombatController combatController,
+            ICombatObservable combatObservable,
             ISkillController skillController,
             ISkillObservable skillObservable
         )
@@ -72,6 +77,8 @@ namespace HexRPG.Battle.Enemy
             _actionStateObservable = actionStateObservable;
             _damagedApplicable = damageApplicable;
             _dieObservable = dieObservable;
+            _combatController = combatController;
+            _combatObservable = combatObservable;
             _skillController = skillController;
             _skillObservable = skillObservable;
         }
@@ -82,7 +89,7 @@ namespace HexRPG.Battle.Enemy
             SetUpControl();
 
             _locomotionController.ForceLookRotate(_battleObservable.PlayerLandedHex.transform.position);
-            StartSequence(_cancellationTokenSource.Token).Forget();
+            //StartSequence(_cancellationTokenSource.Token).Forget();
         }
 
         void Update()
@@ -90,7 +97,7 @@ namespace HexRPG.Battle.Enemy
             //TODO: テストコード
             if (Input.GetKeyDown(KeyCode.A))
             {
-                _actionStateController.Execute(new Command { Id = "skill" });
+                _actionStateController.Execute(new Command { Id = "combat" });
             }
         }
 
@@ -100,6 +107,7 @@ namespace HexRPG.Battle.Enemy
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventCancel("rotate", ROTATE))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
+                .AddEvent(new ActionEventCancel("combat", COMBAT))
                 ;
             _actionStateController.SetInitialState(idle);
 
@@ -107,6 +115,7 @@ namespace HexRPG.Battle.Enemy
             NewState(MOVE)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventCancel("move", MOVE))
+                .AddEvent(new ActionEventCancel("combat", COMBAT))
                 .AddEvent(new ActionEventCancel("skill", SKILL))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
                 ;
@@ -121,6 +130,13 @@ namespace HexRPG.Battle.Enemy
             NewState(DAMAGED)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventCancel("finishDamaged", IDLE))
+                ;
+
+            NewState(COMBAT)
+                .AddEvent(new ActionEventCombat())
+                .AddEvent(new ActionEventCancel("finishCombat", IDLE))
+                .AddEvent(new ActionEventCancel("damaged", DAMAGED))
+                // IDLEに戻る
                 ;
 
             NewState(SKILL)
@@ -193,6 +209,15 @@ namespace HexRPG.Battle.Enemy
                 })
                 .AddTo(_disposables);
 
+            // Combat終了
+            _combatObservable.OnFinishCombat
+                .Where(_ => CurState == COMBAT)
+                .Subscribe(_ =>
+                {
+                    _actionStateController.Execute(new Command { Id = "finishCombat" });
+                })
+                .AddTo(_disposables);
+
             ////// ステートでの詳細処理 //////
 
             // Rotate
@@ -204,6 +229,15 @@ namespace HexRPG.Battle.Enemy
             _actionStateObservable
                 .OnEnd<ActionEventRotate>()
                 .Subscribe(_ => _locomotionController.StopRotate())
+                .AddTo(_disposables);
+
+            // Combat
+            _actionStateObservable
+                .OnStart<ActionEventCombat>()
+                .Subscribe(_ =>
+                {
+                    _combatController.Combat();
+                })
                 .AddTo(_disposables);
 
             // スキル実行

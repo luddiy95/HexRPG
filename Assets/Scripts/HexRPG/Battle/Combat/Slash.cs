@@ -7,9 +7,9 @@ namespace HexRPG.Battle.Combat
 {
     public class Slash : AbstractProjectileCombat
     {
-        protected override async UniTaskVoid Emit(CancellationToken token, AttackCollider collider)
+        protected override async UniTaskVoid Emit(CancellationToken token, AttackCollider collider, Vector3 colliderVelocity)
         {
-            if (collider.TryGetComponent(out Rigidbody rigidbody)) rigidbody.velocity = collider.transform.forward * 8f;
+            if (collider.TryGetComponent(out Rigidbody rigidbody)) rigidbody.velocity = Quaternion.LookRotation(collider.transform.forward) * colliderVelocity;
 
             await UniTask.Delay(250, cancellationToken: token);
 

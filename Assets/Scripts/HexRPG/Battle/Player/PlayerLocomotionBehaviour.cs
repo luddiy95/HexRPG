@@ -5,7 +5,7 @@ using Cinemachine;
 
 namespace HexRPG.Battle.Player
 {
-    public class PlayerLocomotionBehaviour : LocomotionBehaviour
+    public class PlayerLocomotionBehaviour : AbstractLocomotionBehaviour
     {
         ICharacterInput _characterInput;
         IBattleObservable _battleObservable;

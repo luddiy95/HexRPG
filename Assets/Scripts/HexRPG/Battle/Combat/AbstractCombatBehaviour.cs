@@ -116,7 +116,7 @@ namespace HexRPG.Battle.Combat
                     {
                         var behaviour = (clip.asset as AttackColliderAsset).behaviour;
                         behaviour.OnAttackEnable
-                            .Subscribe(_ => OnAttackEnable())
+                            .Subscribe(_ => OnAttackEnable(behaviour.Velocity))
                             .AddTo(_disposables);
                         behaviour.OnAttackDisable
                             .Subscribe(_ => OnAttackDisable())
@@ -155,7 +155,7 @@ namespace HexRPG.Battle.Combat
             _animationController.Play(_director.playableAsset.name);
         }
 
-        protected virtual void OnAttackEnable()
+        protected virtual void OnAttackEnable(Vector3 colliderVelocity)
         {
             // Attack
             var attackSetting = new CombatAttackSetting
@@ -201,10 +201,10 @@ namespace HexRPG.Battle.Combat
 
         void IDisposable.Dispose()
         {
-            OnDisposed();
+            InternalDispose();
         }
 
-        protected virtual void OnDisposed()
+        protected virtual void InternalDispose()
         {
             _attackHitDisposable?.Dispose();
             _disposables.Dispose();

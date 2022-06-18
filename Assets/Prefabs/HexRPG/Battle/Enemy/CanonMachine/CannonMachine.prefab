@@ -15379,7 +15379,7 @@ PrefabInstance:
       objectReference: {fileID: 2614510168799195314}
     - target: {fileID: 1609706617907820296, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2922301573819534344, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _animator
@@ -15438,6 +15438,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2853470195354340921}
     - target: {fileID: 4192941471624449821, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _components.Array.data[7]
+      value: 
+      objectReference: {fileID: 2549979214503381241}
+    - target: {fileID: 4192941471624449821, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _components.Array.data[9]
       value: 
       objectReference: {fileID: 7717408061277836960}
@@ -15446,6 +15450,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7717408061277836960}
     - target: {fileID: 4773111240759286194, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5700457106901360295, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
@@ -15526,6 +15534,17 @@ PrefabInstance:
     - {fileID: 8463418554706351464, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
     - {fileID: 5383831384830552414, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+--- !u!114 &2549979214503381241 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+  m_PrefabInstance: {fileID: 2546776026939493493}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6462630326340586861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52877b6c0ac71d341b56560d8edc71a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!136 &2614510168799195314 stripped
 CapsuleCollider:
   m_CorrespondingSourceObject: {fileID: 513248080382508231, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}

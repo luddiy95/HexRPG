@@ -44,14 +44,21 @@ namespace HexRPG.Battle.Enemy
 
         void IInitializable.Initialize()
         {
-            if(_combatFactories.Count == 0)
+            if (_combatFactories.Count == 0)
             {
                 _isCombatSpawned = true;
                 return;
             }
-            if(_attackOwner is IEnemyComponentCollection enemyOwner)
+
+            if (_attackOwner is IEnemyComponentCollection enemyOwner)
             {
-                _combat = _combatFactories[0].Create(_combatEquipment.SpawnRoot, Vector3.zero);
+                _combat = _combatEquipment.CombatType switch
+                {
+                    CombatType.PROXIMITY => _combatFactories[0].Create(_combatEquipment.SpawnRoot, Vector3.zero),
+                    CombatType.PROJECTILE => _combatFactories[0].Create(enemyOwner.TransformController.SpawnRootTransform("Combat"), Vector3.zero),
+                    _ => throw new InvalidOperationException()
+                };
+
                 _combat.Combat.Init(_attackOwner, enemyOwner.AnimationController, _combatEquipment.Timeline);
                 _isCombatSpawned = true;
             }
@@ -79,6 +86,7 @@ namespace HexRPG.Battle.Enemy
                     _locomotionController.SetSpeed(velocity, velocity.magnitude);
                 })
                 .AddTo(_disposables);
+            _combat.Combat.Execute();
             return _combat;
         }
 

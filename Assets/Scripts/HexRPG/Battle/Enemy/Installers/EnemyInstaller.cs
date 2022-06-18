@@ -44,7 +44,7 @@ namespace HexRPG.Battle.Enemy
 
             Container.BindInterfacesTo<AttackController>().AsSingle();
 
-            Container.BindInterfacesTo<DamagedApplicable>().AsSingle();
+            Container.BindInterfacesTo<EnemyDamagedApplicable>().AsSingle();
 
             Container.BindInterfacesTo<Health>().AsSingle();
 

@@ -31,19 +31,19 @@ namespace HexRPG.Battle.Combat
             _alreadyEmitted = false;
         }
 
-        protected override void OnAttackEnable()
+        protected override void OnAttackEnable(Vector3 colliderVelocity)
         {
             _alreadyEmitted = false;
             _cancellationTokenSource = new CancellationTokenSource(); 
-            //! 現状、飛び道具が複数(colliderが複数)の場合は考慮していない(複数の場合はcolliderに応じたCancellationTokenが必要 & ダメージ時に消すColliderを検証する必要)
+            //TODO: 現状、飛び道具が複数(colliderが複数)の場合は考慮していない(複数の場合はcolliderに応じたCancellationTokenが必要 & ダメージ時に消すColliderを検証する必要)
             _attackColliders.ForEach(collider =>
             {
-                Emit(_cancellationTokenSource.Token, collider).Forget();
+                Emit(_cancellationTokenSource.Token, collider, colliderVelocity).Forget();
             });
-            base.OnAttackEnable();
+            base.OnAttackEnable(colliderVelocity);
         }
 
-        protected abstract UniTaskVoid Emit(CancellationToken token, AttackCollider collider);
+        protected abstract UniTaskVoid Emit(CancellationToken token, AttackCollider collider, Vector3 colliderVelocity);
 
         public virtual void OnEmitComplete()
         {
@@ -83,9 +83,9 @@ namespace HexRPG.Battle.Combat
             for (int i = 0; i < _attackColliders.Count; i++) _attackColliders[i].transform.localPosition = _attackColliderPosCache[i];
         }
 
-        protected override void OnDisposed()
+        protected override void InternalDispose()
         {
-            base.OnDisposed();
+            base.InternalDispose();
             TokenCancel();
         }
 

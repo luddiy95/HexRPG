@@ -1,9 +1,11 @@
+using UnityEngine;
 using UnityEngine.Playables;
 using System;
 using UniRx;
 
 namespace HexRPG.Playable
 {
+    [Serializable]
     public class AttackColliderBehaviour : PlayableBehaviour
     {
         public IObservable<Unit> OnAttackEnable => _onAttackEnable;
@@ -11,6 +13,11 @@ namespace HexRPG.Playable
 
         public IObservable<Unit> OnAttackDisable => _onAttackDisable;
         readonly ISubject<Unit> _onAttackDisable = new Subject<Unit>();
+
+        public Vector3 direction;
+        public float speed;
+
+        public Vector3 Velocity => direction.normalized * speed;
 
         public override void OnBehaviourPlay(UnityEngine.Playables.Playable playable, FrameData info)
         {

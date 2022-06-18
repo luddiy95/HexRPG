@@ -16,7 +16,7 @@ namespace HexRPG.Battle.Enemy
         void ResetPath();
     }
 
-    public class EnemyLocomotionBehaviour : LocomotionBehaviour, INavMeshAgentController
+    public class EnemyLocomotionBehaviour : AbstractLocomotionBehaviour, INavMeshAgentController
     {
         NavMeshAgent NavMeshAgent => _navMeshAgent ? _navMeshAgent : GetComponent<NavMeshAgent>();
         [Header("NavMeshAgent。nullならこのオブジェクト")]
