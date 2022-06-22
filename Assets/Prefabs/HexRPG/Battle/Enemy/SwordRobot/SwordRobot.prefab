@@ -158,7 +158,7 @@ Animator:
   m_Controller: {fileID: 0}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
@@ -179,13 +179,16 @@ MonoBehaviour:
   _clips:
   - {fileID: 7400000, guid: f471fbacc1489194b8ec6054f858e144, type: 2}
   - {fileID: 7400000, guid: be0be0d8814f1c24dbcddd9dc4bcf1d4, type: 2}
-  - {fileID: 7400000, guid: 4e84a3ecd7d50e843a316f7dc65c14b0, type: 2}
-  - {fileID: 7400000, guid: bb34fce2ea6ed6a439e02ed79d3898ae, type: 2}
-  - {fileID: 7400000, guid: 098ffb7c0d1175c4faa597c77251a646, type: 2}
+  - {fileID: 7400000, guid: be0be0d8814f1c24dbcddd9dc4bcf1d4, type: 2}
+  - {fileID: 7400000, guid: be0be0d8814f1c24dbcddd9dc4bcf1d4, type: 2}
+  - {fileID: 7400000, guid: be0be0d8814f1c24dbcddd9dc4bcf1d4, type: 2}
   - {fileID: 7400000, guid: 6a1a909d775c7984393e849bbce1baeb, type: 2}
-  - {fileID: 7400000, guid: f691d53acced6474590266a3ae9c3aa0, type: 2}
-  - {fileID: 7400000, guid: 5ec2e6ad642c9a642ba6f14624ad4b4d, type: 2}
-  - {fileID: 7400000, guid: cf8ba7b46bd3f67498ac1e88d0e6169c, type: 2}
+  - {fileID: 7400000, guid: be0be0d8814f1c24dbcddd9dc4bcf1d4, type: 2}
+  - {fileID: 7400000, guid: be0be0d8814f1c24dbcddd9dc4bcf1d4, type: 2}
+  - {fileID: 7400000, guid: be0be0d8814f1c24dbcddd9dc4bcf1d4, type: 2}
+  - {fileID: 7400000, guid: ac081117666ba6a498abcf296e4fbee0, type: 2}
+  - {fileID: 7400000, guid: f89e8cc354017634f9a0f4074b57fff1, type: 2}
+  - {fileID: 7400000, guid: 9dbe890052cca614eb827996511fd12e, type: 2}
 --- !u!1 &4321307333096443343
 GameObject:
   m_ObjectHideFlags: 0
@@ -2380,6 +2383,10 @@ PrefabInstance:
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _name
       value: SwordRobot
+      objectReference: {fileID: 0}
+    - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: _moveSpeed
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _dieTimeline

@@ -46,6 +46,42 @@ namespace HexRPG.Battle.Enemy
             //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
             if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
 
+            // Locomotion->Locomotion遷移中は「Idle, Rotate」割り込み可能
+            var isCrossFadeBtwLocomotion =
+                (_animationTypeMap.TryGetValue(_playables[_curPlayingIndex].GetAnimationClip().name, out AnimationType type) && type.IsLocomotionType()) &&
+                (_nextPlayingIndex >= 0 && _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType());
+            if (isCrossFadeBtwLocomotion)
+            {
+                if (nextClip == "Idle" || (_animationTypeMap.TryGetValue(nextClip, out type) && type.IsRotateType()))
+                {
+                    TokenCancel();
+
+                    if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                    return;
+                }
+            }
+
+            // Locomotion->Rotate遷移中は「Idle」割り込み可能
+            var isCrossFadeBtwLocomotionRotate =
+                (_animationTypeMap.TryGetValue(_playables[_curPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType()) &&
+                (_nextPlayingIndex >= 0 && _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsRotateType());
+            if (isCrossFadeBtwLocomotionRotate)
+            {
+                if(nextClip == "Idle")
+                {
+                    TokenCancel();
+
+                    if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                    return;
+                }
+            }
+
             // Combatですか？
             if (_combatTimelineInfo?.CombatName == nextClip)
             {

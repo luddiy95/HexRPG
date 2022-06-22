@@ -23,46 +23,21 @@ namespace HexRPG.Battle.Stage
         [SerializeField] Transform _HexRoot;
         [SerializeField] Hex _hexPrefab;
 
+        void Start()
+        {
+            //InitStage(9);
+        }
+
         #region View
 
         void InitStage(int stageRadius)
         {
-            List<Vector2> vertexList = new List<Vector2>();
-            Vector3 hexPos = Vector3.zero;
-
             for (int rad = 0; rad <= stageRadius; rad++)
             {
-                vertexList.Clear();
-
-                vertexList.Add(new Vector2(-1 * _diffX * rad, _diffZ * rad));
-                vertexList.Add(new Vector2(-1 * _diffX * rad * 2, 0));
-                vertexList.Add(new Vector2(-1 * _diffX * rad, -1 * _diffZ * rad));
-                vertexList.Add(new Vector2(_diffX * rad, -1 * _diffZ * rad));
-                vertexList.Add(new Vector2(_diffX * rad * 2, 0));
-                vertexList.Add(new Vector2(_diffX * rad, _diffZ * rad));
-
-                foreach (Vector2 pos2 in vertexList)
+                foreach (Vector3 pos in (this as IStageController).GetAroundList(Vector3.zero, rad))
                 {
-                    hexPos = new Vector3(pos2.x, 0, pos2.y);
                     Hex hex = Instantiate(_hexPrefab, _HexRoot);
-                    hex.transform.position = hexPos;
-                }
-                Vector2 diffVec = Vector2.zero;
-                List<Vector2> btwHexList = new List<Vector2>();
-                for (int vt = 0; vt < 6; vt++)
-                {
-                    diffVec = (vertexList[(vt + 1) % 6] - vertexList[vt]) / rad;
-                    for (int i = 1; i <= rad - 1; i++)
-                    {
-                        btwHexList.Add(vertexList[vt] + diffVec * i);
-                    }
-                }
-
-                foreach (Vector2 pos2 in btwHexList)
-                {
-                    hexPos = new Vector3(pos2.x, 0, pos2.y);
-                    Hex hex = Instantiate(_hexPrefab, _HexRoot);
-                    hex.transform.position = hexPos;
+                    hex.transform.position = pos;
                 }
             }
         }
@@ -74,7 +49,12 @@ namespace HexRPG.Battle.Stage
     {
         public static Vector3 GetPos(this IStageController stageController, Hex root, Vector2 dir, int rotationAngle)
         {
-            return root.transform.position + Quaternion.AngleAxis(rotationAngle, Vector3.up) * (stageController.DirX * dir.x + stageController.DirZ * dir.y);
+            return GetPos(stageController, root.transform.position, dir, rotationAngle);
+        }
+
+        static Vector3 GetPos(this IStageController stageController, Vector3 rootPos, Vector2 dir, int rotationAngle)
+        {
+            return rootPos + Quaternion.AngleAxis(rotationAngle, Vector3.up) * (stageController.DirX * dir.x + stageController.DirZ * dir.y);
         }
 
         public static Hex GetHex(this IStageController stageController, Hex root, Vector2 dir, int rotationAngle)
@@ -90,20 +70,41 @@ namespace HexRPG.Battle.Stage
                 .Where(rangeHex => rangeHex != null).ToArray();
         }
 
-        /// <summary>
-        /// LandedHexÇ©ÇÁangleÇÃï˚å¸Ç÷êiÇÒÇæéûÇ…ç≈Ç‡ãﬂÇ¢EnemyHex
-        /// </summary>
-        /// <param name="angle"></param>
-        /// <returns></returns>
-        public static Hex GetNearestEnemyHexFromAngle(this IStageController stageController, Hex root, int angle)
+        public static List<Vector3> GetAroundList(this IStageController stageController, Vector3 rootPos, int rad)
         {
-            while (true)
+            var vertexList = new Vector3[] { rootPos };
+            if(rad > 0)
             {
-                root = stageController.GetHex(root, new Vector2(0, 1), angle);
-                if (root == null) break;
-                if (root.IsPlayerHex == false) break;
+                vertexList = new Vector3[]
+                {
+                    stageController.GetPos(rootPos, new Vector2(-1, 1) * rad, 0),
+                    stageController.GetPos(rootPos, new Vector2(-2, 0) * rad, 0),
+                    stageController.GetPos(rootPos, new Vector2(-1, -1) * rad, 0),
+                    stageController.GetPos(rootPos, new Vector2(1, -1) * rad, 0),
+                    stageController.GetPos(rootPos, new Vector2(2, 0) * rad, 0),
+                    stageController.GetPos(rootPos, new Vector2(1, 1) * rad, 0),
+                };
             }
-            return root;
+
+            List<Vector3> aroundList = new List<Vector3>(vertexList);
+            for (int vt = 0; vt < vertexList.Length; vt++)
+            {
+                var diffVec = (vertexList[(vt + 1) % vertexList.Length] - vertexList[vt]) / rad;
+                for (int i = 1; i <= rad - 1; i++)
+                {
+                    aroundList.Add(vertexList[vt] + diffVec * i);
+                }
+            }
+
+            return aroundList;
+        }
+
+        public static Hex[] GetAroundHexList(this IStageController stageController, Hex root, int rad)
+        {
+            return stageController.GetAroundList(root.transform.position, rad)
+                .Select(pos => TransformExtensions.GetLandedHex(pos))
+                .Where(hex => hex != null)
+                .ToArray();
         }
     }
 }

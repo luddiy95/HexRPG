@@ -7,6 +7,18 @@ namespace HexRPG.Battle.Combat
 {
     public class Slash : AbstractProjectileCombat
     {
+        protected override void InternalExecute()
+        {
+            base.InternalExecute();
+            _attackColliders.ForEach(collider =>
+            {
+                if (collider.TryGetComponent(out Rigidbody rigidbody)) rigidbody.velocity = Vector3.zero;
+
+                var effect = collider.transform.GetChild(0).GetComponent<VisualEffect>();
+                effect.playRate = 1;
+            });
+        }
+
         protected override async UniTaskVoid Emit(CancellationToken token, AttackCollider collider, Vector3 colliderVelocity)
         {
             if (collider.TryGetComponent(out Rigidbody rigidbody)) rigidbody.velocity = Quaternion.LookRotation(collider.transform.forward) * colliderVelocity;
@@ -17,18 +29,6 @@ namespace HexRPG.Battle.Combat
             effect.playRate = 0;
 
             TokenCancel();
-        }
-
-        protected override void OnTimelineStopped()
-        {
-            base.OnTimelineStopped();
-            _attackColliders.ForEach(collider =>
-            {
-                if (collider.TryGetComponent(out Rigidbody rigidbody)) rigidbody.velocity = Vector3.zero;
-
-                var effect = collider.transform.GetChild(0).GetComponent<VisualEffect>();
-                effect.playRate = 1;
-            });
         }
     }
 }

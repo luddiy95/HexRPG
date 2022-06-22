@@ -151,6 +151,15 @@ namespace HexRPG.Battle
         public static Hex GetLandedHex(Vector3 pos) =>
             GetHitHex(new Ray(pos + Vector3.up * 0.15f, Vector3.down), 0.3f);
 
+        public static Hex[] GetSurroundedHexList(Hex root, float radius)
+        {
+            var hits = Physics.SphereCastAll(new Ray(root.transform.position, Vector3.down), radius, maxDistance: 0, hexLayerMask);
+            return hits
+                .Select(hit => hit.collider?.GetComponent<Hex>())
+                .Where(hex => hex.GetDistanceXZ(root) <= radius) //! hexの「中心」がrootの中心に対して距離radius以下
+                .ToArray();
+        }
+
         static Hex GetHitHex(Ray ray, float maxDistance = Mathf.Infinity)
         {
             Physics.Raycast(ray, out var hit, maxDistance, hexLayerMask);

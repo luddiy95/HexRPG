@@ -469,10 +469,10 @@ namespace HexRPG.Battle
             SetupGraph();
 
             _animationTypeMap.Add("Idle", AnimationType.Idle);
+
             Array.ForEach(AnimationExtensions.MoveClips, clipName => _animationTypeMap.Add(clipName, AnimationType.Move));
 
-            _animationTypeMap.Add("RotateRight", AnimationType.Rotate);
-            _animationTypeMap.Add("RotateLeft", AnimationType.Rotate);
+            Array.ForEach(AnimationExtensions.RotateClips, clipName => _animationTypeMap.Add(clipName, AnimationType.Rotate));
             //TODO: ‰¼
             var playerRotateSpeed = 0.5f;
             int index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateRight");

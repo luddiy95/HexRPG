@@ -38,9 +38,19 @@ namespace HexRPG.Battle
             "Movefwd", "Moverightfwd", "Moveright", "Moverightbwd", "Movebwd", "Moveleftbwd", "Moveleft", "Moveleftfwd"
         };
 
+        public static string[] RotateClips => new string[]
+        {
+            "RotateRight", "RotateLeft"
+        };
+
         public static bool IsLocomotionType(this AnimationType type)
         {
             return type == AnimationType.Idle || type == AnimationType.Move;
+        }
+
+        public static bool IsRotateType(this AnimationType type)
+        {
+            return type == AnimationType.Rotate;
         }
     }
 }

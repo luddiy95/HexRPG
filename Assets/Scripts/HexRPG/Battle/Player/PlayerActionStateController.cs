@@ -40,7 +40,7 @@ namespace HexRPG.Battle.Player
         bool _acceptDirectionInput = true;
 
         int _rotateAngle = 0;
-        float _rotateTime = 0.24f; //! durationより短いとダメ(予期せぬ遷移中割り込み)
+        float _rotateTime = 0.2f; //! durationより短いとダメ(予期せぬ遷移中割り込み) & 固定時間Rotateでないとだめ -> curAnimationで遷移中割り込み可能なので大丈夫そう
 
         CompositeDisposable _disposables = new CompositeDisposable();
         CompositeDisposable _memberChangeDisposables = new CompositeDisposable();
@@ -208,7 +208,7 @@ namespace HexRPG.Battle.Player
             _characterInput.Direction
                 .Subscribe(direction =>
                 {
-                    if (direction.magnitude > 0.1)
+                    if (direction.sqrMagnitude > 0.1)
                     {
                         var canMoveState = (CurState == IDLE || CurState == MOVE || CurState == SKILL_SELECT);
                         if(canMoveState && _acceptDirectionInput) _actionStateController.Execute(new Command { Id = "move" });

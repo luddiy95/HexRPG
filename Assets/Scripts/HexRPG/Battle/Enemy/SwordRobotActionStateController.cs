@@ -4,6 +4,7 @@ using UnityEngine;
 using UniRx;
 using Zenject;
 using System;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
@@ -14,8 +15,8 @@ namespace HexRPG.Battle.Enemy
 
     public class SwordRobotActionStateController : MonoBehaviour, ICharacterActionStateController
     {
-        IBattleObservable _battleObservable;
         IUpdateObservable _updateObservable;
+        IBattleObservable _battleObservable;
         IStageController _stageController;
 
         ITransformController _transformController;
@@ -38,17 +39,21 @@ namespace HexRPG.Battle.Enemy
         ISkillController _skillController;
         ISkillObservable _skillObservable;
 
-        readonly IReactiveProperty<Vector3> _chaseDirection = new ReactiveProperty<Vector3>();
+        int _rotateAngle = 0;
+
+        readonly IReactiveProperty<Vector3> _moveDirection = new ReactiveProperty<Vector3>();
 
         CompositeDisposable _disposables = new CompositeDisposable();
         CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+        const float COMBAT_DISTANCE = 5f;
 
         ActionStateType CurState => _actionStateObservable.CurrentState.Value.Type;
 
         [Inject]
         public void Construct(
-            IBattleObservable battleObservable,
             IUpdateObservable updateObservable,
+            IBattleObservable battleObservable,
             IStageController stageController,
             ITransformController transformController,
             IAnimationController animationController,
@@ -65,8 +70,8 @@ namespace HexRPG.Battle.Enemy
             ISkillObservable skillObservable
         )
         {
-            _battleObservable = battleObservable;
             _updateObservable = updateObservable;
+            _battleObservable = battleObservable;
             _stageController = stageController;
             _transformController = transformController;
             _animationController = animationController;
@@ -89,7 +94,7 @@ namespace HexRPG.Battle.Enemy
             SetUpControl();
 
             _locomotionController.ForceLookRotate(_battleObservable.PlayerLandedHex.transform.position);
-            //StartSequence(_cancellationTokenSource.Token).Forget();
+            StartSequence(_cancellationTokenSource.Token).Forget();
         }
 
         void Update()
@@ -105,28 +110,28 @@ namespace HexRPG.Battle.Enemy
         {
             var idle = NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
+                .AddEvent(new ActionEventCancel("move", MOVE))
                 .AddEvent(new ActionEventCancel("rotate", ROTATE))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
-                .AddEvent(new ActionEventCancel("combat", COMBAT))
                 ;
             _actionStateController.SetInitialState(idle);
 
-            //TODO: CHASEステートを作る必要？
             NewState(MOVE)
                 .AddEvent(new ActionEventPlayMotion(0f))
+                .AddEvent(new ActionEventMove(0f))
                 .AddEvent(new ActionEventCancel("move", MOVE))
-                .AddEvent(new ActionEventCancel("combat", COMBAT))
-                .AddEvent(new ActionEventCancel("skill", SKILL))
+                .AddEvent(new ActionEventCancel("rotate", ROTATE))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
                 ;
 
             NewState(ROTATE)
+                .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventRotate())
-                .AddEvent(new ActionEventCancel("move", MOVE))
+                .AddEvent(new ActionEventCancel("idle", IDLE))
+                .AddEvent(new ActionEventCancel("combat", COMBAT))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
                 ;
 
-            //TODO: Damaged終了してIdleに戻るとき必ず60度単位にする
             NewState(DAMAGED)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventCancel("finishDamaged", IDLE))
@@ -160,18 +165,12 @@ namespace HexRPG.Battle.Enemy
 
         void SetUpControl()
         {
-            // Move
             _updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
-                .Where(_ => _navMeshAgentController.IsExistPath)
-                .Subscribe(_ =>
-                {
-                    var relativePos = _navMeshAgentController.CurSteeringTarget - _transformController.Position;
-                    relativePos.y = 0;
-                    _chaseDirection.Value = relativePos.normalized;
-                })
+                .Subscribe(_ => _navMeshAgentController.NextPosition = _transformController.Position)
                 .AddTo(_disposables);
 
-            _chaseDirection // 方向転換があったとき
+            // Move
+            _moveDirection
                 .Subscribe(_ => _actionStateController.Execute(new Command { Id = "move" }))
                 .AddTo(_disposables);
 
@@ -209,26 +208,38 @@ namespace HexRPG.Battle.Enemy
                 })
                 .AddTo(_disposables);
 
-            // Combat終了
-            _combatObservable.OnFinishCombat
-                .Where(_ => CurState == COMBAT)
+            ////// ステートでの詳細処理 //////
+            
+            // 移動開始/終了
+            _actionStateObservable
+                .OnStart<ActionEventMove>()
                 .Subscribe(_ =>
                 {
-                    _actionStateController.Execute(new Command { Id = "finishCombat" });
+                    if(_moveDirection.Value.sqrMagnitude > 0.1) _locomotionController.ForceLookRotate(_transformController.Position + _moveDirection.Value);
+                    _locomotionController.SetSpeed(_moveDirection.Value);
                 })
                 .AddTo(_disposables);
-
-            ////// ステートでの詳細処理 //////
+            _actionStateObservable
+                .OnEnd<ActionEventMove>()
+                .Subscribe(_ => {
+                    _locomotionController.Stop();
+                }).AddTo(_disposables);
 
             // Rotate
             _actionStateObservable
                 .OnStart<ActionEventRotate>()
-                .Subscribe(_ => _locomotionController.LookRotate60(_battleObservable.PlayerLandedHex.transform.position, 240f))
+                .Subscribe(_ =>
+                {
+                    _rotateAngle = _locomotionController.LookRotate(_battleObservable.OnPlayerSpawn.Value.TransformController.Position, 240f);
+                })
                 .AddTo(_disposables);
 
             _actionStateObservable
                 .OnEnd<ActionEventRotate>()
-                .Subscribe(_ => _locomotionController.StopRotate())
+                .Subscribe(_ =>
+                {
+                    _locomotionController.StopRotate();
+                })
                 .AddTo(_disposables);
 
             // Combat
@@ -260,11 +271,19 @@ namespace HexRPG.Battle.Enemy
                             _animationController.Play("Idle");
                             break;
 
+                        case ROTATE:
+                            if (_rotateAngle < 0) _animationController.Play("RotateLeft");
+                            else _animationController.Play("RotateRight");
+                            break;
+
                         case MOVE:
-                            var euler = Quaternion.LookRotation(_chaseDirection.Value).eulerAngles.y - _transformController.Rotation.eulerAngles.y;
+                            /*
+                            var euler = Quaternion.LookRotation(_moveDirection.Value).eulerAngles.y - _transformController.Rotation.eulerAngles.y;
                             euler = MathUtility.GetIntegerEuler(euler) + 180;
                             var locomotionIndex = ((int)((euler + 22.5) / 45)) % 8;
                             _animationController.Play(AnimationExtensions.MoveClips[locomotionIndex]);
+                            */
+                            _animationController.Play("Movefwd");
                             break;
 
                         case DAMAGED:
@@ -275,6 +294,12 @@ namespace HexRPG.Battle.Enemy
                 .AddTo(_disposables);
         }
 
+        void SetDestination(Hex destinationHex)
+        {
+            _navMeshAgentController.SetDestination(destinationHex.transform.position);
+            _moveDirection.Value = _transformController.Position.GetRelativePosXZ(_navMeshAgentController.CurSteeringTargetPos);
+        }
+
         async UniTaskVoid StartSequence(CancellationToken token)
         {
             while (true)
@@ -282,29 +307,110 @@ namespace HexRPG.Battle.Enemy
                 // Idle
                 await UniTask.Delay(2000, cancellationToken: token);
 
-                // Playerの方へ回転
-                _actionStateController.Execute(new Command { Id = "rotate" });
-                await _locomotionObservable.OnFinishRotate.ToUniTask(useFirstValue: true, cancellationToken: token);
+                ActionStateType breakStateType = NONE;
 
-                // ChaseできればPlayerをChase
-                var curRotateAngle = MathUtility.GetIntegerEuler60(_transformController.Rotation.eulerAngles.y); // Playerの方を向いている
-                var destinationHex = _stageController.GetNearestEnemyHexFromAngle(_battleObservable.PlayerLandedHex, curRotateAngle + 180);
-
-                if (destinationHex != null && _navMeshAgentController.SetDestination(destinationHex.transform.position))
+                //TODO: UpdateTimingいじれる？(200msおきとか)
+                await UniTask.WaitUntil(() =>
                 {
-                    Debug.Log("Chase");
-                }
-                else
-                {
-                    //TODO: 適当に動く
-                }
+                    var landedHex = _transformController.GetLandedHex();
+                    var playerLandedHex = _battleObservable.PlayerLandedHex;
+                    var distance2FromPlayerHex = landedHex.GetDistance2XZ(playerLandedHex); // 自分とPlayerのLandedHex同士の距離
 
-                await UniTask.WaitWhile(() => _navMeshAgentController.IsPathComplete == false, cancellationToken: token);
+                    // Playerが攻撃範囲内
+                    if (Mathf.Sqrt(distance2FromPlayerHex) <= COMBAT_DISTANCE)
+                    {
+                        var relativeDir = _transformController.Position.GetRelativePosXZ(landedHex.transform.position);
+                        if (relativeDir.sqrMagnitude < 0.025f)
+                        {
+                            breakStateType = COMBAT;
+                            return true; //! playerが攻撃範囲内でかつhexの中心に着いた
+                        }
+
+                        _moveDirection.Value = relativeDir;
+                        return false; //! playerが攻撃範囲内だがhexの中心でない
+                    }
+
+                    // DestinationやpathがLiberateによって状況が変わった
+                    var directionHex = TransformExtensions.GetLandedHex(_transformController.Position + _moveDirection.Value.normalized * 0.1f);
+                    if (directionHex.IsPlayerHex)
+                    {
+                        SetDestination(landedHex);
+                        return false;
+                    }
+
+                    // PlayerからCOMBAT_DISTANCEの距離以内のHexでEnemyが移動出来るHexで最も近いHexへ移動
+                    Hex nearestHex = TransformExtensions.GetSurroundedHexList(playerLandedHex, COMBAT_DISTANCE)
+                        .Where(hex => hex.IsPlayerHex == false && _navMeshAgentController.IsExistPath(hex.transform.position))
+                        .OrderBy(hex => hex.GetDistance2XZ(landedHex))
+                        .FirstOrDefault();
+
+                    if (nearestHex != null)
+                    {
+                        SetDestination(nearestHex);
+                        return false; //! Playerに攻撃があたるHexへ移動
+                    }
+
+                    int radius = 0;
+                    var enemyHexList = new List<Hex>();
+                    while (true)
+                    {
+                        var aroundHexList = _stageController.GetAroundHexList(landedHex, radius);
+                        var aroundEnemyHexList = aroundHexList.Where(hex =>
+                            hex.IsPlayerHex == false
+                            && _navMeshAgentController.IsExistPath(hex.transform.position)
+                            && hex.GetDistance2XZ(playerLandedHex) <= distance2FromPlayerHex); // 現在のPlayerLandedHexへの距離より短くなる
+                        enemyHexList.AddRange(aroundEnemyHexList);
+                        if (aroundHexList.Any(hex => hex == playerLandedHex)) break;
+                        ++radius;
+                    }
+
+                    var farestHex = enemyHexList.OrderBy(hex => hex.GetDistance2XZ(playerLandedHex)).First();
+
+                    // 現在のHexから動きようがない
+                    if (farestHex == landedHex)
+                    {
+                        // Hexの中心にいるかどうか
+                        var relativeDir = _transformController.Position.GetRelativePosXZ(landedHex.transform.position);
+                        if (relativeDir.sqrMagnitude < 0.025f)
+                        {
+                            breakStateType = IDLE;
+                            return true; //! 現在のLandedHexから動きようがなくてかつhexの中心にいる
+                        }
+
+                        _moveDirection.Value = relativeDir;
+                        return false; //! 現在のLandedHexから動きようがなくてかつhexの中心でない
+                    }
+
+                    SetDestination(farestHex);
+                    return false; //! なるべくPlayerに近付こうとする
+                });
+
+                switch (breakStateType)
+                {
+                    case IDLE:
+                        if(CurState == MOVE)
+                        {
+                            _actionStateController.Execute(new Command { Id = "rotate" });
+                            await _locomotionObservable.OnFinishRotate.ToUniTask(useFirstValue: true, cancellationToken: token);
+                            _actionStateController.Execute(new Command { Id = "idle" });
+                        } 
+                        break;
+                    case COMBAT:
+                        _actionStateController.Execute(new Command { Id = "rotate" });
+                        await _locomotionObservable.OnFinishRotate.ToUniTask(useFirstValue: true, cancellationToken: token);
+
+                        // Combat
+                        _actionStateController.Execute(new Command { Id = "combat" });
+                        await _combatObservable.OnFinishCombat.ToUniTask(useFirstValue: true, cancellationToken: token);
+                        _actionStateController.Execute(new Command { Id = "finishCombat" }); break;
+                }
 
                 // Skill
+                /*
                 _actionStateController.Execute(new Command { Id = "skill" });
                 await _skillObservable.OnFinishSkill.ToUniTask(useFirstValue: true, cancellationToken: token);
                 _actionStateController.Execute(new Command { Id = "finishSkill" });
+                */
             }
         }
 

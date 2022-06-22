@@ -3673,7 +3673,7 @@ GameObject:
   - component: {fileID: 281911507}
   - component: {fileID: 281911506}
   - component: {fileID: 281911505}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Hex(Clone) (20)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3706,7 +3706,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 1
+  _status: 0
 --- !u!64 &281911506
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -3742,7 +3742,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9699,7 +9699,7 @@ GameObject:
   - component: {fileID: 780607298}
   - component: {fileID: 780607297}
   - component: {fileID: 780607296}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Hex(Clone) (40)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9732,7 +9732,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 1
+  _status: 0
 --- !u!64 &780607297
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -9768,7 +9768,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -10783,7 +10783,7 @@ MonoBehaviour:
   m_LayerMask:
     serializedVersion: 2
     m_Bits: 128
-  m_UseGeometry: 0
+  m_UseGeometry: 1
   m_DefaultArea: 0
   m_IgnoreNavMeshAgent: 1
   m_IgnoreNavMeshObstacle: 1
@@ -12580,7 +12580,7 @@ GameObject:
   - component: {fileID: 982039587}
   - component: {fileID: 982039586}
   - component: {fileID: 982039585}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Hex(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12613,7 +12613,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 0
+  _status: 1
 --- !u!64 &982039586
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -12649,7 +12649,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
+  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -13014,7 +13014,7 @@ GameObject:
   - component: {fileID: 1040142816}
   - component: {fileID: 1040142815}
   - component: {fileID: 1040142814}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Hex(Clone) (21)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13047,7 +13047,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 1
+  _status: 0
 --- !u!64 &1040142815
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -13083,7 +13083,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -15956,7 +15956,7 @@ GameObject:
   - component: {fileID: 1285283937}
   - component: {fileID: 1285283936}
   - component: {fileID: 1285283935}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Hex(Clone) (38)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15989,7 +15989,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 1
+  _status: 0
 --- !u!64 &1285283936
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -16025,7 +16025,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -16674,7 +16674,7 @@ GameObject:
   - component: {fileID: 1349660030}
   - component: {fileID: 1349660029}
   - component: {fileID: 1349660028}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Hex(Clone) (16)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16707,7 +16707,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 1
+  _status: 0
 --- !u!64 &1349660029
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -16743,7 +16743,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -17737,7 +17737,7 @@ GameObject:
   - component: {fileID: 1446473888}
   - component: {fileID: 1446473887}
   - component: {fileID: 1446473886}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Hex(Clone) (29)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17770,7 +17770,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 1
+  _status: 0
 --- !u!64 &1446473887
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -17806,7 +17806,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -20511,7 +20511,7 @@ GameObject:
   - component: {fileID: 1693392062}
   - component: {fileID: 1693392061}
   - component: {fileID: 1693392060}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Hex(Clone) (41)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20544,7 +20544,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 1
+  _status: 0
 --- !u!64 &1693392061
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -20580,7 +20580,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -20800,7 +20800,7 @@ GameObject:
   - component: {fileID: 1731737500}
   - component: {fileID: 1731737499}
   - component: {fileID: 1731737498}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Hex(Clone) (13)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20833,7 +20833,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 1
+  _status: 0
 --- !u!64 &1731737499
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -20869,7 +20869,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -20912,7 +20912,7 @@ GameObject:
   - component: {fileID: 1732797990}
   - component: {fileID: 1732797989}
   - component: {fileID: 1732797988}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Hex(Clone) (39)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20945,7 +20945,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 1
+  _status: 0
 --- !u!64 &1732797989
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -20981,7 +20981,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -21693,7 +21693,7 @@ GameObject:
   - component: {fileID: 1825245588}
   - component: {fileID: 1825245587}
   - component: {fileID: 1825245586}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Hex(Clone) (18)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21726,7 +21726,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 1
+  _status: 0
 --- !u!64 &1825245587
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -21762,7 +21762,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

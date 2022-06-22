@@ -120,9 +120,9 @@ namespace HexRPG.Battle.Player.Member
                 }
             }
 
-            // Idle -> Rotate遷移中はIdle割り込み可能
+            //! Idle -> Rotate遷移中はIdle割り込み可能
             if (curClip == "Idle" && nextClip == "Idle" && _nextPlayingIndex >= 0 &&
-                _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type == AnimationType.Rotate)
+                _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsRotateType())
             {
                 // 割り込み
                 TokenCancel(); // Tokenキャンセルしたらawait後続処理は全て呼ばれない

@@ -71,7 +71,7 @@ namespace HexRPG.Battle.Player
                 .AddTo(this);
         }
 
-        protected override void SetSpeed(Vector3 direction, float speed)
+        protected override void InternalSetSpeed(Vector3 direction, float speed)
         {
             // directionÇÃêÊÇ…êiÇﬂÇÈÇ©Ç«Ç§Ç©
             var worldDirection = (Quaternion.AngleAxis(_cameraAngle, Vector3.up) * direction).normalized;

@@ -10,7 +10,8 @@ namespace HexRPG.Battle.Combat
     //! 飛び道具Combat
     public abstract class AbstractProjectileCombat : AbstractCombatBehaviour
     {
-        bool _alreadyEmitted = false; // 既に攻撃を放ったか
+        bool _isAlreadyEmitted = false; // 既に攻撃を放ったか
+        bool _isAlreadyFinishCombatAnimation = false;
         List<Vector3> _attackColliderPosCache = new List<Vector3>();
 
         CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -22,18 +23,19 @@ namespace HexRPG.Battle.Combat
             // AttackColliderの位置をキャッシュする
             _attackColliders.ForEach(collider => _attackColliderPosCache.Add(collider.transform.localPosition));
 
-            _director.stopped += (_ => OnTimelineStopped());
+            _director.stopped += (_ => OnTimelineStopped().Forget());
         }
 
         protected override void InternalExecute()
         {
             base.InternalExecute();
-            _alreadyEmitted = false;
+            _isAlreadyEmitted = false;
+            _isAlreadyFinishCombatAnimation = false;
         }
 
         protected override void OnAttackEnable(Vector3 colliderVelocity)
         {
-            _alreadyEmitted = false;
+            _isAlreadyEmitted = false;
             _cancellationTokenSource = new CancellationTokenSource(); 
             //TODO: 現状、飛び道具が複数(colliderが複数)の場合は考慮していない(複数の場合はcolliderに応じたCancellationTokenが必要 & ダメージ時に消すColliderを検証する必要)
             _attackColliders.ForEach(collider =>
@@ -47,7 +49,7 @@ namespace HexRPG.Battle.Combat
 
         public virtual void OnEmitComplete()
         {
-            _alreadyEmitted = true;
+            _isAlreadyEmitted = true;
         }
 
         protected override void OnAttackHit()
@@ -66,21 +68,25 @@ namespace HexRPG.Battle.Combat
         // アニメーション中断/正常終了時
         protected override void OnFinishCombat()
         {
+            _isAlreadyFinishCombatAnimation = true;
+
             // 未発射のとき(つまり中断時)のみ、即座にTimeline停止 -> AttackColliderを消す & Combatをfinish
-            if (_alreadyEmitted == false) _director.Stop();
+            if (_isAlreadyEmitted == false) _director.Stop();
 
             // ダメージで中断されたが発射済み: timelineがstopするまで待つ -> timeline stop時にAttackCollider消す & OnFinishCombat発行 -> Damagedステートに遷移済みなので意味ないが...
             // 最後までアニメーション再生済みの場合はそのままTimelineがstopするまで待つ -> Timeline stop時にAttackColliderを消す
         }
 
-        protected virtual void OnTimelineStopped()
+        protected async virtual UniTaskVoid OnTimelineStopped()
         {
             FinishAttack();
             _disposables.Clear();
-            _onFinishCombat.OnNext(Unit.Default);
 
             // AttackColliderを元の位置に戻す
             for (int i = 0; i < _attackColliders.Count; i++) _attackColliders[i].transform.localPosition = _attackColliderPosCache[i];
+
+            await UniTask.WaitUntil(() => _isAlreadyFinishCombatAnimation);
+            _onFinishCombat.OnNext(Unit.Default); // OnFinishCombatを発行するのはanimation側がOnFinishCombatを発行してから
         }
 
         protected override void InternalDispose()

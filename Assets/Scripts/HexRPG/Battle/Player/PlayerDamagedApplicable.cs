@@ -58,7 +58,7 @@ namespace HexRPG.Battle.Player
             base.InternalInit();
 
             //TODO: テストコード
-            DamagedTest();
+            //DamagedTest();
         }
 
         protected override void InternalDoHit(IAttackApplicator attackApplicator)
@@ -88,7 +88,7 @@ namespace HexRPG.Battle.Player
                         var hitData = new HitData
                         {
                             DamagedObject = _damagedOwner,
-                            Damage = 10,
+                            Damage = 0,
                             HitType = HitType.WEAK
                         };
                         if (_memberObservable.CurMember.Value.DieObservable.IsDead.Value == false)
