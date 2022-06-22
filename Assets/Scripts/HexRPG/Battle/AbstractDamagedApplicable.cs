@@ -28,8 +28,6 @@ namespace HexRPG.Battle
 
         protected CompositeDisposable _disposables = new CompositeDisposable();
 
-        bool _isEnemy = false;
-
         void IInitializable.Initialize()
         {
             InternalInit();
