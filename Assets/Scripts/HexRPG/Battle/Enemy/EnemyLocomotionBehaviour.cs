@@ -12,7 +12,7 @@ namespace HexRPG.Battle.Enemy
         Vector3 CurSteeringTargetPos { get; }
         Vector3 NextPosition { set; }
 
-        void ResetPath();
+        bool IsStopped { get; set; }
     }
 
     public class EnemyLocomotionBehaviour : AbstractLocomotionBehaviour, INavMeshAgentController
@@ -24,6 +24,16 @@ namespace HexRPG.Battle.Enemy
         Vector3 INavMeshAgentController.CurSteeringTargetPos => NavMeshAgent.steeringTarget;
 
         Vector3 INavMeshAgentController.NextPosition { set { NavMeshAgent.nextPosition = value; } }
+
+        bool INavMeshAgentController.IsStopped
+        {
+            get => NavMeshAgent.isStopped;
+            set
+            {
+                if (value) NavMeshAgent.ResetPath();
+                NavMeshAgent.isStopped = value;
+            }
+        }
 
         [Inject]
         public void Construct(
@@ -55,11 +65,6 @@ namespace HexRPG.Battle.Enemy
         bool INavMeshAgentController.SetDestination(Vector3 targetPos)
         {
             return NavMeshAgent.SetDestination(targetPos);
-        }
-
-        void INavMeshAgentController.ResetPath()
-        {
-            NavMeshAgent.ResetPath();
         }
     }
 }

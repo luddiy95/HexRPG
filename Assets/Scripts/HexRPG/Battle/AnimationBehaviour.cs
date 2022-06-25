@@ -129,7 +129,8 @@ namespace HexRPG.Battle
                     switch (curAnimationType)
                     {
                         case AnimationType.Idle:
-                            // Idle -> Rotate›› 
+                        case AnimationType.Move:
+                            // Idle, Move›› -> Rotate›› 
                             fadeLength = _durationDataContainer.defaultRotateStartDuration;
                             var rotateStartDurationData = _durationDataContainer.rotateStartDurations.FirstOrDefault(data => data.clip == curClip);
                             if (rotateStartDurationData != null) fadeLength = rotateStartDurationData.duration;

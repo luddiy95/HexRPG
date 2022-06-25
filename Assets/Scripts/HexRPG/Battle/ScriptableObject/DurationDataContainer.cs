@@ -28,7 +28,7 @@ namespace HexRPG.Battle
         }
 
         /// <summary>
-        /// Idle(¡‚Ì‚Æ‚±‚ëIdle‚Ì‚İ) -> Rotate››‘JˆÚ‚ÌDuration
+        /// Idle, Move›› -> Rotate››‘JˆÚ‚ÌDuration
         /// </summary>
         public float defaultRotateStartDuration = 0.25f;
         public List<ClipDurationData> rotateStartDurations = new List<ClipDurationData>();

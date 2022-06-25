@@ -79,7 +79,21 @@ namespace HexRPG.Battle.Enemy
                         var hitData = new HitData
                         {
                             DamagedObject = _damagedOwner,
-                            Damage = 10,
+                            Damage = 0,
+                            HitType = HitType.WEAK
+                        };
+                        if (_dieObservable.IsDead.Value == false)
+                        {
+                            _onHit.OnNext(hitData);
+                            _damagedOwner.Health.Update(-hitData.Damage);
+                        }
+                    }
+                    if (Input.GetKeyDown(KeyCode.F))
+                    {
+                        var hitData = new HitData
+                        {
+                            DamagedObject = _damagedOwner,
+                            Damage = 100,
                             HitType = HitType.WEAK
                         };
                         if (_dieObservable.IsDead.Value == false)
