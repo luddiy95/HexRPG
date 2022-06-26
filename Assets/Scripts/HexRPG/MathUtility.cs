@@ -41,9 +41,7 @@ namespace HexRPG
 
         public static float GetDistance2XZ(this Vector3 self, Vector3 other)
         {
-            var relativePos = other - self;
-            relativePos.y = 0;
-            return relativePos.sqrMagnitude;
+            return self.GetRelativePosXZ(other).sqrMagnitude;
         }
 
         public static float GetDistanceXZ(this Vector3 self, Vector3 other)

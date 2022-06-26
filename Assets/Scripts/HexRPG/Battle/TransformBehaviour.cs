@@ -174,9 +174,7 @@ namespace HexRPG.Battle
         /// <returns></returns>
         public static int GetLookRotationAngleY(this ITransformController transformController, Vector3 targetPos)
         {
-            var relativePos = targetPos - transformController.Position;
-            relativePos.y = 0;
-            return (int)Quaternion.LookRotation(relativePos).eulerAngles.y;
+            return (int)Quaternion.LookRotation(transformController.Position.GetRelativePosXZ(targetPos)).eulerAngles.y;
             //euler = (euler + 30) / 60 * 60 - transformController.RotationAngle;
             //return MathUtility.GetIntegerEuler(euler);
         }
