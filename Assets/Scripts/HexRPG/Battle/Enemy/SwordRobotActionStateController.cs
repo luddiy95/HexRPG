@@ -43,8 +43,10 @@ namespace HexRPG.Battle.Enemy
         Hex _attackableHex = null;
 
         CompositeDisposable _disposables = new CompositeDisposable();
+
         CancellationTokenSource _actionCancellationTokenSource = new CancellationTokenSource();
         CancellationTokenSource _moveCancellationTokenSource = new CancellationTokenSource();
+        CancellationTokenSource _rotateCancellationTokenSource = new CancellationTokenSource();
 
         const float COMBAT_DISTANCE = 5f;
         const int MOVE_SEARCH_INTERVAL = 1200; //(ms)
@@ -219,7 +221,7 @@ namespace HexRPG.Battle.Enemy
                 .OnStart<ActionEventMove>()
                 .Subscribe(_ =>
                 {
-                    if (_moveDirection.Value.sqrMagnitude > 0.1) _locomotionController.ForceLookRotate(_transformController.Position + _moveDirection.Value);
+                    if (_moveDirection.Value.sqrMagnitude > 0.1) _locomotionController.FixTimeLookRotate(_transformController.Position + _moveDirection.Value, 0.1f);
                     _locomotionController.SetSpeed(_moveDirection.Value);
                 })
                 .AddTo(_disposables);
@@ -228,6 +230,7 @@ namespace HexRPG.Battle.Enemy
                 .Subscribe(_ =>
                 {
                     _locomotionController.Stop();
+                    _locomotionController.StopRotate();
                 }).AddTo(_disposables);
 
             // Rotate

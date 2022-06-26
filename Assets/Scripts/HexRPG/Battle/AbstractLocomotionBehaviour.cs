@@ -17,8 +17,9 @@ namespace HexRPG.Battle
         void ForceRotate(int goalRotateAngle);
         
         // posÇÃï˚Ç÷å¸Ç≠ÇÊÇ§Ç…âÒì]ÇµÇƒÇŸÇµÇ¢
-        int LookRotate(Vector3 pos, float eulerVelocity);
+        int LookRotate(Vector3 pos, float eulerVelocity); // åªç›ÇÃâÒì]ÇíÜífÇ∑ÇÈÇ©Ç«Ç§Ç©
         int LookRotate60(Vector3 pos, float eulerVelocity);
+        int FixTimeLookRotate(Vector3 pos, float rotateTime);
         int ForceLookRotate(Vector3 pos);
         int ForceLookRotate60(Vector3 pos);
 
@@ -80,7 +81,15 @@ namespace HexRPG.Battle
             return rotateAngle;
         }
 
-        async UniTaskVoid InternalRotate(int rotateAngle, float rotateTime)
+        int ILocomotionController.FixTimeLookRotate(Vector3 pos, float rotateTime)
+        {
+            var rotateAngle = _transformController.GetLookRotationAngleY(pos) - _transformController.RotationAngle;
+            rotateAngle = MathUtility.GetIntegerEuler(rotateAngle);
+            InternalRotate(rotateAngle, rotateTime).Forget();
+            return rotateAngle;
+        }
+
+        async UniTaskVoid InternalRotate(int rotateAngle, float rotateTime, CancellationTokenSource tokenSource = null)
         {
             float waitTime = Time.timeSinceLevelLoad + rotateTime;
             var startAngleY = _transformController.RotationAngle;
