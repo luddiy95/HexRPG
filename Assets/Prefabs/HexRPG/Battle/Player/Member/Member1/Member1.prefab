@@ -5692,11 +5692,11 @@ PrefabInstance:
     - target: {fileID: 816612680260102943, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _clips.Array.data[0]
       value: 
-      objectReference: {fileID: 7400000, guid: f263fba8b42d3c84f9a91e6290c8f8ed, type: 2}
+      objectReference: {fileID: 7400000, guid: 1894f90e563de7c438463895cc676979, type: 2}
     - target: {fileID: 816612680260102943, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _clips.Array.data[1]
       value: 
-      objectReference: {fileID: 7400000, guid: f45e3b231c8b74d4fb53b14188b6b05c, type: 2}
+      objectReference: {fileID: 7400000, guid: 46f3dcea2237bef42885379d9cc3fbee, type: 2}
     - target: {fileID: 816612680260102943, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _clips.Array.data[2]
       value: 

@@ -39,7 +39,6 @@ namespace HexRPG.Battle.Player
 
         bool _acceptDirectionInput = true;
 
-        int _rotateAngle = 0;
         float _rotateTime = 0.2f; //! durationより短いとダメ(予期せぬ遷移中割り込み) & 固定時間Rotateでないとだめ -> curAnimationで遷移中割り込み可能なので大丈夫そう
 
         CompositeDisposable _disposables = new CompositeDisposable();
@@ -102,14 +101,7 @@ namespace HexRPG.Battle.Player
                         .Where(_ => CurState == DAMAGED)
                         .Subscribe(_ =>
                         {
-                            if(_transformController.RotationAngle == 0)
-                            {
-                                _actionStateController.Execute(new Command { Id = "finishDamaged" });
-                            }
-                            else
-                            {
-                                _actionStateController.Execute(new Command { Id = "rotate" });
-                            }
+                            _actionStateController.Execute(new Command { Id = "finishDamaged" });
                         })
                         .AddTo(_memberChangeDisposables);
 
@@ -142,18 +134,9 @@ namespace HexRPG.Battle.Player
                 .AddEvent(new ActionEventCancel("skillSelect", SKILL_SELECT))
                 ;
 
-            NewState(ROTATE)
-                .AddEvent(new ActionEventPlayMotion(0f))
-                .AddEvent(new ActionEventRotate())
-                .AddEvent(new ActionEventCancel("damaged", DAMAGED))
-                .AddEvent(new ActionEventCancel("skill", SKILL))
-                .AddEvent(new ActionEventCancel("idle", IDLE))
-                ;
-
             NewState(DAMAGED)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
-                .AddEvent(new ActionEventCancel("rotate", ROTATE))
                 .AddEvent(new ActionEventCancel("finishDamaged", IDLE))
                 ;
 
@@ -178,7 +161,6 @@ namespace HexRPG.Battle.Player
             NewState(SKILL)
                 .AddEvent(new ActionEventSkill())
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
-                .AddEvent(new ActionEventCancel("rotate", ROTATE))
                 .AddEvent(new ActionEventCancel("finishSkill", IDLE))
                 ;
 
@@ -292,14 +274,7 @@ namespace HexRPG.Battle.Player
                 .Where(_ => CurState == SKILL)
                 .Subscribe(_ =>
                 {
-                    if(_selectSkillObservable.SelectedSkillRotation == 0)
-                    {
-                        _actionStateController.Execute(new Command { Id = "finishSkill" });
-                    }
-                    else
-                    {
-                        _actionStateController.Execute(new Command { Id = "rotate" });
-                    }
+                    _actionStateController.Execute(new Command { Id = "finishSkill" });
                 })
                 .AddTo(_disposables);
 
@@ -320,11 +295,17 @@ namespace HexRPG.Battle.Player
             // 移動開始/終了
             _actionStateObservable
                 .OnStart<ActionEventMove>()
-                .Subscribe(_ => _locomotionController.SetSpeed(_characterInput.Direction.Value))
+                .Subscribe(_ =>
+                {
+                    var direction = _characterInput.Direction.Value;
+                    _locomotionController.FixTimeLookRotate(_transformController.Position + direction, 0.05f);
+                    _locomotionController.SetSpeed(direction);
+                })
                 .AddTo(_disposables);
             _actionStateObservable
                 .OnEnd<ActionEventMove>()
                 .Subscribe(_ => {
+                    _locomotionController.StopRotate();
                     _locomotionController.Stop();
                 }).AddTo(_disposables);
 
@@ -345,6 +326,7 @@ namespace HexRPG.Battle.Player
                     _acceptDirectionInput = false;
 
                     _locomotionController.SnapHexCenter();
+                    _locomotionController.ForceRotate(0);
                     _selectSkillController.SelectSkill(_characterInput.SelectedSkillIndex.Value);
                 })
                 .AddTo(_disposables);
@@ -353,29 +335,6 @@ namespace HexRPG.Battle.Player
             _actionStateObservable
                 .OnEnd<ActionEventSkillSelect>()
                 .Subscribe(_ => _selectSkillController.ResetSelection())
-                .AddTo(_disposables);
-
-            // 回転開始
-            _actionStateObservable
-                .OnStart<ActionEventRotate>()
-                .Subscribe(_ =>
-                {
-                    switch (PrevState)
-                    {
-                        case DAMAGED:
-                            _rotateAngle = -_transformController.RotationAngle;
-                            break;
-                        case SKILL:
-                            _rotateAngle = -_selectSkillObservable.SelectedSkillRotation;
-                            break;
-                    }
-                    _locomotionController.FixTimeRotate(_rotateAngle, _rotateTime);
-                })
-                .AddTo(_disposables);
-
-            _actionStateObservable
-                .OnEnd<ActionEventRotate>()
-                .Subscribe(_ => _locomotionController.StopRotate()) // Damaged, Die割り込みなど
                 .AddTo(_disposables);
 
             // スキル実行
@@ -393,12 +352,6 @@ namespace HexRPG.Battle.Player
                 .Subscribe(_ => _locomotionController.StopRotate()) // Damaged, Die割り込みなど
                 .AddTo(_disposables);
 
-            // Hexの中心にSnap
-            _actionStateObservable
-                .OnStart<ActionEventSnapHexCenter>()
-                .Subscribe(_ => _locomotionController.SnapHexCenter())
-                .AddTo(_disposables);
-
             // 各モーション再生
             _actionStateObservable
                 .OnStart<ActionEventPlayMotion>()
@@ -412,17 +365,7 @@ namespace HexRPG.Battle.Player
                             break;
 
                         case MOVE:
-                            var direction = _characterInput.Direction.Value;
-                            var euler = Quaternion.LookRotation(direction).eulerAngles.y;
-                            var locomotionIndex = ((int)((euler + 22.5) / 45)) % 8;
-                            _memberObservable.CurMember.Value.AnimationController.Play(AnimationExtensions.MoveClips[locomotionIndex]);
-                            break;
-
-                        case ROTATE:
-                            if (_rotateAngle < 0) _memberObservable.CurMember.Value.AnimationController.Play("RotateLeft");
-                            else _memberObservable.CurMember.Value.AnimationController.Play("RotateRight");
-                            break;
-
+                            _memberObservable.CurMember.Value.AnimationController.Play("Movefwd"); break;
                         case DAMAGED:
                             _memberObservable.CurMember.Value.AnimationController.Play("Damaged");
                             break;

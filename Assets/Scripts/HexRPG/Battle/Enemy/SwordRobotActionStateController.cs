@@ -229,8 +229,8 @@ namespace HexRPG.Battle.Enemy
                 .OnEnd<ActionEventMove>()
                 .Subscribe(_ =>
                 {
-                    _locomotionController.Stop();
                     _locomotionController.StopRotate();
+                    _locomotionController.Stop();
                 }).AddTo(_disposables);
 
             // Rotate
