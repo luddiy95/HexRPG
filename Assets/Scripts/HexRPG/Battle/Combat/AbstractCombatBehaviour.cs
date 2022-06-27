@@ -31,6 +31,7 @@ namespace HexRPG.Battle.Combat
 
         bool _isComboInputEnable = false;
         bool _isComboInputted = false;
+        bool _isComboSuspended = false;
 
         protected IDisposable _attackHitDisposable;
         protected CompositeDisposable _disposables = new CompositeDisposable();
@@ -67,7 +68,11 @@ namespace HexRPG.Battle.Combat
                     }
                 }
             }
-            _attackColliders.ForEach(attackCollider => attackCollider.AttackApplicator = _attackOwner.AttackApplicator);
+            _attackColliders.ForEach(attackCollider =>
+            {
+                attackCollider.AttackApplicator = _attackOwner.AttackApplicator;
+                attackCollider.gameObject.SetActive(false);
+            });
 
             _animationController.OnFinishCombat
                 .Subscribe(_ =>
@@ -90,6 +95,7 @@ namespace HexRPG.Battle.Combat
 
         protected virtual void InternalExecute()
         {
+            _isComboSuspended = false;
             _attackColliders.ForEach(collider => collider.gameObject.SetActive(false));
 
             foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
@@ -101,6 +107,7 @@ namespace HexRPG.Battle.Combat
                     {
                         var behaviour = (clip.asset as VelocityAsset).behaviour;
                         behaviour.Velocity
+                            .Where(_ => !_isComboSuspended) //! Combat中断してIdleへ遷移中はまだOnFinishCombatしていないためCombatステートをExit出来ずVelocity=0にならない
                             .Subscribe(velocity =>
                             {
                                 this.velocity = velocity;
@@ -116,7 +123,7 @@ namespace HexRPG.Battle.Combat
                     {
                         var behaviour = (clip.asset as AttackColliderAsset).behaviour;
                         behaviour.OnAttackEnable
-                            .Subscribe(_ => OnAttackEnable(behaviour.Velocity))
+                            .Subscribe(_ => OnAttackEnable(behaviour.damage, behaviour.Velocity))
                             .AddTo(_disposables);
                         behaviour.OnAttackDisable
                             .Subscribe(_ => OnAttackDisable())
@@ -142,6 +149,7 @@ namespace HexRPG.Battle.Combat
                             {
                                 if (!_isComboInputted)
                                 {
+                                    _isComboSuspended = true;
                                     _animationController.Play("Idle");
                                 }
                                 _isComboInputEnable = false;
@@ -155,12 +163,12 @@ namespace HexRPG.Battle.Combat
             _animationController.Play(_director.playableAsset.name);
         }
 
-        protected virtual void OnAttackEnable(Vector3 colliderVelocity)
+        protected virtual void OnAttackEnable(int damage, Vector3 colliderVelocity)
         {
             // Attack
             var attackSetting = new CombatAttackSetting
             {
-                power = _combatSetting.Damage,
+                power = damage,
                 attackColliders = _attackColliders
             };
             _attackOwner.AttackController.StartAttack(attackSetting);
@@ -191,7 +199,7 @@ namespace HexRPG.Battle.Combat
         {
             // 終了処理
             _isComboInputEnable = false;
-            // velocityはActionStateControllerでCombatStateExit時に0になる
+            //! velocityはActionStateControllerでCombatStateExit時に0になる
 
             _disposables.Clear();
             _director.Stop();

@@ -43,7 +43,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.6, y: 1.9, z: 0.35}
+  m_Size: {x: 0.16, y: 1.63, z: 0.17}
   m_Center: {x: 0, y: 0.75, z: 0}
 --- !u!114 &6673880378274093177
 MonoBehaviour:
@@ -92,10 +92,10 @@ PrefabInstance:
     - target: {fileID: 7187412190281477137, guid: f12c8762a550cc4439cbe3f3dcb7821b, type: 3}
       propertyPath: m_PlayableAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 10e4f807bff27a948a9dc9b7cb22b824, type: 2}
+      objectReference: {fileID: 11400000, guid: ab86af296fc3914499deeef84a4e96b9, type: 2}
     - target: {fileID: 7187412190281477137, guid: f12c8762a550cc4439cbe3f3dcb7821b, type: 3}
       propertyPath: m_SceneBindings.Array.size
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7187412190281477137, guid: f12c8762a550cc4439cbe3f3dcb7821b, type: 3}
       propertyPath: m_SceneBindings.Array.data[0].key
@@ -106,7 +106,19 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -2372264398053752059, guid: 10e4f807bff27a948a9dc9b7cb22b824, type: 2}
     - target: {fileID: 7187412190281477137, guid: f12c8762a550cc4439cbe3f3dcb7821b, type: 3}
+      propertyPath: m_SceneBindings.Array.data[2].key
+      value: 
+      objectReference: {fileID: 2876832283752480545, guid: ab86af296fc3914499deeef84a4e96b9, type: 2}
+    - target: {fileID: 7187412190281477137, guid: f12c8762a550cc4439cbe3f3dcb7821b, type: 3}
+      propertyPath: m_SceneBindings.Array.data[3].key
+      value: 
+      objectReference: {fileID: -2372264398053752059, guid: ab86af296fc3914499deeef84a4e96b9, type: 2}
+    - target: {fileID: 7187412190281477137, guid: f12c8762a550cc4439cbe3f3dcb7821b, type: 3}
       propertyPath: m_SceneBindings.Array.data[1].value
+      value: 
+      objectReference: {fileID: 6673880378274093177}
+    - target: {fileID: 7187412190281477137, guid: f12c8762a550cc4439cbe3f3dcb7821b, type: 3}
+      propertyPath: m_SceneBindings.Array.data[3].value
       value: 
       objectReference: {fileID: 6673880378274093177}
     - target: {fileID: 8199752571978257339, guid: f12c8762a550cc4439cbe3f3dcb7821b, type: 3}

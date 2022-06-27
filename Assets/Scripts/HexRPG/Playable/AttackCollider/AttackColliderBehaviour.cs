@@ -14,6 +14,7 @@ namespace HexRPG.Playable
         public IObservable<Unit> OnAttackDisable => _onAttackDisable;
         readonly ISubject<Unit> _onAttackDisable = new Subject<Unit>();
 
+        public int damage;
         public Vector3 direction;
         public float speed;
 

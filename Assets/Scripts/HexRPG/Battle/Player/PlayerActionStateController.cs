@@ -343,6 +343,8 @@ namespace HexRPG.Battle.Player
                 .Subscribe(_ =>
                 {
                     _acceptDirectionInput = false;
+
+                    _locomotionController.SnapHexCenter();
                     _selectSkillController.SelectSkill(_characterInput.SelectedSkillIndex.Value);
                 })
                 .AddTo(_disposables);

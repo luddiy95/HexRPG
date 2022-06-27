@@ -33,7 +33,7 @@ namespace HexRPG.Battle.Combat
             _isAlreadyFinishCombatAnimation = false;
         }
 
-        protected override void OnAttackEnable(Vector3 colliderVelocity)
+        protected override void OnAttackEnable(int damage, Vector3 colliderVelocity)
         {
             _isAlreadyEmitted = false;
             _cancellationTokenSource = new CancellationTokenSource(); 
@@ -42,7 +42,7 @@ namespace HexRPG.Battle.Combat
             {
                 Emit(_cancellationTokenSource.Token, collider, colliderVelocity).Forget();
             });
-            base.OnAttackEnable(colliderVelocity);
+            base.OnAttackEnable(damage, colliderVelocity);
         }
 
         protected abstract UniTaskVoid Emit(CancellationToken token, AttackCollider collider, Vector3 colliderVelocity);
