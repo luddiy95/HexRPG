@@ -43,7 +43,7 @@ namespace HexRPG.Battle.Player
                 .Skip(1)
                 .Subscribe(member =>
                 {
-                    //TODO: _speed‚ðmember‚²‚Æ‚Ìspeed‚É‚·‚é
+                    _speed = member.MoveSetting.MoveSpeed;
                     _colliderRadius = member.ColliderController.Collider.radius;
                 })
                 .AddTo(this);

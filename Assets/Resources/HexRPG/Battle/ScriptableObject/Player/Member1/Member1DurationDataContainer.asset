@@ -17,11 +17,11 @@ MonoBehaviour:
   defaultRotateStartDuration: 0.25
   rotateStartDurations: []
   defaultBackToIdleDuration: 0.25
-  backToIdleDurations:
-  - clip: standing_melee_combo_attack_ver_2 1
-    duration: 0.45
+  backToIdleDurations: []
   defaultCombatStartDuration: 0.25
-  combatStartDurations: []
+  combatStartDurations:
+  - clip: ComboSword
+    duration: 0.5
   defaultSkillStartDuration: 0.25
   skillStartDurations: []
   defaultDamagedDuration: 0.25

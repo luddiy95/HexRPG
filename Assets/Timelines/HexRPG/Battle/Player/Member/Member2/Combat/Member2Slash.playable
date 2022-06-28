@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AttackColliderAsset
   m_EditorClassIdentifier: 
   behaviour:
-    damage: 10
+    damage: 5
     direction: {x: 0, y: 0, z: 1}
     speed: 8
 --- !u!114 &-972693950217061442

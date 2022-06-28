@@ -292,7 +292,7 @@ namespace HexRPG.Battle.Enemy
             while (true)
             {
                 // Idle
-                await UniTask.Delay(100, cancellationToken: token);
+                await UniTask.Delay(100000, cancellationToken: token);
 
                 // Move
                 _attackableHex = null;

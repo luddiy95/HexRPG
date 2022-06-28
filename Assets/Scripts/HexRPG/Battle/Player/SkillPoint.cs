@@ -34,7 +34,7 @@ namespace HexRPG.Battle.Player
         IReadOnlyReactiveProperty<float> ISkillPoint.ChargeRate => _chargeRate;
         readonly IReactiveProperty<float> _chargeRate = new ReactiveProperty<float>(0);
 
-        float _chargeSpeed = 0.35f;
+        float _chargeSpeed = 0.25f;
 
         CompositeDisposable _disposables = new CompositeDisposable();
 

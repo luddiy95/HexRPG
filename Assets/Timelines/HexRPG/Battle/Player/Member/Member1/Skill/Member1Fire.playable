@@ -261,7 +261,7 @@ MonoBehaviour:
   m_Name: AttackEnableAsset
   m_EditorClassIdentifier: 
   behaviour:
-    damage: 20
+    damage: 100
     attackRange:
     - {x: 1, y: 1}
     - {x: 2, y: 0}
@@ -471,7 +471,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030f85c3f73729f4f976f66ffb23b875, type: 3}
   m_Name: AnimationPlayableAsset
   m_EditorClassIdentifier: 
-  m_Clip: {fileID: 7400000, guid: f263fba8b42d3c84f9a91e6290c8f8ed, type: 2}
+  m_Clip: {fileID: 7400000, guid: f80649e0a68f6dd4b874c0abeec54be7, type: 2}
   m_Position: {x: 0, y: 0, z: 0}
   m_EulerAngles: {x: 0, y: 0, z: 0}
   m_UseTrackMatchFields: 1

@@ -58,7 +58,7 @@ namespace HexRPG.Battle.Player
             base.InternalInit();
 
             //TODO: テストコード
-            DamagedTest();
+            //DamagedTest();
         }
 
         protected override void InternalDoHit(IAttackApplicator attackApplicator)

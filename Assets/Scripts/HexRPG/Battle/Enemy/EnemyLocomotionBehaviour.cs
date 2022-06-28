@@ -17,6 +17,8 @@ namespace HexRPG.Battle.Enemy
 
     public class EnemyLocomotionBehaviour : AbstractLocomotionBehaviour, INavMeshAgentController
     {
+        IMoveSetting _moveSetting;
+
         NavMeshAgent NavMeshAgent => _navMeshAgent ? _navMeshAgent : GetComponent<NavMeshAgent>();
         [Header("NavMeshAgent。nullならこのオブジェクト")]
         [SerializeField] NavMeshAgent _navMeshAgent;
@@ -37,16 +39,21 @@ namespace HexRPG.Battle.Enemy
 
         [Inject]
         public void Construct(
+            IMoveSetting moveSetting,
             ITransformController transformController
         )
         {
+            _moveSetting = moveSetting;
             _transformController = transformController;
         }
 
         protected override void Initialize()
         {
+            _speed = _moveSetting.MoveSpeed;
+
             NavMeshAgent.updateRotation = false;
             NavMeshAgent.updatePosition = false;
+
             base.Initialize();
         }
 

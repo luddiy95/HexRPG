@@ -46,16 +46,42 @@ namespace HexRPG.Battle.Enemy
             //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
             if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
 
-            //! Enemyは「Idle, Rotate」は割り込み可能
-            if (nextClip == "Idle" || (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type.IsRotateType()))
+            var isCurClipIdleLocomotion = (curClip == "Idle" || (_animationTypeMap.TryGetValue(curClip, out AnimationType type) && type.IsLocomotionType()));
+            if (isCurClipIdleLocomotion)
             {
-                TokenCancel();
+                // Idle, Locomotion -> Rotateは「Idle」は割り込み可能
+                var isCrossFadeBtwIdleLocomotionRotate = 
+                    (_nextPlayingIndex >= 0 && _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsRotateType());
+                if (isCrossFadeBtwIdleLocomotionRotate)
+                {
+                    if (nextClip == "Idle")
+                    {
+                        TokenCancel();
 
-                if (_nextPlayingIndex >= 0) fixedRate = rate;
+                        if (_nextPlayingIndex >= 0) fixedRate = rate;
 
-                _cancellationTokenSource = new CancellationTokenSource();
-                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
-                return;
+                        _cancellationTokenSource = new CancellationTokenSource();
+                        InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                        return;
+                    }
+                }
+
+                // Idle, Locomotion -> Locomotionは「Rotate」は割り込み可能
+                var isCrossFadeBtwIdleLocomotion = 
+                    (_nextPlayingIndex >= 0 && _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType());
+                if (isCrossFadeBtwIdleLocomotion)
+                {
+                    if (_animationTypeMap.TryGetValue(nextClip, out type) && type.IsRotateType())
+                    {
+                        TokenCancel();
+
+                        if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                        _cancellationTokenSource = new CancellationTokenSource();
+                        InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                        return;
+                    }
+                }
             }
 
             // Combatですか？

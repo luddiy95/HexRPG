@@ -118,10 +118,10 @@ namespace HexRPG.Battle.Player
             _idle = NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventIdle(0f))
-                .AddEvent(new ActionEventCancel("move", 0.35f, MOVE))
+                .AddEvent(new ActionEventCancel("move", 0.15f, MOVE))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
-                .AddEvent(new ActionEventCancel("combat", 0.35f, COMBAT))
-                .AddEvent(new ActionEventCancel("skillSelect", 0.35f, SKILL_SELECT))
+                .AddEvent(new ActionEventCancel("combat", 0.15f, COMBAT))
+                .AddEvent(new ActionEventCancel("skillSelect", 0.15f, SKILL_SELECT))
                 ;
 
             NewState(MOVE)

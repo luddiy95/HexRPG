@@ -15,6 +15,7 @@ namespace HexRPG.Battle.Player.Member
         ISkillController SkillController { get; }
         IActiveController ActiveController { get; }
         ISkillPoint SkillPoint { get; }
+        IMoveSetting MoveSetting { get; }
     }
 
     public class MemberOwner : MonoBehaviour, IMemberComponentCollection
@@ -34,6 +35,7 @@ namespace HexRPG.Battle.Player.Member
         [Inject] ISkillController IMemberComponentCollection.SkillController { get; }
         [Inject] IActiveController IMemberComponentCollection.ActiveController { get; }
         [Inject] ISkillPoint IMemberComponentCollection.SkillPoint { get; }
+        [Inject] IMoveSetting IMemberComponentCollection.MoveSetting { get; }
 
         public class Factory : PlaceholderFactory<Transform, Vector3, MemberOwner>
         {

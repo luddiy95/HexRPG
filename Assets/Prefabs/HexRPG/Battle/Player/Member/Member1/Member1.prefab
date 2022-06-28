@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1549104396}
   m_LocalRotation: {x: 0.3067917, y: 0.90862113, z: -0.07706891, w: 0.2726664}
-  m_LocalPosition: {x: -0.039, y: 0.067, z: 0.06}
+  m_LocalPosition: {x: -0.011, y: 0.072, z: -0.036}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8225503683262611560}
@@ -5692,11 +5692,11 @@ PrefabInstance:
     - target: {fileID: 816612680260102943, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _clips.Array.data[0]
       value: 
-      objectReference: {fileID: 7400000, guid: 1894f90e563de7c438463895cc676979, type: 2}
+      objectReference: {fileID: 7400000, guid: f80649e0a68f6dd4b874c0abeec54be7, type: 2}
     - target: {fileID: 816612680260102943, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _clips.Array.data[1]
       value: 
-      objectReference: {fileID: 7400000, guid: 46f3dcea2237bef42885379d9cc3fbee, type: 2}
+      objectReference: {fileID: 7400000, guid: 5bd0b99927508c44c9f901c139621384, type: 2}
     - target: {fileID: 816612680260102943, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _clips.Array.data[2]
       value: 
@@ -5791,15 +5791,15 @@ PrefabInstance:
       objectReference: {fileID: 5486576886436897123, guid: b9ff069509ef3384cb043a1e0783177c, type: 3}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[0]._cost
-      value: 3
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[1]._cost
-      value: 2
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[2]._cost
-      value: 5
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[0]._prefab
@@ -5850,12 +5850,16 @@ PrefabInstance:
       value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+      propertyPath: _moveSpeed
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _dieTimeline
       value: 
       objectReference: {fileID: 11400000, guid: 4d57825585c05d24c9aea73bee0f7119, type: 2}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skillPointMax
-      value: 7
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 2717514595689543170, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: m_RootOrder

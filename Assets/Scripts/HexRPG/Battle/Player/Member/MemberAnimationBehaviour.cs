@@ -75,7 +75,7 @@ namespace HexRPG.Battle.Player.Member
 
             // Locomotion->Locomotion‘JˆÚ’†‚ÍuIdle, Combat, SkillvŠ„‚èž‚Ý‰Â”\
             var isCrossFadeBtwLocomotion =
-                (_animationTypeMap.TryGetValue(_playables[_curPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType()) &&
+                (_animationTypeMap.TryGetValue(curClip, out type) && type.IsLocomotionType()) &&
                 (_nextPlayingIndex >= 0 && _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType());
             if (isCrossFadeBtwLocomotion)
             {

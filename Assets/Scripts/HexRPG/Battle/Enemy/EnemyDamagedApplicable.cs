@@ -93,7 +93,7 @@ namespace HexRPG.Battle.Enemy
                         var hitData = new HitData
                         {
                             DamagedObject = _damagedOwner,
-                            Damage = 100,
+                            Damage = 300,
                             HitType = HitType.WEAK
                         };
                         if (_dieObservable.IsDead.Value == false)

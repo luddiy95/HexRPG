@@ -44,8 +44,7 @@ namespace HexRPG.Battle
         IObservable<Unit> ILocomotionObservable.OnFinishRotate => _onFinishRotate;
         readonly ISubject<Unit> _onFinishRotate = new Subject<Unit>();
 
-        //TODO: speed‚Ísetting‚©‚ç‚Æ‚Á‚Ä‚­‚é(Player‚Ìê‡‚ÍMember‚²‚Æ‚ÉˆÙ‚È‚é)
-        protected float _speed = 5f;
+        protected float _speed = 7f;
         protected float _colliderRadius = 0.5f;
 
         CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();

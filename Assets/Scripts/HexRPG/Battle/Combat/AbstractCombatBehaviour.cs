@@ -4,7 +4,6 @@ using UnityEngine.Playables;
 using UnityEngine.Timeline;
 using System;
 using UniRx;
-using Zenject;
 
 namespace HexRPG.Battle.Combat
 {
@@ -12,8 +11,6 @@ namespace HexRPG.Battle.Combat
 
     public abstract class AbstractCombatBehaviour : MonoBehaviour, ICombat, ICombatObservable, IDisposable
     {
-        ICombatSetting _combatSetting;
-
         protected IAttackComponentCollection _attackOwner;
         IAnimationController _animationController;
 
@@ -35,14 +32,6 @@ namespace HexRPG.Battle.Combat
 
         protected IDisposable _attackHitDisposable;
         protected CompositeDisposable _disposables = new CompositeDisposable();
-
-        [Inject]
-        public void Construct(
-            ICombatSetting combatSetting
-        )
-        {
-            _combatSetting = combatSetting;
-        }
 
         void ICombat.Init(IAttackComponentCollection attackOwner, IAnimationController animationController, PlayableAsset timeline)
         {
@@ -123,9 +112,11 @@ namespace HexRPG.Battle.Combat
                     {
                         var behaviour = (clip.asset as AttackColliderAsset).behaviour;
                         behaviour.OnAttackEnable
+                            .Where(_ => !_isComboSuspended)
                             .Subscribe(_ => OnAttackEnable(behaviour.damage, behaviour.Velocity))
                             .AddTo(_disposables);
                         behaviour.OnAttackDisable
+                            .Where(_ => !_isComboSuspended)
                             .Subscribe(_ => OnAttackDisable())
                             .AddTo(_disposables);
                     }
