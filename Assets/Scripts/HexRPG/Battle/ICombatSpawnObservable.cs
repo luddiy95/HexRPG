@@ -6,6 +6,6 @@ namespace HexRPG.Battle
     public interface ICombatSpawnObservable
     {
         ICombatComponentCollection Combat { get; }
-        bool isCombatSpawned { get; }
+        bool IsCombatSpawned { get; }
     }
 }

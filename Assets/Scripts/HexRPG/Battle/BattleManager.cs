@@ -28,8 +28,7 @@ namespace HexRPG.Battle
         IUpdater _updater;
         IUpdateObservable _updateObservable;
         PlayerOwner.Factory _playerFactory;
-        List<EnemyOwner.Factory> _enemyFactories;
-        ISpawnSettings _spawnSettings;
+        IPlayerSpawnSetting _playerSpawnSetting;
 
         IReadOnlyReactiveProperty<IPlayerComponentCollection> IBattleObservable.OnPlayerSpawn => _onPlayerSpawn;
         readonly IReactiveProperty<IPlayerComponentCollection> _onPlayerSpawn = new ReactiveProperty<IPlayerComponentCollection>();
@@ -46,6 +45,14 @@ namespace HexRPG.Battle
         IReadOnlyReactiveCollection<IEnemyComponentCollection> IBattleObservable.EnemyList => _enemyList;
         readonly IReactiveCollection<IEnemyComponentCollection> _enemyList = new ReactiveCollection<IEnemyComponentCollection>();
 
+        /// <summary>
+        /// 各Enemyの「向かおうとしている目的地 or hexの真ん中で静止している状態のLandedHex」
+        /// </summary>
+        List<Hex> IBattleObservable.EnemyDestinationHexList => _enemyDestinationHexList;
+        List<Hex> _enemyDestinationHexList = new List<Hex>();
+
+        ITowerComponentCollection[] _towers;
+
         CinemachineBrain IBattleObservable.CinemachineBrain => _cinemachineBrain;
         [SerializeField] CinemachineBrain _cinemachineBrain;
 
@@ -55,7 +62,6 @@ namespace HexRPG.Battle
         [SerializeField] CinemachineTargetGroup _targetGroup;
 
         [SerializeField] Transform _playerRoot;
-        [SerializeField] Transform _enemyRoot;
 
         [SerializeField] NavMeshSurface _enemySurface;
 
@@ -66,14 +72,13 @@ namespace HexRPG.Battle
             IUpdater updater,
             IUpdateObservable updateObservable,
             PlayerOwner.Factory playerFactory,
-            List<EnemyOwner.Factory> enemyFactories,
-            ISpawnSettings spawnSettings)
+            IPlayerSpawnSetting playerSpawnSetting
+        )
         {
             _updater = updater;
             _updateObservable = updateObservable;
             _playerFactory = playerFactory;
-            _enemyFactories = enemyFactories;
-            _spawnSettings = spawnSettings;
+            _playerSpawnSetting = playerSpawnSetting;
         }
 
         void Start()
@@ -85,11 +90,9 @@ namespace HexRPG.Battle
         {
             await PlayStartSequence(token);
 
-            SetFinishGameRule();
+            await PlayEndSequence(token);
 
-            await UniTask.WaitWhile(() => _resultType == GameResultType.NONE);
-
-            PlayEndSequence().Forget();
+            PlayResultSequence().Forget();
         }
 
         async UniTask PlayStartSequence(CancellationToken token)
@@ -100,7 +103,7 @@ namespace HexRPG.Battle
 
             await SpawnPlayer(token);
 
-            await SpawnEnemies(token);
+            SetupTowers();
 
             _onBattleStart.OnNext(Unit.Default);
             
@@ -111,8 +114,7 @@ namespace HexRPG.Battle
 
         async UniTask SpawnPlayer(CancellationToken token)
         {
-            var playerSpawnSetting = _spawnSettings.PlayerSpawnSetting;
-            var playerOwner = _playerFactory.Create(_playerRoot, playerSpawnSetting.SpawnHex.transform.position) as IPlayerComponentCollection;
+            var playerOwner = _playerFactory.Create(_playerRoot, _playerSpawnSetting.SpawnSetting.SpawnHex.transform.position) as IPlayerComponentCollection;
 
             var memberController = playerOwner.MemberController;
             await memberController.SpawnAllMember(token);
@@ -137,55 +139,79 @@ namespace HexRPG.Battle
             _onPlayerSpawn.Value = playerOwner;
         }
 
-        async UniTask SpawnEnemies(CancellationToken token)
+        void SetupTowers()
         {
-            var enemySpawnSettings = _spawnSettings.EnemySpawnSettings;
-            for(int i = 0; i < enemySpawnSettings.Length; i++)
+            _towers = GetComponentsInChildren<ITowerComponentCollection>();
+
+            Array.ForEach(_towers, tower =>
             {
-                var enemy = _enemyFactories[i].Create(_enemyRoot, enemySpawnSettings[i].SpawnHex.transform.position);
-                _enemyList.Add(enemy);
+                var enemySpawnObservable = tower.EnemySpawnObservable;
+                enemySpawnObservable.EnemyList.ObserveAdd()
+                    .Subscribe(addEvt =>
+                    {
+                        var enemyOwner = addEvt.Value;
 
-                // enemyが死んだらListからRemove
-                if (enemy is IEnemyComponentCollection enemyOwner)
-                {
-                    enemyOwner.DieObservable.OnFinishDie
-                        .Subscribe(_ =>
-                        {
-                            _enemyList.Remove(enemyOwner);
-                            Destroy(enemy.gameObject);
-                        })
-                        .AddTo(this);
-                }
-            }
+                        CompositeDisposable enemyDisposables = new CompositeDisposable();
 
-            await UniTask.WaitUntil(() => _enemyList.All(enemy => enemy.CombatSpawnObservable.isCombatSpawned), cancellationToken: token);
-            await UniTask.WaitUntil(() => _enemyList.All(enemy => enemy.SkillSpawnObservable.IsAllSkillSpawned), cancellationToken: token);
+                        // enemyがLiberateしたらNavMeshを再Bake
+                        enemyOwner.LiberateObservable.SuccessLiberateHexList
+                            .Subscribe(_ => _enemySurface.BuildNavMesh())
+                            .AddTo(enemyDisposables);
 
-            foreach (var enemy in _enemyList) enemy.AnimationController.Init();
-            foreach (var enemy in _enemyList) enemy.CharacterActionStateController.Init(); // 諸々の初期化が終わってからActionStateControllerを初期化した方が良い
+                        var navMeshAgentController = enemyOwner.NavMeshAgentController;
+                        navMeshAgentController.CurDestination
+                            .Pairwise()
+                            .Subscribe(pair =>
+                            {
+                                Hex prevDestination = pair.Previous, curDestination = pair.Current;
 
-            foreach (var enemy in _enemyList) _onEnemySpawn.OnNext(enemy);
+                                if (prevDestination != null) _enemyDestinationHexList.Remove(prevDestination);
+                                if (curDestination != null) _enemyDestinationHexList.Add(curDestination);
+                            })
+                            .AddTo(enemyDisposables);
+
+                        enemyOwner.DieObservable.IsDead
+                            .Where(isDead => isDead)
+                            .Subscribe(_ =>
+                            {
+                                enemyDisposables.Dispose();
+                                //TODO: disposeしてからremoveした方が良い？
+                            })
+                            .AddTo(enemyDisposables);
+
+                        _onEnemySpawn.OnNext(enemyOwner); //TODO: 確認
+                        _enemyList.Add(enemyOwner);
+                    })
+                    .AddTo(this);
+                enemySpawnObservable.EnemyList.ObserveRemove()
+                    .Subscribe(removeEvt => _enemyList.Remove(removeEvt.Value))
+                    .AddTo(this);
+
+                tower.TowerController.Init();
+            });
         }
 
-        async UniTask PlayEndSequence()
+        //TODO: FinishRule実装
+        async UniTask PlayEndSequence(CancellationToken token)
+        {
+            _onPlayerSpawn.Value.DieObservable.OnFinishDie
+                .Subscribe(_ => _resultType = GameResultType.LOSE)
+                .AddTo(this);
+
+            await UniTask.WaitUntil(
+                () => _resultType == GameResultType.LOSE || _towers.All(tower => tower.TowerObservable.TowerType.Value == TowerType.PLAYER),
+                cancellationToken: token);
+
+            if (_resultType == GameResultType.NONE) _resultType = GameResultType.WIN;
+        }
+
+        async UniTask PlayResultSequence()
         {
             switch (_resultType)
             {
                 case GameResultType.WIN: Debug.Log("WIN"); break;
                 case GameResultType.LOSE: Debug.Log("LOSE"); break;
             }
-        }
-
-        void SetFinishGameRule()
-        {
-            _onPlayerSpawn.Value.DieObservable.OnFinishDie
-                .Subscribe(_ => _resultType = GameResultType.LOSE)
-                .AddTo(this);
-
-            _enemyList.ObserveCountChanged()
-                .Where(_ => _enemyList.Count == 0)
-                .Subscribe(_ => _resultType = GameResultType.WIN)
-                .AddTo(this);
         }
     }
 }

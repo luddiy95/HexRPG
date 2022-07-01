@@ -7,5 +7,6 @@ namespace HexRPG.Battle
         IAttackController AttackController { get; }
         IAttackObservable AttackObservable { get; }
         IDamageApplicable DamageApplicable { get; }
+        ILiberateObservable LiberateObservable { get; }
     }
 }

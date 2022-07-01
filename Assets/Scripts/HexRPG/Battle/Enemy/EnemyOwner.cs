@@ -6,6 +6,9 @@ namespace HexRPG.Battle.Enemy
 {
     public interface IEnemyComponentCollection : IAttackComponentCollection
     {
+        INavMeshAgentController NavMeshAgentController { get; }
+        IActiveController ActiveController { get; }
+        IDieController DieController { get; }
         IAnimationController AnimationController { get; }
         ICombatSpawnObservable CombatSpawnObservable { get; }
         ICombatController CombatController { get; }
@@ -27,7 +30,11 @@ namespace HexRPG.Battle.Enemy
         [Inject] IAttackController IAttackComponentCollection.AttackController { get; }
         [Inject] IAttackObservable IAttackComponentCollection.AttackObservable { get; }
         [Inject] IDamageApplicable IAttackComponentCollection.DamageApplicable { get; }
+        [Inject] ILiberateObservable IAttackComponentCollection.LiberateObservable { get; }
 
+        [Inject] INavMeshAgentController IEnemyComponentCollection.NavMeshAgentController { get; }
+        [Inject] IActiveController IEnemyComponentCollection.ActiveController { get; }
+        [Inject] IDieController IEnemyComponentCollection.DieController { get; }
         [Inject] IAnimationController IEnemyComponentCollection.AnimationController { get; }
         [Inject] ICombatSpawnObservable IEnemyComponentCollection.CombatSpawnObservable { get; }
         [Inject] ICombatController IEnemyComponentCollection.CombatController { get; }
@@ -37,17 +44,10 @@ namespace HexRPG.Battle.Enemy
         //TODO: Decoratoróp
         [Inject] IActionStateObservable IEnemyComponentCollection.ActionStateObservable { get; }
 
-        [Inject]
-        public void Construct(
-            IBattleObservable battleObservable,
-            IActiveController activeController
-        )
+        void OnDestroy()
         {
-            battleObservable.OnBattleStart
-                .Subscribe(_ => {
-                    activeController.SetActive(true);
-                })
-                .AddTo(this);
+            //! runtimeèIóπéû
+            (this as IEnemyComponentCollection).DieController.ForceDie();
         }
 
         public class Factory : PlaceholderFactory<Transform, Vector3, EnemyOwner>

@@ -54,8 +54,7 @@ namespace HexRPG.Battle.Player
                 .Subscribe(attackRange =>
                 {
                     var isExistAliveEnemyInAttackRange =
-                        _battleObservable.EnemyList.Any(enemy =>
-                            attackRange.Contains(enemy.TransformController.GetLandedHex()) && !enemy.DieObservable.IsDead.Value);
+                        _battleObservable.EnemyList.Any(enemy => attackRange.Contains(enemy.TransformController.GetLandedHex()));
                     if(!isExistAliveEnemyInAttackRange) _liberateController.Liberate(attackRange);
                 })
                 .AddTo(_disposables);

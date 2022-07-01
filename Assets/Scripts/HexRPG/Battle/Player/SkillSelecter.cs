@@ -82,9 +82,9 @@ namespace HexRPG.Battle.Player
 
                                 break;
                             case SkillCenterType.EIM_ENEMY:
-                                var enemyList = _battleObservable.EnemyList.Where(enemy => enemy.DieObservable.IsDead.Value == false).ToArray();
+                                var enemyList = _battleObservable.EnemyList;
                                 //TODO: EnemyÇ™Ç¢Ç»Ç©Ç¡ÇΩèÍçá
-                                _skillCenter = enemyList[_duplicateSelectedCount % enemyList.Length].TransformController.GetLandedHex();
+                                _skillCenter = enemyList[_duplicateSelectedCount % enemyList.Count].TransformController.GetLandedHex();
                                 var worldAngleY = _transformController.GetLookRotationAngleY(_skillCenter.transform.position);
                                 _selectedSkillRotation = MathUtility.GetIntegerEuler60(worldAngleY - _transformController.DefaultRotation);
                                 break;

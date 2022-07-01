@@ -24,6 +24,19 @@ namespace HexRPG.Battle.Combat
         Vector3 ICombat.Velocity => velocity;
         Vector3 velocity = Vector3.zero;
 
+        Transform ICombat.AttackColliderRoot
+        {
+            set
+            {
+                _attackColliders.ForEach(attackCollider =>
+                {
+                    attackCollider.transform.SetParent(value);
+                    attackCollider.transform.localPosition = Vector3.zero;
+                    attackCollider.transform.localRotation = Quaternion.identity;
+                });
+            }
+        }
+
         protected List<AttackCollider> _attackColliders = new List<AttackCollider>();
 
         bool _isComboInputEnable = false;
@@ -113,11 +126,17 @@ namespace HexRPG.Battle.Combat
                         var behaviour = (clip.asset as AttackColliderAsset).behaviour;
                         behaviour.OnAttackEnable
                             .Where(_ => !_isComboSuspended)
-                            .Subscribe(_ => OnAttackEnable(behaviour.damage, behaviour.Velocity))
+                            .Subscribe(_ =>
+                            {
+                                OnAttackEnable(behaviour.damage, behaviour.Velocity);
+                            })
                             .AddTo(_disposables);
                         behaviour.OnAttackDisable
                             .Where(_ => !_isComboSuspended)
-                            .Subscribe(_ => OnAttackDisable())
+                            .Subscribe(_ =>
+                            {
+                                OnAttackDisable();
+                            })
                             .AddTo(_disposables);
                     }
                 }
@@ -156,6 +175,11 @@ namespace HexRPG.Battle.Combat
 
         protected virtual void OnAttackEnable(int damage, Vector3 colliderVelocity)
         {
+            // hitŒŸ’m
+            _attackHitDisposable?.Dispose();
+            _attackHitDisposable = _attackOwner.AttackObservable.OnAttackHit
+                .Subscribe(_ => OnAttackHit());
+
             // Attack
             var attackSetting = new CombatAttackSetting
             {
@@ -163,11 +187,6 @@ namespace HexRPG.Battle.Combat
                 attackColliders = _attackColliders
             };
             _attackOwner.AttackController.StartAttack(attackSetting);
-
-            // hitŒŸ’m
-            _attackHitDisposable?.Dispose();
-            _attackHitDisposable = _attackOwner.AttackObservable.OnAttackHit
-                .Subscribe(_ => OnAttackHit());
         }
 
         protected virtual void OnAttackHit()

@@ -11,7 +11,10 @@ namespace HexRPG.Battle.HUD
             GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
 
             character.DieObservable.OnFinishDie // IsDead時にDestroyすると死ぬ直前のダメージもすぐ消えてしまう
-                .Subscribe(_ => Destroy(gameObject))
+                .Subscribe(_ =>
+                {
+                    Destroy(gameObject);
+                })
                 .AddTo(this);
 
             for (int i = 0; i < transform.childCount; i++)

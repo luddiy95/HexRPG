@@ -12,11 +12,11 @@ namespace HexRPG.Battle
     public interface ICombatEquipment
     {
         GameObject EquipmentPrefab { get; }
+        Transform EquipmentRoot { get; }
 
         CombatType CombatType { get; }
         GameObject CombatPrefab { get; }
         
-        Transform SpawnRoot { get; }
         PlayableAsset Timeline { get; }
     }
 }

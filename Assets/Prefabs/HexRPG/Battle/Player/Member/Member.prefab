@@ -330,7 +330,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6885623368119258436}
   m_Layer: 0
-  m_Name: ProjectileCombatRoot
+  m_Name: CombatRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

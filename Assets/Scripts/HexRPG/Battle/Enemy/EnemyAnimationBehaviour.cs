@@ -66,12 +66,12 @@ namespace HexRPG.Battle.Enemy
                     }
                 }
 
-                // Idle, Locomotion -> Locomotionは「Rotate」は割り込み可能
+                // Idle, Locomotion -> Locomotionは「Idle, Rotate」は割り込み可能
                 var isCrossFadeBtwIdleLocomotion = 
                     (_nextPlayingIndex >= 0 && _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType());
                 if (isCrossFadeBtwIdleLocomotion)
                 {
-                    if (_animationTypeMap.TryGetValue(nextClip, out type) && type.IsRotateType())
+                    if (nextClip == "Idle" || _animationTypeMap.TryGetValue(nextClip, out type) && type.IsRotateType())
                     {
                         TokenCancel();
 

@@ -8,13 +8,18 @@ using System;
 
 namespace HexRPG.Battle
 {
+    public interface IDieController
+    {
+        void ForceDie();
+    }
+
     public interface IDieObservable
     {
         IReadOnlyReactiveProperty<bool> IsDead { get; }
         IObservable<Unit> OnFinishDie { get; }
     }
 
-    public class DieBehaviour : MonoBehaviour, IDieObservable
+    public class DieBehaviour : MonoBehaviour, IDieController, IDieObservable
     {
         IHealth _health;
         IDieSetting _dieSetting;
@@ -55,13 +60,15 @@ namespace HexRPG.Battle
 
             _health.Current
                 .Where(health => health <= 0)
-                .Subscribe(_ =>
-                {
-                    _isDead.Value = true;
-                    _director.Play();
-                    _animationController.Play("Die");
-                })
+                .Subscribe(_ => Die())
                 .AddTo(this);
+        }
+
+        void Die()
+        {
+            _isDead.Value = true;
+            _director.Play();
+            _animationController.Play("Die");
         }
 
         async UniTaskVoid FinishDie(CancellationToken token)
@@ -69,6 +76,11 @@ namespace HexRPG.Battle
             await UniTask.Delay(2000);
 
             _onFinishDie.OnNext(Unit.Default);
+        }
+
+        void IDieController.ForceDie()
+        {
+            if(_isDead.Value == false) Die();
         }
     }
 }

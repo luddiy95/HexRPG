@@ -22,7 +22,7 @@ namespace HexRPG.Battle.Enemy
         ICombatComponentCollection ICombatSpawnObservable.Combat => _combat;
         ICombatComponentCollection _combat;
 
-        bool ICombatSpawnObservable.isCombatSpawned => _isCombatSpawned;
+        bool ICombatSpawnObservable.IsCombatSpawned => _isCombatSpawned;
         bool _isCombatSpawned = false;
 
         CompositeDisposable _disposables = new CompositeDisposable();
@@ -52,14 +52,11 @@ namespace HexRPG.Battle.Enemy
 
             if (_attackOwner is IEnemyComponentCollection enemyOwner)
             {
-                _combat = _combatEquipment.CombatType switch
-                {
-                    CombatType.PROXIMITY => _combatFactories[0].Create(_combatEquipment.SpawnRoot, Vector3.zero),
-                    CombatType.PROJECTILE => _combatFactories[0].Create(enemyOwner.TransformController.SpawnRootTransform("Combat"), Vector3.zero),
-                    _ => throw new InvalidOperationException()
-                };
+                _combat = _combatFactories[0].Create(enemyOwner.TransformController.SpawnRootTransform("Combat"), Vector3.zero);
 
                 _combat.Combat.Init(_attackOwner, enemyOwner.AnimationController, _combatEquipment.Timeline);
+                if (_combatEquipment.CombatType == CombatType.PROXIMITY) _combat.Combat.AttackColliderRoot = _combatEquipment.EquipmentRoot;
+
                 _isCombatSpawned = true;
             }
         }
@@ -92,7 +89,7 @@ namespace HexRPG.Battle.Enemy
 
         void IDisposable.Dispose()
         {
-
+            _disposables.Dispose();
         }
     }
 }

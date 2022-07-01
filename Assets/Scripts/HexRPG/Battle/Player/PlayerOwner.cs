@@ -7,7 +7,6 @@ namespace HexRPG.Battle.Player
     {
         IMemberController MemberController { get; }
         IMemberObservable MemberObservable { get; }
-        ILiberateObservable LiberateObservable { get; }
         ICharacterActionStateController CharacterActionStateController { get; }
         ISelectSkillObservable SelectSkillObservable { get; }
 
@@ -26,10 +25,10 @@ namespace HexRPG.Battle.Player
         [Inject] IAttackController IAttackComponentCollection.AttackController { get; }
         [Inject] IAttackObservable IAttackComponentCollection.AttackObservable { get; }
         [Inject] IDamageApplicable IAttackComponentCollection.DamageApplicable { get; }
+        [Inject] ILiberateObservable IAttackComponentCollection.LiberateObservable { get; }
 
         [Inject] IMemberController IPlayerComponentCollection.MemberController { get; }
         [Inject] IMemberObservable IPlayerComponentCollection.MemberObservable { get; }
-        [Inject] ILiberateObservable IPlayerComponentCollection.LiberateObservable { get; }
         [Inject] ICharacterActionStateController IPlayerComponentCollection.CharacterActionStateController { get; }
         [Inject] ISelectSkillObservable IPlayerComponentCollection.SelectSkillObservable { get; }
 

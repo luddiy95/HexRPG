@@ -2375,7 +2375,7 @@ PrefabInstance:
       objectReference: {fileID: 4228731520586978641}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _name
-      value: SwordRobot
+      value: SlashRobot
       objectReference: {fileID: 0}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _attribute
@@ -2473,6 +2473,10 @@ PrefabInstance:
       propertyPath: _components.Array.data[10]
       value: 
       objectReference: {fileID: 3058538189781051385}
+    - target: {fileID: 6690535615087434134, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
+      propertyPath: m_ObstacleAvoidanceType
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7135533358454013842, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _combatType
       value: 1
@@ -2491,7 +2495,7 @@ PrefabInstance:
       objectReference: {fileID: 4318426107045864289}
     - target: {fileID: 8860857860763353368, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: m_Name
-      value: SwordRobot
+      value: SlashRobot
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 8463418554706351464, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}

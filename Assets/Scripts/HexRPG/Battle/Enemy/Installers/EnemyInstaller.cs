@@ -14,15 +14,15 @@ namespace HexRPG.Battle.Enemy
         [Inject] Vector3 _spawnPos;
 
         GameObject ICombatEquipment.EquipmentPrefab => _equipmentPrefab;
+        Transform ICombatEquipment.EquipmentRoot => _equipmentRoot;
         CombatType ICombatEquipment.CombatType => _combatType;
         GameObject ICombatEquipment.CombatPrefab => _combatPrefab;
-        Transform ICombatEquipment.SpawnRoot => _combatSpawnRoot;
         PlayableAsset ICombatEquipment.Timeline => _combatTimeline;
         [Header("’ÊíUŒ‚")]
         [SerializeField] GameObject _equipmentPrefab;
         [SerializeField] CombatType _combatType;
         [SerializeField] GameObject _combatPrefab;
-        [SerializeField] Transform _combatSpawnRoot;
+        [SerializeField] Transform _equipmentRoot;
         [SerializeField] PlayableAsset _combatTimeline;
 
         SkillAsset[] ISkillsEquipment.Skills => _skills;
@@ -43,6 +43,7 @@ namespace HexRPG.Battle.Enemy
             Container.BindInterfacesTo<EnemySkillExecuter>().AsSingle();
 
             Container.BindInterfacesTo<AttackController>().AsSingle();
+            Container.BindInterfacesTo<Liberater>().AsSingle();
 
             Container.BindInterfacesTo<EnemyDamagedApplicable>().AsSingle();
 

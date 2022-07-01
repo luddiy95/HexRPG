@@ -76,7 +76,7 @@ namespace HexRPG.Battle.Player
 
             // 全てのCombat/Skillが生成されるのを待つ
             await UniTask.WaitUntil(
-                () => _memberList.All(member => member.CombatSpawnObservable.isCombatSpawned && member.SkillSpawnObservable.IsAllSkillSpawned),
+                () => _memberList.All(member => member.CombatSpawnObservable.IsCombatSpawned && member.SkillSpawnObservable.IsAllSkillSpawned),
                 cancellationToken: token);
 
             // 各MemberのAnimationBehaviour初期化(MemberのAnimator, Combat, Skillが必要)

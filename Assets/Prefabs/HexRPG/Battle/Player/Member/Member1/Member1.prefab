@@ -5750,6 +5750,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5818886393387851045, guid: 659f94541e8ac9144aa4a11d3131d061, type: 3}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+      propertyPath: _equipmentRoot
+      value: 
+      objectReference: {fileID: 1549104397}
+    - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _combat._prefab
       value: 
       objectReference: {fileID: 6192599650436789701, guid: e14331e5974de344aa10ac47ec65328b, type: 3}
@@ -5843,7 +5847,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _healthMax
-      value: 100
+      value: 1000000000
       objectReference: {fileID: 0}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _mentalMax

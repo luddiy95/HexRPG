@@ -1,15 +1,22 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System;
+using UniRx;
 using Zenject;
 
 namespace HexRPG.Battle.Enemy
 {
+    using Stage;
+
     public interface INavMeshAgentController
     {
         bool IsExistPath(Vector3 destination);
 
-        bool SetDestination(Vector3 targetPos);
+        void SetDestination(Hex destination);
+        IReadOnlyReactiveProperty<Hex> CurDestination { get; }
+
         Vector3 CurSteeringTargetPos { get; }
+
         Vector3 NextPosition { set; }
 
         bool IsStopped { get; set; }
@@ -23,19 +30,20 @@ namespace HexRPG.Battle.Enemy
         [Header("NavMeshAgent。nullならこのオブジェクト")]
         [SerializeField] NavMeshAgent _navMeshAgent;
 
+        IReadOnlyReactiveProperty<Hex> INavMeshAgentController.CurDestination => _curDestination;
+        readonly IReactiveProperty<Hex> _curDestination = new ReactiveProperty<Hex>();
+
         Vector3 INavMeshAgentController.CurSteeringTargetPos => NavMeshAgent.steeringTarget;
 
         Vector3 INavMeshAgentController.NextPosition { set { NavMeshAgent.nextPosition = value; } }
 
         bool INavMeshAgentController.IsStopped
         {
-            get => NavMeshAgent.isStopped;
-            set
-            {
-                if (value) NavMeshAgent.ResetPath();
-                NavMeshAgent.isStopped = value;
-            }
+            get => _isStopped;
+            set => _isStopped = value;
         }
+
+        bool _isStopped = true;
 
         [Inject]
         public void Construct(
@@ -69,9 +77,11 @@ namespace HexRPG.Battle.Enemy
             return path.status == NavMeshPathStatus.PathComplete;
         }
 
-        bool INavMeshAgentController.SetDestination(Vector3 targetPos)
+        void INavMeshAgentController.SetDestination(Hex destination)
         {
-            return NavMeshAgent.SetDestination(targetPos);
+            _curDestination.Value = destination;
+            if (destination == null) return;
+            NavMeshAgent.SetDestination(destination.transform.position); //TODO: landedHexでも大丈夫か
         }
     }
 }

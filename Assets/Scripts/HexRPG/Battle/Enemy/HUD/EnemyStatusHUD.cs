@@ -42,7 +42,10 @@ namespace HexRPG.Battle.Enemy.HUD
             {
                 character.DieObservable.IsDead
                     .Where(isDead => isDead)
-                    .Subscribe(_ => Destroy(gameObject))
+                    .Subscribe(_ =>
+                    {
+                        Destroy(gameObject);
+                    })
                     .AddTo(this);
 
                 if(_healthGauge.TryGetComponent(out ICharacterHUD hud)) hud.Bind(character);
