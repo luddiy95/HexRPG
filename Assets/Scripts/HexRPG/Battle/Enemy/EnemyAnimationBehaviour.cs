@@ -10,7 +10,7 @@ using Cysharp.Threading.Tasks;
 
 namespace HexRPG.Battle.Enemy
 {
-    public class EnemyAnimationBehaviour : AnimationBehaviour, IAnimationController
+    public class EnemyAnimationBehaviour : AbstractAnimationBehaviour, IAnimationController
     {
         IObservable<Unit> IAnimationController.OnFinishDamaged => _onFinishDamaged;
 

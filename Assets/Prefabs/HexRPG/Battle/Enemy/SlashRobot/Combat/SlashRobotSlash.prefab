@@ -81,14 +81,33 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5712731543894596007, guid: fecad0b692e4c0a4cbf31bb7ec5239e4, type: 3}
       propertyPath: m_Name
-      value: SwordRobotSlash
+      value: SlashRobotSlash
       objectReference: {fileID: 0}
     - target: {fileID: 6273665273868470408, guid: fecad0b692e4c0a4cbf31bb7ec5239e4, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 6476069211142586210, guid: fecad0b692e4c0a4cbf31bb7ec5239e4, type: 3}
+      propertyPath: _components.Array.data[2]
+      value: 
+      objectReference: {fileID: 3617850710361078147}
+    - target: {fileID: 8279713589920547051, guid: fecad0b692e4c0a4cbf31bb7ec5239e4, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[0].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fecad0b692e4c0a4cbf31bb7ec5239e4, type: 3}
+--- !u!114 &3617850710361078147 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1948241103009130629, guid: fecad0b692e4c0a4cbf31bb7ec5239e4, type: 3}
+  m_PrefabInstance: {fileID: 2971455443653349638}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4869cfb9b814f247a904484dbae5ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3036937095597836111 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 223461209486857801, guid: fecad0b692e4c0a4cbf31bb7ec5239e4, type: 3}

@@ -2,23 +2,21 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UniRx;
-using UniRx.Triggers;
 using Zenject;
 
 namespace HexRPG.Battle
 {
-    using Player;
-    using Enemy;
-
     public interface IDamageApplicable
     {
         IObservable<HitData> OnHit { get; }
+
+        //TODO: Inspector—v
+        void OnHitTest();
     }
 
     public abstract class AbstractDamagedApplicable : IDamageApplicable, IInitializable, IDisposable
     {
         protected ICharacterComponentCollection _damagedOwner;
-        IColliderController _colliderController;
         protected IUpdateObservable _updateObservable;
 
         public IObservable<HitData> OnHit => _onHit;
@@ -100,6 +98,30 @@ namespace HexRPG.Battle
 
             _damagedOwner.Health.Update(-hitData.Damage);
         }
+
+        void IDamageApplicable.OnHitTest()
+        {
+            OnHitTest();
+        }
+
+        protected void AllHitTest()
+        {
+            _updateObservable.OnUpdate((int)UPDATE_ORDER.DAMAGED)
+                .Subscribe(_ =>
+                {
+                    if (Input.GetKeyDown(KeyCode.D))
+                    {
+                        OnHitTest();
+                    }
+                    if (Input.GetKeyDown(KeyCode.F))
+                    {
+                        OnHitTest(100000000);
+                    }
+                })
+                .AddTo(_disposables);
+        }
+
+        protected abstract void OnHitTest(int? damage = null);
 
         void IDisposable.Dispose()
         {

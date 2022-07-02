@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEditor;
 using Zenject;
 using UniRx;
 
@@ -54,5 +55,33 @@ namespace HexRPG.Battle.Enemy
         {
 
         }
+
+#if UNITY_EDITOR
+
+        public void OnInspectorGUI()
+        {
+            if (GUILayout.Button("Damage"))
+            {
+                (this as IEnemyComponentCollection).DamageApplicable.OnHitTest();
+            }
+            if (GUILayout.Button("Die"))
+            {
+                var heath = (this as IEnemyComponentCollection).Health;
+                heath.Update(-heath.Max);
+            }
+        }
+
+        [CustomEditor(typeof(EnemyOwner))]
+        public class EnemyOwnerInspector : Editor
+        {
+            public override void OnInspectorGUI()
+            {
+                base.OnInspectorGUI();
+
+                ((EnemyOwner)target).OnInspectorGUI();
+            }
+        }
+
+#endif
     }
 }

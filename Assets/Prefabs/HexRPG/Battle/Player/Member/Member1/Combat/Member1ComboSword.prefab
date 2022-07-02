@@ -387,7 +387,7 @@ VFXRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &8203330619072083786
+--- !u!114 &152554198510476029
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -396,7 +396,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5818886393387851045}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c4b64353cdb6b040b6a3d997723f004, type: 3}
+  m_Script: {fileID: 11500000, guid: 4933a763fb6bc894bbf93eb03d637926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _director: {fileID: 1926939468314415632}
@@ -418,7 +418,7 @@ PrefabInstance:
     - target: {fileID: 4565514889128822241, guid: f12c8762a550cc4439cbe3f3dcb7821b, type: 3}
       propertyPath: _components.Array.data[2]
       value: 
-      objectReference: {fileID: 8203330619072083786}
+      objectReference: {fileID: 152554198510476029}
     - target: {fileID: 7187412190281477137, guid: f12c8762a550cc4439cbe3f3dcb7821b, type: 3}
       propertyPath: m_PlayableAsset
       value: 

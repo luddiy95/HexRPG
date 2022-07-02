@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19b29980d0298fe4b87eb0940afdd5eb, type: 3}
+  m_Name: SlashRobotDurationDataContainer
+  m_EditorClassIdentifier: 
+  defaultLocomotionDuration: 0.25
+  locomotionDurations: []
+  defaultRotateStartDuration: 0.25
+  rotateStartDurations: []
+  defaultBackToIdleDuration: 0.25
+  backToIdleDurations: []
+  defaultCombatStartDuration: 0.25
+  combatStartDurations: []
+  defaultSkillStartDuration: 0.25
+  skillStartDurations:
+  - clip: CanonMachineFire
+    duration: 0.5
+  defaultDamagedDuration: 0.25
+  damagedDurations: []
+  exitTimeToIdle: 0.85
+  dieStartDuration: 0.25
+  defaultDuration: 0.25

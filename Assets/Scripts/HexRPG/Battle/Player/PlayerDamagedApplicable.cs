@@ -1,4 +1,3 @@
-using UnityEngine;
 using System;
 using UniRx;
 using UniRx.Triggers;
@@ -58,7 +57,7 @@ namespace HexRPG.Battle.Player
             base.InternalInit();
 
             //TODO: テストコード
-            DamagedTest();
+            AllHitTest();
         }
 
         protected override void InternalDoHit(IAttackApplicator attackApplicator)
@@ -77,28 +76,19 @@ namespace HexRPG.Battle.Player
             base.InternalDispose();
         }
 
-        void DamagedTest()
+        protected override void OnHitTest(int? damage = null)
         {
-            _updateObservable
-                .OnUpdate((int)UPDATE_ORDER.DAMAGED)
-                .Subscribe(_ =>
-                {
-                    if (Input.GetKeyDown(KeyCode.D))
-                    {
-                        var hitData = new HitData
-                        {
-                            DamagedObject = _damagedOwner,
-                            Damage = 0,
-                            HitType = HitType.WEAK
-                        };
-                        if (_memberObservable.CurMember.Value.DieObservable.IsDead.Value == false)
-                        {
-                            _onHit.OnNext(hitData);
-                            _damagedOwner.Health.Update(-hitData.Damage);
-                        }
-                    }
-                })
-                .AddTo(_disposables);
+            var hitData = new HitData
+            {
+                DamagedObject = _damagedOwner,
+                Damage = damage ?? 0,
+                HitType = HitType.WEAK
+            };
+            if (_memberObservable.CurMember.Value.DieObservable.IsDead.Value == false)
+            {
+                _onHit.OnNext(hitData);
+                _damagedOwner.Health.Update(-hitData.Damage);
+            }
         }
     }
 }

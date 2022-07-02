@@ -10,7 +10,7 @@ using UniRx;
 
 namespace HexRPG.Battle.Player.Member
 {
-    public class MemberAnimationBehaviour : AnimationBehaviour, IAnimationController
+    public class MemberAnimationBehaviour : AbstractAnimationBehaviour, IAnimationController
     {
         IObservable<Unit> IAnimationController.OnFinishDamaged => _onFinishDamaged;
 

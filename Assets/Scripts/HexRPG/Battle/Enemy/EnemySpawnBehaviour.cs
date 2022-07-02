@@ -81,11 +81,9 @@ namespace HexRPG.Battle.Enemy
         {
             await UniTask.Delay(spawnSetting.FirstSpawnInterval * 1000, cancellationToken: token);
 
-            // Å‰‚Ìˆê‘Ì
+            // enemyName‚ðŽæ“¾‚·‚é‚½‚ß‚ÌÅ‰‚Ìˆê‘Ì
             var enemy = await SpawnEnemy(factory, _rootHex, token);
             var enemyName = enemy.ProfileSetting.Name;
-
-            await UniTask.Delay(spawnSetting.SpawnInterval * 1000, cancellationToken: token);
 
             while (true)
             {
@@ -104,9 +102,6 @@ namespace HexRPG.Battle.Enemy
                 await UniTask.WaitUntil(() =>
                     _enemyList.Count(enemy => enemy.ProfileSetting.Name == enemyName) < spawnSetting.MaxCount,
                     cancellationToken: token);
-
-                //TODO: Å‘å”–¢–ž‚É‚È‚Á‚½ŒãAV‚½‚Éspawn‚·‚é‚Ì‚ª‘‚·‚¬‚é
-                await UniTask.Delay(spawnSetting.FirstSpawnInterval * 1000, cancellationToken: token);
             }
         }
 
@@ -114,8 +109,8 @@ namespace HexRPG.Battle.Enemy
         {
             while (true)
             {
-                await SpawnEnemy(factory, _rootHex, token);
                 await UniTask.Delay(spawnSetting.SpawnInterval * 1000, cancellationToken: token);
+                await SpawnEnemy(factory, _rootHex, token);
             }
         }
 
