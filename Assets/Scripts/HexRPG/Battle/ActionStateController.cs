@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UniRx;
 using UnityEngine;
-using UnityEngine.Assertions;
 using Zenject;
 
 namespace HexRPG.Battle
@@ -78,8 +77,14 @@ namespace HexRPG.Battle
         {
             // ƒLƒƒƒ“ƒZƒ‹Ý’è
             _onEnterState.Subscribe(_ => _activeCancelEvents.Clear());
-            GetEventStream<ActionEventCancel>(EventStreamId.Start).Subscribe(c => _activeCancelEvents.Add(c));
-            GetEventStream<ActionEventCancel>(EventStreamId.End).Subscribe(c => _activeCancelEvents.Remove(c));
+            GetEventStream<ActionEventCancel>(EventStreamId.Start).Subscribe(c =>
+            {
+                _activeCancelEvents.Add(c);
+            });
+            GetEventStream<ActionEventCancel>(EventStreamId.End).Subscribe(c =>
+            {
+                _activeCancelEvents.Remove(c);
+            });
 
             _updateObservable.OnUpdate((int)UPDATE_ORDER.ACTION_TRANSITION)
                 .Subscribe(_ => OnUpdate(_deltaTime))
@@ -223,8 +228,7 @@ namespace HexRPG.Battle
 
         void IActionStateController.SetInitialState(ActionState state)
         {
-            Assert.IsTrue(_actionStates.Find(x => x == state) != null);
-            _currentState.Value = state;
+            StartNewState(state, false);
         }
 
         void IActionStateController.Execute(Command command)

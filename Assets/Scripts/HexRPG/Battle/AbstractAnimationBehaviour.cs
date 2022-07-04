@@ -72,7 +72,7 @@ namespace HexRPG.Battle
         protected float rate = 0f;
         protected float fixedRate = 0f; // 遷移中に割り込みが発生したときに本来の遷移がどの程度だったか
 
-        protected CancellationTokenSource _cancellationTokenSource;
+        protected CancellationTokenSource _cts = null;
 
         [Inject]
         public void Construct(
@@ -165,7 +165,7 @@ namespace HexRPG.Battle
                 return;
             }
 
-            if (_cancellationTokenSource == null) PlayWithoutInterrupt(nextClip);
+            if (_cts == null) PlayWithoutInterrupt(nextClip);
             else PlayWithInterrupt(nextClip);
         }
 
@@ -176,8 +176,8 @@ namespace HexRPG.Battle
             {
                 if (_curCombat != null) return;
 
-                _cancellationTokenSource = new CancellationTokenSource();
-                InternalPlayCombat(_combatTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
+                _cts = new CancellationTokenSource();
+                InternalPlayCombat(_combatTimelineInfo, _cts.Token).Forget(); // 待ち合わせする必要はない
                 return;
             }
 
@@ -187,8 +187,8 @@ namespace HexRPG.Battle
             {
                 if (_curSkill != null) return;
 
-                _cancellationTokenSource = new CancellationTokenSource();
-                InternalPlaySkill(skillTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
+                _cts = new CancellationTokenSource();
+                InternalPlaySkill(skillTimelineInfo, _cts.Token).Forget(); // 待ち合わせする必要はない
                 return;
             }
 
@@ -196,14 +196,14 @@ namespace HexRPG.Battle
             var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);
             if (isDieClip)
             {
-                _cancellationTokenSource = new CancellationTokenSource();
-                InternalPlayDie(_cancellationTokenSource.Token).Forget();
+                _cts = new CancellationTokenSource();
+                InternalPlayDie(_cts.Token).Forget();
                 return;
             }
 
-            _cancellationTokenSource = new CancellationTokenSource();
+            _cts = new CancellationTokenSource();
             var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
-            InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+            InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cts.Token).Forget();
         }
 
         protected virtual void PlayWithInterrupt(string nextClip) // 割り込み
@@ -221,8 +221,8 @@ namespace HexRPG.Battle
 
                 if (_nextPlayingIndex >= 0) fixedRate = rate;
 
-                _cancellationTokenSource = new CancellationTokenSource();
-                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                _cts = new CancellationTokenSource();
+                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cts.Token).Forget();
                 return;
             }
 
@@ -237,8 +237,8 @@ namespace HexRPG.Battle
 
                 if (_nextPlayingIndex >= 0) fixedRate = rate;
 
-                _cancellationTokenSource = new CancellationTokenSource();
-                InternalPlayDie(_cancellationTokenSource.Token).Forget();
+                _cts = new CancellationTokenSource();
+                InternalPlayDie(_cts.Token).Forget();
                 return;
             }
         }
@@ -448,9 +448,9 @@ namespace HexRPG.Battle
 
         protected void TokenCancel()
         {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
         }
 
         protected void FinishCombat()

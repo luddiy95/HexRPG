@@ -10,9 +10,6 @@ namespace HexRPG.Battle.Enemy
 
     public class EnemyInstaller : MonoInstaller, ICombatEquipment, ISkillsEquipment
     {
-        [Inject] Transform _spawnRoot;
-        [Inject] Vector3 _spawnPos;
-
         GameObject ICombatEquipment.EquipmentPrefab => _equipmentPrefab;
         Transform ICombatEquipment.EquipmentRoot => _equipmentRoot;
         CombatType ICombatEquipment.CombatType => _combatType;
@@ -32,8 +29,6 @@ namespace HexRPG.Battle.Enemy
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<EnemyOwner>().FromComponentOnRoot();
-            Container.BindInstance(_spawnRoot).WhenInjectedInto<TransformBehaviour>();
-            Container.BindInstance(_spawnPos).WhenInjectedInto<TransformBehaviour>();
 
             Container.BindInterfacesTo<ActionStateController>().AsSingle();
 

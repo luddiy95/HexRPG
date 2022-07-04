@@ -175,11 +175,10 @@ namespace HexRPG.Battle
                             .Subscribe(_ =>
                             {
                                 enemyDisposables.Dispose();
-                                //TODO: dispose‚µ‚Ä‚©‚çremove‚µ‚½•û‚ª—Ç‚¢H
                             })
                             .AddTo(enemyDisposables);
 
-                        _onEnemySpawn.OnNext(enemyOwner); //TODO: Šm”F
+                        _onEnemySpawn.OnNext(enemyOwner);
                         _enemyList.Add(enemyOwner);
                     })
                     .AddTo(this);

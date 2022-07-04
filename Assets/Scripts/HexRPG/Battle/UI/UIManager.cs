@@ -26,11 +26,11 @@ namespace HexRPG.Battle.UI
 
         void Start()
         {
-            if(_combatBtn.TryGetComponent(out _combatUI) && 
+            if (_combatBtn.TryGetComponent(out _combatUI) &&
                 _skillList.TryGetComponent(out _skillListUI))
             {
                 _battleObservable.OnPlayerSpawn
-                .Skip(1)
+                    .Skip(1)
                     .Subscribe(playerOwner =>
                     {
                         new List<ICharacterUI>

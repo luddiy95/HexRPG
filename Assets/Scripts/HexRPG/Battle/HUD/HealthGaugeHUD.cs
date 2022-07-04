@@ -5,8 +5,6 @@ namespace HexRPG.Battle.HUD
 {
     public class HealthGaugeHUD : AbstractGaugeBehaviour, ICharacterHUD
     {
-        IDisposable _disposable;
-
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
             var health = chara.Health;

@@ -10,9 +10,6 @@ namespace HexRPG.Battle.Player.Member
 
     public class MemberInstaller : MonoInstaller, ICombatEquipment, ISkillsEquipment
     {
-        [Inject] Transform _spawnRoot;
-        [Inject] Vector3 _spawnPos;
-
         GameObject ICombatEquipment.EquipmentPrefab => _equipmentPrefab;
         Transform ICombatEquipment.EquipmentRoot => _equipmentRoot;
         CombatType ICombatEquipment.CombatType => _combatType;
@@ -29,11 +26,12 @@ namespace HexRPG.Battle.Player.Member
         [Header("スキルリスト")]
         [SerializeField] SkillAsset[] _skills;
 
+        [Inject] Transform _spawnRoot;
+        [Inject] Vector3 _spawnPos;
+
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<MemberOwner>().FromComponentOnRoot();
-            Container.BindInstance(_spawnRoot).WhenInjectedInto<TransformBehaviour>();
-            Container.BindInstance(_spawnPos).WhenInjectedInto<TransformBehaviour>();
 
             Container.BindInterfacesTo<MemberCombatExecuter>().AsSingle();
             Container.BindInterfacesTo<MemberSkillExecuter>().AsSingle();

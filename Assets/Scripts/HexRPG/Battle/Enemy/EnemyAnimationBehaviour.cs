@@ -19,6 +19,13 @@ namespace HexRPG.Battle.Enemy
 
         void IAnimationController.Init()
         {
+            if(_curPlayingIndex >= 0)
+            {
+                _mixer.SetInputWeight(_curPlayingIndex, 0);
+                _curPlayingIndex = -1;
+                return;
+            }
+
             var name = _profileSetting.Name;
             _durationDataContainer = Resources.Load<DurationDataContainer>
                 ("HexRPG/Battle/ScriptableObject/Enemy/" + name + "/" + name + "DurationDataContainer");
@@ -60,8 +67,8 @@ namespace HexRPG.Battle.Enemy
 
                         if (_nextPlayingIndex >= 0) fixedRate = rate;
 
-                        _cancellationTokenSource = new CancellationTokenSource();
-                        InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                        _cts = new CancellationTokenSource();
+                        InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cts.Token).Forget();
                         return;
                     }
                 }
@@ -77,8 +84,8 @@ namespace HexRPG.Battle.Enemy
 
                         if (_nextPlayingIndex >= 0) fixedRate = rate;
 
-                        _cancellationTokenSource = new CancellationTokenSource();
-                        InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cancellationTokenSource.Token).Forget();
+                        _cts = new CancellationTokenSource();
+                        InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cts.Token).Forget();
                         return;
                     }
                 }
@@ -93,8 +100,8 @@ namespace HexRPG.Battle.Enemy
                 TokenCancel();
                 if (_nextPlayingIndex >= 0) fixedRate = rate;
 
-                _cancellationTokenSource = new CancellationTokenSource();
-                InternalPlayCombat(_combatTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
+                _cts = new CancellationTokenSource();
+                InternalPlayCombat(_combatTimelineInfo, _cts.Token).Forget(); // 待ち合わせする必要はない
                 return;
             }
 
@@ -108,8 +115,8 @@ namespace HexRPG.Battle.Enemy
                 TokenCancel();
                 if (_nextPlayingIndex >= 0) fixedRate = rate;
 
-                _cancellationTokenSource = new CancellationTokenSource();
-                InternalPlaySkill(skillTimelineInfo, _cancellationTokenSource.Token).Forget(); // 待ち合わせする必要はない
+                _cts = new CancellationTokenSource();
+                InternalPlaySkill(skillTimelineInfo, _cts.Token).Forget(); // 待ち合わせする必要はない
                 return;
             }
 

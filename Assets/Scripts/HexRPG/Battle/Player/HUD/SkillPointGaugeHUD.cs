@@ -8,8 +8,6 @@ namespace HexRPG.Battle.Player.HUD
 
     public class SkillPointGaugeHUD : AbstractGaugeBehaviour, ICharacterHUD
     {
-        IDisposable _disposable;
-
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
             if(chara is IMemberComponentCollection memberOwner)

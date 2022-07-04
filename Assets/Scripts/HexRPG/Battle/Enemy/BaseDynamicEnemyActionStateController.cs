@@ -44,8 +44,8 @@ namespace HexRPG.Battle.Enemy
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        CancellationTokenSource _actionCancellationTokenSource = new CancellationTokenSource();
-        CancellationTokenSource _moveCancellationTokenSource = new CancellationTokenSource();
+        CancellationTokenSource _actionCts = null;
+        CancellationTokenSource _moveCts = null;
 
         [Header("âÒì]")]
         [SerializeField] float MOVE_ROTATE_TIME = 0.1f;
@@ -96,13 +96,18 @@ namespace HexRPG.Battle.Enemy
 
         void ICharacterActionStateController.Init()
         {
-            BuildActionStates();
-            SetUpControl();
+            if(_actionStateObservable.CurrentState.Value == null)
+            {
+                var initialState = BuildActionStates();
+                SetUpControl();
+                _actionStateController.SetInitialState(initialState);
+            }
 
             _locomotionController.ForceLookRotate(_battleObservable.PlayerLandedHex.transform.position);
             SetDestinationLandedHex();
 
-            StartActionSequence(_actionCancellationTokenSource.Token).Forget();
+            _actionCts = new CancellationTokenSource();
+            StartActionSequence(_actionCts.Token).Forget();
         }
 
         void Update()
@@ -114,7 +119,7 @@ namespace HexRPG.Battle.Enemy
             }
         }
 
-        void BuildActionStates()
+        ActionState BuildActionStates()
         {
             // ÅuRotate, Damaged, DieÇÕExecuteTransactionÇ≈ëJà⁄Åv
 
@@ -124,7 +129,6 @@ namespace HexRPG.Battle.Enemy
                 .AddEvent(new ActionEventCancel("rotate", ROTATE))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
             ;
-            _actionStateController.SetInitialState(idle);
 
             NewState(MOVE)
                 .AddEvent(new ActionEventPlayMotion(0f))
@@ -164,6 +168,8 @@ namespace HexRPG.Battle.Enemy
                 action?.Invoke(s);
                 return s;
             }
+
+            return idle;
         }
 
         void SetUpControl()
@@ -182,6 +188,7 @@ namespace HexRPG.Battle.Enemy
                 .AddTo(_disposables);
 
             _moveDirection
+                .Skip(1)
                 .Subscribe(_ =>
                 {
                     _actionStateController.Execute(new Command { Id = "move" });
@@ -215,8 +222,8 @@ namespace HexRPG.Battle.Enemy
             _animationController.OnFinishDamaged
                 .Subscribe(_ =>
                 {
-                    _actionCancellationTokenSource = new CancellationTokenSource();
-                    StartActionSequenceAfterDamaged(_actionCancellationTokenSource.Token).Forget();
+                    _actionCts = new CancellationTokenSource();
+                    StartActionSequenceAfterDamaged(_actionCts.Token).Forget();
                 })
                 .AddTo(this);
 
@@ -308,6 +315,8 @@ namespace HexRPG.Battle.Enemy
 
         async UniTaskVoid StartActionSequence(CancellationToken token)
         {
+            _actionStateController.ExecuteTransition(IDLE);
+
             while (true)
             {
                 // Idle
@@ -317,9 +326,9 @@ namespace HexRPG.Battle.Enemy
                 _attackableHex = null;
                 _approachHex = null;
 
-                _moveCancellationTokenSource = new CancellationTokenSource();
-                var breakStateType = await StartMoveSequence(_moveCancellationTokenSource.Token);
-                _moveCancellationTokenSource.Cancel();
+                _moveCts = new CancellationTokenSource();
+                var breakStateType = await StartMoveSequence(_moveCts.Token);
+                MoveTokenCancel();
 
                 switch (breakStateType)
                 {
@@ -445,8 +454,9 @@ namespace HexRPG.Battle.Enemy
                     continue; //! PlayerÇ…çUåÇÇ™Ç†ÇΩÇÈHexÇ÷à⁄ìÆ
                 }
 
-                int radius = 0;
-                var enemyHexList = new List<Hex>();
+                //TODO: playerLandedHexÇ‹Ç≈ÇÃãóó£Ç™åªç›ÇÃlandedHexÇ∆ìØÇ∂HexÇ™Ç†ÇÈÇ∆Ç´ÅAçsÇ¡ÇΩÇËóàÇΩÇËÇµÇƒÇµÇ‹Ç§
+                var enemyHexList = new List<Hex>() { landedHex };
+                int radius = 1;
                 while (true)
                 {
                     var aroundHexList = _stageController.GetAroundHexList(landedHex, radius);
@@ -454,7 +464,7 @@ namespace HexRPG.Battle.Enemy
                         .Where(hex =>
                             hex.IsPlayerHex == false
                             && _navMeshAgentController.IsExistPath(hex.transform.position)
-                            && hex.GetDistance2XZ(playerLandedHex) <= distance2FromPlayerHex) // åªç›ÇÃPlayerLandedHexÇ÷ÇÃãóó£ÇÊÇËíZÇ≠Ç»ÇÈ
+                            && hex.GetDistance2XZ(playerLandedHex) + 0.1f < distance2FromPlayerHex) // åªç›ÇÃPlayerLandedHexÇ÷ÇÃãóó£ÇÊÇËíZÇ≠Ç»ÇÈ
                         .Where(hex => enemyDestinationHexList.Contains(hex) == false);
                     enemyHexList.AddRange(aroundEnemyHexList);
                     if (aroundHexList.Contains(playerLandedHex)) break;
@@ -513,17 +523,26 @@ namespace HexRPG.Battle.Enemy
             StartActionSequence(token).Forget();
         }
 
+        void MoveTokenCancel()
+        {
+            _moveCts?.Cancel();
+            _moveCts?.Dispose();
+            _moveCts = null;
+        }
+
         void AllTokenCancel()
         {
-            _moveCancellationTokenSource.Cancel();
-            _actionCancellationTokenSource.Cancel();
+            MoveTokenCancel();
+
+            _actionCts?.Cancel();
+            _actionCts?.Dispose();
+            _actionCts = null;
         }
 
         void OnDestroy()
         {
             _disposables.Dispose();
-            _moveCancellationTokenSource.Dispose();
-            _actionCancellationTokenSource.Dispose();
+            AllTokenCancel();
         }
     }
 }

@@ -7,8 +7,9 @@ namespace HexRPG.Battle
 {
     public interface IHealth
     {
-        int Max { get; }
+        void Init();
 
+        int Max { get; }
         IObservable<int> Current { get; }
 
         void Update(int cv);
@@ -35,6 +36,11 @@ namespace HexRPG.Battle
         }
 
         void IInitializable.Initialize()
+        {
+            (this as IHealth).Init();
+        }
+
+        void IHealth.Init()
         {
             _max = _setting.Max;
             _current.Value = _setting.Max;

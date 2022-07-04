@@ -1,11 +1,10 @@
 
 namespace HexRPG.Battle
 {
-    public interface ICharacterComponentCollection
+    public interface ICharacterComponentCollection : IBaseComponentCollection
     {
         IProfileSetting ProfileSetting { get; }
         IDieObservable DieObservable { get; }
-        ITransformController TransformController { get; }
         IHealth Health { get; }
     }
 }

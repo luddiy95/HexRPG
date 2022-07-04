@@ -28,7 +28,7 @@ namespace HexRPG.Battle.Enemy
         ISkillObservable _skillObservable;
 
         CompositeDisposable _disposables = new CompositeDisposable();
-        CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        CancellationTokenSource _cts = null;
 
         [Inject]
         public void Construct(
@@ -58,11 +58,14 @@ namespace HexRPG.Battle.Enemy
 
         void ICharacterActionStateController.Init()
         {
-            BuildActionStates();
+            var initialState = BuildActionStates();
             SetUpControl();
+            _actionStateController.SetInitialState(initialState);
 
             _locomotionController.ForceLookRotate(_battleObservable.PlayerLandedHex.transform.position);
-            StartSequence(_cancellationTokenSource.Token).Forget();
+
+            _cts = new CancellationTokenSource();
+            StartSequence(_cts.Token).Forget();
         }
 
         void Update()
@@ -74,14 +77,13 @@ namespace HexRPG.Battle.Enemy
             }
         }
 
-        void BuildActionStates()
+        ActionState BuildActionStates()
         {
             var idle = NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventCancel("rotate", 0, ROTATE))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
                 ;
-            _actionStateController.SetInitialState(idle);
 
             NewState(ROTATE)
                 .AddEvent(new ActionEventRotate())
@@ -111,6 +113,8 @@ namespace HexRPG.Battle.Enemy
                 action?.Invoke(s);
                 return s;
             }
+
+            return idle;
         }
 
         void SetUpControl()
@@ -122,7 +126,7 @@ namespace HexRPG.Battle.Enemy
                     var hitType = hitData.HitType;
                     if(hitType == HitType.WEAK || hitType == HitType.CRITICAL)
                     {
-                        _cancellationTokenSource.Cancel(); // Sequence’†’f
+                        TokenCancel(); // Sequence’†’f
                         _actionStateController.Execute(new Command { Id = "damaged" });
                     }
                 })
@@ -134,8 +138,8 @@ namespace HexRPG.Battle.Enemy
                     _actionStateController.Execute(new Command { Id = "finishDamaged" });
 
                     // SequenceÄŠJ
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    StartSequence(_cancellationTokenSource.Token).Forget();
+                    _cts = new CancellationTokenSource();
+                    StartSequence(_cts.Token).Forget();
                 })
                 .AddTo(this);
 
@@ -144,7 +148,7 @@ namespace HexRPG.Battle.Enemy
                 .Where(isDead => isDead)
                 .Subscribe(_ =>
                 {
-                    _cancellationTokenSource.Cancel(); // Sequence’†’f
+                    TokenCancel(); // Sequence’†’f
                     _actionStateController.ExecuteTransition(DIE);
                 })
                 .AddTo(_disposables);
@@ -208,10 +212,17 @@ namespace HexRPG.Battle.Enemy
             }
         }
 
+        void TokenCancel()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
+        }
+
         void OnDestroy()
         {
             _disposables.Dispose();
-            _cancellationTokenSource.Dispose();
+            TokenCancel();
         }
     }
 }

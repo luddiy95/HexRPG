@@ -6,7 +6,6 @@ namespace HexRPG.Battle
     using Player;
     using Player.HUD;
     using Enemy.HUD;
-    using Stage;
     using HUD;
 
     public interface IPlayerSpawnSetting
@@ -29,6 +28,9 @@ namespace HexRPG.Battle
         [SerializeField] GameObject _enemyStatusPrefab;
         [SerializeField] GameObject _damagedPanelPrefab;
 
+        [SerializeField] Transform _enemyStatusHUDRoot;
+        [SerializeField] Transform _damagedPanelParentRoot;
+
         public override void InstallBindings()
         {
             Container.BindInterfacesTo<UpdateFeature>().AsSingle();
@@ -46,8 +48,12 @@ namespace HexRPG.Battle
                 .ByNewContextPrefab<PlayerInstaller>(_playerSpawnSetting.Prefab);
 
             Container.BindFactory<MemberStatusHUD, MemberStatusHUD.Factory>().FromComponentInNewPrefab(_memberStatusPrefab);
-            Container.BindFactory<EnemyStatusHUD, EnemyStatusHUD.Factory>().FromComponentInNewPrefab(_enemyStatusPrefab);
-            Container.BindFactory<DamagedPanelParentHUD, DamagedPanelParentHUD.Factory>().FromComponentInNewPrefab(_damagedPanelPrefab);
+            Container.BindFactory<EnemyStatusHUD, EnemyStatusHUD.Factory>()
+                .FromPoolableMemoryPool<EnemyStatusHUD, EnemyStatusHUD.Pool>(pool => pool
+                    .FromComponentInNewPrefab(_enemyStatusPrefab).UnderTransform(_enemyStatusHUDRoot));
+            Container.BindFactory<DamagedPanelParentHUD, DamagedPanelParentHUD.Factory>()
+                .FromPoolableMemoryPool<DamagedPanelParentHUD, DamagedPanelParentHUD.Pool>(pool => pool
+                    .FromComponentInNewPrefab(_damagedPanelPrefab).UnderTransform(_damagedPanelParentRoot));
         }
     }
 }

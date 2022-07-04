@@ -1,4 +1,3 @@
-using UnityEngine;
 using Zenject;
 
 namespace HexRPG.Battle.Player
@@ -14,11 +13,10 @@ namespace HexRPG.Battle.Player
         IActionStateObservable ActionStateObservable { get; }
     }
 
-    public class PlayerOwner : MonoBehaviour, IPlayerComponentCollection
+    public class PlayerOwner : AbstractOwner<PlayerOwner>, IPlayerComponentCollection
     {
         IProfileSetting ICharacterComponentCollection.ProfileSetting => MemberOwner.ProfileSetting;
         [Inject] IDieObservable ICharacterComponentCollection.DieObservable { get; }
-        [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         IHealth ICharacterComponentCollection.Health => MemberOwner.Health;
 
         [Inject] IAttackApplicator IAttackComponentCollection.AttackApplicator { get; }
@@ -36,10 +34,5 @@ namespace HexRPG.Battle.Player
         [Inject] IActionStateObservable IPlayerComponentCollection.ActionStateObservable { get; }
 
         ICharacterComponentCollection MemberOwner => (this as IPlayerComponentCollection).MemberObservable.CurMember.Value;
-
-        public class Factory : PlaceholderFactory<Transform, Vector3, PlayerOwner>
-        {
-
-        }
     }
 }

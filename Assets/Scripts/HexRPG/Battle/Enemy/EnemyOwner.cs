@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
+using System;
 using Zenject;
-using UniRx;
 
 namespace HexRPG.Battle.Enemy
 {
@@ -20,11 +20,11 @@ namespace HexRPG.Battle.Enemy
         IActionStateObservable ActionStateObservable { get; }
     }
 
-    public class EnemyOwner : MonoBehaviour, IEnemyComponentCollection
+    public class EnemyOwner : AbstractPoolableOwner<EnemyOwner>, IEnemyComponentCollection
     {
+        //TODO: ÅõÅõ IÅ¢Å¢.ÅõÅõÇÃÇ©ÇΩÇøÇ…ñﬂÇ∑
         [Inject] IProfileSetting ICharacterComponentCollection.ProfileSetting { get; }
         [Inject] IDieObservable ICharacterComponentCollection.DieObservable { get; }
-        [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
 
         [Inject] IAttackApplicator IAttackComponentCollection.AttackApplicator { get; }
@@ -45,29 +45,19 @@ namespace HexRPG.Battle.Enemy
         //TODO: Decoratoróp
         [Inject] IActionStateObservable IEnemyComponentCollection.ActionStateObservable { get; }
 
-        void OnDestroy()
-        {
-            //! runtimeèIóπéû
-            (this as IEnemyComponentCollection).DieController.ForceDie();
-        }
-
-        public class Factory : PlaceholderFactory<Transform, Vector3, EnemyOwner>
-        {
-
-        }
-
 #if UNITY_EDITOR
+
+        IEnemyComponentCollection _enemyOwner => this;
 
         public void OnInspectorGUI()
         {
             if (GUILayout.Button("Damage"))
             {
-                (this as IEnemyComponentCollection).DamageApplicable.OnHitTest();
+                _enemyOwner.DamageApplicable.OnHitTest(10);
             }
             if (GUILayout.Button("Die"))
             {
-                var heath = (this as IEnemyComponentCollection).Health;
-                heath.Update(-heath.Max);
+                _enemyOwner.DamageApplicable.OnHitTest(_enemyOwner.Health.Max);
             }
         }
 

@@ -47,7 +47,7 @@ namespace HexRPG.Battle
         protected float _speed = 7f;
         protected float _colliderRadius = 0.5f;
 
-        CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        CancellationTokenSource _cts = null;
 
         void Start()
         {
@@ -88,13 +88,13 @@ namespace HexRPG.Battle
             return rotateAngle;
         }
 
-        async UniTaskVoid InternalRotate(int rotateAngle, float rotateTime, CancellationTokenSource tokenSource = null)
+        async UniTaskVoid InternalRotate(int rotateAngle, float rotateTime)
         {
             float waitTime = Time.timeSinceLevelLoad + rotateTime;
             var startAngleY = _transformController.RotationAngle;
 
             TokenCancel();
-            _cancellationTokenSource = new CancellationTokenSource();
+            _cts = new CancellationTokenSource();
 
             await UniTask.WaitWhile(() =>
             {
@@ -109,7 +109,7 @@ namespace HexRPG.Battle
                     _transformController.RotationAngle = (int)(startAngleY + diffAngle);
                     return true;
                 }
-            }, cancellationToken: _cancellationTokenSource.Token);
+            }, cancellationToken: _cts.Token);
 
             _transformController.RotationAngle = startAngleY + rotateAngle;
             TokenCancel();
@@ -172,9 +172,9 @@ namespace HexRPG.Battle
 
         void TokenCancel()
         {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
         }
 
         void OnDestroy()

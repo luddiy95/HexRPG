@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 using System.Linq;
 using UniRx;
 using System.Threading;
@@ -28,7 +27,7 @@ namespace HexRPG.Battle.Enemy
         IReadOnlyReactiveCollection<IEnemyComponentCollection> IEnemySpawnObservable.EnemyList => _enemyList;
         readonly IReactiveCollection<IEnemyComponentCollection> _enemyList = new ReactiveCollection<IEnemyComponentCollection>();
 
-        CancellationTokenSource _spawnEnemyCancellationTokenSource = new CancellationTokenSource();
+        CancellationTokenSource _spawnCts = null;
 
         [Inject]
         public void Construct(
@@ -51,33 +50,33 @@ namespace HexRPG.Battle.Enemy
                     switch (type)
                     {
                         case TowerType.PLAYER:
-                            TokenCancel(); break;
+                            CancelSpawnSequence(); break;
                         case TowerType.ENEMY:
-                            _spawnEnemyCancellationTokenSource = new CancellationTokenSource();
-                            SpawnEnemies(_spawnEnemyCancellationTokenSource.Token).Forget(); break;
+                            SpawnEnemies(); break;
                     }
                 })
                 .AddTo(this);
         }
 
-        async UniTask SpawnEnemies(CancellationToken token)
+        void SpawnEnemies()
         {
             // Dynamic Enemy
+            _spawnCts = new CancellationTokenSource();
             var dynamicEnemySpawnSettings = _enemySpawnSettings.DynamicEnemySpawnSettings;
             for (int i = 0; i < dynamicEnemySpawnSettings.Length; i++)
             {
-                StartDynamicEnemySpawner(_enemyFactories[i], dynamicEnemySpawnSettings[i], token).Forget();
+                StartDynamicEnemySpawnSequence(_enemyFactories[i], dynamicEnemySpawnSettings[i], _spawnCts.Token).Forget();
             }
 
             // Static Enemy
             var staticEnemySpawnSettings = _enemySpawnSettings.StaticEnemySpawnSettings;
             for (int i = 0; i < staticEnemySpawnSettings.Length - 1; i++)
             {
-                await SpawnEnemy(_enemyFactories[dynamicEnemySpawnSettings.Length + i], staticEnemySpawnSettings[i].SpawnHex, token);
+                SpawnEnemy(_enemyFactories[dynamicEnemySpawnSettings.Length + i], staticEnemySpawnSettings[i].SpawnHex, _spawnCts.Token).Forget();
             }
         }
 
-        async UniTaskVoid StartDynamicEnemySpawner(EnemyOwner.Factory factory, DynamicSpawnSetting spawnSetting, CancellationToken token)
+        async UniTaskVoid StartDynamicEnemySpawnSequence(EnemyOwner.Factory factory, DynamicSpawnSetting spawnSetting, CancellationToken token)
         {
             await UniTask.Delay(spawnSetting.FirstSpawnInterval * 1000, cancellationToken: token);
 
@@ -85,18 +84,26 @@ namespace HexRPG.Battle.Enemy
             var enemy = await SpawnEnemy(factory, _rootHex, token);
             var enemyName = enemy.ProfileSetting.Name;
 
+            CancellationTokenSource spawnIteraterCts = null;
+            void CancelIterater()
+            {
+                spawnIteraterCts?.Cancel();
+                spawnIteraterCts?.Dispose();
+                spawnIteraterCts = null;
+            }
+
+            token.Register(() => CancelIterater());
+
             while (true)
             {
-                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-                StartDynamicEnemySpawnIterater(factory, spawnSetting, cancellationTokenSource.Token).Forget();
+                spawnIteraterCts = new CancellationTokenSource();
+
+                StartDynamicEnemySpawnIterater(factory, spawnSetting, spawnIteraterCts.Token).Forget();
 
                 // 最大数になるまでawait
-                await UniTask.WaitUntil(() =>
-                    _enemyList.Count(enemy => enemy.ProfileSetting.Name == enemyName) >= spawnSetting.MaxCount,
-                    cancellationToken: token);
+                await UniTask.WaitUntil(() => _enemyList.Count(enemy => enemy.ProfileSetting.Name == enemyName) >= spawnSetting.MaxCount, cancellationToken: token);
 
-                cancellationTokenSource.Cancel();
-                cancellationTokenSource.Dispose();
+                CancelIterater();
 
                 // 最大数未満になるまでawait
                 await UniTask.WaitUntil(() =>
@@ -110,28 +117,16 @@ namespace HexRPG.Battle.Enemy
             while (true)
             {
                 await UniTask.Delay(spawnSetting.SpawnInterval * 1000, cancellationToken: token);
-                await SpawnEnemy(factory, _rootHex, token);
+                SpawnEnemy(factory, _rootHex, token).Forget();
             }
         }
 
         async UniTask<IEnemyComponentCollection> SpawnEnemy(EnemyOwner.Factory factory, Hex spawnHex, CancellationToken token)
         {
             var enemy = factory.Create(_enemyRoot, spawnHex.transform.position);
-            IEnemyComponentCollection enemyOwner = enemy;
+            var enemyOwner = enemy as IEnemyComponentCollection;
 
-            CompositeDisposable enemyDisposables = new CompositeDisposable();
-            var dieObservable = enemyOwner.DieObservable;
-            dieObservable.IsDead
-                .Where(isDead => isDead)
-                .Subscribe(_ => _enemyList.Remove(enemyOwner))
-                .AddTo(enemyDisposables);
-            enemyOwner.DieObservable.OnFinishDie
-                .Subscribe(_ =>
-                {
-                    Destroy(enemy.gameObject);
-                    enemyDisposables.Dispose();
-                })
-                .AddTo(enemyDisposables);
+            enemyOwner.Health.Init();
 
             await UniTask.WaitUntil(() => enemyOwner.CombatSpawnObservable.IsCombatSpawned, cancellationToken: token);
             await UniTask.WaitUntil(() => enemyOwner.SkillSpawnObservable.IsAllSkillSpawned, cancellationToken: token);
@@ -139,23 +134,35 @@ namespace HexRPG.Battle.Enemy
             enemyOwner.AnimationController.Init();
             enemyOwner.CharacterActionStateController.Init(); // 諸々の初期化が終わってからActionStateControllerを初期化した方が良い
 
+            //TODO: 1F遅らせても一瞬Dieモーションが見えている？
+            await UniTask.DelayFrame(1, cancellationToken: token);
             enemyOwner.ActiveController.SetActive(true);
+            enemyOwner.DieController.Init();
+
+            enemyOwner.DieObservable.OnFinishDie
+                .First()
+                .Subscribe(_ =>
+                {
+                    enemy.Dispose();
+                    _enemyList.Remove(enemy);
+                })
+                .AddTo(this);
 
             _enemyList.Add(enemy);
 
-            return enemyOwner;
+            return enemy;
         }
 
-        void TokenCancel()
+        void CancelSpawnSequence()
         {
-            _spawnEnemyCancellationTokenSource?.Cancel();
-            _spawnEnemyCancellationTokenSource?.Dispose();
-            _spawnEnemyCancellationTokenSource = null;
+            _spawnCts?.Cancel();
+            _spawnCts?.Dispose();
+            _spawnCts = null;
         }
 
         void OnDestroy()
         {
-            TokenCancel();
+            CancelSpawnSequence();
         }
     }
 }

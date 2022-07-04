@@ -31,8 +31,7 @@ namespace HexRPG.Battle
         void Start()
         {
             _dieObservable.IsDead
-                .Where(isDead => isDead)
-                .Subscribe(_ => (this as IColliderController).Collider.enabled = false)
+                .Subscribe(isDead => (this as IColliderController).Collider.enabled = !isDead)
                 .AddTo(this);
         }
     }

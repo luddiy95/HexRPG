@@ -19,8 +19,6 @@ namespace HexRPG.Battle.Player
         {
             //! FromSubContainerResolveバインディングで親コンテナにバインドされるクラスはサブコンテナ(ここ)内でバインドされなければならない
             Container.BindInterfacesAndSelfTo<PlayerOwner>().FromComponentOnRoot();
-            Container.BindInstance(_spawnRoot).WhenInjectedInto<TransformBehaviour>();
-            Container.BindInstance(_spawnPos).WhenInjectedInto<TransformBehaviour>();
 
             Container.BindInterfacesTo<MemberController>().AsSingle();
 

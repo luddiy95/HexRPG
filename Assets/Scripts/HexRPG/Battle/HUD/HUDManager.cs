@@ -14,12 +14,9 @@ namespace HexRPG.Battle.HUD
         [Header("MemberのHUD実装オブジェクト")]
         [SerializeField] GameObject _memberListHUD;
 
-        // EnemyHealth
         EnemyStatusHUD.Factory _enemyStatusFactory;
-        [SerializeField] Transform _enemyStatusRoot;
 
         DamagedPanelParentHUD.Factory _damagedPanelFactory;
-        [SerializeField] Transform _damagedPanelRoot;
 
         [Inject]
         public void Construct(
@@ -48,9 +45,18 @@ namespace HexRPG.Battle.HUD
             _battleObservable.OnEnemySpawn
                 .Subscribe(enemyOwner =>
                 {
-                    var clone = _enemyStatusFactory.Create();
-                    clone.transform.SetParent(_enemyStatusRoot);
-                    var huds = clone.GetComponents<ICharacterHUD>();
+                    var enemyStatusHUD = _enemyStatusFactory.Create();
+
+                    enemyOwner.DieObservable.IsDead
+                        .Where(isDead => isDead)
+                        .First()
+                        .Subscribe(_ =>
+                        {
+                            enemyStatusHUD.Dispose();
+                        })
+                        .AddTo(this);
+
+                    var huds = enemyStatusHUD.GetComponents<ICharacterHUD>();
                     Array.ForEach(huds, hud => hud.Bind(enemyOwner));
                 })
                 .AddTo(this);
@@ -58,9 +64,14 @@ namespace HexRPG.Battle.HUD
             // DamagedPanel
             void SpawnDamagedPanel(ICharacterComponentCollection chara)
             {
-                var clone = _damagedPanelFactory.Create();
-                clone.transform.SetParent(_damagedPanelRoot);
-                var huds = clone.GetComponents<ICharacterHUD>();
+                var damagedPanelParentHUD = _damagedPanelFactory.Create();
+
+                chara.DieObservable.OnFinishDie
+                    .First()
+                    .Subscribe(_ => damagedPanelParentHUD.Dispose())
+                    .AddTo(this);
+
+                var huds = damagedPanelParentHUD.GetComponents<ICharacterHUD>();
                 Array.ForEach(huds, hud => hud.Bind(chara));
             }
             _battleObservable.OnPlayerSpawn

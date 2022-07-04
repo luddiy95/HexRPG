@@ -70,6 +70,7 @@ namespace HexRPG.Battle.HUD
                 await UniTask.WaitWhile(() => Time.timeSinceLevelLoad - _lastMessageAddedTime < _messageAddInterval, cancellationToken: token);
             }
             AddMessage(scoreData);
+            return;
         }
 
         void AddMessage(ScoreData scoreData)

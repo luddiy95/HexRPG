@@ -37,6 +37,8 @@ namespace HexRPG.Battle
         /// spawnObjÇê∂ê¨Ç∑ÇÈç€Ç…êeÇ∆Ç»ÇÈTransform
         /// </summary>
         Transform SpawnRootTransform(string spawnObj);
+
+        void Init(Transform spawnRoot, Vector3 spawnPos);
     }
 
     public class TransformBehaviour : MonoBehaviour, ITransformController
@@ -114,25 +116,16 @@ namespace HexRPG.Battle
             [SerializeField] string _spawnObj;
         }
 
-        Transform _spawnRoot;
-        Vector3 _spawnPos;
-
-        [Inject]
-        public void Construct(
-            Transform spawnRoot,
-            Vector3 spawnPos
-        )
-        {
-            _spawnRoot = spawnRoot;
-            _spawnPos = spawnPos;
-        }
-
         void Start()
         {
-            if (_spawnRoot != null) Self.RootTransform.SetParent(_spawnRoot);
-            Self.Position = _spawnPos;
-
+            //TODO: Ç±ÇÍÇ¢ÇÈÅH
             Self.RotationAngle = 0;
+        }
+
+        void ITransformController.Init(Transform spawnRoot, Vector3 spawnPos)
+        {
+            Self.RootTransform.SetParent(spawnRoot);
+            Self.Position = spawnPos;
         }
     }
 

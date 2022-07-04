@@ -1,4 +1,3 @@
-using UnityEngine;
 using Zenject;
 
 namespace HexRPG.Battle.Player.Member
@@ -18,11 +17,10 @@ namespace HexRPG.Battle.Player.Member
         IMoveSetting MoveSetting { get; }
     }
 
-    public class MemberOwner : MonoBehaviour, IMemberComponentCollection
+    public class MemberOwner : AbstractOwner<MemberOwner>, IMemberComponentCollection
     {
         [Inject] IProfileSetting ICharacterComponentCollection.ProfileSetting { get; }
         [Inject] IDieObservable ICharacterComponentCollection.DieObservable { get; }
-        [Inject] ITransformController ICharacterComponentCollection.TransformController { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
 
         [Inject] IColliderController IMemberComponentCollection.ColliderController { get; }
@@ -36,10 +34,5 @@ namespace HexRPG.Battle.Player.Member
         [Inject] IActiveController IMemberComponentCollection.ActiveController { get; }
         [Inject] ISkillPoint IMemberComponentCollection.SkillPoint { get; }
         [Inject] IMoveSetting IMemberComponentCollection.MoveSetting { get; }
-
-        public class Factory : PlaceholderFactory<Transform, Vector3, MemberOwner>
-        {
-
-        }
     }
 }

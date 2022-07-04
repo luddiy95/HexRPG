@@ -11,8 +11,6 @@ namespace HexRPG.Battle.Skill
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<SkillOwner>().FromComponentOnRoot();
-            Container.BindInstance(_spawnRoot).WhenInjectedInto<TransformBehaviour>();
-            Container.BindInstance(_spawnPos).WhenInjectedInto<TransformBehaviour>();
         }
     }
 }

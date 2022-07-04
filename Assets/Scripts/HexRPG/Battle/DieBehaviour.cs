@@ -10,6 +10,7 @@ namespace HexRPG.Battle
 {
     public interface IDieController
     {
+        void Init();
         void ForceDie();
     }
 
@@ -33,8 +34,6 @@ namespace HexRPG.Battle
 
         [SerializeField] PlayableDirector _director;
 
-        CancellationToken _cancellationToken;
-
         [Inject]
         public void Construct(
             IHealth health,
@@ -49,19 +48,23 @@ namespace HexRPG.Battle
 
         async UniTaskVoid Start()
         {
-            _cancellationToken = this.GetCancellationTokenOnDestroy();
-            await UniTask.Yield(_cancellationToken); // 他のコンポーネントが初期化されるのを待つ
+            await UniTask.Yield(this.GetCancellationTokenOnDestroy()); // 他のコンポーネントが初期化されるのを待つ
 
             _director.playableAsset = _dieSetting.Timeline;
             _director.stopped += (obj) =>
             {
-                FinishDie(_cancellationToken).Forget();
+                FinishDie(this.GetCancellationTokenOnDestroy()).Forget();
             };
 
             _health.Current
                 .Where(health => health <= 0)
                 .Subscribe(_ => Die())
                 .AddTo(this);
+        }
+
+        void IDieController.Init()
+        {
+            _isDead.Value = false;
         }
 
         void Die()
@@ -76,6 +79,8 @@ namespace HexRPG.Battle
             await UniTask.Delay(2000);
 
             _onFinishDie.OnNext(Unit.Default);
+
+            return;
         }
 
         void IDieController.ForceDie()

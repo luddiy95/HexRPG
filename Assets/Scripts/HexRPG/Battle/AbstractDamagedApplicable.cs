@@ -11,7 +11,7 @@ namespace HexRPG.Battle
         IObservable<HitData> OnHit { get; }
 
         //TODO: Inspector—v
-        void OnHitTest();
+        void OnHitTest(int damage);
     }
 
     public abstract class AbstractDamagedApplicable : IDamageApplicable, IInitializable, IDisposable
@@ -99,9 +99,9 @@ namespace HexRPG.Battle
             _damagedOwner.Health.Update(-hitData.Damage);
         }
 
-        void IDamageApplicable.OnHitTest()
+        void IDamageApplicable.OnHitTest(int damage)
         {
-            OnHitTest();
+            OnHitTest(damage);
         }
 
         protected void AllHitTest()

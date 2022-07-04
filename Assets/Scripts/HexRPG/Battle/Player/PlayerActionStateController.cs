@@ -1,7 +1,8 @@
 using UnityEngine;
 using UniRx;
 using System;
-using Zenject;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 
 namespace HexRPG.Battle.Player
 {
@@ -33,9 +34,6 @@ namespace HexRPG.Battle.Player
 
         ActionStateType CurState => _actionStateObservable.CurrentState.Value.Type;
         ActionStateType PrevState => _actionStateObservable.PreviousState.Type;
-
-        bool _isFirstMember = true;
-        ActionState _idle;
 
         bool _acceptDirectionInput = true;
 
@@ -79,17 +77,16 @@ namespace HexRPG.Battle.Player
 
         void ICharacterActionStateController.Init()
         {
-            BuildActionStates();
+            var initialState = BuildActionStates();
 
             // Member変更
             _memberObservable.CurMember
                 .Subscribe(member =>
                 {
-                    if (_isFirstMember)
+                    if (_actionStateObservable.CurrentState.Value == null)
                     {
-                        _actionStateController.SetInitialState(_idle);
                         SetUpControl();
-                        _isFirstMember = false;
+                        _actionStateController.SetInitialState(initialState);
                     }
                     else
                     {
@@ -113,9 +110,9 @@ namespace HexRPG.Battle.Player
                 .AddTo(_disposables);
         }
 
-        void BuildActionStates()
+        ActionState BuildActionStates()
         {
-            _idle = NewState(IDLE)
+            var idle = NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventIdle(0f))
                 .AddEvent(new ActionEventCancel("move", 0.15f, MOVE))
@@ -174,6 +171,8 @@ namespace HexRPG.Battle.Player
                 action?.Invoke(s);
                 return s;
             }
+
+            return idle;
         }
 
         void SetUpControl()
@@ -188,6 +187,7 @@ namespace HexRPG.Battle.Player
 
             // joyスティック入力時
             _characterInput.Direction
+                .Skip(1)
                 .Subscribe(direction =>
                 {
                     if (direction.sqrMagnitude > 0.1)
@@ -226,8 +226,8 @@ namespace HexRPG.Battle.Player
 
             // Skill選択
             _characterInput.SelectedSkillIndex
-                .Where(_ => CurState == IDLE || CurState == MOVE || CurState == SKILL_SELECT)
                 .Skip(1)
+                .Where(_ => CurState == IDLE || CurState == MOVE || CurState == SKILL_SELECT)
                 .Subscribe(index =>
                 {
                     var skillList = _memberObservable.CurMember.Value.SkillSpawnObservable.SkillList;

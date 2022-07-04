@@ -21,6 +21,8 @@ namespace HexRPG.Battle.HUD
         //! DamagedDisplay表示時、CharacterのDamagedモーションなどを追ってしまわないようにDamagedDisplayのParent(DamagedPanelHUD)とTrackingHUDは別にする
         [SerializeField] GameObject _trackingPanel;
 
+        CompositeDisposable _disposables = new CompositeDisposable();
+
         [Inject]
         public void Construct(
             BattleData battleData,
@@ -39,6 +41,8 @@ namespace HexRPG.Battle.HUD
 
         void ICharacterHUD.Bind(ICharacterComponentCollection chara)
         {
+            _disposables.Clear();
+
             if (chara is IPlayerComponentCollection playerOwner)
             {
                 playerOwner.MemberObservable.CurMember
@@ -47,7 +51,7 @@ namespace HexRPG.Battle.HUD
                         _name = memberOwner.ProfileSetting.Name;
                         UpdateDisplay();
                     })
-                    .AddTo(this);
+                    .AddTo(_disposables);
             }
             if (chara is IEnemyComponentCollection enemyOwner)
             {
@@ -73,7 +77,7 @@ namespace HexRPG.Battle.HUD
                             .AppendCallback(() => _objectPool.Free(damagedDisplay.gameObject));
 
                     })
-                    .AddTo(this);
+                    .AddTo(_disposables);
             }
         }
 
@@ -84,6 +88,11 @@ namespace HexRPG.Battle.HUD
             _trackingHUD.Offset = data.damagedPanelOffset;
             _size = data.damagedPanelSize;
             _transform.sizeDelta = _size;
+        }
+
+        void OnDestroy()
+        {
+            _disposables.Dispose();
         }
 
 #if UNITY_EDITOR

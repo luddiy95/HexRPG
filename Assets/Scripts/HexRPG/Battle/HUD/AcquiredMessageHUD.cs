@@ -31,21 +31,17 @@ namespace HexRPG.Battle.HUD
         const float _duration = 0.325f;
         const float _showInterval = 1.5f;
 
-        CancellationToken _token;
-
         void Awake()
         {
             _rectTransform = _background.GetComponent<RectTransform>();
 
             _defaultPositionX = _rectTransform.anchoredPosition.x;
             _rectTransform.anchoredPosition = Vector3.zero;
-
-            _token = this.GetCancellationTokenOnDestroy();
         }
 
         void IAcquiredMessage.Show(string message)
         {
-            StartShowInterval(_token).Forget();
+            StartShowInterval(this.GetCancellationTokenOnDestroy()).Forget();
 
             _rectTransform.anchoredPosition = Vector3.zero;
             TransformUtility.DOAnchorPosX(_rectTransform, _defaultPositionX, _duration);
@@ -65,6 +61,7 @@ namespace HexRPG.Battle.HUD
         {
             await UniTask.Delay((int)(_showInterval * 1000), cancellationToken: token);
             (this as IAcquiredMessage).Hide();
+            return;
         }
 
         void OnDestroy()
