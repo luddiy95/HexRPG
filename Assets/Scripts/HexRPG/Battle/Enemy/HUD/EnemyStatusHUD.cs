@@ -2,7 +2,6 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
-using System;
 using System.Linq;
 using UniRx;
 using TMPro;
@@ -11,7 +10,7 @@ namespace HexRPG.Battle.Enemy.HUD
 {
     using Battle.HUD;
 
-    public class EnemyStatusHUD : MonoBehaviour, ICharacterHUD, IPoolable<IMemoryPool>, IDisposable
+    public class EnemyStatusHUD : AbstractPoolableMonoBehaviour<EnemyStatusHUD>, ICharacterHUD
     {
         BattleData _battleData;
         DisplayDataContainer _displayDataContainer;
@@ -23,8 +22,6 @@ namespace HexRPG.Battle.Enemy.HUD
         ITrackingHUD _trackingHUD;
 
         CompositeDisposable _disposables = new CompositeDisposable();
-
-        IMemoryPool _pool;
 
         [Inject]
         public void Construct(
@@ -71,34 +68,9 @@ namespace HexRPG.Battle.Enemy.HUD
             }
         }
 
-        void IPoolable<IMemoryPool>.OnSpawned(IMemoryPool pool)
-        {
-            _pool = pool;
-        }
-
-        void IPoolable<IMemoryPool>.OnDespawned()
-        {
-            _pool = null;
-        }
-
-        public void Dispose()
-        {
-            _pool.Despawn(this);
-        }
-
         void OnDestroy()
         {
             _disposables.Dispose();
-        }
-
-        public class Factory : PlaceholderFactory<EnemyStatusHUD>
-        {
-
-        }
-
-        public class Pool : MonoPoolableMemoryPool<IMemoryPool, EnemyStatusHUD>
-        {
-
         }
 
 #if UNITY_EDITOR

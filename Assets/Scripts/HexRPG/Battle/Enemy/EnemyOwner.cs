@@ -22,7 +22,6 @@ namespace HexRPG.Battle.Enemy
 
     public class EnemyOwner : AbstractPoolableOwner<EnemyOwner>, IEnemyComponentCollection
     {
-        //TODO: ›› I¢¢.››‚Ì‚©‚½‚¿‚É–ß‚·
         [Inject] IProfileSetting ICharacterComponentCollection.ProfileSetting { get; }
         [Inject] IDieObservable ICharacterComponentCollection.DieObservable { get; }
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
