@@ -63,7 +63,7 @@ namespace HexRPG.Battle.Stage
             return TransformExtensions.GetLandedHex(position);
         }
 
-        public static Hex[] GetHexList(this IStageController stageController, Hex root, List<Vector2> range, int rotationAngle)
+        public static Hex[] GetHexList(this IStageController stageController, Hex root, IEnumerable<Vector2> range, int rotationAngle)
         {
             return range
                 .Select(dir => stageController.GetHex(root, dir, rotationAngle))

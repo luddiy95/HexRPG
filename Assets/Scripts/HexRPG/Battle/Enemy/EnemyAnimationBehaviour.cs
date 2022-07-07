@@ -51,17 +51,18 @@ namespace HexRPG.Battle.Enemy
             var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
 
             //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
+            //! _cts != nullでも_nextPlayingIndex < 0 の場合がある(Combat, Skillなど)
             if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
 
-            var isCurClipIdleLocomotion = (curClip == "Idle" || (_animationTypeMap.TryGetValue(curClip, out AnimationType type) && type.IsLocomotionType()));
+            var isCurClipIdleLocomotion = (GetAnimationType(curClip) == AnimationType.Idle || GetAnimationType(curClip) == AnimationType.Move);
             if (isCurClipIdleLocomotion)
             {
                 // Idle, Locomotion -> Rotateは「Idle」は割り込み可能
                 var isCrossFadeBtwIdleLocomotionRotate = 
-                    (_nextPlayingIndex >= 0 && _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsRotateType());
+                    (_nextPlayingIndex >= 0 && GetAnimationType(_playables[_nextPlayingIndex].GetAnimationClip().name) == AnimationType.Rotate);
                 if (isCrossFadeBtwIdleLocomotionRotate)
                 {
-                    if (nextClip == "Idle")
+                    if(GetAnimationType(nextClip) == AnimationType.Idle)
                     {
                         TokenCancel();
 
@@ -75,10 +76,10 @@ namespace HexRPG.Battle.Enemy
 
                 // Idle, Locomotion -> Locomotionは「Idle, Rotate」は割り込み可能
                 var isCrossFadeBtwIdleLocomotion = 
-                    (_nextPlayingIndex >= 0 && _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType());
+                    (_nextPlayingIndex >= 0 && GetAnimationType(_playables[_nextPlayingIndex].GetAnimationClip().name) == AnimationType.Move);
                 if (isCrossFadeBtwIdleLocomotion)
                 {
-                    if (nextClip == "Idle" || _animationTypeMap.TryGetValue(nextClip, out type) && type.IsRotateType())
+                    if (GetAnimationType(nextClip) == AnimationType.Idle || GetAnimationType(nextClip) == AnimationType.Rotate)
                     {
                         TokenCancel();
 
@@ -129,7 +130,7 @@ namespace HexRPG.Battle.Enemy
         {
             _graph = PlayableGraph.Create();
             _playables = _clips.Select(clip => AnimationClipPlayable.Create(_graph, clip)).ToList();
-            var damagedClip = _playables.First(playable => playable.GetAnimationClip().name == "Damaged").GetAnimationClip();
+            var damagedClip = _playables.First(playable => GetAnimationType(playable.GetAnimationClip().name) == AnimationType.Damaged).GetAnimationClip();
             var damagedToIdleEvent = new AnimationEvent[] {
                 new AnimationEvent()
                 {

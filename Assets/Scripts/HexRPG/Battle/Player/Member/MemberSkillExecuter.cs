@@ -16,7 +16,7 @@ namespace HexRPG.Battle.Player.Member
         List<SkillOwner.Factory> _skillFactories;
         ISkillsEquipment _skillsEquipment;
 
-        ISkillComponentCollection[] ISkillSpawnObservable.SkillList => _skillList;
+        IReadOnlyList<ISkillComponentCollection> ISkillSpawnObservable.SkillList => _skillList;
         ISkillComponentCollection[] _skillList;
 
         bool ISkillSpawnObservable.IsAllSkillSpawned => _isAllSkillSpawned;

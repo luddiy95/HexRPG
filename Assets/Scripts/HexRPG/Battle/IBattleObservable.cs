@@ -19,7 +19,7 @@ namespace HexRPG.Battle
         Hex PlayerLandedHex { get; }
 
         IReadOnlyReactiveCollection<IEnemyComponentCollection> EnemyList { get; }
-        List<Hex> EnemyDestinationHexList { get; }
+        IEnumerable<Hex> EnemyDestinationHexList { get; } // ˆê“xcopy‚³‚ê‚Ä‚©‚çŽg‚¤‘z’è
 
         CinemachineBrain CinemachineBrain { get; }
         CinemachineVirtualCamera MainVirtualCamera { get; }

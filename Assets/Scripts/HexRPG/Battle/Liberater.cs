@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System;
 using System.Linq;
 using UniRx;
@@ -10,7 +11,7 @@ namespace HexRPG.Battle
 
     public interface ILiberateController
     {
-        void Liberate(Hex[] hexList);
+        void Liberate(IEnumerable<Hex> hexList);
     }
 
     public interface ILiberateObservable
@@ -39,7 +40,7 @@ namespace HexRPG.Battle
             _isPlayer = !(_owner is IEnemyComponentCollection);
         }
 
-        void ILiberateController.Liberate(Hex[] hexList)
+        void ILiberateController.Liberate(IEnumerable<Hex> hexList)
         {
             _successLiberateHexList.OnNext(hexList.Where(hex => hex.Liberate(_isPlayer)).ToArray());
         }

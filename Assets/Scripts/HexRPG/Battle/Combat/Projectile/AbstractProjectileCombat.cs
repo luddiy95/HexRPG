@@ -21,7 +21,7 @@ namespace HexRPG.Battle.Combat
             base.InternalInit(attackOwner, animationController, timeline);
 
             // AttackColliderの位置をキャッシュする
-            _attackColliders.ForEach(collider => _attackColliderPosCache.Add(collider.transform.localPosition));
+            foreach (var collider in _attackColliders) _attackColliderPosCache.Add(collider.transform.localPosition);
 
             _director.stopped += (_ => OnTimelineStopped().Forget());
         }
@@ -38,10 +38,7 @@ namespace HexRPG.Battle.Combat
             _isAlreadyEmitted = false;
             _cts = new CancellationTokenSource(); 
             //TODO: 現状、飛び道具が複数(colliderが複数)の場合は考慮していない(複数の場合はcolliderに応じたCancellationTokenが必要 & ダメージ時に消すColliderを検証する必要)
-            _attackColliders.ForEach(collider =>
-            {
-                Emit(_cts.Token, collider, colliderVelocity).Forget();
-            });
+            foreach(var collider in _attackColliders) Emit(_cts.Token, collider, colliderVelocity).Forget();
             base.OnAttackEnable(damage, colliderVelocity);
         }
 

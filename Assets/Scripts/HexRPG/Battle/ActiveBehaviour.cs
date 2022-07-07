@@ -9,13 +9,12 @@ namespace HexRPG.Battle
 
     public class ActiveBehaviour : MonoBehaviour, IActiveController
     {
+        GameObject GameObject => _gameObject ? _gameObject : gameObject;
         [Header("表示を操作したいオブジェクト。nullならこのオブジェクト。")]
         [SerializeField] protected GameObject _gameObject;
 
         void Start()
         {
-            if (_gameObject == null) _gameObject = gameObject;
-
             //! 最初は非表示
             SetActive(false);
         }
@@ -27,7 +26,7 @@ namespace HexRPG.Battle
 
         protected virtual void SetActive(bool visible)
         {
-            _gameObject.SetActive(visible);
+            GameObject.SetActive(visible);
         }
     }
 }

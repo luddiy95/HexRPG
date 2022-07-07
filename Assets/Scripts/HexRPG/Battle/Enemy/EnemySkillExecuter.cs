@@ -21,7 +21,7 @@ namespace HexRPG.Battle.Enemy
         IAttackComponentCollection _attackOwner;
         IAttackReserve _attackReserve;
 
-        ISkillComponentCollection[] ISkillSpawnObservable.SkillList => _skillList;
+        IReadOnlyList<ISkillComponentCollection> ISkillSpawnObservable.SkillList => _skillList;
         ISkillComponentCollection[] _skillList;
 
         bool ISkillSpawnObservable.IsAllSkillSpawned => _isAllSkillSpawned;
@@ -29,7 +29,7 @@ namespace HexRPG.Battle.Enemy
 
         IObservable<Unit> ISkillObservable.OnStartReservation => null;
         IObservable<Unit> ISkillObservable.OnFinishReservation => null;
-        IObservable<Hex[]> ISkillObservable.OnSkillAttack => null;
+        IObservable<IEnumerable<Hex>> ISkillObservable.OnSkillAttack => null;
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();

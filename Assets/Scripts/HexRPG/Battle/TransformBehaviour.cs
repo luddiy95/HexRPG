@@ -1,7 +1,6 @@
 using System.Linq;
 using UnityEngine;
 using System;
-using Zenject;
 
 namespace HexRPG.Battle
 {
@@ -84,21 +83,17 @@ namespace HexRPG.Battle
             return (spawnRootTransform != null && spawnRootTransform.Transform != null) ? spawnRootTransform.Transform : transform;
         }
 
-#nullable enable
-
         [Header("RootとなるTransform。null ならこのオブジェクト。")]
-        [SerializeField] Transform? _rootTransform;
+        [SerializeField] Transform _rootTransform;
 
         [Header("動かすTransform。null ならこのオブジェクト。")]
-        [SerializeField] Transform? _moveTransform;
+        [SerializeField] Transform _moveTransform;
 
         [Header("回転させるTransform。null ならこのオブジェクト。")]
-        [SerializeField] Transform? _rotateTransform;
+        [SerializeField] Transform _rotateTransform;
 
         [Header("HUDを表示させるときのTransform。null ならこのオブジェクト。")]
-        [SerializeField] Transform? _displayTransform;
-
-#nullable disable
+        [SerializeField] Transform _displayTransform;
 
         [Header("何かを生成する際に親となるTransform。null ならこのオブジェクト。")]
         [SerializeField] SpawnRoot[] _spawnRoots;
@@ -135,6 +130,8 @@ namespace HexRPG.Battle
         readonly public static string EnemyHex = "EnemyHex";
         readonly public static string NeutralHex = "NeutralHex";
 
+        static RaycastHit[] _hits = new RaycastHit[128];
+
         readonly static LayerMask hexLayerMask = 
             (1 << LayerMask.NameToLayer(PlayerHex) | 1 << LayerMask.NameToLayer(EnemyHex) | 1 << LayerMask.NameToLayer(NeutralHex));
 
@@ -146,9 +143,10 @@ namespace HexRPG.Battle
 
         public static Hex[] GetSurroundedHexList(Hex root, float radius)
         {
-            var hits = Physics.SphereCastAll(new Ray(root.transform.position, Vector3.down), radius, maxDistance: 0, hexLayerMask);
-            return hits
+            Physics.SphereCastNonAlloc(new Ray(root.transform.position, Vector3.down), radius, results: _hits, layerMask: hexLayerMask, maxDistance: 0);
+            return _hits
                 .Select(hit => hit.collider?.GetComponent<Hex>())
+                .Where(hex => hex != null)
                 .Where(hex => hex.GetDistanceXZ(root) <= radius) //! hexの「中心」がrootの中心に対して距離radius以下
                 .ToArray();
         }

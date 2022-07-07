@@ -13,12 +13,9 @@ namespace HexRPG.Battle
     {
         IDieObservable _dieObservable;
 
-        CapsuleCollider IColliderController.Collider => _collider ? _collider! : _collider = GetComponent<CapsuleCollider>();
-
-#nullable enable
+        CapsuleCollider IColliderController.Collider => _collider ? _collider : _collider = GetComponent<CapsuleCollider>();
         [Header("null ならこのオブジェクト。")]
-        [SerializeField] CapsuleCollider? _collider;
-#nullable disable
+        [SerializeField] CapsuleCollider _collider;
 
         [Inject]
         public void Construct(

@@ -26,10 +26,10 @@ namespace HexRPG.Battle
     public class ActionState
     {
         public ActionStateType Type => _type;
-        public IList<AbstractActionEvent> Events => _events;
+        public IReadOnlyList<AbstractActionEvent> Events => _events;
 
         readonly ActionStateType _type;
-        readonly List<AbstractActionEvent> _events = new List<AbstractActionEvent>();
+        readonly List<AbstractActionEvent> _events = new List<AbstractActionEvent>(16);
 
         public ActionState(ActionStateType type)
         {

@@ -1,4 +1,4 @@
-using UnityEngine;
+using System.Collections.Generic;
 using System;
 using UniRx;
 
@@ -11,7 +11,7 @@ namespace HexRPG.Battle
         IObservable<Unit> OnStartReservation { get; }
         IObservable<Unit> OnFinishReservation { get; }
 
-        IObservable<Hex[]> OnSkillAttack { get; }
+        IObservable<IEnumerable<Hex>> OnSkillAttack { get; }
 
         IObservable<Unit> OnFinishSkill { get; }
     }

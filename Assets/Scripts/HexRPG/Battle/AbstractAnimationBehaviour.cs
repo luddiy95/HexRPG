@@ -33,7 +33,13 @@ namespace HexRPG.Battle
         protected AnimationMixerPlayable _mixer;
 
         [SerializeField] protected AnimationClip[] _clips;
-        protected Dictionary<string, AnimationType> _animationTypeMap = new Dictionary<string, AnimationType>();
+        protected readonly Dictionary<string, AnimationType> _animationTypeMap = new Dictionary<string, AnimationType>();
+
+        protected AnimationType GetAnimationType(string name)
+        {
+            if (_animationTypeMap.TryGetValue(name, out AnimationType type)) return type;
+            return AnimationType.None;
+        }
 
         protected struct TimelineClipInfo
         {
@@ -44,13 +50,13 @@ namespace HexRPG.Battle
         }
 
         // Die Timeline
-        protected List<TimelineClipInfo> _dieClipInfoList = new List<TimelineClipInfo>();
+        protected List<TimelineClipInfo> _dieClipInfoList = new List<TimelineClipInfo>(8);
 
         // Combat
         protected class CombatTimelineInfo
         {
             public string CombatName { get; set; }
-            public List<TimelineClipInfo> TimelineClipInfoList { get; set; } = new List<TimelineClipInfo>();
+            public List<TimelineClipInfo> TimelineClipInfoList { get; } = new List<TimelineClipInfo>(16);
         }
         protected CombatTimelineInfo _combatTimelineInfo;
         protected CombatTimelineInfo _curCombat;
@@ -59,9 +65,9 @@ namespace HexRPG.Battle
         protected class SkillTimelineInfo
         {
             public string SkillName { get; set; }
-            public List<TimelineClipInfo> TimelineClipInfoList { get; set; } = new List<TimelineClipInfo>();
+            public List<TimelineClipInfo> TimelineClipInfoList { get; } = new List<TimelineClipInfo>(16);
         }
-        protected List<SkillTimelineInfo> _skillTimelineInfos = new List<SkillTimelineInfo>();
+        protected readonly List<SkillTimelineInfo> _skillTimelineInfos = new List<SkillTimelineInfo>(8);
         protected SkillTimelineInfo _curSkill;
 
         protected int _allClipCount;
@@ -193,8 +199,7 @@ namespace HexRPG.Battle
             }
 
             // Die
-            var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out AnimationType type) && type == AnimationType.Die);
-            if (isDieClip)
+            if (GetAnimationType(nextClip) == AnimationType.Die)
             {
                 _cts = new CancellationTokenSource();
                 InternalPlayDie(_cts.Token).Forget();
@@ -209,37 +214,32 @@ namespace HexRPG.Battle
         protected virtual void PlayWithInterrupt(string nextClip) // Š„‚èž‚Ý
         {
             var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
-            AnimationType type;
 
-            // Damaged
-            if (nextClip == "Damaged")
+            switch (GetAnimationType(nextClip))
             {
-                TokenCancel();
+                case AnimationType.Damaged:
+                    TokenCancel();
 
-                if (_curCombat != null) FinishCombat();
-                if (_curSkill != null) FinishSkill();
+                    if (_curCombat != null) FinishCombat();
+                    if (_curSkill != null) FinishSkill();
 
-                if (_nextPlayingIndex >= 0) fixedRate = rate;
+                    if (_nextPlayingIndex >= 0) fixedRate = rate;
 
-                _cts = new CancellationTokenSource();
-                InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cts.Token).Forget();
-                return;
-            }
+                    _cts = new CancellationTokenSource();
+                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cts.Token).Forget();
+                    break;
 
-            // Die
-            var isDieClip = (_animationTypeMap.TryGetValue(nextClip, out type) && type == AnimationType.Die);
-            if (isDieClip)
-            {
-                TokenCancel();
+                case AnimationType.Die:
+                    TokenCancel();
 
-                if (_curCombat != null) FinishCombat();
-                if (_curSkill != null) FinishSkill();
+                    if (_curCombat != null) FinishCombat();
+                    if (_curSkill != null) FinishSkill();
 
-                if (_nextPlayingIndex >= 0) fixedRate = rate;
+                    if (_nextPlayingIndex >= 0) fixedRate = rate;
 
-                _cts = new CancellationTokenSource();
-                InternalPlayDie(_cts.Token).Forget();
-                return;
+                    _cts = new CancellationTokenSource();
+                    InternalPlayDie(_cts.Token).Forget();
+                    break;
             }
         }
 
@@ -355,12 +355,12 @@ namespace HexRPG.Battle
 
         protected async UniTask InternalAnimationTransit(string nextClip, float transitionTime, CancellationToken token)
         {
-            var isCurDamagedClip = _playables[_curPlayingIndex].GetAnimationClip().name == "Damaged";
+            var isCurDamagedClip = GetAnimationType(_playables[_curPlayingIndex].GetAnimationClip().name) == AnimationType.Damaged;
 
             await InternalCrossFade(nextClip, transitionTime, token);
 
             // Š„‚èž‚Ý‚ª‚È‚©‚Á‚½ê‡‚Ì‚Ý‚±‚±‚Ü‚Å’H‚è’…‚­
-            if (isCurDamagedClip && nextClip == "Idle") _onFinishDamaged.OnNext(Unit.Default);
+            if (isCurDamagedClip && GetAnimationType(nextClip) == AnimationType.Idle) _onFinishDamaged.OnNext(Unit.Default);
             TokenCancel();
         }
 
@@ -471,9 +471,9 @@ namespace HexRPG.Battle
 
             _animationTypeMap.Add("Idle", AnimationType.Idle);
 
-            Array.ForEach(AnimationExtensions.MoveClips, clipName => _animationTypeMap.Add(clipName, AnimationType.Move));
+            foreach(var clipName in AnimationExtensions.MoveClips) _animationTypeMap.Add(clipName, AnimationType.Move);
 
-            Array.ForEach(AnimationExtensions.RotateClips, clipName => _animationTypeMap.Add(clipName, AnimationType.Rotate));
+            foreach (var clipName in AnimationExtensions.RotateClips) _animationTypeMap.Add(clipName, AnimationType.Rotate);
             //TODO: ‰¼
             var playerRotateSpeed = 0.5f;
             int index = _playables.FindIndex(x => x.GetAnimationClip().name == "RotateRight");
@@ -486,7 +486,7 @@ namespace HexRPG.Battle
             SetupDieAnimation();
 
             if(_combatSpawnObservable.Combat != null) SetupCombatAnimation(_combatSpawnObservable.Combat.Combat.PlayableAsset);
-            Array.ForEach(_skillSpawnObservable.SkillList, skill => SetupSkillAnimation(skill.Skill.PlayableAsset));
+            foreach (var skill in _skillSpawnObservable.SkillList) SetupSkillAnimation(skill.Skill.PlayableAsset);
 
             _allClipCount = _playables.Count;
         }
@@ -513,7 +513,7 @@ namespace HexRPG.Battle
             {
                 if (trackAsset is AnimationTrack)
                 {
-                    List<TimelineClip> clips = new List<TimelineClip>();
+                    List<TimelineClip> clips = new List<TimelineClip>(8);
                     foreach (var clip in trackAsset.GetClips()) clips.Add(clip);
 
                     foreach (var clip in clips.OrderBy(clip => clip.start))
@@ -539,26 +539,31 @@ namespace HexRPG.Battle
                     }
 
                     trackAsset.muted = true;
+                    break;
                 }
             }
         }
 
         void SetupCombatAnimation(PlayableAsset playableAsset)
         {
+            _combatTimelineInfo = new CombatTimelineInfo()
+            {
+                CombatName = playableAsset.name
+            };
+
             foreach (var trackAsset in (playableAsset as TimelineAsset).GetOutputTracks())
             {
                 if (trackAsset is AnimationTrack)
                 {
-                    List<TimelineClip> clips = new List<TimelineClip>();
+                    List<TimelineClip> clips = new List<TimelineClip>(16);
                     foreach (var clip in trackAsset.GetClips()) clips.Add(clip);
 
                     // combatTimelineInfoList‚É’Ç‰Á
-                    List<TimelineClipInfo> timelinClipInfoList = new List<TimelineClipInfo>();
                     foreach (var clip in clips.OrderBy(clip => clip.start))
                     {
                         var clipName = clip.animationClip.name;
 
-                        timelinClipInfoList.Add(new TimelineClipInfo
+                        _combatTimelineInfo.TimelineClipInfoList.Add(new TimelineClipInfo
                         {
                             ClipName = clipName,
                             Duration = clip.duration,
@@ -575,13 +580,9 @@ namespace HexRPG.Battle
                             _mixer.AddInput(playable, 0, 0);
                         }
                     }
-                    _combatTimelineInfo = new CombatTimelineInfo
-                    {
-                        CombatName = playableAsset.name,
-                        TimelineClipInfoList = timelinClipInfoList
-                    };
 
                     trackAsset.muted = true;
+                    break;
                 }
             }
         }
@@ -592,16 +593,20 @@ namespace HexRPG.Battle
             {
                 if (trackAsset is AnimationTrack)
                 {
-                    List<TimelineClip> clips = new List<TimelineClip>();
+                    var skillTimelineInfo = new SkillTimelineInfo
+                    {
+                        SkillName = playableAsset.name
+                    };
+
+                    List<TimelineClip> clips = new List<TimelineClip>(16);
                     foreach (var clip in trackAsset.GetClips()) clips.Add(clip);
 
                     // skillTimelineInfoList‚É’Ç‰Á
-                    List<TimelineClipInfo> timelinClipInfoList = new List<TimelineClipInfo>();
                     foreach (var clip in clips.OrderBy(clip => clip.start))
                     {
                         var clipName = clip.animationClip.name;
 
-                        timelinClipInfoList.Add(new TimelineClipInfo
+                        skillTimelineInfo.TimelineClipInfoList.Add(new TimelineClipInfo
                         {
                             ClipName = clipName,
                             Duration = clip.duration,
@@ -618,13 +623,11 @@ namespace HexRPG.Battle
                             _mixer.AddInput(playable, 0, 0);
                         }
                     }
-                    _skillTimelineInfos.Add(new SkillTimelineInfo
-                    {
-                        SkillName = playableAsset.name,
-                        TimelineClipInfoList = timelinClipInfoList
-                    });
+
+                    _skillTimelineInfos.Add(skillTimelineInfo);
 
                     trackAsset.muted = true;
+                    break;
                 }
             }
         }

@@ -38,8 +38,8 @@ namespace HexRPG.Battle.Skill
         IObservable<Unit> ISkillObservable.OnFinishReservation => _onFinishReservation;
         readonly ISubject<Unit> _onFinishReservation = new Subject<Unit>();
 
-        IObservable<Hex[]> ISkillObservable.OnSkillAttack => _onSkillAttack;
-        readonly ISubject<Hex[]> _onSkillAttack = new Subject<Hex[]>();
+        IObservable<IEnumerable<Hex>> ISkillObservable.OnSkillAttack => _onSkillAttack;
+        readonly ISubject<IEnumerable<Hex>> _onSkillAttack = new Subject<IEnumerable<Hex>>();
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();

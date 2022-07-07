@@ -1,13 +1,13 @@
+using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.Collections.Generic;
 using UnityEngine.Playables;
 
 namespace HexRPG.Battle
 {
     public interface ISkillsEquipment
     {
-        SkillAsset[] Skills { get; }
+        IReadOnlyList<SkillAsset> Skills { get; }
     }
 
     [Serializable]

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace HexRPG.Battle
@@ -11,7 +12,7 @@ namespace HexRPG.Battle
 
     public interface ISkillSpawnObservable
     {
-        ISkillComponentCollection[] SkillList { get; }
+        IReadOnlyList<ISkillComponentCollection> SkillList { get; }
         bool IsAllSkillSpawned { get; }
     }
 }

@@ -33,7 +33,7 @@ namespace HexRPG.Battle
         readonly IReactiveProperty<Command> _executedCommand = new ReactiveProperty<Command>();
         readonly List<ActionState> _stateHistory = new List<ActionState>();
 
-        readonly List<ActionState> _actionStates = new List<ActionState>();
+        readonly List<ActionState> _actionStates = new List<ActionState>(32);
 
         readonly ISubject<ActionState> _onEnterState = new Subject<ActionState>();
         readonly ISubject<ActionState> _onExitState = new Subject<ActionState>();
@@ -42,7 +42,7 @@ namespace HexRPG.Battle
 
         readonly StatePosition[] _eventPositions = new StatePosition[100];
 
-        readonly List<ActionEventCancel> _activeCancelEvents = new List<ActionEventCancel>();
+        readonly List<ActionEventCancel> _activeCancelEvents = new List<ActionEventCancel>(16);
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -76,15 +76,9 @@ namespace HexRPG.Battle
         void IInitializable.Initialize()
         {
             // ƒLƒƒƒ“ƒZƒ‹Ý’è
-            _onEnterState.Subscribe(_ => _activeCancelEvents.Clear());
-            GetEventStream<ActionEventCancel>(EventStreamId.Start).Subscribe(c =>
-            {
-                _activeCancelEvents.Add(c);
-            });
-            GetEventStream<ActionEventCancel>(EventStreamId.End).Subscribe(c =>
-            {
-                _activeCancelEvents.Remove(c);
-            });
+            _onEnterState.Subscribe(_ => _activeCancelEvents.Clear()).AddTo(_disposables);
+            GetEventStream<ActionEventCancel>(EventStreamId.Start).Subscribe(c => _activeCancelEvents.Add(c)).AddTo(_disposables);
+            GetEventStream<ActionEventCancel>(EventStreamId.End).Subscribe(c => _activeCancelEvents.Remove(c)).AddTo(_disposables);
 
             _updateObservable.OnUpdate((int)UPDATE_ORDER.ACTION_TRANSITION)
                 .Subscribe(_ => OnUpdate(_deltaTime))

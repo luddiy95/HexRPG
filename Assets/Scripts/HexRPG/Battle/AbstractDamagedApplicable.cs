@@ -22,7 +22,7 @@ namespace HexRPG.Battle
         public IObservable<HitData> OnHit => _onHit;
         protected readonly ISubject<HitData> _onHit = new Subject<HitData>();
 
-        protected readonly List<AttackCollider> _hitAttacks = new List<AttackCollider>();
+        protected readonly List<AttackCollider> _hitAttacks = new List<AttackCollider>(32);
 
         protected CompositeDisposable _disposables = new CompositeDisposable();
 

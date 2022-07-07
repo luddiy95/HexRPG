@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System;
 using UnityEngine;
 using Zenject;
@@ -8,8 +9,8 @@ namespace HexRPG.Battle
 
     public class TowerInstaller : MonoInstaller, IEnemySpawnSettings
     {
-        DynamicSpawnSetting[] IEnemySpawnSettings.DynamicEnemySpawnSettings => _dynamicEnemySpawnSettings;
-        StaticSpawnSetting[] IEnemySpawnSettings.StaticEnemySpawnSettings => _staticEnemySpawnSettings;
+        IReadOnlyList<DynamicSpawnSetting> IEnemySpawnSettings.DynamicEnemySpawnSettings => _dynamicEnemySpawnSettings;
+        IReadOnlyList<StaticSpawnSetting> IEnemySpawnSettings.StaticEnemySpawnSettings => _staticEnemySpawnSettings;
 
         [Header("“®“IEnemy Spawn İ’è")]
         [SerializeField] DynamicSpawnSetting[] _dynamicEnemySpawnSettings;

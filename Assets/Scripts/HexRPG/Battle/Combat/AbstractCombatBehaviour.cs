@@ -37,7 +37,7 @@ namespace HexRPG.Battle.Combat
             }
         }
 
-        protected List<AttackCollider> _attackColliders = new List<AttackCollider>();
+        protected List<AttackCollider> _attackColliders = new List<AttackCollider>(32);
 
         bool _isComboInputEnable = false;
         bool _isComboInputted = false;
@@ -70,11 +70,11 @@ namespace HexRPG.Battle.Combat
                     }
                 }
             }
-            _attackColliders.ForEach(attackCollider =>
+            foreach (var attackCollider in _attackColliders)
             {
                 attackCollider.AttackApplicator = _attackOwner.AttackApplicator;
                 attackCollider.gameObject.SetActive(false);
-            });
+            }
 
             _animationController.OnFinishCombat
                 .Subscribe(_ =>

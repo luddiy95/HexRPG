@@ -44,7 +44,7 @@ namespace HexRPG.Battle.Player.Member
         {
             //! Damagedの場合のみ自分自身(Damaged)に遷移できる
             var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
-            if (_playables[_curPlayingIndex].GetAnimationClip().name == "Damaged" && nextClip == "Damaged")
+            if (GetAnimationType(curClip) == AnimationType.Damaged && GetAnimationType(nextClip) == AnimationType.Damaged)
             {
                 _cts = new CancellationTokenSource();
                 InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cts.Token).Forget();
@@ -52,7 +52,7 @@ namespace HexRPG.Battle.Player.Member
             }
 
             //! 遷移中などでない場合、(Damaged -> Damaged)以外は自分自身には遷移しない
-            if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip) return;
+            if (curClip == nextClip) return;
 
             base.PlayWithoutInterrupt(nextClip);
         }
@@ -60,10 +60,12 @@ namespace HexRPG.Battle.Player.Member
         protected override void PlayWithInterrupt(string nextClip)
         {
             var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
-            AnimationType type;
+            var curAnimationType = GetAnimationType(curClip);
 
             //! Damagedへ遷移中(_nextPlayingIndex = Damaged)のみ_nextPlayingIndex(Damaged)で割り込み可能
-            if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == "Damaged" && nextClip == "Damaged")
+            //! _cts != nullでも_nextPlayingIndex < 0 の場合がある(Combat, Skillなど)
+            if (_nextPlayingIndex >= 0 && GetAnimationType(_playables[_nextPlayingIndex].GetAnimationClip().name) == AnimationType.Damaged 
+                && GetAnimationType(nextClip) == AnimationType.Damaged)
             {
                 TokenCancel();
 
@@ -80,10 +82,10 @@ namespace HexRPG.Battle.Player.Member
             //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
             if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
 
-            // Locomotion->Locomotion遷移中は「Idle, Combat, Skill」割り込み可能
+            // Idle, Locomotion->Locomotion遷移中は「Idle, Combat, Skill」割り込み可能
             var isCrossFadeBtwLocomotion =
-                (_animationTypeMap.TryGetValue(curClip, out type) && type.IsLocomotionType()) &&
-                (_nextPlayingIndex >= 0 && _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsLocomotionType());
+                (curAnimationType == AnimationType.Idle || curAnimationType == AnimationType.Move) &&
+                (_nextPlayingIndex >= 0 && GetAnimationType(_playables[_nextPlayingIndex].GetAnimationClip().name) == AnimationType.Move);
             if (isCrossFadeBtwLocomotion)
             {
                 // Combatですか？
@@ -115,7 +117,7 @@ namespace HexRPG.Battle.Player.Member
                     return;
                 }
 
-                if (nextClip == "Idle")
+                if (GetAnimationType(nextClip) == AnimationType.Idle)
                 {
                     // 割り込み
                     TokenCancel(); // Tokenキャンセルしたらawait後続処理は全て呼ばれない
@@ -128,8 +130,8 @@ namespace HexRPG.Battle.Player.Member
             }
 
             //! Idle -> Rotate遷移中はIdle割り込み可能
-            if (curClip == "Idle" && nextClip == "Idle" && _nextPlayingIndex >= 0 &&
-                _animationTypeMap.TryGetValue(_playables[_nextPlayingIndex].GetAnimationClip().name, out type) && type.IsRotateType())
+            if (curAnimationType == AnimationType.Idle && GetAnimationType(nextClip) == AnimationType.Idle && 
+                _nextPlayingIndex >= 0 && GetAnimationType(_playables[_nextPlayingIndex].GetAnimationClip().name) == AnimationType.Rotate)
             {
                 // 割り込み
                 TokenCancel(); // Tokenキャンセルしたらawait後続処理は全て呼ばれない
@@ -141,7 +143,7 @@ namespace HexRPG.Battle.Player.Member
             }
 
             // Combat中断
-            var isCombatSuspended = (_curCombat != null && nextClip == "Idle");
+            var isCombatSuspended = (_curCombat != null && GetAnimationType(nextClip) == AnimationType.Idle);
             if (isCombatSuspended)
             {
                 TokenCancel();
@@ -164,7 +166,7 @@ namespace HexRPG.Battle.Player.Member
         {
             _graph = PlayableGraph.Create();
             _playables = _clips.Select(clip => AnimationClipPlayable.Create(_graph, clip)).ToList();
-            var damagedClip = _playables.First(playable => playable.GetAnimationClip().name == "Damaged").GetAnimationClip();
+            var damagedClip = _playables.First(playable => GetAnimationType(playable.GetAnimationClip().name) == AnimationType.Damaged).GetAnimationClip();
             var damagedToIdleEvent = new AnimationEvent[] {
                 new AnimationEvent()
                 {

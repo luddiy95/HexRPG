@@ -1,7 +1,8 @@
-using System;
 
 namespace HexRPG.Battle
 {
+    using static Attribute;
+
     public enum Attribute
     {
         ATTRIBUTE_01, // 04‚É‹­‚¢
@@ -12,7 +13,7 @@ namespace HexRPG.Battle
 
     public static class AttributeExtensions
     {
-        static Attribute[] AttributeArray => (Attribute[])Enum.GetValues(typeof(Attribute));
+        static Attribute[] AttributeArray = new Attribute[] { ATTRIBUTE_01, ATTRIBUTE_02, ATTRIBUTE_03, ATTRIBUTE_04 };
 
         /// <summary>
         /// ©•ª©g(self)‚ªother‚Ì‘®«‚Éã‚¢‚©‚Ç‚¤‚©

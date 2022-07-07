@@ -1,4 +1,3 @@
-using UnityEngine;
 using System;
 using UniRx;
 
@@ -17,6 +16,8 @@ namespace HexRPG.Battle
 
     public enum AnimationType
     {
+        None,
+
         Idle,
         Move,
         Rotate,
@@ -42,15 +43,5 @@ namespace HexRPG.Battle
         {
             "RotateRight", "RotateLeft"
         };
-
-        public static bool IsLocomotionType(this AnimationType type)
-        {
-            return type == AnimationType.Idle || type == AnimationType.Move;
-        }
-
-        public static bool IsRotateType(this AnimationType type)
-        {
-            return type == AnimationType.Rotate;
-        }
     }
 }

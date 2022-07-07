@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.AI;
-using System;
 using UniRx;
 using Zenject;
 
@@ -81,7 +80,7 @@ namespace HexRPG.Battle.Enemy
         {
             _curDestination.Value = destination;
             if (destination == null) return;
-            NavMeshAgent.SetDestination(destination.transform.position); //TODO: landedHexÇ≈Ç‡ëÂè‰ïvÇ©
+            NavMeshAgent.SetDestination(destination.transform.position);
         }
     }
 }

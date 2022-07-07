@@ -231,7 +231,7 @@ namespace HexRPG.Battle.Player
                 .Subscribe(index =>
                 {
                     var skillList = _memberObservable.CurMember.Value.SkillSpawnObservable.SkillList;
-                    if (index > skillList.Length - 1) return;
+                    if (index > skillList.Count - 1) return;
                     if (skillList[index].SkillSetting.Cost > _memberObservable.CurMember.Value.SkillPoint.Current.Value) return;
                     _actionStateController.Execute(new Command { Id = "skillSelect" });
                 })

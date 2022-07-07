@@ -48,10 +48,10 @@ namespace HexRPG.Battle
         /// <summary>
         /// 各Enemyの「向かおうとしている目的地 or hexの真ん中で静止している状態のLandedHex」
         /// </summary>
-        List<Hex> IBattleObservable.EnemyDestinationHexList => _enemyDestinationHexList;
-        List<Hex> _enemyDestinationHexList = new List<Hex>();
+        IEnumerable<Hex> IBattleObservable.EnemyDestinationHexList => _enemyDestinationHexList;
+        readonly List<Hex> _enemyDestinationHexList = new List<Hex>(32);
 
-        ITowerComponentCollection[] _towers;
+        List<ITowerComponentCollection> _towers = new List<ITowerComponentCollection>(16);
 
         CinemachineBrain IBattleObservable.CinemachineBrain => _cinemachineBrain;
         [SerializeField] CinemachineBrain _cinemachineBrain;
@@ -93,6 +93,8 @@ namespace HexRPG.Battle
             await PlayEndSequence(token);
 
             PlayResultSequence().Forget();
+
+            return;
         }
 
         async UniTask PlayStartSequence(CancellationToken token)
@@ -103,7 +105,7 @@ namespace HexRPG.Battle
 
             await SpawnPlayer(token);
 
-            SetupTowers();
+            SetupTowers(token);
 
             _onBattleStart.OnNext(Unit.Default);
             
@@ -139,11 +141,11 @@ namespace HexRPG.Battle
             _onPlayerSpawn.Value = playerOwner;
         }
 
-        void SetupTowers()
+        void SetupTowers(CancellationToken token)
         {
-            _towers = GetComponentsInChildren<ITowerComponentCollection>();
+            GetComponentsInChildren(_towers); // NonAlloc
 
-            Array.ForEach(_towers, tower =>
+            foreach(var tower in _towers)
             {
                 var enemySpawnObservable = tower.EnemySpawnObservable;
                 enemySpawnObservable.EnemyList.ObserveAdd()
@@ -152,6 +154,10 @@ namespace HexRPG.Battle
                         var enemyOwner = addEvt.Value;
 
                         CompositeDisposable enemyDisposables = new CompositeDisposable();
+                        token.Register(() =>
+                        {
+                            enemyDisposables.Dispose();
+                        });
 
                         // enemyがLiberateしたらNavMeshを再Bake
                         enemyOwner.LiberateObservable.SuccessLiberateHexList
@@ -187,13 +193,14 @@ namespace HexRPG.Battle
                     .AddTo(this);
 
                 tower.TowerController.Init();
-            });
+            }
         }
 
         //TODO: FinishRule実装
         async UniTask PlayEndSequence(CancellationToken token)
         {
             _onPlayerSpawn.Value.DieObservable.OnFinishDie
+                .First()
                 .Subscribe(_ => _resultType = GameResultType.LOSE)
                 .AddTo(this);
 
@@ -202,6 +209,8 @@ namespace HexRPG.Battle
                 cancellationToken: token);
 
             if (_resultType == GameResultType.NONE) _resultType = GameResultType.WIN;
+
+            return;
         }
 
         async UniTask PlayResultSequence()

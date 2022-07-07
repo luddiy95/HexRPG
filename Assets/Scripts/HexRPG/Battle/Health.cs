@@ -20,7 +20,7 @@ namespace HexRPG.Battle
         int Max { get; }
     }
 
-    public class Health : IHealth, IInitializable, ITickable
+    public class Health : IHealth, IInitializable
     {
         IHealthSetting _setting;
 
@@ -52,11 +52,6 @@ namespace HexRPG.Battle
             if(cv < 0) value = Mathf.Max(0, _current.Value + cv);
             else value = Mathf.Min(_max, _current.Value + cv);
             _current.SetValueAndForceNotify(value);
-        }
-
-        void ITickable.Tick()
-        {
-            if (Input.GetKeyDown(KeyCode.K)) _current.Value = 0;
         }
     }
 }

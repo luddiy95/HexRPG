@@ -63,16 +63,16 @@ namespace HexRPG.Battle.Enemy
             // Dynamic Enemy
             _spawnCts = new CancellationTokenSource();
             var dynamicEnemySpawnSettings = _enemySpawnSettings.DynamicEnemySpawnSettings;
-            for (int i = 0; i < dynamicEnemySpawnSettings.Length; i++)
+            for (int i = 0; i < dynamicEnemySpawnSettings.Count; i++)
             {
                 StartDynamicEnemySpawnSequence(_enemyFactories[i], dynamicEnemySpawnSettings[i], _spawnCts.Token).Forget();
             }
 
             // Static Enemy
             var staticEnemySpawnSettings = _enemySpawnSettings.StaticEnemySpawnSettings;
-            for (int i = 0; i < staticEnemySpawnSettings.Length - 1; i++)
+            for (int i = 0; i < staticEnemySpawnSettings.Count - 1; i++)
             {
-                SpawnEnemy(_enemyFactories[dynamicEnemySpawnSettings.Length + i], staticEnemySpawnSettings[i].SpawnHex, _spawnCts.Token).Forget();
+                SpawnEnemy(_enemyFactories[dynamicEnemySpawnSettings.Count + i], staticEnemySpawnSettings[i].SpawnHex, _spawnCts.Token).Forget();
             }
         }
 

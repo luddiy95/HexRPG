@@ -24,7 +24,7 @@ namespace HexRPG.Battle
         public string message;
     }
 
-    public class ScoreData
+    public struct ScoreData
     {
         public ScoreInfo scoreInfo;
         public int count;

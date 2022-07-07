@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Zenject;
@@ -22,7 +23,7 @@ namespace HexRPG.Battle.Player.Member
         [SerializeField] GameObject _combatPrefab;
         [SerializeField] PlayableAsset _combatTimeline;
 
-        SkillAsset[] ISkillsEquipment.Skills => _skills;
+        IReadOnlyList<SkillAsset> ISkillsEquipment.Skills => _skills;
         [Header("スキルリスト")]
         [SerializeField] SkillAsset[] _skills;
 

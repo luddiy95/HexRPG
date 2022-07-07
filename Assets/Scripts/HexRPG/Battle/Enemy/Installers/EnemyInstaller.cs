@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Zenject;
 using System;
 using UnityEngine;
@@ -22,7 +23,7 @@ namespace HexRPG.Battle.Enemy
         [SerializeField] Transform _equipmentRoot;
         [SerializeField] PlayableAsset _combatTimeline;
 
-        SkillAsset[] ISkillsEquipment.Skills => _skills;
+        IReadOnlyList<SkillAsset> ISkillsEquipment.Skills => _skills;
         [Header("スキルリスト")]
         [SerializeField] SkillAsset[] _skills;
 
