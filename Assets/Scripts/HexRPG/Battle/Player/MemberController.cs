@@ -41,7 +41,6 @@ namespace HexRPG.Battle.Player
         int IMemberObservable.CurMemberIndex => _curMemberIndex;
         int _curMemberIndex = 0;
 
-        IDisposable _memberChangeDisposable;
         CompositeDisposable _disposables = new CompositeDisposable();
 
         public MemberController(
@@ -96,7 +95,6 @@ namespace HexRPG.Battle.Player
 
         void IDisposable.Dispose()
         {
-            _memberChangeDisposable?.Dispose();
             _disposables.Dispose();
         }
     }

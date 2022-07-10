@@ -62,6 +62,7 @@ namespace HexRPG.Battle.Player
                 .Subscribe(_ =>
                 {
                     _onFinishSkill.OnNext(Unit.Default);
+                    _disposables.Clear();
                 }).AddTo(_disposables);
 
             return runningSkill;

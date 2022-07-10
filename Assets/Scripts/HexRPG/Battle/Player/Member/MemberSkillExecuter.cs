@@ -1,8 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
-using UniRx;
-using Cysharp.Threading.Tasks;
 
 namespace HexRPG.Battle.Player.Member
 {
@@ -16,8 +13,8 @@ namespace HexRPG.Battle.Player.Member
         List<SkillOwner.Factory> _skillFactories;
         ISkillsEquipment _skillsEquipment;
 
-        IReadOnlyList<ISkillComponentCollection> ISkillSpawnObservable.SkillList => _skillList;
-        ISkillComponentCollection[] _skillList;
+        List<ISkillComponentCollection> ISkillSpawnObservable.SkillList => _skillList;
+        readonly List<ISkillComponentCollection> _skillList = new List<ISkillComponentCollection>(8);
 
         bool ISkillSpawnObservable.IsAllSkillSpawned => _isAllSkillSpawned;
         bool _isAllSkillSpawned = false;
@@ -37,13 +34,15 @@ namespace HexRPG.Battle.Player.Member
 
         void ISkillSpawnController.Spawn(IAttackComponentCollection attackOwner, Transform root)
         {
-            _skillList = _skillFactories.Select((factory, index) => {
+            for (int i = 0; i < _skillFactories.Count; i++)
+            {
+                var factory = _skillFactories[i];
                 ISkillComponentCollection skillOwner = factory.Create(root, Vector3.zero);
-                var skill = _skillsEquipment.Skills[index];
+                var skill = _skillsEquipment.Skills[i];
                 skillOwner.Skill.Init(attackOwner, _animationController, skill.Timeline, skill.ActivationBindingObjMap);
                 skillOwner.SkillSetting.SetCost(skill.Cost);
-                return skillOwner;
-            }).ToArray();
+                _skillList.Add(skillOwner);
+            }
             _isAllSkillSpawned = true;
         }
 

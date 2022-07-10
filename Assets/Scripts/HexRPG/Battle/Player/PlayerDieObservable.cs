@@ -40,7 +40,7 @@ namespace HexRPG.Battle.Player
                     _memberChangeDisposable = curMember.DieObservable.OnFinishDie
                         .Subscribe(_ =>
                         {
-                            _memberChangeDisposable.Dispose();
+                            _memberChangeDisposable?.Dispose();
 
                             var memberList = _memberObservable.MemberList;
                             var changeableMember = memberList.FirstOrDefault(member => member.DieObservable.IsDead.Value == false);

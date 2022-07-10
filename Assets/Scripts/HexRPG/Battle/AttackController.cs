@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using UniRx;
 
 namespace HexRPG.Battle
@@ -36,13 +37,13 @@ namespace HexRPG.Battle
 
     public interface IAttackReserve
     {
-        void StartAttackReservation(Hex[] reservationRange);
+        void StartAttackReservation(in List<Hex> reservationRange);
         void FinishAttackReservation();
     }
 
     public class AttackController : IAttackApplicator, IAttackController, IAttackObservable, IAttackReservation, IAttackReserve
     {
-        ICollection<Hex> _curReservationRange = new Hex[0];
+        List<Hex> _curReservationRange = new List<Hex>();
 
         IAttackSetting IAttackApplicator.CurrentSetting => _currentSetting;
         IAttackSetting _currentSetting = null;
@@ -62,7 +63,7 @@ namespace HexRPG.Battle
             _owner = owner;
         }
 
-        void IAttackReserve.StartAttackReservation(Hex[] reservationRange)
+        void IAttackReserve.StartAttackReservation(in List<Hex> reservationRange)
         {
             _curReservationRange = reservationRange;
             foreach (var hex in _curReservationRange) hex.AddAttackReservation(this);
@@ -78,11 +79,11 @@ namespace HexRPG.Battle
             _currentSetting = setting;
             if (_currentSetting is ICombatAttackSetting combatAttackSetting)
             {
-                foreach (var collider in combatAttackSetting.AttackColliders) collider.gameObject.SetActive(true);
+                combatAttackSetting.AttackColliders.ForEach(collider => collider.gameObject.SetActive(true));
             }
             if (_currentSetting is ISkillAttackSetting skillAttackSetting)
             {
-                foreach (var hex in skillAttackSetting.AttackRange) hex.AddAttackApplicator(this);
+                skillAttackSetting.AttackRange.ForEach(hex => hex.AddAttackApplicator(this));
             }
             _hitObjects.Clear();
         }
@@ -91,11 +92,11 @@ namespace HexRPG.Battle
         {
             if(_currentSetting is ICombatAttackSetting combatAttackSetting)
             {
-                foreach (var collider in combatAttackSetting.AttackColliders) collider.gameObject.SetActive(false);
+                combatAttackSetting.AttackColliders.ForEach(collider => collider.gameObject.SetActive(false));
             }
             if(_currentSetting is ISkillAttackSetting skillAttackSetting)
             {
-                foreach (var hex in skillAttackSetting.AttackRange) hex.RemoveAttackApplicator(this);
+                skillAttackSetting.AttackRange.ForEach(hex => hex.RemoveAttackApplicator(this));
             }
             _currentSetting = null;
         }

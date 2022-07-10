@@ -12,7 +12,7 @@ namespace HexRPG.Battle
 
     public interface ISkillSpawnObservable
     {
-        IReadOnlyList<ISkillComponentCollection> SkillList { get; }
+        List<ISkillComponentCollection> SkillList { get; }
         bool IsAllSkillSpawned { get; }
     }
 }

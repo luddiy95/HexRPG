@@ -25,7 +25,7 @@ namespace HexRPG.Battle.Skill
         PlayableAsset ISkill.PlayableAsset => _director.playableAsset;
 
         List<Vector2> ISkill.FullAttackRange => _fullAttackRange;
-        List<Vector2> _fullAttackRange;
+        readonly List<Vector2> _fullAttackRange = new List<Vector2>(16);
 
         SkillCenterType ISkill.SkillCenterType => _skillCenterType;
         SkillCenterType _skillCenterType;
@@ -44,9 +44,10 @@ namespace HexRPG.Battle.Skill
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
 
-        Hex[] _curAttackRange;
-        Dictionary<string, GameObject> _skillEffectMap = new Dictionary<string, GameObject>();
-        List<GameObject> _unverifiedEffect = new List<GameObject>(); // OnAttackDisableをまだ経過していない(Liberate未検証)->Timeline中断時に非表示にするエフェクト
+        List<Hex> _curAttackRange = new List<Hex>(16);
+
+        readonly Dictionary<string, GameObject> _skillEffectMap = new Dictionary<string, GameObject>(8);
+        readonly List<GameObject> _unverifiedEffect = new List<GameObject>(8); // OnAttackDisableをまだ経過していない(Liberate未検証)->Timeline中断時に非表示にするエフェクト
 
         TrackAsset _cinemachineTrack;
 
@@ -77,13 +78,12 @@ namespace HexRPG.Battle.Skill
 
             _director.playableAsset = timeline;
 
-            var attackEffectTrack = new List<string>();
+            var attackEffectTrack = new List<string>(8);
             // Skillの全範囲を取得
             foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
             {
                 if (trackAsset is AttackEnableTrack attackEnableTrack)
                 {
-                    _fullAttackRange = new List<Vector2>();
                     _skillCenterType = attackEnableTrack.skillCenterType;
                     _skillCenter = attackEnableTrack.skillCenter;
                     foreach (var clip in attackEnableTrack.GetClips())
@@ -156,7 +156,7 @@ namespace HexRPG.Battle.Skill
                         var behaviour = (clip.asset as AttackEnableAsset).behaviour;
                         behaviour.OnAttackEnable
                             .Subscribe(_ => {
-                                _curAttackRange = _stageController.GetHexList(skillCenter, behaviour.attackRange, skillRotation);
+                                _stageController.GetHexList(skillCenter, behaviour.attackRange, skillRotation, ref _curAttackRange);
 
                                 var attackSetting = new SkillAttackSetting
                                 {

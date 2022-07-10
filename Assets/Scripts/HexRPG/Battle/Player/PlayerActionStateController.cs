@@ -197,8 +197,7 @@ namespace HexRPG.Battle.Player
                     }
                     else
                     {
-                        var isMoveState = (CurState == MOVE);
-                        if(isMoveState) _actionStateController.Execute(new Command { Id = "stop" });
+                        if(CurState == MOVE) _actionStateController.Execute(new Command { Id = "stop" });
 
                         // Skill選択ステートに遷移した後、一度Direction入力がzeroにならないとDirection入力による移動を受け付けない
                         if (CurState == SKILL_SELECT) _acceptDirectionInput = true; 
@@ -376,8 +375,8 @@ namespace HexRPG.Battle.Player
 
         void IDisposable.Dispose()
         {
-            _disposables.Dispose();
             _memberChangeDisposables?.Dispose();
+            _disposables.Dispose();
         }
     }
 }

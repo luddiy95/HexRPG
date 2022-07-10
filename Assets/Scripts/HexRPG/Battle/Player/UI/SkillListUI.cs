@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
 using UniRx;
 using Cysharp.Threading.Tasks;
 
@@ -20,8 +19,8 @@ namespace HexRPG.Battle.Player.UI
         [SerializeField] Sprite _btnDecideEnableSprite;
         [SerializeField] Sprite _btnDecideDisableSprite;
 
-        List<ISkillUI> _skillUIList = new List<ISkillUI>();
-        ISkillSetting[] _curMemberSkillSettings;
+        readonly List<ISkillUI> _skillUIList = new List<ISkillUI>(8);
+        readonly List<ISkillSetting> _curMemberSkillSettings = new List<ISkillSetting>(8);
 
         void Awake()
         {
@@ -40,7 +39,8 @@ namespace HexRPG.Battle.Player.UI
                 curMember
                     .Subscribe(memberOwner =>
                     {
-                        _curMemberSkillSettings = memberOwner.SkillSpawnObservable.SkillList.Select(skill => skill.SkillSetting).ToArray();
+                        _curMemberSkillSettings.Clear();
+                        foreach(var skill in memberOwner.SkillSpawnObservable.SkillList) _curMemberSkillSettings.Add(skill.SkillSetting);
                         UpdateSkillBtn(memberOwner.SkillPoint.Current.Value);
                     })
                     .AddTo(this);
@@ -81,7 +81,7 @@ namespace HexRPG.Battle.Player.UI
             {
                 var skillUI = _skillUIList[i];
                 skillUI.SwitchSelected(false);
-                if(i > _curMemberSkillSettings.Length - 1)
+                if(i > _curMemberSkillSettings.Count - 1)
                 {
                     skillUI.SwitchSkillShow(false);
                     skillUI.SwitchEnable(true); // skill‚ð”ñ•\Ž¦‚É‚·‚é‚½‚ßdisableFilter‚à”ñ•\Ž¦
@@ -95,7 +95,7 @@ namespace HexRPG.Battle.Player.UI
 
         void UpdateIconSkillEnable(int sp)
         {
-            for(int i = 0; i < _curMemberSkillSettings.Length; i++)
+            for(int i = 0; i < _curMemberSkillSettings.Count; i++)
             {
                 _skillUIList[i].SwitchEnable(_curMemberSkillSettings[i].Cost <= sp);
             }

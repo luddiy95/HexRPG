@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System;
@@ -141,14 +142,17 @@ namespace HexRPG.Battle
         public static Hex GetLandedHex(Vector3 pos) =>
             GetHitHex(new Ray(pos + Vector3.up * 0.15f, Vector3.down), 0.3f);
 
-        public static Hex[] GetSurroundedHexList(Hex root, float radius)
+        public static void GetSurroundedHexList(Hex root, float radius, ref List<Hex> surroundedHex)
         {
+            surroundedHex.Clear();
+
             Physics.SphereCastNonAlloc(new Ray(root.transform.position, Vector3.down), radius, results: _hits, layerMask: hexLayerMask, maxDistance: 0);
-            return _hits
-                .Select(hit => hit.collider?.GetComponent<Hex>())
-                .Where(hex => hex != null)
-                .Where(hex => hex.GetDistanceXZ(root) <= radius) //! hexの「中心」がrootの中心に対して距離radius以下
-                .ToArray();
+            foreach(var hit in _hits)
+            {
+                Hex hex = null;
+                if (hit.collider?.TryGetComponent(out hex) != true) return;
+                if (hex.GetDistanceXZ(root) <= radius) surroundedHex.Add(hex);
+            }
         }
 
         static Hex GetHitHex(Ray ray, float maxDistance = Mathf.Infinity)

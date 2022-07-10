@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
-using System.Linq;
 using Zenject;
 
 namespace HexRPG.Battle.Player.HUD
@@ -16,7 +15,7 @@ namespace HexRPG.Battle.Player.HUD
         ICharacterHUD _selectedMemberHUD;
 
         [SerializeField] Transform _memberListRoot;
-        List<IMemberHUD> _memberList = new List<IMemberHUD>();
+        List<IMemberHUD> _memberList = new List<IMemberHUD>(8);
 
         [Inject]
         public void Construct(

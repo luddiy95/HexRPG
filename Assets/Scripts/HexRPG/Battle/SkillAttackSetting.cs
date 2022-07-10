@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 
 namespace HexRPG.Battle
 {
@@ -6,7 +7,7 @@ namespace HexRPG.Battle
     public interface ISkillAttackSetting : IAttackSetting
     {
         Attribute Attribute { get; }
-        Hex[] AttackRange { get; }
+        List<Hex> AttackRange { get; }
     }
 
     public class SkillAttackSetting : ISkillAttackSetting
@@ -17,7 +18,7 @@ namespace HexRPG.Battle
         Attribute ISkillAttackSetting.Attribute => attribute;
         public Attribute attribute;
 
-        Hex[] ISkillAttackSetting.AttackRange => attackRange;
-        public Hex[] attackRange;
+        List<Hex> ISkillAttackSetting.AttackRange => attackRange;
+        public List<Hex> attackRange;
     }
 }

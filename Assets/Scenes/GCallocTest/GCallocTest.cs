@@ -72,5 +72,66 @@ public class GCallocTest : MonoBehaviour
         List<int> list7;
         list7 = testList;
         Profiler.EndSample();
+
+
+
+        var list8 = new List<int>() { 1 };
+        Profiler.BeginSample("AllocCheck: ForReAssignList1");
+        for(int i = 0; i < 100; i++)
+        {
+            var list = new List<int>() { 1 };
+        }
+        Profiler.EndSample();
+
+        Profiler.BeginSample("AllocCheck: ForReAssignList2");
+        for (int i = 0; i < 100; i++)
+        {
+            var list = list8;
+        }
+        Profiler.EndSample();
+
+
+
+        var array2 = new int[100];
+        List<int> list9 = new List<int>(100);
+        var testArray2 = Enumerable.Range(0, 100).ToArray();
+        Profiler.BeginSample("AllocCheck: ForArrayTest");
+        for (int i = 0; i < 100; i++)
+        {
+            test1(out array2);
+        }
+        Profiler.EndSample();
+
+        Profiler.BeginSample("AllocCheck: ForListTest");
+        for (int i = 0; i < 100; i++)
+        {
+            list9.Clear();
+            test2(in list9);
+        }
+        Profiler.EndSample();
+
+        void test1(out int[] results)
+        {
+            results = testArray2.Select(num => num - 1).ToArray();
+        }
+
+        void test2(in List<int> results)
+        {
+            foreach(var num in testArray2)
+            {
+                results.Add(num);
+            }
+        }
+
+
+
+        int num1 = 0;
+        Profiler.BeginSample("AllocCheck: lamdaTest1");
+        Enumerable.Range(0, 10).Select(_ => num1++);
+        Profiler.EndSample();
+
+        Profiler.BeginSample("AllocCheck: lamdaTest2");
+        Enumerable.Range(0, 10000).Select(_ => num1++);
+        Profiler.EndSample();
     }
 }

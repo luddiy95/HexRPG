@@ -1,6 +1,5 @@
 using HexRPG.Battle.Stage;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using UniRx;
 using Zenject;
@@ -21,8 +20,8 @@ namespace HexRPG.Battle.Enemy
         IAttackComponentCollection _attackOwner;
         IAttackReserve _attackReserve;
 
-        IReadOnlyList<ISkillComponentCollection> ISkillSpawnObservable.SkillList => _skillList;
-        ISkillComponentCollection[] _skillList;
+        List<ISkillComponentCollection> ISkillSpawnObservable.SkillList => _skillList;
+        readonly List<ISkillComponentCollection> _skillList = new List<ISkillComponentCollection>(8);
 
         bool ISkillSpawnObservable.IsAllSkillSpawned => _isAllSkillSpawned;
         bool _isAllSkillSpawned = false;
@@ -33,6 +32,8 @@ namespace HexRPG.Battle.Enemy
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
+
+        List<Hex> _curAttackIndicateHexList = new List<Hex>(16);
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -59,12 +60,15 @@ namespace HexRPG.Battle.Enemy
 
         void IInitializable.Initialize()
         {
-            _skillList = _skillFactories.Select((factory, index) => {
+            for (int i = 0; i < _skillFactories.Count; i++)
+            {
+                var factory = _skillFactories[i];
                 ISkillComponentCollection skillOwner = factory.Create(_transformController.SpawnRootTransform("Skill"), Vector3.zero);
-                var skill = _skillsEquipment.Skills[index];
+                var skill = _skillsEquipment.Skills[i];
                 skillOwner.Skill.Init(_attackOwner, _enemyOwner.AnimationController, skill.Timeline, skill.ActivationBindingObjMap);
-                return skillOwner;
-            }).ToArray();
+                _skillList.Add(skillOwner);
+            }
+
             _isAllSkillSpawned = true;
         }
 
@@ -88,15 +92,15 @@ namespace HexRPG.Battle.Enemy
                     break;
             }
 
-            var curAttackIndicateHexList =
-                _stageController.GetHexList(
-                    skillCenter,
-                    skill.FullAttackRange,
-                    MathUtility.GetIntegerEuler60(_transformController.DefaultRotation + _transformController.RotationAngle + skillRotation));
+            _stageController.GetHexList(
+                skillCenter,
+                skill.FullAttackRange,
+                MathUtility.GetIntegerEuler60(_transformController.DefaultRotation + _transformController.RotationAngle + skillRotation),
+                ref _curAttackIndicateHexList);
 
             _disposables.Clear();
             runningSkill.SkillObservable.OnStartReservation
-                .Subscribe(_ => _attackReserve.StartAttackReservation(curAttackIndicateHexList))
+                .Subscribe(_ => _attackReserve.StartAttackReservation(_curAttackIndicateHexList))
                 .AddTo(_disposables);
             runningSkill.SkillObservable.OnFinishReservation
                 .Subscribe(_ => _attackReserve.FinishAttackReservation())
@@ -105,6 +109,7 @@ namespace HexRPG.Battle.Enemy
                 .Subscribe(_ =>
                 {
                     _onFinishSkill.OnNext(Unit.Default);
+                    _disposables.Clear();
                 }).AddTo(_disposables);
 
             skill.StartSkill(skillCenter,

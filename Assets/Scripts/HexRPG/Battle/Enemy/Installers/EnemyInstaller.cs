@@ -33,8 +33,6 @@ namespace HexRPG.Battle.Enemy
 
             Container.BindInterfacesTo<ActionStateController>().AsSingle();
 
-            Container.BindInterfacesTo<EnemyMover>().AsSingle();
-
             Container.BindInterfacesTo<EnemyCombatExecuter>().AsSingle();
             Container.BindInterfacesTo<EnemySkillExecuter>().AsSingle();
 

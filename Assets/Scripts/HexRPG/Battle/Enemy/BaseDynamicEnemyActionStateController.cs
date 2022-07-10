@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityEngine.Profiling;
 
 namespace HexRPG.Battle.Enemy
 {
@@ -41,6 +42,10 @@ namespace HexRPG.Battle.Enemy
 
         Hex _approachHex = null;
         Hex _attackableHex = null;
+
+        List<Hex> _surroundexHexList = new List<Hex>(256);
+        List<Hex> _arroundHexList = new List<Hex>(128);
+        List<Hex> _enemyHexList = new List<Hex>(512);
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -442,7 +447,8 @@ namespace HexRPG.Battle.Enemy
                 if (_attackableHex == landedHex || _approachHex == landedHex) continue; //! 目的地のhexにいたら状況が変わってもDestinationを変更しない
 
                 // PlayerからCOMBAT_DISTANCEの距離以内のHexでEnemyが移動出来るHexで最も近いHexへ移動
-                _attackableHex = TransformExtensions.GetSurroundedHexList(playerLandedHex, COMBAT_DISTANCE)
+                TransformExtensions.GetSurroundedHexList(playerLandedHex, COMBAT_DISTANCE, ref _surroundexHexList);
+                _attackableHex = _surroundexHexList
                     .Where(hex => hex.IsPlayerHex == false && _navMeshAgentController.IsExistPath(hex.transform.position))
                     .Where(hex => enemyDestinationHexList.Contains(hex) == false)
                     .OrderBy(hex => hex.GetDistance2XZ(landedHex))
@@ -455,23 +461,24 @@ namespace HexRPG.Battle.Enemy
                 }
 
                 //TODO: playerLandedHexまでの距離が現在のlandedHexと同じHexがあるとき、行ったり来たりしてしまう
-                var enemyHexList = new List<Hex>() { landedHex };
+                _enemyHexList.Clear();
+                _enemyHexList.Add(landedHex);
                 int radius = 1;
                 while (true)
                 {
-                    var aroundHexList = _stageController.GetAroundHexList(landedHex, radius);
-                    var aroundEnemyHexList = aroundHexList
+                    _stageController.GetArroundHexList(landedHex, radius, ref _arroundHexList);
+                    var aroundEnemyHexList = _arroundHexList
                         .Where(hex =>
                             hex.IsPlayerHex == false
                             && _navMeshAgentController.IsExistPath(hex.transform.position)
                             && hex.GetDistance2XZ(playerLandedHex) + 0.1f < distance2FromPlayerHex) // 現在のPlayerLandedHexへの距離より短くなる
                         .Where(hex => enemyDestinationHexList.Contains(hex) == false);
-                    enemyHexList.AddRange(aroundEnemyHexList);
-                    if (aroundHexList.Contains(playerLandedHex)) break;
+                    _enemyHexList.AddRange(aroundEnemyHexList);
+                    if (_arroundHexList.Contains(playerLandedHex)) break;
                     ++radius;
                 }
 
-                _approachHex = enemyHexList.OrderBy(hex => hex.GetDistance2XZ(playerLandedHex)).FirstOrDefault();
+                _approachHex = _enemyHexList.OrderBy(hex => hex.GetDistance2XZ(playerLandedHex)).FirstOrDefault();
 
                 if (_approachHex == null) // landedHexに留まることも許されない
                 {

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Profiling;
 
 namespace HexRPG.Battle.Stage
 {
@@ -32,9 +33,12 @@ namespace HexRPG.Battle.Stage
 
         void InitStage(int stageRadius)
         {
+            var arroundPosList = new List<Vector3>(128);
+
             for (int rad = 0; rad <= stageRadius; rad++)
             {
-                foreach (Vector3 pos in (this as IStageController).GetAroundList(Vector3.zero, rad))
+                (this as IStageController).GetArroundPosList(Vector3.zero, rad, ref arroundPosList);
+                foreach (Vector3 pos in arroundPosList)
                 {
                     Hex hex = Instantiate(_hexPrefab, _HexRoot);
                     hex.transform.position = pos;
@@ -47,6 +51,18 @@ namespace HexRPG.Battle.Stage
 
     public static class StageExtensions
     {
+        static Vector2[] _vertexList = new Vector2[]
+                {
+                    new Vector2(-1, 1),
+                    new Vector2(-2, 0),
+                    new Vector2(-1, -1),
+                    new Vector2(1, -1),
+                    new Vector2(2, 0),
+                    new Vector2(1, 1)
+                };
+
+        static List<Vector3> _arroundPosList = new List<Vector3>(128);
+
         public static Vector3 GetPos(this IStageController stageController, Hex root, Vector2 dir, int rotationAngle)
         {
             return GetPos(stageController, root.transform.position, dir, rotationAngle);
@@ -63,48 +79,46 @@ namespace HexRPG.Battle.Stage
             return TransformExtensions.GetLandedHex(position);
         }
 
-        public static Hex[] GetHexList(this IStageController stageController, Hex root, IEnumerable<Vector2> range, int rotationAngle)
+        public static void GetHexList(this IStageController stageController, Hex root, List<Vector2> range, int rotationAngle, ref List<Hex> hexList)
         {
-            return range
-                .Select(dir => stageController.GetHex(root, dir, rotationAngle))
-                .Where(rangeHex => rangeHex != null).ToArray();
+            hexList.Clear();
+            foreach (var dir in range)
+            {
+                var hex = stageController.GetHex(root, dir, rotationAngle);
+                if (hex != null) hexList.Add(hex);
+            }
         }
 
-        public static List<Vector3> GetAroundList(this IStageController stageController, Vector3 rootPos, int rad)
+        public static void GetArroundPosList(this IStageController stageController, Vector3 rootPos, int rad, ref List<Vector3> arroundList)
         {
             var vertexList = new Vector3[] { rootPos };
             if(rad > 0)
             {
-                vertexList = new Vector3[]
-                {
-                    stageController.GetPos(rootPos, new Vector2(-1, 1) * rad, 0),
-                    stageController.GetPos(rootPos, new Vector2(-2, 0) * rad, 0),
-                    stageController.GetPos(rootPos, new Vector2(-1, -1) * rad, 0),
-                    stageController.GetPos(rootPos, new Vector2(1, -1) * rad, 0),
-                    stageController.GetPos(rootPos, new Vector2(2, 0) * rad, 0),
-                    stageController.GetPos(rootPos, new Vector2(1, 1) * rad, 0),
-                };
+                vertexList = _vertexList.Select(vertex => stageController.GetPos(rootPos, vertex * rad, 0)).ToArray();
             }
 
-            List<Vector3> aroundList = new List<Vector3>(vertexList);
+            arroundList.Clear();
+            foreach (var vertex in vertexList) arroundList.Add(vertex);
             for (int vt = 0; vt < vertexList.Length; vt++)
             {
                 var diffVec = (vertexList[(vt + 1) % vertexList.Length] - vertexList[vt]) / rad;
                 for (int i = 1; i <= rad - 1; i++)
                 {
-                    aroundList.Add(vertexList[vt] + diffVec * i);
+                    arroundList.Add(vertexList[vt] + diffVec * i);
                 }
             }
-
-            return aroundList;
         }
 
-        public static Hex[] GetAroundHexList(this IStageController stageController, Hex root, int rad)
+        public static void GetArroundHexList(this IStageController stageController, Hex root, int rad, ref List<Hex> arroundHexList)
         {
-            return stageController.GetAroundList(root.transform.position, rad)
-                .Select(pos => TransformExtensions.GetLandedHex(pos))
-                .Where(hex => hex != null)
-                .ToArray();
+            arroundHexList.Clear();
+
+            stageController.GetArroundPosList(root.transform.position, rad, ref _arroundPosList);
+            foreach(var pos in _arroundPosList)
+            {
+                var hex = TransformExtensions.GetLandedHex(pos);
+                if (hex != null) arroundHexList.Add(hex);
+            }
         }
     }
 }

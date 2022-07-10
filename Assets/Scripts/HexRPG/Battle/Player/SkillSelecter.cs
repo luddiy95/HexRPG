@@ -1,4 +1,4 @@
-using UnityEngine;
+using System.Collections.Generic;
 using UniRx;
 using System;
 using System.Linq;
@@ -43,6 +43,8 @@ namespace HexRPG.Battle.Player
         Hex _skillCenter;
 
         int _duplicateSelectedCount = 0;
+
+        List<Hex> _curAttackIndicateHexList = new List<Hex>(16);
 
         public SkillSelecter(
             IBattleObservable battleObservable,
@@ -90,13 +92,13 @@ namespace HexRPG.Battle.Player
                                 break;
                         }
 
-                        var curAttackIndicateHexList =
-                            _stageController.GetHexList(
-                                _skillCenter,
-                                skill.FullAttackRange,
-                                _transformController.DefaultRotation + _selectedSkillRotation);
+                        _stageController.GetHexList(
+                            _skillCenter,
+                            skill.FullAttackRange,
+                            _transformController.DefaultRotation + _selectedSkillRotation,
+                            ref _curAttackIndicateHexList);
 
-                        _attackReserve.StartAttackReservation(curAttackIndicateHexList);
+                        _attackReserve.StartAttackReservation(in _curAttackIndicateHexList);
                     }
                 })
                 .AddTo(_disposables);

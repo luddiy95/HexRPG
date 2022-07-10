@@ -20,7 +20,7 @@ namespace HexRPG.Battle.Stage
         public bool IsPlayerHex => _status == Status.PLAYER;
 
         public ObservableCollection<IAttackReservation> AttackReservationList => _attackReservationList;
-        ObservableCollection<IAttackReservation> _attackReservationList = new ObservableCollection<IAttackReservation>();
+        readonly ObservableCollection<IAttackReservation> _attackReservationList = new ObservableCollection<IAttackReservation>();
 
         bool _isAttackIndicate = false;
         public bool IsAttackIndicate
@@ -29,14 +29,13 @@ namespace HexRPG.Battle.Stage
             private set
             {
                 _isAttackIndicate = value;
-                var materials = _renderer.materials;
-                if (_isAttackIndicate) materials[0] = _battleData.hexAttackIndicatedMat;
-                else materials[0] = _battleData.hexDefaultMat;
-                _renderer.materials = materials;
+                _materials[0] = _isAttackIndicate ? _battleData.hexAttackIndicatedMat : _battleData.hexDefaultMat;
+                _renderer.materials = _materials;
             }
         }
 
         MeshRenderer _renderer;
+        Material[] _materials;
 
         public List<IAttackApplicator> AttackApplicatorList => _attackApplicatorList;
         List<IAttackApplicator> _attackApplicatorList = new List<IAttackApplicator>();
@@ -55,6 +54,9 @@ namespace HexRPG.Battle.Stage
         void Awake()
         {
             _renderer = GetComponent<MeshRenderer>();
+            var materials = _renderer.materials;
+            _materials = new Material[materials.Length];
+            for(int i = 0; i < materials.Length; i++) _materials[i] = materials[i];
         }
 
         public void AddAttackReservation(IAttackReservation attackReservation)
@@ -81,9 +83,8 @@ namespace HexRPG.Battle.Stage
         {
             if (isPlayer == (_status == Status.PLAYER)) return false;
 
-            var materials = _renderer.materials;
-            materials[1] = isPlayer ? _battleData.hexPlayerLineMat : _battleData.hexEnemyLineMat;
-            _renderer.materials = materials;
+            _materials[1] = isPlayer ? _battleData.hexPlayerLineMat : _battleData.hexEnemyLineMat;
+            _renderer.materials = _materials;
 
             gameObject.layer = LayerMask.NameToLayer(TransformExtensions.PlayerHex);
 

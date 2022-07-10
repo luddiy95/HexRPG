@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine.Playables;
@@ -12,7 +12,7 @@ namespace HexRPG.Battle.Combat
     {
         bool _isAlreadyEmitted = false; // 既に攻撃を放ったか
         bool _isAlreadyFinishCombatAnimation = false;
-        List<Vector3> _attackColliderPosCache = new List<Vector3>();
+        Vector3[] _attackColliderPosCache;
 
         CancellationTokenSource _cts = null;
 
@@ -21,9 +21,9 @@ namespace HexRPG.Battle.Combat
             base.InternalInit(attackOwner, animationController, timeline);
 
             // AttackColliderの位置をキャッシュする
-            foreach (var collider in _attackColliders) _attackColliderPosCache.Add(collider.transform.localPosition);
+            _attackColliderPosCache = _attackColliders.Select(collider => collider.transform.localPosition).ToArray();
 
-            _director.stopped += (_ => OnTimelineStopped().Forget());
+            _director.stopped += (_ => OnTimelineStopped(this.GetCancellationTokenOnDestroy()).Forget());
         }
 
         protected override void InternalExecute()
@@ -74,7 +74,7 @@ namespace HexRPG.Battle.Combat
             // 最後までアニメーション再生済みの場合はそのままTimelineがstopするまで待つ -> Timeline stop時にAttackColliderを消す
         }
 
-        protected async virtual UniTaskVoid OnTimelineStopped()
+        protected async virtual UniTaskVoid OnTimelineStopped(CancellationToken token)
         {
             FinishAttack();
             _disposables.Clear();
@@ -82,8 +82,10 @@ namespace HexRPG.Battle.Combat
             // AttackColliderを元の位置に戻す
             for (int i = 0; i < _attackColliders.Count; i++) _attackColliders[i].transform.localPosition = _attackColliderPosCache[i];
 
-            await UniTask.WaitUntil(() => _isAlreadyFinishCombatAnimation);
+            await UniTask.WaitUntil(() => _isAlreadyFinishCombatAnimation, cancellationToken: token);
             _onFinishCombat.OnNext(Unit.Default); // OnFinishCombatを発行するのはanimation側がOnFinishCombatを発行してから
+
+            return;
         }
 
         protected override void InternalDispose()
