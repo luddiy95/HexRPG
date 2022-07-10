@@ -13,22 +13,29 @@ namespace HexRPG.Battle.HUD
         void Show(string message);
         void Hide();
 
-        IObservable<Unit> OnDestroy { get; }
+        IReadOnlyReactiveProperty<bool> CanAddNextMessage { get; }
+        IObservable<Unit> OnComplete { get; }
     }
 
-    public class AcquiredMessageHUD : MonoBehaviour, IAcquiredMessage
+    public class AcquiredMessageHUD : AbstractPoolableMonoBehaviour<AcquiredMessageHUD>, IAcquiredMessage
     {
         [SerializeField] Transform _background;
         [SerializeField] Text _message;
 
-        IObservable<Unit> IAcquiredMessage.OnDestroy => _onDestroy;
-        readonly ISubject<Unit> _onDestroy = new Subject<Unit>();
+        public IReadOnlyReactiveProperty<bool> CanAddNextMessage => _canAddNextMessage;
+        readonly IReactiveProperty<bool> _canAddNextMessage = new ReactiveProperty<bool>(false);
+
+        public IObservable<Unit> OnComplete => _onComplete;
+        readonly ISubject<Unit> _onComplete = new Subject<Unit>();
 
         RectTransform _rectTransform;
         float _defaultPositionX;
 
+        const float _messageAddInterval = 0.35f; // duration‚æ‚è’·‚­
+
         Tweener _hideTweener = null;
         const float _duration = 0.325f;
+
         const float _showInterval = 1.5f;
 
         void Awake()
@@ -39,34 +46,41 @@ namespace HexRPG.Battle.HUD
             _rectTransform.anchoredPosition = Vector3.zero;
         }
 
-        void IAcquiredMessage.Show(string message)
+        public void Show(string message)
         {
+            _hideTweener = null;
+
+            _canAddNextMessage.Value = false;
+            _message.text = message;
+
             StartShowInterval(this.GetCancellationTokenOnDestroy()).Forget();
 
             _rectTransform.anchoredPosition = Vector3.zero;
             TransformUtility.DOAnchorPosX(_rectTransform, _defaultPositionX, _duration);
-            _message.text = message;
         }
 
-        void IAcquiredMessage.Hide()
+        public void Hide()
         {
             if(_hideTweener == null)
             {
                 _hideTweener = TransformUtility.DOAnchorPosX(_rectTransform, 0, _duration)
-                    .OnComplete(() => Destroy(gameObject));
+                    .OnComplete(() => _onComplete.OnNext(Unit.Default));
             }
         }
 
         async UniTaskVoid StartShowInterval(CancellationToken token)
         {
+            StartMessageAddInterval(token).Forget();
             await UniTask.Delay((int)(_showInterval * 1000), cancellationToken: token);
             (this as IAcquiredMessage).Hide();
             return;
         }
 
-        void OnDestroy()
+        async UniTaskVoid StartMessageAddInterval(CancellationToken token)
         {
-            _onDestroy.OnNext(Unit.Default);
+            await UniTask.Delay((int)(_messageAddInterval * 1000), cancellationToken: token);
+            _canAddNextMessage.Value = true;
+            return;
         }
     }
 }

@@ -3,7 +3,7 @@ using TMPro;
 
 namespace HexRPG.Battle.HUD
 {
-    public class DamagedDisplay : MonoBehaviour
+    public class DamagedDisplayHUD : AbstractPoolableMonoBehaviour<DamagedDisplayHUD>
     {
         public RectTransform RectTransform => _rectTransform;
         RectTransform _rectTransform;

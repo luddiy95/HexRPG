@@ -17,7 +17,9 @@ namespace HexRPG.Battle.HUD
         ITrackingHUD _trackingHUD;
 
         RectTransform _transform;
-        [SerializeField] ObjectPool _objectPool;
+
+        DamagedDisplayHUD.Factory _damagedDisplayFactory;
+
         //! DamagedDisplay表示時、CharacterのDamagedモーションなどを追ってしまわないようにDamagedDisplayのParent(DamagedPanelHUD)とTrackingHUDは別にする
         [SerializeField] GameObject _trackingPanel;
 
@@ -26,11 +28,13 @@ namespace HexRPG.Battle.HUD
         [Inject]
         public void Construct(
             BattleData battleData,
-            DisplayDataContainer displayDataContainer
+            DisplayDataContainer displayDataContainer,
+            DamagedDisplayHUD.Factory damagedDisplayFactory
         )
         {
             _battleData = battleData;
             _displayDataContainer = displayDataContainer;
+            _damagedDisplayFactory = damagedDisplayFactory;
         }
 
         void Awake()
@@ -66,7 +70,7 @@ namespace HexRPG.Battle.HUD
                     {
                         _transform.anchoredPosition = _trackingHUD.AnchoredPos;
 
-                        var damagedDisplay = _objectPool.Instantiate().GetComponent<DamagedDisplay>();
+                        var damagedDisplay = _damagedDisplayFactory.Create();
                         damagedDisplay.AnchoredPos = new Vector2(_size.x * Random.value, _size.y * Random.value);
                         damagedDisplay.Damage = hitData.Damage;
                         if (_battleData.damagedDisplayMatMap.Table.TryGetValue(hitData.HitType, out Material mat)) damagedDisplay.Material = mat;
@@ -74,7 +78,7 @@ namespace HexRPG.Battle.HUD
                         DOTween.Sequence()
                             .Append(TransformUtility.DOAnchorPosY(damagedDisplay.RectTransform, -18f, 0.3f).SetRelative(true).SetEase(Ease.OutBounce, 10))
                             .AppendInterval(0.3f)
-                            .AppendCallback(() => _objectPool.Free(damagedDisplay.gameObject));
+                            .AppendCallback(() => damagedDisplay.Dispose());
 
                     })
                     .AddTo(_disposables);

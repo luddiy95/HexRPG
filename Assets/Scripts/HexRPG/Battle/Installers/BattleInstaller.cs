@@ -26,7 +26,7 @@ namespace HexRPG.Battle
 
         [SerializeField] GameObject _memberStatusPrefab;
         [SerializeField] GameObject _enemyStatusPrefab;
-        [SerializeField] GameObject _damagedPanelPrefab;
+        [SerializeField] GameObject _damagedPanelParentPrefab;
 
         [SerializeField] Transform _enemyStatusHUDRoot;
         [SerializeField] Transform _damagedPanelParentRoot;
@@ -53,7 +53,7 @@ namespace HexRPG.Battle
                     .FromComponentInNewPrefab(_enemyStatusPrefab).UnderTransform(_enemyStatusHUDRoot));
             Container.BindFactory<DamagedPanelParentHUD, DamagedPanelParentHUD.Factory>()
                 .FromPoolableMemoryPool<DamagedPanelParentHUD, DamagedPanelParentHUD.Pool>(pool => pool
-                    .FromComponentInNewPrefab(_damagedPanelPrefab).UnderTransform(_damagedPanelParentRoot));
+                    .FromComponentInNewPrefab(_damagedPanelParentPrefab).UnderTransform(_damagedPanelParentRoot));
         }
     }
 }

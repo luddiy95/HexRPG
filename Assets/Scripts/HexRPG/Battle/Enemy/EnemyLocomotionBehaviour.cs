@@ -25,7 +25,7 @@ namespace HexRPG.Battle.Enemy
     {
         IMoveSetting _moveSetting;
 
-        NavMeshAgent NavMeshAgent => _navMeshAgent ? _navMeshAgent : GetComponent<NavMeshAgent>();
+        NavMeshAgent NavMeshAgent => _navMeshAgent ? _navMeshAgent : _navMeshAgent = GetComponent<NavMeshAgent>();
         [Header("NavMeshAgent。nullならこのオブジェクト")]
         [SerializeField] NavMeshAgent _navMeshAgent;
 

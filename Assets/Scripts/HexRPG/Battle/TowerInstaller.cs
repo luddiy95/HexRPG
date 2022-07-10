@@ -28,7 +28,7 @@ namespace HexRPG.Battle
                 var maxSize = setting.MaxCount;
                 Container.BindFactory<Transform, Vector3, EnemyOwner, EnemyOwner.Factory>()
                     .FromPoolableMemoryPool<Transform, Vector3, EnemyOwner, EnemyOwner.Pool>(pool => pool
-                        .WithMaxSize(maxSize)
+                        .WithInitialSize(maxSize)
                         .FromSubContainerResolve()
                         .ByNewContextPrefab(setting.Prefab)
                         .UnderTransform(_enemySpawnRoot));

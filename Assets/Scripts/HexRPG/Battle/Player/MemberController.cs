@@ -67,7 +67,7 @@ namespace HexRPG.Battle.Player
         {
             _memberFactories.ForEach(factory =>
             {
-                _memberList.Add(factory.Create(_transformController.SpawnRootTransform("Member"), Vector3.zero).GetComponent<IMemberComponentCollection>());
+                _memberList.Add(factory.Create(_transformController.SpawnRootTransform("Member"), Vector3.zero) as IMemberComponentCollection);
             });
 
             foreach (var member in _memberList) member.CombatSpawnController.Spawn(_attackOwner);

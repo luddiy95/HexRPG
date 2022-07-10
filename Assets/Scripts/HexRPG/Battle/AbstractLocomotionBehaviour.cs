@@ -37,7 +37,7 @@ namespace HexRPG.Battle
     {
         protected ITransformController _transformController;
 
-        protected Rigidbody Rigidbody => _rigidbody ? _rigidbody : GetComponent<Rigidbody>();
+        protected Rigidbody Rigidbody => _rigidbody ? _rigidbody : _rigidbody = GetComponent<Rigidbody>();
         [Header("動かすRigidbody。nullならこのオブジェクト")]
         [SerializeField] Rigidbody _rigidbody;
 
