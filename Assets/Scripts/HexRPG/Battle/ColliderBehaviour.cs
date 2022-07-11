@@ -13,7 +13,7 @@ namespace HexRPG.Battle
     {
         IDieObservable _dieObservable;
 
-        CapsuleCollider IColliderController.Collider => _collider ? _collider : _collider = GetComponent<CapsuleCollider>();
+        public CapsuleCollider Collider => _collider ? _collider : _collider = GetComponent<CapsuleCollider>();
         [Header("null ならこのオブジェクト。")]
         [SerializeField] CapsuleCollider _collider;
 
@@ -28,7 +28,7 @@ namespace HexRPG.Battle
         void Start()
         {
             _dieObservable.IsDead
-                .Subscribe(isDead => (this as IColliderController).Collider.enabled = !isDead)
+                .Subscribe(isDead => Collider.enabled = !isDead)
                 .AddTo(this);
         }
     }

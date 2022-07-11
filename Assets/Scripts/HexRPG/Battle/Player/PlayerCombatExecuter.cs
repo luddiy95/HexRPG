@@ -31,8 +31,6 @@ namespace HexRPG.Battle.Player
 
         ICombatComponentCollection ICombatController.Combat()
         {
-            //TODO: Playerを仲介する必要があるのか(Skillは必要だけど。。)
-
             var combatController = _memberObservable.CurMember.Value.CombatController;
             if (_runningCombat != null)
             {

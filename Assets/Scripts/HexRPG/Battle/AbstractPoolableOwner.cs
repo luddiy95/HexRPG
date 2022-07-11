@@ -24,7 +24,7 @@ namespace HexRPG.Battle
 
         public void Dispose()
         {
-            _pool.Despawn(this);
+            _pool?.Despawn(this);
         }
 
         public class Factory : PlaceholderFactory<Transform, Vector3, T>

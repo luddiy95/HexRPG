@@ -23,7 +23,7 @@ namespace HexRPG.Battle
 
         public override void InstallBindings()
         {
-            Array.ForEach(_dynamicEnemySpawnSettings, setting =>
+            foreach(var setting in _dynamicEnemySpawnSettings)
             {
                 var maxSize = setting.MaxCount;
                 Container.BindFactory<Transform, Vector3, EnemyOwner, EnemyOwner.Factory>()
@@ -32,15 +32,15 @@ namespace HexRPG.Battle
                         .FromSubContainerResolve()
                         .ByNewContextPrefab(setting.Prefab)
                         .UnderTransform(_enemySpawnRoot));
-            });
+            }
 
-            Array.ForEach(_staticEnemySpawnSettings, setting =>
+            foreach(var setting in _staticEnemySpawnSettings)
             {
                 Container.BindFactory<Transform, Vector3, EnemyOwner, EnemyOwner.Factory>()
                     .FromSubContainerResolve()
                     .ByNewContextPrefab<EnemyInstaller>(setting.Prefab)
                     .UnderTransform(_enemySpawnRoot);
-            });
+            }
         }
     }
 }

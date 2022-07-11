@@ -136,11 +136,15 @@ namespace HexRPG.Battle
         readonly static LayerMask hexLayerMask = 
             (1 << LayerMask.NameToLayer(PlayerHex) | 1 << LayerMask.NameToLayer(EnemyHex) | 1 << LayerMask.NameToLayer(NeutralHex));
 
-        public static Hex GetLandedHex(this ITransformController transformController) => 
-            GetHitHex(new Ray(transformController.Position + Vector3.up * 0.15f, Vector3.down), 0.3f);
+        public static Hex GetLandedHex(this ITransformController transformController)
+        {
+            return GetHitHex(new Ray(transformController.Position + Vector3.up * 0.15f, Vector3.down), 0.3f);
+        }
 
-        public static Hex GetLandedHex(Vector3 pos) =>
-            GetHitHex(new Ray(pos + Vector3.up * 0.15f, Vector3.down), 0.3f);
+        public static Hex GetLandedHex(Vector3 pos)
+        {
+            return GetHitHex(new Ray(pos + Vector3.up * 0.15f, Vector3.down), 0.3f);
+        }
 
         public static void GetSurroundedHexList(Hex root, float radius, ref List<Hex> surroundedHex)
         {

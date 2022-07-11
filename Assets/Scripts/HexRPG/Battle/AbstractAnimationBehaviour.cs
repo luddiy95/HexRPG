@@ -640,7 +640,7 @@ namespace HexRPG.Battle
         void OnDestroy()
         {
             TokenCancel();
-            _graph.Destroy();
+            if(_graph.IsValid()) _graph.Destroy();
         }
 
         #region Inspector

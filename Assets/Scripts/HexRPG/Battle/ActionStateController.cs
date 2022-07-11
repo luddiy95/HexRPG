@@ -96,7 +96,15 @@ namespace HexRPG.Battle
             if (nextState == null && _requestCommand.IsEmpty == false)
             {
                 // ƒLƒƒƒ“ƒZƒ‹
-                var cancelEvent = _activeCancelEvents.Find(x => x.CommandId == _requestCommand.Id);
+                ActionEventCancel cancelEvent = null;
+                foreach(var evt in _activeCancelEvents)
+                {
+                    if(evt.CommandId == _requestCommand.Id)
+                    {
+                        cancelEvent = evt;
+                        break;
+                    }
+                }
                 if (cancelEvent != null)
                 {
                     passEndNotification = cancelEvent.PassEndNotification;
@@ -104,7 +112,14 @@ namespace HexRPG.Battle
                     _executedCommand.Value = _requestCommand;
                     if (cancelEvent.HasStateType == true)
                     {
-                        nextState = _actionStates.FirstOrDefault(x => x.Type == cancelEvent.StateType);
+                        foreach(var state in _actionStates)
+                        {
+                            if(state.Type == cancelEvent.StateType)
+                            {
+                                nextState = state;
+                                break;
+                            }
+                        }
                     }
                 }
 

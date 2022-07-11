@@ -42,7 +42,8 @@ namespace HexRPG.Battle.UI
                         {
                             ui.Bind(playerOwner);
                         });
-                    });
+                    })
+                    .AddTo(this);
             }
 
         }

@@ -72,7 +72,7 @@ namespace HexRPG.Battle.HUD
                     .AddTo(this);
 
                 var huds = damagedPanelParentHUD.GetComponents<ICharacterHUD>();
-                Array.ForEach(huds, hud => hud.Bind(chara));
+                foreach (var hud in huds) hud.Bind(chara);
             }
             _battleObservable.OnPlayerSpawn
                 .Skip(1)
