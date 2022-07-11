@@ -473,7 +473,9 @@ namespace HexRPG.Battle.Enemy
                             && _navMeshAgentController.IsExistPath(hex.transform.position)
                             && hex.GetDistance2XZ(playerLandedHex) + 0.1f < distance2FromPlayerHex) // Œ»Ý‚ÌPlayerLandedHex‚Ö‚Ì‹——£‚æ‚è’Z‚­‚È‚é
                         .Where(hex => enemyDestinationHexList.Contains(hex) == false);
+
                     _enemyHexList.AddRange(aroundEnemyHexList);
+
                     if (_arroundHexList.Contains(playerLandedHex)) break;
                     ++radius;
                 }

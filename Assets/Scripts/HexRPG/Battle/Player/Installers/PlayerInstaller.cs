@@ -20,6 +20,8 @@ namespace HexRPG.Battle.Player
             //! FromSubContainerResolveバインディングで親コンテナにバインドされるクラスはサブコンテナ(ここ)内でバインドされなければならない
             Container.BindInterfacesAndSelfTo<PlayerOwner>().FromComponentOnRoot();
 
+            Container.BindInterfacesTo<PlayerCameraController>().AsSingle();
+
             Container.BindInterfacesTo<MemberController>().AsSingle();
 
             Container.BindInterfacesTo<PlayerCombatExecuter>().AsSingle();

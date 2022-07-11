@@ -17,6 +17,9 @@ namespace HexRPG.Battle.Player
 
         ICharacterInput _characterInput;
 
+        ICameraRotateController _cameraRotateController;
+        ICameraRotateObservable _cameraRotateObservable;
+
         IActionStateController _actionStateController;
         IActionStateObservable _actionStateObservable;
 
@@ -47,6 +50,8 @@ namespace HexRPG.Battle.Player
             ILocomotionController locomotionController,
             ILocomotionObservable locomotionObservable,
             ICharacterInput characterInput,
+            ICameraRotateController cameraRotateController,
+            ICameraRotateObservable cameraRotateObservable,
             IActionStateController actionStateController,
             IActionStateObservable actionStateObservable,
             IMemberObservable memberObservable,
@@ -63,6 +68,8 @@ namespace HexRPG.Battle.Player
             _locomotionController = locomotionController;
             _locomotionObservable = locomotionObservable;
             _characterInput = characterInput;
+            _cameraRotateController = cameraRotateController;
+            _cameraRotateObservable = cameraRotateObservable;
             _actionStateController = actionStateController;
             _actionStateObservable = actionStateObservable;
             _memberObservable = memberObservable;
@@ -205,6 +212,17 @@ namespace HexRPG.Battle.Player
                 })
                 .AddTo(_disposables);
 
+            // CameraRotate
+            _characterInput.CameraRotateDir
+                .Where(_ => _cameraRotateObservable.IsCameraRotating == false)
+                .Where(_ => CurState == IDLE || CurState == MOVE || CurState == SKILL_SELECT)
+                .Subscribe(rotateDir =>
+                {
+                    _cameraRotateController.FixTimeCameraRotate(rotateDir, 0.25f);
+                    _actionStateController.Execute(new Command { Id = "skillCancel" });
+                })
+                .AddTo(_disposables);
+
             // Combat
             _characterInput.OnCombat
                 .Where(_ => CurState == IDLE || CurState == MOVE || CurState == COMBAT || CurState == SKILL_SELECT)
@@ -238,10 +256,6 @@ namespace HexRPG.Battle.Player
 
             // Skillキャンセル時
             _characterInput.OnSkillCancel
-                .Where(_ => CurState == SKILL_SELECT)
-                .Subscribe(_ => _actionStateController.Execute(new Command { Id = "skillCancel" }))
-                .AddTo(_disposables);
-            _characterInput.CameraRotateDir
                 .Where(_ => CurState == SKILL_SELECT)
                 .Subscribe(_ => _actionStateController.Execute(new Command { Id = "skillCancel" }))
                 .AddTo(_disposables);

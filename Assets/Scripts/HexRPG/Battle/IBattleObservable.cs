@@ -23,5 +23,6 @@ namespace HexRPG.Battle
 
         CinemachineBrain CinemachineBrain { get; }
         CinemachineVirtualCamera MainVirtualCamera { get; }
+        CinemachineOrbitalTransposer CameraTransposer { get; }
     }
 }

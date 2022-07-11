@@ -59,6 +59,9 @@ namespace HexRPG.Battle
         CinemachineVirtualCamera IBattleObservable.MainVirtualCamera => _mainVirtualCamera;
         [SerializeField] CinemachineVirtualCamera _mainVirtualCamera;
 
+        CinemachineOrbitalTransposer IBattleObservable.CameraTransposer => _cameraTransposer;
+        CinemachineOrbitalTransposer _cameraTransposer;
+
         [SerializeField] CinemachineTargetGroup _targetGroup;
 
         [SerializeField] Transform _playerRoot;
@@ -83,6 +86,8 @@ namespace HexRPG.Battle
 
         void Start()
         {
+            _cameraTransposer = _mainVirtualCamera.GetCinemachineComponent<CinemachineOrbitalTransposer>();
+
             PlayGameSequence(this.GetCancellationTokenOnDestroy()).Forget();
         }
 
