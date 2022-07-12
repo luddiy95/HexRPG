@@ -5260,7 +5260,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &414148014
 Transform:
   m_ObjectHideFlags: 0
@@ -25762,12 +25762,12 @@ MonoBehaviour:
   _dynamicEnemySpawnSettings:
   - _prefab: {fileID: 2234952170314847877, guid: 409b142d3a41de542bbcd3ee26ac0ec3, type: 3}
     _maxCount: 3
-    _firstSpawnInterval: 1
-    _spawnInterval: 3
+    _firstSpawnInterval: 1000
+    _spawnInterval: 3000
   - _prefab: {fileID: 6471602390234334292, guid: 9658532c6f1960740b8b4a98b7500344, type: 3}
     _maxCount: 3
-    _firstSpawnInterval: 1
-    _spawnInterval: 2
+    _firstSpawnInterval: 2000
+    _spawnInterval: 2100
   _staticEnemySpawnSettings: []
   _enemySpawnRoot: {fileID: 1474362757}
 --- !u!114 &1701108851205070382
@@ -25823,7 +25823,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _enemyRoot: {fileID: 1474362757}
-  _rootHex: {fileID: 211352251}
 --- !u!114 &1701108851205070385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25837,6 +25836,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _initTowerType: 1
+  _rootHex: {fileID: 211352251}
+  _fixedEnemyHexList:
+  - {fileID: 211352251}
+  - {fileID: 369955646}
+  - {fileID: 1370244806}
+  - {fileID: 1316211286}
+  - {fileID: 391873270}
+  - {fileID: 1285283935}
+  - {fileID: 690883508}
 --- !u!114 &1701108851205070386
 MonoBehaviour:
   m_ObjectHideFlags: 0

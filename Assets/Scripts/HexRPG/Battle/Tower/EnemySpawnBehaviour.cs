@@ -22,7 +22,6 @@ namespace HexRPG.Battle.Stage
         ITowerObservable _towerObservable;
 
         [SerializeField] Transform _enemyRoot;
-        [SerializeField] Hex _rootHex;
 
         IReadOnlyReactiveCollection<IEnemyComponentCollection> IEnemySpawnObservable.EnemyList => _enemyList;
         readonly IReactiveCollection<IEnemyComponentCollection> _enemyList = new ReactiveCollection<IEnemyComponentCollection>();
@@ -78,10 +77,19 @@ namespace HexRPG.Battle.Stage
 
         async UniTaskVoid StartDynamicEnemySpawnSequence(EnemyOwner.Factory factory, DynamicSpawnSetting spawnSetting, CancellationToken token)
         {
-            await UniTask.Delay(spawnSetting.FirstSpawnInterval * 1000, cancellationToken: token);
+            await UniTask.Delay(spawnSetting.FirstSpawnInterval, cancellationToken: token);
 
             // enemyName‚ðŽæ“¾‚·‚é‚½‚ß‚ÌÅ‰‚Ìˆê‘Ì
-            var enemy = await SpawnEnemy(factory, _rootHex, token);
+            Hex spawnHex = null;
+            try
+            {
+                spawnHex = _towerObservable.FixedEnemyHexList.First(hex => _enemyList.Any(enemy => enemy.TransformController.GetLandedHex() == hex) == false);
+            }
+            catch (System.NullReferenceException e)
+            {
+                throw e;
+            }
+            var enemy = await SpawnEnemy(factory, spawnHex, token);
             var enemyName = enemy.ProfileSetting.Name;
 
             CancellationTokenSource spawnIteraterCts = null;
@@ -116,8 +124,17 @@ namespace HexRPG.Battle.Stage
         {
             while (true)
             {
-                await UniTask.Delay(spawnSetting.SpawnInterval * 1000, cancellationToken: token);
-                SpawnEnemy(factory, _rootHex, token).Forget();
+                await UniTask.Delay(spawnSetting.SpawnInterval, cancellationToken: token);
+                Hex spawnHex = null;
+                try
+                {
+                    spawnHex = _towerObservable.FixedEnemyHexList.First(hex => _enemyList.Any(enemy => enemy.TransformController.GetLandedHex() == hex) == false);
+                }
+                catch (System.NullReferenceException e)
+                {
+                    throw e;
+                }
+                SpawnEnemy(factory, spawnHex, token).Forget();
             }
         }
 

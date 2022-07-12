@@ -9,9 +9,11 @@ namespace HexRPG.Battle
         [SerializeField] int _maxCount;
 
         public int FirstSpawnInterval => _firstSpawnInterval;
+        [Header("Å‰‚ÌSpawn‚ÌInterval(ms)")]
         [SerializeField] int _firstSpawnInterval;
 
         public int SpawnInterval => _spawnInterval;
+        [Header("2‰ñ–ÚˆÈ~‚ÌSpawn‚ÌInterval(ms)")]
         [SerializeField] int _spawnInterval;
     }
 }

@@ -193,6 +193,8 @@ namespace HexRPG.Battle
                                 if (curDestination != null) _enemyDestinationHexList.Add(curDestination);
                             })
                             .AddTo(enemyDisposables);
+                        //! «Pairwise‚Å‚Í‰Šú’l‚ðŽæ‚ê‚È‚¢‚Ì‚ÅAActionStateController#Init‚ÅÝ’è‚µ‚½CurDestination(LandedHex)‚ªenemyDestinationHexList‚ÉAdd‚³‚ê‚È‚¢•ª
+                        _enemyDestinationHexList.Add(navMeshAgentController.CurDestination.Value);
 
                         enemyOwner.DieObservable.IsDead
                             .Where(isDead => isDead)

@@ -22,6 +22,8 @@ namespace HexRPG.Battle.Stage
     public interface ITowerObservable
     {
         IReadOnlyReactiveProperty<TowerType> TowerType { get; }
+        Hex RootHex { get; }
+        Hex[] FixedEnemyHexList { get; }
     }
 
     public class TowerManager : MonoBehaviour, ITowerController, ITowerObservable
@@ -30,6 +32,11 @@ namespace HexRPG.Battle.Stage
         IReactiveProperty<TowerType> _towerType = new ReactiveProperty<TowerType>();
 
         [SerializeField] TowerType _initTowerType;
+
+        Hex ITowerObservable.RootHex => _rootHex;
+        [SerializeField] Hex _rootHex;
+        Hex[] ITowerObservable.FixedEnemyHexList => _fixedEnemyHexList;
+        [SerializeField] Hex[] _fixedEnemyHexList;
 
         IHealth _health;
 
