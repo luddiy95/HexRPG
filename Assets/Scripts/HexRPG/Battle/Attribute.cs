@@ -8,7 +8,9 @@ namespace HexRPG.Battle
         ATTRIBUTE_01, // 04‚É‹­‚¢
         ATTRIBUTE_02, // 01‚É‹­‚¢
         ATTRIBUTE_03, // 02‚É‹­‚¢
-        ATTRIBUTE_04 // 03‚É‹­‚¢
+        ATTRIBUTE_04, // 03‚É‹­‚¢
+        
+        NONE
     }
 
     public static class AttributeExtensions

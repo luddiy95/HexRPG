@@ -6,7 +6,7 @@ using UniRx;
 using Zenject;
 using System;
 
-namespace HexRPG.Battle.Stage
+namespace HexRPG.Battle.Stage.Tower
 {
     public enum TowerType
     {

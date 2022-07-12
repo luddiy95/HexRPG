@@ -6,7 +6,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Zenject;
 
-namespace HexRPG.Battle.Stage
+namespace HexRPG.Battle.Stage.Tower
 {
     using Enemy;
 

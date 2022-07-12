@@ -87,7 +87,7 @@ namespace HexRPG.Battle
         [Header("RootとなるTransform。null ならこのオブジェクト。")]
         [SerializeField] Transform _rootTransform;
 
-        [Header("動かすTransform。null ならこのオブジェクト。")]
+        [Header("動かすTransform、LandedHexを計算するTransform。null ならこのオブジェクト。")]
         [SerializeField] Transform _moveTransform;
 
         [Header("回転させるTransform。null ならこのオブジェクト。")]

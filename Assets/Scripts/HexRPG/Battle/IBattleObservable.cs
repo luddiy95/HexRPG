@@ -8,6 +8,7 @@ namespace HexRPG.Battle
     using Player;
     using Enemy;
     using Stage;
+    using Stage.Tower;
 
     public interface IBattleObservable
     {

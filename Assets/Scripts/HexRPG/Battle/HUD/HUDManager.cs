@@ -5,7 +5,7 @@ using Zenject;
 
 namespace HexRPG.Battle.HUD
 {
-    using Stage.HUD;
+    using Stage.Tower.HUD;
     using Enemy.HUD;
 
     public class HUDManager : MonoBehaviour

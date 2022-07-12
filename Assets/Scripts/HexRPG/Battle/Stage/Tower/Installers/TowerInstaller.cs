@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
-namespace HexRPG.Battle.Stage
+namespace HexRPG.Battle.Stage.Tower
 {
     using Enemy;
 
@@ -23,6 +23,7 @@ namespace HexRPG.Battle.Stage
         public override void InstallBindings()
         {
             Container.BindInterfacesTo<Health>().AsSingle();
+            Container.BindInterfacesTo<TowerDamagedApplicable>().AsSingle();
 
             foreach (var setting in _dynamicEnemySpawnSettings)
             {

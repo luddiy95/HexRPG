@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 using Zenject;
 
-namespace HexRPG.Battle.Stage
+namespace HexRPG.Battle.Stage.Tower
 {
     public interface ITowerComponentCollection : ICharacterComponentCollection
     {
@@ -13,7 +13,7 @@ namespace HexRPG.Battle.Stage
 
     public class TowerOwner : MonoBehaviour, ITowerComponentCollection
     {
-        IProfileSetting ICharacterComponentCollection.ProfileSetting => throw new NullReferenceException();
+        [Inject] IProfileSetting ICharacterComponentCollection.ProfileSetting { get; }
         IDieObservable ICharacterComponentCollection.DieObservable => throw new NullReferenceException();
         [Inject] IHealth ICharacterComponentCollection.Health { get; }
 

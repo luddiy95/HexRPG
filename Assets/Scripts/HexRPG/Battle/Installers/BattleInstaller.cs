@@ -6,7 +6,7 @@ namespace HexRPG.Battle
     using Player;
     using Player.HUD;
     using Enemy.HUD;
-    using Stage.HUD;
+    using Stage.Tower.HUD;
     using HUD;
 
     public interface IPlayerSpawnSetting

@@ -5254,13 +5254,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 414148014}
+  - component: {fileID: 414148015}
   m_Layer: 8
   m_Name: Crystal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &414148014
 Transform:
   m_ObjectHideFlags: 0
@@ -5283,6 +5284,20 @@ Transform:
   m_Father: {fileID: 1699849937104743080}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &414148015
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 414148013}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 2.09
+  m_Height: 5.02
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.52, z: 0.42}
 --- !u!1 &416966857
 GameObject:
   m_ObjectHideFlags: 0
@@ -18670,7 +18685,7 @@ GameObject:
   - component: {fileID: 1551711179}
   - component: {fileID: 1551711178}
   - component: {fileID: 1551711177}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Hex(Clone) (59)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18703,7 +18718,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a90f294da7400745837cda2889780d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _status: 0
+  _status: 1
 --- !u!64 &1551711178
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -18739,7 +18754,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
-  - {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
+  - {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -25734,6 +25749,7 @@ GameObject:
   - component: {fileID: 1699849937104743080}
   - component: {fileID: 1701108851205070386}
   - component: {fileID: 1701108851205070387}
+  - component: {fileID: 1701108851205070389}
   - component: {fileID: 1701108851205070385}
   - component: {fileID: 1701108851205070384}
   - component: {fileID: 1701108851205070388}
@@ -25761,13 +25777,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _dynamicEnemySpawnSettings:
   - _prefab: {fileID: 2234952170314847877, guid: 409b142d3a41de542bbcd3ee26ac0ec3, type: 3}
-    _maxCount: 3
+    _maxCount: 1
     _firstSpawnInterval: 1000
     _spawnInterval: 3000
-  - _prefab: {fileID: 6471602390234334292, guid: 9658532c6f1960740b8b4a98b7500344, type: 3}
-    _maxCount: 3
-    _firstSpawnInterval: 2000
-    _spawnInterval: 2100
   _staticEnemySpawnSettings: []
   _enemySpawnRoot: {fileID: 1474362757}
 --- !u!114 &1701108851205070382
@@ -25801,7 +25813,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _components:
+  - {fileID: 1701108851205070386}
   - {fileID: 1701108851205070387}
+  - {fileID: 1701108851205070389}
   - {fileID: 1701108851205070385}
   - {fileID: 1701108851205070384}
   - {fileID: 1701108851205070388}
@@ -25870,7 +25884,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rootTransform: {fileID: 0}
-  _moveTransform: {fileID: 0}
+  _moveTransform: {fileID: 414148014}
   _rotateTransform: {fileID: 0}
   _displayTransform: {fileID: 414148014}
   _spawnRoots: []
@@ -25887,6 +25901,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _healthMax: 100
+--- !u!114 &1701108851205070389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1701108851205070380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1c3fa5cc2f877b4b9c41bf66cbea00c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collider: {fileID: 414148015}
 --- !u!1 &1701177462765346742
 GameObject:
   m_ObjectHideFlags: 0

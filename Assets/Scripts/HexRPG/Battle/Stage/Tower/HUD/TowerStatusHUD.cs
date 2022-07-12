@@ -3,7 +3,7 @@ using UniRx;
 using Zenject;
 using TMPro;
 
-namespace HexRPG.Battle.Stage.HUD
+namespace HexRPG.Battle.Stage.Tower.HUD
 {
     using Battle.HUD;
 
