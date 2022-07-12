@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using System;
 using UnityEngine;
 using Zenject;
 
-namespace HexRPG.Battle
+namespace HexRPG.Battle.Stage
 {
     using Enemy;
 
@@ -23,7 +22,9 @@ namespace HexRPG.Battle
 
         public override void InstallBindings()
         {
-            foreach(var setting in _dynamicEnemySpawnSettings)
+            Container.BindInterfacesTo<Health>().AsSingle();
+
+            foreach (var setting in _dynamicEnemySpawnSettings)
             {
                 var maxSize = setting.MaxCount;
                 Container.BindFactory<Transform, Vector3, EnemyOwner, EnemyOwner.Factory>()

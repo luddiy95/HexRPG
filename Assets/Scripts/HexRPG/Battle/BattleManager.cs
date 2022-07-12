@@ -51,7 +51,12 @@ namespace HexRPG.Battle
         IEnumerable<Hex> IBattleObservable.EnemyDestinationHexList => _enemyDestinationHexList;
         readonly List<Hex> _enemyDestinationHexList = new List<Hex>(32);
 
-        List<ITowerComponentCollection> _towers = new List<ITowerComponentCollection>(16);
+        IObservable<ITowerComponentCollection> IBattleObservable.OnTowerInit => _onTowerInit;
+        readonly ISubject<ITowerComponentCollection> _onTowerInit = new Subject<ITowerComponentCollection>();
+        List<ITowerComponentCollection> _towerList = new List<ITowerComponentCollection>(16);
+
+        IObservable<Unit> IBattleObservable.OnUpdateNavMesh => _onUpdateNavMesh;
+        readonly ISubject<Unit> _onUpdateNavMesh = new Subject<Unit>();
 
         CinemachineBrain IBattleObservable.CinemachineBrain => _cinemachineBrain;
         [SerializeField] CinemachineBrain _cinemachineBrain;
@@ -140,7 +145,11 @@ namespace HexRPG.Battle
                 .AddTo(this);
             // Player‚ªLiberate‚µ‚½‚çNavMesh‚ðÄBake
             playerOwner.LiberateObservable.SuccessLiberateHexList
-                .Subscribe(_ => _enemySurface.BuildNavMesh())
+                .Subscribe(_ =>
+                {
+                    _enemySurface.BuildNavMesh();
+                    _onUpdateNavMesh.OnNext(Unit.Default);
+                })
                 .AddTo(this);
 
             _onPlayerSpawn.Value = playerOwner;
@@ -148,9 +157,9 @@ namespace HexRPG.Battle
 
         void SetupTowers(CancellationToken token)
         {
-            GetComponentsInChildren(_towers); // NonAlloc
+            GetComponentsInChildren(_towerList); // NonAlloc
 
-            foreach(var tower in _towers)
+            foreach(var tower in _towerList)
             {
                 var enemySpawnObservable = tower.EnemySpawnObservable;
                 enemySpawnObservable.EnemyList.ObserveAdd()
@@ -166,7 +175,11 @@ namespace HexRPG.Battle
 
                         // enemy‚ªLiberate‚µ‚½‚çNavMesh‚ðÄBake
                         enemyOwner.LiberateObservable.SuccessLiberateHexList
-                            .Subscribe(_ => _enemySurface.BuildNavMesh())
+                            .Subscribe(_ =>
+                            {
+                                _enemySurface.BuildNavMesh();
+                                _onUpdateNavMesh.OnNext(Unit.Default);
+                            })
                             .AddTo(enemyDisposables);
 
                         var navMeshAgentController = enemyOwner.NavMeshAgentController;
@@ -198,6 +211,7 @@ namespace HexRPG.Battle
                     .AddTo(this);
 
                 tower.TowerController.Init();
+                _onTowerInit.OnNext(tower);
             }
         }
 
@@ -210,7 +224,7 @@ namespace HexRPG.Battle
                 .AddTo(this);
 
             await UniTask.WaitUntil(
-                () => _resultType == GameResultType.LOSE || _towers.All(tower => tower.TowerObservable.TowerType.Value == TowerType.PLAYER),
+                () => _resultType == GameResultType.LOSE || _towerList.All(tower => tower.TowerObservable.TowerType.Value == TowerType.PLAYER),
                 cancellationToken: token);
 
             if (_resultType == GameResultType.NONE) _resultType = GameResultType.WIN;

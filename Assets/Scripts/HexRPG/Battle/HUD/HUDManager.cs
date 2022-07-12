@@ -5,6 +5,7 @@ using Zenject;
 
 namespace HexRPG.Battle.HUD
 {
+    using Stage.HUD;
     using Enemy.HUD;
 
     public class HUDManager : MonoBehaviour
@@ -14,19 +15,24 @@ namespace HexRPG.Battle.HUD
         [Header("MemberのHUD実装オブジェクト")]
         [SerializeField] GameObject _memberListHUD;
 
-        EnemyStatusHUD.Factory _enemyStatusFactory;
+        [Header("TowerStatusHUDのRoot")]
+        [SerializeField] Transform _towerStatusRoot;
 
+        EnemyStatusHUD.Factory _enemyStatusFactory;
+        TowerStatusHUD.Factory _towerStatusFactory;
         DamagedPanelParentHUD.Factory _damagedPanelFactory;
 
         [Inject]
         public void Construct(
             IBattleObservable battleObservable,
             EnemyStatusHUD.Factory enemyStatusFactory,
+            TowerStatusHUD.Factory towerStatusFactory,
             DamagedPanelParentHUD.Factory damagedPanelFactory
         )
         {
             _battleObservable = battleObservable;
             _enemyStatusFactory = enemyStatusFactory;
+            _towerStatusFactory = towerStatusFactory;
             _damagedPanelFactory = damagedPanelFactory;
         }
 
@@ -83,6 +89,18 @@ namespace HexRPG.Battle.HUD
                 .AddTo(this);
             _battleObservable.OnEnemySpawn
                 .Subscribe(enemyOwner => SpawnDamagedPanel(enemyOwner))
+                .AddTo(this);
+
+            // Tower
+            _battleObservable.OnTowerInit
+                .Subscribe(towerOwner =>
+                {
+                    var towerStatusHUD = _towerStatusFactory.Create();
+                    towerStatusHUD.transform.SetParent(_towerStatusRoot);
+
+                    var huds = towerStatusHUD.GetComponents<ICharacterHUD>();
+                    Array.ForEach(huds, hud => hud.Bind(towerOwner));
+                })
                 .AddTo(this);
         }
     }

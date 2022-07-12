@@ -21,6 +21,10 @@ namespace HexRPG.Battle
         IReadOnlyReactiveCollection<IEnemyComponentCollection> EnemyList { get; }
         IEnumerable<Hex> EnemyDestinationHexList { get; } // ˆê“xcopy‚³‚ê‚Ä‚©‚çŽg‚¤‘z’è
 
+        IObservable<ITowerComponentCollection> OnTowerInit { get; }
+
+        IObservable<Unit> OnUpdateNavMesh { get; }
+
         CinemachineBrain CinemachineBrain { get; }
         CinemachineVirtualCamera MainVirtualCamera { get; }
         CinemachineOrbitalTransposer CameraTransposer { get; }

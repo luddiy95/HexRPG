@@ -5,19 +5,21 @@ using Zenject;
 
 namespace HexRPG.Battle.Stage
 {
+    public enum HexStatus
+    {
+        PLAYER,
+
+        ENEMY,
+        FIXED_ENEMY
+    }
+
     public class Hex : MonoBehaviour
     {
-        public enum Status
-        {
-            PLAYER,
-            ENEMY
-        }
-
         BattleData _battleData;
 
         [SerializeField]
-        private Status _status;
-        public bool IsPlayerHex => _status == Status.PLAYER;
+        private HexStatus _status;
+        public bool IsPlayerHex => _status == HexStatus.PLAYER;
 
         public ObservableCollection<IAttackReservation> AttackReservationList => _attackReservationList;
         readonly ObservableCollection<IAttackReservation> _attackReservationList = new ObservableCollection<IAttackReservation>();
@@ -81,14 +83,15 @@ namespace HexRPG.Battle.Stage
 
         public bool Liberate(bool isPlayer)
         {
-            if (isPlayer == (_status == Status.PLAYER)) return false;
+            if (isPlayer == (_status == HexStatus.PLAYER)) return false;
+            if (_status == HexStatus.FIXED_ENEMY) return false;
 
             _materials[1] = isPlayer ? _battleData.hexPlayerLineMat : _battleData.hexEnemyLineMat;
             _renderer.materials = _materials;
 
             gameObject.layer = LayerMask.NameToLayer(TransformExtensions.PlayerHex);
 
-            _status = isPlayer ? Status.PLAYER : Status.ENEMY;
+            _status = isPlayer ? HexStatus.PLAYER : HexStatus.ENEMY;
 
             return true;
         }

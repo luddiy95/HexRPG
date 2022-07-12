@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UniRx;
+using Zenject;
 using System;
 
-namespace HexRPG.Battle
+namespace HexRPG.Battle.Stage
 {
     public enum TowerType
     {
@@ -30,6 +31,16 @@ namespace HexRPG.Battle
 
         [SerializeField] TowerType _initTowerType;
 
+        IHealth _health;
+
+        [Inject]
+        public void Construct(
+            IHealth health
+        )
+        {
+            _health = health;
+        }
+
         void ITowerController.Init()
         {
             _towerType
@@ -41,8 +52,14 @@ namespace HexRPG.Battle
                     }
                 })
                 .AddTo(this);
-
             _towerType.Value = _initTowerType;
+
+            _health.Current
+                .Subscribe(health =>
+                {
+
+                })
+                .AddTo(this);
         }
 
         //TODO: TowerType==ENEMY‚Ìê‡‚Ì‚İEnemyManager‚ª“®ì‚·‚é

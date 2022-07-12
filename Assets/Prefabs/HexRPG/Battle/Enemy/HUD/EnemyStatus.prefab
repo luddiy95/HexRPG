@@ -358,7 +358,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _healthGauge: {fileID: 6288953363533176198}
-  _hpAmount: {fileID: 9145941286213158402}
+  _hpAmountText: {fileID: 9145941286213158402}
   _iconAttribute: {fileID: 7563112220872998036}
 --- !u!114 &3352803396782935409
 MonoBehaviour:

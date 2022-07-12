@@ -6,9 +6,9 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Zenject;
 
-namespace HexRPG.Battle.Enemy
+namespace HexRPG.Battle.Stage
 {
-    using Stage;
+    using Enemy;
 
     public interface IEnemySpawnObservable
     {
@@ -136,8 +136,8 @@ namespace HexRPG.Battle.Enemy
 
             //TODO: 1F’x‚ç‚¹‚Ä‚àˆêuDieƒ‚[ƒVƒ‡ƒ“‚ªŒ©‚¦‚Ä‚¢‚éH
             await UniTask.DelayFrame(1, cancellationToken: token);
-            enemyOwner.ActiveController.SetActive(true);
             enemyOwner.DieController.Init();
+            enemyOwner.ActiveController.SetActive(true);
 
             enemyOwner.DieObservable.OnFinishDie
                 .First()

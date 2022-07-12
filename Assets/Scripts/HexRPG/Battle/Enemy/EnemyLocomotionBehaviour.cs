@@ -9,6 +9,8 @@ namespace HexRPG.Battle.Enemy
 
     public interface INavMeshAgentController
     {
+        bool AgentEnable { set; }
+
         bool IsExistPath(Vector3 destination);
 
         void SetDestination(Hex destination);
@@ -36,6 +38,10 @@ namespace HexRPG.Battle.Enemy
 
         Vector3 INavMeshAgentController.NextPosition { set { NavMeshAgent.nextPosition = value; } }
 
+        NavMeshPath _path;
+
+        bool INavMeshAgentController.AgentEnable { set => NavMeshAgent.enabled = value; }
+
         bool INavMeshAgentController.IsStopped
         {
             get => _isStopped;
@@ -61,6 +67,8 @@ namespace HexRPG.Battle.Enemy
             NavMeshAgent.updateRotation = false;
             NavMeshAgent.updatePosition = false;
 
+            _path = new NavMeshPath();
+
             base.Initialize();
         }
 
@@ -71,9 +79,7 @@ namespace HexRPG.Battle.Enemy
 
         bool INavMeshAgentController.IsExistPath(Vector3 destination)
         {
-            var path = new NavMeshPath();
-            NavMeshAgent.CalculatePath(destination, path);
-            return path.status == NavMeshPathStatus.PathComplete;
+            return NavMeshAgent.CalculatePath(destination, _path) && _path.status == NavMeshPathStatus.PathComplete;
         }
 
         void INavMeshAgentController.SetDestination(Hex destination)

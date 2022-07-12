@@ -16,7 +16,7 @@ namespace HexRPG.Battle.Enemy.HUD
         DisplayDataContainer _displayDataContainer;
 
         [SerializeField] GameObject _healthGauge;
-        [SerializeField] TextMeshProUGUI _hpAmount;
+        [SerializeField] TextMeshProUGUI _hpAmountText;
         [SerializeField] Image _iconAttribute;
 
         ITrackingHUD _trackingHUD;
@@ -47,7 +47,7 @@ namespace HexRPG.Battle.Enemy.HUD
                 if (_healthGauge.TryGetComponent(out ICharacterHUD hud)) hud.Bind(character);
 
                 character.Health.Current
-                    .Subscribe(hp => _hpAmount.text = hp.ToString())
+                    .Subscribe(hp => _hpAmountText.text = hp.ToString())
                     .AddTo(_disposables);
                 
                 var profile = character.ProfileSetting;

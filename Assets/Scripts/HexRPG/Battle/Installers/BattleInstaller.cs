@@ -6,6 +6,7 @@ namespace HexRPG.Battle
     using Player;
     using Player.HUD;
     using Enemy.HUD;
+    using Stage.HUD;
     using HUD;
 
     public interface IPlayerSpawnSetting
@@ -24,10 +25,13 @@ namespace HexRPG.Battle
 
         [SerializeField] DisplayDataContainer _displayDataContainer;
 
+        [Header("Prefab")]
         [SerializeField] GameObject _memberStatusPrefab;
         [SerializeField] GameObject _enemyStatusPrefab;
+        [SerializeField] GameObject _towerStatusPrefab;
         [SerializeField] GameObject _damagedPanelParentPrefab;
 
+        [Header("Root")]
         [SerializeField] Transform _enemyStatusHUDRoot;
         [SerializeField] Transform _damagedPanelParentRoot;
 
@@ -51,6 +55,7 @@ namespace HexRPG.Battle
             Container.BindFactory<EnemyStatusHUD, EnemyStatusHUD.Factory>()
                 .FromPoolableMemoryPool<EnemyStatusHUD, EnemyStatusHUD.Pool>(pool => pool
                     .FromComponentInNewPrefab(_enemyStatusPrefab).UnderTransform(_enemyStatusHUDRoot));
+            Container.BindFactory<TowerStatusHUD, TowerStatusHUD.Factory>().FromComponentInNewPrefab(_towerStatusPrefab);
             Container.BindFactory<DamagedPanelParentHUD, DamagedPanelParentHUD.Factory>()
                 .FromPoolableMemoryPool<DamagedPanelParentHUD, DamagedPanelParentHUD.Pool>(pool => pool
                     .FromComponentInNewPrefab(_damagedPanelParentPrefab).UnderTransform(_damagedPanelParentRoot));
