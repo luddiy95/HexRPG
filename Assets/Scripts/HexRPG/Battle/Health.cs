@@ -8,6 +8,7 @@ namespace HexRPG.Battle
     public interface IHealth
     {
         void Init();
+        void ForceDie();
 
         int Max { get; }
         IObservable<int> Current { get; }
@@ -28,7 +29,7 @@ namespace HexRPG.Battle
         int _max;
 
         IObservable<int> IHealth.Current => _current;
-        readonly ReactiveProperty<int> _current = new ReactiveProperty<int>();
+        readonly IReactiveProperty<int> _current = new ReactiveProperty<int>();
 
         public Health(IHealthSetting setting)
         {
@@ -43,7 +44,12 @@ namespace HexRPG.Battle
         void IHealth.Init()
         {
             _max = _setting.Max;
-            _current.Value = _setting.Max;
+            _current.Value = _max;
+        }
+
+        void IHealth.ForceDie()
+        {
+            _current.Value = 0;
         }
 
         void IHealth.Update(int cv)
@@ -51,7 +57,7 @@ namespace HexRPG.Battle
             int value = 0;
             if(cv < 0) value = Mathf.Max(0, _current.Value + cv);
             else value = Mathf.Min(_max, _current.Value + cv);
-            _current.SetValueAndForceNotify(value);
+            _current.Value = value;
         }
     }
 }

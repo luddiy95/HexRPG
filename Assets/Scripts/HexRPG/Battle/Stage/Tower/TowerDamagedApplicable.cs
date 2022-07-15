@@ -1,4 +1,3 @@
-using UnityEngine;
 using UniRx;
 using UniRx.Triggers;
 using Zenject;
@@ -56,7 +55,11 @@ namespace HexRPG.Battle.Stage.Tower
 
             // TowerType
             _towerObservable.TowerType
-                .Subscribe(type => _towerType = type)
+                .Skip(1)
+                .Subscribe(type =>
+                {
+                    _towerType = type;
+                })
                 .AddTo(_disposables);
 
             base.InternalInit();
@@ -74,19 +77,14 @@ namespace HexRPG.Battle.Stage.Tower
 
         protected override void OnHitTest(int? damage = null)
         {
-            /*
             var hitData = new HitData
             {
                 DamagedObject = _damagedOwner,
                 Damage = damage ?? 0,
-                HitType = HitType.WEAK
+                HitType = HitType.NORMAL // TowerÇÕñ≥ëÆê´
             };
-            if (_dieObservable.IsDead.Value == false)
-            {
-                _onHit.OnNext(hitData);
-                _damagedOwner.Health.Update(-hitData.Damage);
-            }
-            */
+            _onHit.OnNext(hitData);
+            _damagedOwner.Health.Update(-hitData.Damage);
         }
     }
 }

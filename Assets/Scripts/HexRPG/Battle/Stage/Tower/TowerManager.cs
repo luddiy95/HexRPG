@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.AI;
 using UniRx;
 using Zenject;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using System;
 
 namespace HexRPG.Battle.Stage.Tower
@@ -22,8 +24,7 @@ namespace HexRPG.Battle.Stage.Tower
     public interface ITowerObservable
     {
         IReadOnlyReactiveProperty<TowerType> TowerType { get; }
-        Hex RootHex { get; }
-        Hex[] FixedEnemyHexList { get; }
+        Hex[] FixedHexList { get; }
     }
 
     public class TowerManager : MonoBehaviour, ITowerController, ITowerObservable
@@ -33,12 +34,13 @@ namespace HexRPG.Battle.Stage.Tower
 
         [SerializeField] TowerType _initTowerType;
 
-        Hex ITowerObservable.RootHex => _rootHex;
-        [SerializeField] Hex _rootHex;
-        Hex[] ITowerObservable.FixedEnemyHexList => _fixedEnemyHexList;
-        [SerializeField] Hex[] _fixedEnemyHexList;
+        Hex[] ITowerObservable.FixedHexList => _fixedHexList;
+        [SerializeField] Hex[] _fixedHexList;
 
         IHealth _health;
+
+        [SerializeField] GameObject _enemyCrystal;
+        [SerializeField] GameObject _playerCrystal;
 
         [Inject]
         public void Construct(
@@ -50,23 +52,35 @@ namespace HexRPG.Battle.Stage.Tower
 
         void ITowerController.Init()
         {
+            _towerType.Value = _initTowerType;
             _towerType
                 .Subscribe(type =>
                 {
-                    switch (type)
-                    {
-                        //TODO: TowerType==PLAYERからENEMYになったら？ -> Towerの周囲(Playerがいた場合はPlayerLandedHex以外)をEnemyHexにしてSpawn再開
-                    }
+                    var isTowerTypePlayer = type == TowerType.PLAYER;
+                    _playerCrystal.SetActive(isTowerTypePlayer);
+                    _enemyCrystal.SetActive(!isTowerTypePlayer);
+                    foreach (var fixedHex in _fixedHexList) fixedHex.UpdateFixedHexStatus(isTowerTypePlayer);
+
+                    _health.Init();
+
+                    //TODO: FixedHexList内にEnemyがいたら全員殺す
+                    //TODO: TowerType==PLAYERからENEMYになったら？ -> Towerの周囲(Playerがいた場合はPlayerLandedHex以外)をEnemyHexにしてSpawn再開
                 })
                 .AddTo(this);
-            _towerType.Value = _initTowerType;
 
             _health.Current
+                .Where(health => health <= 0)
                 .Subscribe(health =>
                 {
-
+                    SwitchTowerType(this.GetCancellationTokenOnDestroy()).Forget();
                 })
                 .AddTo(this);
+        }
+
+        async UniTaskVoid SwitchTowerType(CancellationToken token)
+        {
+            await UniTask.Yield(token); // TowerのHealth.Current = 0がHealthGaugeHUDに反映されてから
+            _towerType.Value = (_towerType.Value == TowerType.PLAYER) ? TowerType.ENEMY : TowerType.PLAYER;
         }
 
         //TODO: TowerType==ENEMYの場合のみEnemyManagerが動作する

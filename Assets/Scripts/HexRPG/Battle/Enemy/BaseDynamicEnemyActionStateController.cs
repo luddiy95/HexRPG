@@ -128,8 +128,6 @@ namespace HexRPG.Battle.Enemy
 
         ActionState BuildActionStates()
         {
-            // 「Rotate, Damaged, DieはExecuteTransactionで遷移」
-
             var idle = NewState(IDLE)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventCancel("move", MOVE))
@@ -381,7 +379,8 @@ namespace HexRPG.Battle.Enemy
                 var relativeDirFromHexCenter = _transformController.Position.GetRelativePosXZ(landedHex.transform.position);
 
                 var enemyDestinationHexList = new List<Hex>(_battleObservable.EnemyDestinationHexList);
-                if (_navMeshAgentController.CurDestination != null) enemyDestinationHexList.Remove(_navMeshAgentController.CurDestination.Value);
+                var curDestination = _navMeshAgentController.CurDestination.Value;
+                if (curDestination != null) enemyDestinationHexList.Remove(curDestination);
 
                 // DestinationやpathがLiberateによって状況が変わった
                 if (!_navMeshAgentController.IsStopped)
@@ -450,7 +449,8 @@ namespace HexRPG.Battle.Enemy
             var distance2FromPlayerHex = landedHex.GetDistance2XZ(playerLandedHex);
 
             var enemyDestinationHexList = new List<Hex>(_battleObservable.EnemyDestinationHexList);
-            if (_navMeshAgentController.CurDestination != null) enemyDestinationHexList.Remove(_navMeshAgentController.CurDestination.Value);
+            var curDestination = _navMeshAgentController.CurDestination.Value;
+            if (curDestination != null) enemyDestinationHexList.Remove(curDestination);
 
             if (_attackableHex == landedHex || _approachHex == landedHex) return; //! 目的地のhexにいたら状況が変わってもDestinationを変更しない
 
@@ -505,7 +505,7 @@ namespace HexRPG.Battle.Enemy
 
             var approachHex = _enemyHexList.OrderBy(hex => hex.GetDistance2XZ(playerLandedHex)).FirstOrDefault();
 
-            // 毎フレームの評価ですぐにROTATEかIDLEでreturnされる
+            // 毎フレームの評価ですぐにIDLEでreturnされる
             if (approachHex == null) // landedHexに留まることも許されない
             {
                 _approachHex = landedHex;
@@ -528,7 +528,6 @@ namespace HexRPG.Battle.Enemy
             }
 
             _approachHex = approachHex;
-
             SetDestination(_approachHex);
             return; //! なるべくPlayerに近付こうとする
         }

@@ -284,7 +284,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3413259030174436638}
   - component: {fileID: 7468240479076186013}
-  - component: {fileID: 695575948053903589}
+  - component: {fileID: 3727738352315305221}
   m_Layer: 5
   m_Name: TowerHealthGauge
   m_TagString: Untagged
@@ -326,7 +326,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _gaugeAmount: {fileID: 7132983120584206312}
---- !u!114 &695575948053903589
+--- !u!114 &3727738352315305221
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -335,10 +335,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4133278338741066918}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fcdad44e1dd375c4a8763bf3d0dc5794, type: 3}
+  m_Script: {fileID: 11500000, guid: cd3b93a08988aae47879c88113b57fce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _gaugeObj: {fileID: 4133278338741066918}
+  _gaugeAmount: {fileID: 6064892544839160906}
 --- !u!1 &5735790222037148968
 GameObject:
   m_ObjectHideFlags: 0

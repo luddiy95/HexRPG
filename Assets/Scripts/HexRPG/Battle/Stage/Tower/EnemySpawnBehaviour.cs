@@ -24,7 +24,7 @@ namespace HexRPG.Battle.Stage.Tower
         [SerializeField] Transform _enemyRoot;
 
         IReadOnlyReactiveCollection<IEnemyComponentCollection> IEnemySpawnObservable.EnemyList => _enemyList;
-        readonly IReactiveCollection<IEnemyComponentCollection> _enemyList = new ReactiveCollection<IEnemyComponentCollection>();
+        readonly ReactiveCollection<IEnemyComponentCollection> _enemyList = new ReactiveCollection<IEnemyComponentCollection>();
 
         CancellationTokenSource _spawnCts = null;
 
@@ -49,7 +49,7 @@ namespace HexRPG.Battle.Stage.Tower
                     switch (type)
                     {
                         case TowerType.PLAYER:
-                            CancelSpawnSequence(); break;
+                            StopSpawn(); break;
                         case TowerType.ENEMY:
                             SpawnEnemies(); break;
                     }
@@ -69,7 +69,7 @@ namespace HexRPG.Battle.Stage.Tower
 
             // Static Enemy
             var staticEnemySpawnSettings = _enemySpawnSettings.StaticEnemySpawnSettings;
-            for (int i = 0; i < staticEnemySpawnSettings.Count - 1; i++)
+            for (int i = 0; i < staticEnemySpawnSettings.Count; i++)
             {
                 SpawnEnemy(_enemyFactories[dynamicEnemySpawnSettings.Count + i], staticEnemySpawnSettings[i].SpawnHex, _spawnCts.Token).Forget();
             }
@@ -83,7 +83,7 @@ namespace HexRPG.Battle.Stage.Tower
             Hex spawnHex = null;
             try
             {
-                spawnHex = _towerObservable.FixedEnemyHexList.First(hex => _enemyList.Any(enemy => enemy.TransformController.GetLandedHex() == hex) == false);
+                spawnHex = _towerObservable.FixedHexList.First(hex => _enemyList.Any(enemy => enemy.TransformController.GetLandedHex() == hex) == false);
             }
             catch (System.NullReferenceException e)
             {
@@ -128,7 +128,7 @@ namespace HexRPG.Battle.Stage.Tower
                 Hex spawnHex = null;
                 try
                 {
-                    spawnHex = _towerObservable.FixedEnemyHexList.First(hex => _enemyList.Any(enemy => enemy.TransformController.GetLandedHex() == hex) == false);
+                    spawnHex = _towerObservable.FixedHexList.First(hex => _enemyList.Any(enemy => enemy.TransformController.GetLandedHex() == hex) == false);
                 }
                 catch (System.NullReferenceException e)
                 {
@@ -168,6 +168,18 @@ namespace HexRPG.Battle.Stage.Tower
             _enemyList.Add(enemy);
 
             return enemy;
+        }
+
+        void StopSpawn()
+        {
+            CancelSpawnSequence();
+            foreach (var enemy in _enemyList)
+            {
+                if (_towerObservable.FixedHexList.Contains(enemy.TransformController.GetLandedHex()))
+                {
+                    enemy.Health.ForceDie(); //TODO: DieíÜÇÃEnemyÇ‡çƒìxDieÇµÇƒÇµÇ‹Ç§ÇÃÇ≈ÇÕ
+                }
+            }
         }
 
         void CancelSpawnSequence()

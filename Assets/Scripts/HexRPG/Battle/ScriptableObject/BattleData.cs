@@ -35,9 +35,15 @@ namespace HexRPG.Battle
 
         // Hex
         public Material hexPlayerLineMat;
+        public Material hexFixedPlayerLineMat;
         public Material hexEnemyLineMat;
+        public Material hexFixedEnemyLineMat;
 
         public Material hexDefaultMat;
         public Material hexAttackIndicatedMat;
+
+        // Tower
+        public Sprite enemyTowerHealthGaugeAmountSprite;
+        public Sprite playerTowerHealthGaugeAmountSprite;
     }
 }

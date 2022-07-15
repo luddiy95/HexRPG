@@ -11,7 +11,6 @@ namespace HexRPG.Battle
     public interface IDieController
     {
         void Init();
-        void ForceDie();
     }
 
     public interface IDieObservable
@@ -58,7 +57,10 @@ namespace HexRPG.Battle
 
             _health.Current
                 .Where(health => health <= 0)
-                .Subscribe(_ => Die())
+                .Subscribe(_ =>
+                {
+                    Die();
+                })
                 .AddTo(this);
         }
 
@@ -81,11 +83,6 @@ namespace HexRPG.Battle
             _onFinishDie.OnNext(Unit.Default);
 
             return;
-        }
-
-        void IDieController.ForceDie()
-        {
-            if(_isDead.Value == false) Die();
         }
     }
 }

@@ -9,7 +9,6 @@ namespace HexRPG.Battle.Player
     {
         IMemberObservable _memberObservable;
         IMemberController _memberController;
-        ILocomotionController _locomotionController;
 
         IReadOnlyReactiveProperty<bool> IDieObservable.IsDead => null;
 
@@ -21,13 +20,11 @@ namespace HexRPG.Battle.Player
 
         public PlayerDieObservable(
             IMemberObservable memberObservable,
-            IMemberController memberController,
-            ILocomotionController locomotionController
+            IMemberController memberController
         )
         {
             _memberObservable = memberObservable;
             _memberController = memberController;
-            _locomotionController = locomotionController;
         }
 
         void IInitializable.Initialize()
@@ -50,7 +47,6 @@ namespace HexRPG.Battle.Player
                                 return;
                             }
                             _memberController.ChangeMember(memberList.IndexOf(changeableMember));
-                            _locomotionController.ForceRotate(0);
                         });
                 })
                 .AddTo(_disposables);

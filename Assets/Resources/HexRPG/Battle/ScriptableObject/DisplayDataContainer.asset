@@ -15,21 +15,21 @@ MonoBehaviour:
   displayDataMap:
   - name: Member1
     statusOffset: {x: 0, y: 0}
-    damagedPanelOffset: {x: -25, y: 90}
+    damagedPanelOffset: {x: -20, y: 60}
     damagedPanelSize: {x: 30, y: 40}
   - name: Member2
     statusOffset: {x: 0, y: 0}
-    damagedPanelOffset: {x: -25, y: 90}
+    damagedPanelOffset: {x: -20, y: 60}
     damagedPanelSize: {x: 30, y: 40}
   - name: CanonMachine
-    statusOffset: {x: 0, y: -20}
-    damagedPanelOffset: {x: 25, y: 90}
+    statusOffset: {x: 0, y: -30}
+    damagedPanelOffset: {x: 25, y: 70}
     damagedPanelSize: {x: 30, y: 40}
   - name: SlashRobot
-    statusOffset: {x: 0, y: -20}
-    damagedPanelOffset: {x: 25, y: 90}
+    statusOffset: {x: 0, y: 0}
+    damagedPanelOffset: {x: 25, y: 70}
     damagedPanelSize: {x: 30, y: 40}
   - name: SwordRobot
-    statusOffset: {x: 0, y: -20}
-    damagedPanelOffset: {x: 25, y: 90}
+    statusOffset: {x: 0, y: 0}
+    damagedPanelOffset: {x: 20, y: 60}
     damagedPanelSize: {x: 30, y: 40}

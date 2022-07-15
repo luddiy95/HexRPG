@@ -9,12 +9,13 @@ namespace HexRPG.Battle.HUD
             var health = chara.Health;
             SetGauge(health.Max, health.Max);
 
-            _disposable?.Dispose();
-            _disposable = health.Current
+            _disposables.Clear();
+            health.Current
                 .Subscribe(v =>
                 {
                     UpdateAmount(v);
-                });
+                })
+                .AddTo(_disposables);
         }
     }
 }

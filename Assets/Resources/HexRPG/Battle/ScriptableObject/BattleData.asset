@@ -61,6 +61,10 @@ MonoBehaviour:
   skillBackgroundDefaultSprite: {fileID: 21300000, guid: ae4dd3a93e774244ba170cbc210ea311, type: 3}
   skillBackgroundSelectedSprite: {fileID: 21300000, guid: 9e9c5ff20c2a4d24082a692dbea18468, type: 3}
   hexPlayerLineMat: {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
+  hexFixedPlayerLineMat: {fileID: 2100000, guid: a814de75f8d854d42bd3a2df68c73352, type: 2}
   hexEnemyLineMat: {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}
+  hexFixedEnemyLineMat: {fileID: 2100000, guid: b5cdb3ff7e2b5d1479f160787f2064f2, type: 2}
   hexDefaultMat: {fileID: 2100000, guid: 8ad7630d1a57fde46bd7e3adb3726317, type: 2}
   hexAttackIndicatedMat: {fileID: 2100000, guid: fd1f4f7c68e13a14b93550e4bd264e4a, type: 2}
+  enemyTowerHealthGaugeAmountSprite: {fileID: 21300000, guid: 81032f20c14ab3f46a4202dc34601b48, type: 3}
+  playerTowerHealthGaugeAmountSprite: {fileID: 21300000, guid: b6c8755236e570946b3219d75dcddb5f, type: 3}

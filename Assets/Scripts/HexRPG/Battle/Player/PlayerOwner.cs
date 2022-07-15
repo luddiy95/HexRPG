@@ -1,4 +1,6 @@
 using Zenject;
+using UnityEngine;
+using UnityEditor;
 
 namespace HexRPG.Battle.Player
 {
@@ -34,5 +36,34 @@ namespace HexRPG.Battle.Player
         [Inject] IActionStateObservable IPlayerComponentCollection.ActionStateObservable { get; }
 
         ICharacterComponentCollection MemberOwner => (this as IPlayerComponentCollection).MemberObservable.CurMember.Value;
+
+#if UNITY_EDITOR
+
+        IPlayerComponentCollection _playerOwner => this;
+
+        public void OnInspectorGUI()
+        {
+            if (GUILayout.Button("Damage"))
+            {
+                _playerOwner.DamageApplicable.OnHitTest(10);
+            }
+            if (GUILayout.Button("Die"))
+            {
+                _playerOwner.DamageApplicable.OnHitTest(_playerOwner.Health.Max);
+            }
+        }
+
+        [CustomEditor(typeof(PlayerOwner))]
+        public class EnemyOwnerInspector : Editor
+        {
+            public override void OnInspectorGUI()
+            {
+                base.OnInspectorGUI();
+
+                ((PlayerOwner)target).OnInspectorGUI();
+            }
+        }
+
+#endif
     }
 }

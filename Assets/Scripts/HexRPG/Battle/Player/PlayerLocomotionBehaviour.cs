@@ -41,7 +41,7 @@ namespace HexRPG.Battle.Player
             var worldDirection = (Quaternion.AngleAxis(_battleObservable.CameraTransposer.m_Heading.m_Bias, Vector3.up) * direction).normalized;
             var directionHex = TransformExtensions.GetLandedHex(_transformController.Position + worldDirection * _colliderRadius);
 
-            if (directionHex != null && directionHex.IsPlayerHex) Rigidbody.velocity = worldDirection * (float)speed;
+            if (directionHex != null && directionHex.IsPlayerHex && directionHex.IsFixed == false) Rigidbody.velocity = worldDirection * (float)speed;
             else Rigidbody.velocity = Vector3.zero;
         }
     }

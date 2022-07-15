@@ -1,5 +1,5 @@
 using UnityEngine;
-using System;
+using UniRx;
 
 namespace HexRPG.Battle.HUD
 {
@@ -8,7 +8,7 @@ namespace HexRPG.Battle.HUD
         [SerializeField] GameObject _gaugeObj;
         protected IGauge _gauge;
 
-        protected IDisposable _disposable;
+        protected CompositeDisposable _disposables = new CompositeDisposable();
 
         protected virtual void Awake()
         {
@@ -29,7 +29,7 @@ namespace HexRPG.Battle.HUD
 
         void OnDestroy()
         {
-            _disposable?.Dispose();
+            _disposables.Dispose();
         }
     }
 }

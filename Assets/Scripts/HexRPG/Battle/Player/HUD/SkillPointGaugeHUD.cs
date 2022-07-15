@@ -13,9 +13,10 @@ namespace HexRPG.Battle.Player.HUD
             {
                 SetGauge(100, 100);
 
-                _disposable?.Dispose();
-                _disposable = memberOwner.SkillPoint.ChargeRate
-                    .Subscribe(rate => UpdateAmount((int)(rate * 100)));
+                _disposables.Clear();
+                memberOwner.SkillPoint.ChargeRate
+                    .Subscribe(rate => UpdateAmount((int)(rate * 100)))
+                    .AddTo(_disposables);
             }
         }
     }

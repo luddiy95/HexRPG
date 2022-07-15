@@ -244,6 +244,7 @@ namespace HexRPG.Battle.Player
             // Skill選択
             _characterInput.SelectedSkillIndex
                 .Skip(1)
+                .Where(_ => _cameraRotateObservable.IsCameraRotating == false) // カメラ回転中はSkill選択できない
                 .Where(_ => CurState == IDLE || CurState == MOVE || CurState == SKILL_SELECT)
                 .Subscribe(index =>
                 {

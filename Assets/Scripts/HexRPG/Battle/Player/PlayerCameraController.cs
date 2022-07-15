@@ -21,6 +21,7 @@ namespace HexRPG.Battle.Player
     {
         IBattleObservable _battleObservable;
         BattleData _battleData;
+        ITransformController _tranfsormController;
 
         bool ICameraRotateObservable.IsCameraRotating => (_cts != null);
 
@@ -35,11 +36,13 @@ namespace HexRPG.Battle.Player
 
         public PlayerCameraController(
             IBattleObservable battleObservable,
-            BattleData battleData
+            BattleData battleData,
+            ITransformController transformController
         )
         {
             _battleObservable = battleObservable;
             _battleData = battleData;
+            _tranfsormController = transformController;
         }
 
         void IInitializable.Initialize()
@@ -64,7 +67,6 @@ namespace HexRPG.Battle.Player
             var startBias = _cameraTransposer.m_Heading.m_Bias;
             var rotateAmount = _goalCameraBias - startBias;
 
-
             TokenCancel();
             _cts = new CancellationTokenSource();
 
@@ -84,7 +86,14 @@ namespace HexRPG.Battle.Player
                 }
             }, cancellationToken: _cts.Token);
 
-            SetCameraBias(_goalCameraBias);
+            var goalCameraBias = _goalCameraBias;
+            if (_goalCameraBias <= -360 || 360 <= _goalCameraBias)
+            {
+                _cameraRotateStep = 0;
+                goalCameraBias = 0;
+            }
+            SetCameraBias(goalCameraBias);
+
             TokenCancel();
         }
 
@@ -93,6 +102,8 @@ namespace HexRPG.Battle.Player
             _cameraTransposer.m_Heading.m_Bias = bias;
             var cameraRotationCache = _mainVirtualCamera.transform.rotation.eulerAngles;
             _mainVirtualCamera.transform.rotation = Quaternion.Euler(new Vector3(cameraRotationCache.x, bias, cameraRotationCache.z));
+
+            _tranfsormController.DefaultRotation = bias;
         }
 
         void TokenCancel()

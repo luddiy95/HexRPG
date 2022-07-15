@@ -8,9 +8,7 @@ namespace HexRPG.Battle.Stage
     public enum HexStatus
     {
         PLAYER,
-
-        ENEMY,
-        FIXED_ENEMY
+        ENEMY
     }
 
     public class Hex : MonoBehaviour
@@ -18,8 +16,12 @@ namespace HexRPG.Battle.Stage
         BattleData _battleData;
 
         [SerializeField]
-        private HexStatus _status;
+        HexStatus _status;
         public bool IsPlayerHex => _status == HexStatus.PLAYER;
+
+        [SerializeField]
+        bool _isFixed;
+        public bool IsFixed => _isFixed;
 
         public ObservableCollection<IAttackReservation> AttackReservationList => _attackReservationList;
         readonly ObservableCollection<IAttackReservation> _attackReservationList = new ObservableCollection<IAttackReservation>();
@@ -81,19 +83,35 @@ namespace HexRPG.Battle.Stage
             _attackApplicatorList.Remove(attackApplicator);
         }
 
-        public bool Liberate(bool isPlayer)
+        public bool Liberate(bool byPlayer)
         {
-            if (isPlayer == (_status == HexStatus.PLAYER)) return false;
-            if (_status == HexStatus.FIXED_ENEMY) return false;
+            if (byPlayer == IsPlayerHex) return false;
+            if (_isFixed) return false;
 
-            _materials[1] = isPlayer ? _battleData.hexPlayerLineMat : _battleData.hexEnemyLineMat;
+            _materials[1] = byPlayer ? _battleData.hexPlayerLineMat : _battleData.hexEnemyLineMat;
             _renderer.materials = _materials;
 
-            gameObject.layer = LayerMask.NameToLayer(TransformExtensions.PlayerHex);
-
-            _status = isPlayer ? HexStatus.PLAYER : HexStatus.ENEMY;
+            ChangeStatus(byPlayer);
 
             return true;
+        }
+
+        public void UpdateFixedHexStatus(bool isPlayer)
+        {
+            if (!_isFixed) return;
+            
+            _materials[1] = isPlayer ? _battleData.hexFixedPlayerLineMat : _battleData.hexFixedEnemyLineMat;
+            _renderer.materials = _materials;
+
+            ChangeStatus(isPlayer);
+        }
+
+        void ChangeStatus(bool isPlayer)
+        {
+            var layer = isPlayer ? TransformExtensions.PlayerHex : TransformExtensions.EnemyHex;
+            gameObject.layer = LayerMask.NameToLayer(layer);
+
+            _status = isPlayer ? HexStatus.PLAYER : HexStatus.ENEMY;
         }
     }
 }
