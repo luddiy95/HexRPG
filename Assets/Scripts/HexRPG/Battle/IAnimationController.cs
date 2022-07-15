@@ -6,7 +6,7 @@ namespace HexRPG.Battle
     public interface IAnimationController
     {
         void Init();
-        void Play(string clip);
+        void Play(string playClip);
 
         IObservable<Unit> OnFinishDamaged { get; }
 

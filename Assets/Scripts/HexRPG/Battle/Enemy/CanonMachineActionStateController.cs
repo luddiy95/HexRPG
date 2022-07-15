@@ -13,7 +13,10 @@ namespace HexRPG.Battle.Enemy
     {
         IBattleObservable _battleObservable;
 
+        ITransformController _transformController;
         IAnimationController _animationController;
+
+        INavMeshAgentController _navMeshAgentController;
 
         ILocomotionObservable _locomotionObservable;
         ILocomotionController _locomotionController;
@@ -33,7 +36,9 @@ namespace HexRPG.Battle.Enemy
         [Inject]
         public void Construct(
             IBattleObservable battleObservable,
+            ITransformController transformController,
             IAnimationController animationController,
+            INavMeshAgentController navMeshAgentController,
             ILocomotionController locomotionController,
             ILocomotionObservable locomotionObservable,
             IActionStateController actionStateController,
@@ -45,7 +50,9 @@ namespace HexRPG.Battle.Enemy
         )
         {
             _battleObservable = battleObservable;
+            _transformController = transformController;
             _animationController = animationController;
+            _navMeshAgentController = navMeshAgentController;
             _locomotionController = locomotionController;
             _locomotionObservable = locomotionObservable;
             _actionStateController = actionStateController;
@@ -62,7 +69,10 @@ namespace HexRPG.Battle.Enemy
             SetUpControl();
             _actionStateController.SetInitialState(initialState);
 
+            _navMeshAgentController.AgentEnable = true;
+
             _locomotionController.ForceLookRotate(_battleObservable.PlayerLandedHex.transform.position);
+            _navMeshAgentController.SetDestination(_transformController.GetLandedHex());
 
             _cts = new CancellationTokenSource();
             StartSequence(_cts.Token).Forget();
@@ -149,6 +159,10 @@ namespace HexRPG.Battle.Enemy
                 .Subscribe(_ =>
                 {
                     TokenCancel(); // Sequence’†’f
+
+                    _navMeshAgentController.SetDestination(null);
+                    _navMeshAgentController.AgentEnable = false;
+
                     _actionStateController.ExecuteTransition(DIE);
                 })
                 .AddTo(_disposables);

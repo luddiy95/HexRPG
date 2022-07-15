@@ -156,12 +156,12 @@ namespace HexRPG.Battle
             return fadeLength;
         }
 
-        protected void Play(string nextClip)
+        protected void Play(string playClip)
         {
             // Å‰‚Ì‘JˆÚ
             if (_curPlayingIndex < 0)
             {
-                _curPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == nextClip);
+                _curPlayingIndex = _playables.FindIndex(x => x.GetAnimationClip().name == playClip);
 
                 _mixer.SetInputWeight(_curPlayingIndex, 1);
 
@@ -171,14 +171,14 @@ namespace HexRPG.Battle
                 return;
             }
 
-            if (_cts == null) PlayWithoutInterrupt(nextClip);
-            else PlayWithInterrupt(nextClip);
+            if (_cts == null) PlayWithoutInterrupt(playClip);
+            else PlayWithInterrupt(playClip);
         }
 
-        protected virtual void PlayWithoutInterrupt(string nextClip) // Š„‚è‚İ‚È‚µ
+        protected virtual void PlayWithoutInterrupt(string playClip) // Š„‚è‚İ‚È‚µ
         {
             // Combat‚Å‚·‚©H
-            if (_combatTimelineInfo?.CombatName == nextClip)
+            if (_combatTimelineInfo?.CombatName == playClip)
             {
                 if (_curCombat != null) return;
 
@@ -188,7 +188,7 @@ namespace HexRPG.Battle
             }
 
             // Skill‚Å‚·‚©H
-            var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
+            var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == playClip);
             if (skillTimelineInfo != null)
             {
                 if (_curSkill != null) return;
@@ -199,7 +199,7 @@ namespace HexRPG.Battle
             }
 
             // Die
-            if (GetAnimationType(nextClip) == AnimationType.Die)
+            if (GetAnimationType(playClip) == AnimationType.Die)
             {
                 _cts = new CancellationTokenSource();
                 InternalPlayDie(_cts.Token).Forget();
@@ -208,14 +208,14 @@ namespace HexRPG.Battle
 
             _cts = new CancellationTokenSource();
             var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
-            InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cts.Token).Forget();
+            InternalAnimationTransit(playClip, GetFadeLength(curClip, playClip), _cts.Token).Forget();
         }
 
-        protected virtual void PlayWithInterrupt(string nextClip) // Š„‚è‚İ
+        protected virtual void PlayWithInterrupt(string playClip) // Š„‚è‚İ
         {
             var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
 
-            switch (GetAnimationType(nextClip))
+            switch (GetAnimationType(playClip))
             {
                 case AnimationType.Damaged:
                     TokenCancel();
@@ -226,7 +226,7 @@ namespace HexRPG.Battle
                     if (_nextPlayingIndex >= 0) fixedRate = rate;
 
                     _cts = new CancellationTokenSource();
-                    InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cts.Token).Forget();
+                    InternalAnimationTransit(playClip, GetFadeLength(curClip, playClip), _cts.Token).Forget();
                     break;
 
                 case AnimationType.Die:
@@ -370,7 +370,7 @@ namespace HexRPG.Battle
 
             //! _curPlayingIndex || _nextPlayingIndex‚ÅŠ„‚è‚Şê‡
             if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip || 
-                (_nextPlayingIndex != -1 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip))
+                (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip))
             {
                 // curPlayingIndex || nextPlayingIndex‚Æ“¯‚¶Clip‚ÌPlayable‚ğì¬‚µmixer‚ÉŒq‚°‚é
                 _playables.Add(AnimationClipPlayable.Create(_graph, _clips.FirstOrDefault(clip => clip.name == nextClip)));

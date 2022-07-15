@@ -17,13 +17,7 @@ MonoBehaviour:
   defaultRotateStartDuration: 0.25
   rotateStartDurations: []
   defaultBackToIdleDuration: 0.25
-  backToIdleDurations:
-  - clip: 
-    duration: 0.75
-  - clip: 
-    duration: 0.75
-  - clip: 
-    duration: 0.75
+  backToIdleDurations: []
   defaultCombatStartDuration: 0.25
   combatStartDurations: []
   defaultSkillStartDuration: 0.25

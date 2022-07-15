@@ -26351,12 +26351,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b76cf47d585fa4142866090f232cefcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _dynamicEnemySpawnSettings:
-  - _prefab: {fileID: 2234952170314847877, guid: 409b142d3a41de542bbcd3ee26ac0ec3, type: 3}
-    _maxCount: 3
-    _firstSpawnInterval: 1000
-    _spawnInterval: 3000
   _staticEnemySpawnSettings: []
+  _dynamicEnemySpawnSettings: []
   _enemySpawnRoot: {fileID: 1474362757}
 --- !u!114 &1701108851205070382
 MonoBehaviour:

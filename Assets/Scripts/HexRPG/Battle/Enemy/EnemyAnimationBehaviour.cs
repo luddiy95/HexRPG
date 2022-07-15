@@ -33,67 +33,69 @@ namespace HexRPG.Battle.Enemy
             InternalInit();
         }
 
-        void IAnimationController.Play(string nextClip)
+        void IAnimationController.Play(string playClip)
         {
-            Play(nextClip);
+            Play(playClip);
         }
 
-        protected override void PlayWithoutInterrupt(string nextClip)
+        protected override void PlayWithoutInterrupt(string playClip)
         {
             //! 遷移中などでない場合、自分自身には遷移しない
-            if (_playables[_curPlayingIndex].GetAnimationClip().name == nextClip) return;
+            if (_playables[_curPlayingIndex].GetAnimationClip().name == playClip) return;
 
-            base.PlayWithoutInterrupt(nextClip);
+            base.PlayWithoutInterrupt(playClip);
         }
 
-        protected override void PlayWithInterrupt(string nextClip)
+        protected override void PlayWithInterrupt(string playClip)
         {
             var curClip = _playables[_curPlayingIndex].GetAnimationClip().name;
 
+            string nextClip = "";
+            if (_nextPlayingIndex >= 0) nextClip = _playables[_nextPlayingIndex].GetAnimationClip().name;
+            var nextAnimationType = GetAnimationType(nextClip);
+
             //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
             //! _cts != nullでも_nextPlayingIndex < 0 の場合がある(Combat, Skillなど)
-            if (_nextPlayingIndex >= 0 && _playables[_nextPlayingIndex].GetAnimationClip().name == nextClip) return;
+            if (nextClip == playClip) return;
 
             var isCurClipIdleLocomotion = (GetAnimationType(curClip) == AnimationType.Idle || GetAnimationType(curClip) == AnimationType.Move);
             if (isCurClipIdleLocomotion)
             {
                 // Idle, Locomotion -> Rotateは「Idle」は割り込み可能
-                var isCrossFadeBtwIdleLocomotionRotate = 
-                    (_nextPlayingIndex >= 0 && GetAnimationType(_playables[_nextPlayingIndex].GetAnimationClip().name) == AnimationType.Rotate);
+                var isCrossFadeBtwIdleLocomotionRotate = (nextAnimationType == AnimationType.Rotate);
                 if (isCrossFadeBtwIdleLocomotionRotate)
                 {
-                    if(GetAnimationType(nextClip) == AnimationType.Idle)
+                    if(GetAnimationType(playClip) == AnimationType.Idle)
                     {
                         TokenCancel();
 
                         if (_nextPlayingIndex >= 0) fixedRate = rate;
 
                         _cts = new CancellationTokenSource();
-                        InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cts.Token).Forget();
+                        InternalAnimationTransit(playClip, GetFadeLength(curClip, playClip), _cts.Token).Forget();
                         return;
                     }
                 }
 
                 // Idle, Locomotion -> Locomotionは「Idle, Rotate」は割り込み可能
-                var isCrossFadeBtwIdleLocomotion = 
-                    (_nextPlayingIndex >= 0 && GetAnimationType(_playables[_nextPlayingIndex].GetAnimationClip().name) == AnimationType.Move);
+                var isCrossFadeBtwIdleLocomotion = (nextAnimationType == AnimationType.Move);
                 if (isCrossFadeBtwIdleLocomotion)
                 {
-                    if (GetAnimationType(nextClip) == AnimationType.Idle || GetAnimationType(nextClip) == AnimationType.Rotate)
+                    if (GetAnimationType(playClip) == AnimationType.Idle || GetAnimationType(playClip) == AnimationType.Rotate)
                     {
                         TokenCancel();
 
                         if (_nextPlayingIndex >= 0) fixedRate = rate;
 
                         _cts = new CancellationTokenSource();
-                        InternalAnimationTransit(nextClip, GetFadeLength(curClip, nextClip), _cts.Token).Forget();
+                        InternalAnimationTransit(playClip, GetFadeLength(curClip, playClip), _cts.Token).Forget();
                         return;
                     }
                 }
             }
 
             // Combatですか？
-            if (_combatTimelineInfo?.CombatName == nextClip)
+            if (_combatTimelineInfo?.CombatName == playClip)
             {
                 if (_curCombat != null) return;
 
@@ -107,7 +109,7 @@ namespace HexRPG.Battle.Enemy
             }
 
             // Skillですか？
-            var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == nextClip);
+            var skillTimelineInfo = _skillTimelineInfos.FirstOrDefault(info => info.SkillName == playClip);
             if (skillTimelineInfo != null)
             {
                 if (_curSkill != null) return;
@@ -121,7 +123,7 @@ namespace HexRPG.Battle.Enemy
                 return;
             }
 
-            base.PlayWithInterrupt(nextClip);
+            base.PlayWithInterrupt(playClip);
         }
 
 #if UNITY_EDITOR

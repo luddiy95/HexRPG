@@ -59,19 +59,20 @@ namespace HexRPG.Battle.Stage.Tower
 
         void SpawnEnemies()
         {
-            // Dynamic Enemy
             _spawnCts = new CancellationTokenSource();
-            var dynamicEnemySpawnSettings = _enemySpawnSettings.DynamicEnemySpawnSettings;
-            for (int i = 0; i < dynamicEnemySpawnSettings.Count; i++)
-            {
-                StartDynamicEnemySpawnSequence(_enemyFactories[i], dynamicEnemySpawnSettings[i], _spawnCts.Token).Forget();
-            }
 
             // Static Enemy
             var staticEnemySpawnSettings = _enemySpawnSettings.StaticEnemySpawnSettings;
             for (int i = 0; i < staticEnemySpawnSettings.Count; i++)
             {
-                SpawnEnemy(_enemyFactories[dynamicEnemySpawnSettings.Count + i], staticEnemySpawnSettings[i].SpawnHex, _spawnCts.Token).Forget();
+                SpawnEnemy(_enemyFactories[i], staticEnemySpawnSettings[i].SpawnHex, _spawnCts.Token).Forget();
+            }
+
+            // Dynamic Enemy
+            var dynamicEnemySpawnSettings = _enemySpawnSettings.DynamicEnemySpawnSettings;
+            for (int i = 0; i < dynamicEnemySpawnSettings.Count; i++)
+            {
+                StartDynamicEnemySpawnSequence(_enemyFactories[staticEnemySpawnSettings.Count + i], dynamicEnemySpawnSettings[i], _spawnCts.Token).Forget();
             }
         }
 
