@@ -10,7 +10,6 @@ namespace HexRPG.Battle.Enemy
 
     public class EnemyCombatExecuter : ICombatSpawnObservable, ICombatController, ICombatObservable, IInitializable, IDisposable
     {
-        IUpdateObservable _updateObservable;
         IAttackComponentCollection _attackOwner;
         List<CombatOwner.Factory> _combatFactories;
         ICombatEquipment _combatEquipment;
@@ -28,14 +27,12 @@ namespace HexRPG.Battle.Enemy
         CompositeDisposable _disposables = new CompositeDisposable();
 
         public EnemyCombatExecuter(
-            IUpdateObservable updateObservable,
             IAttackComponentCollection attackOwner,
             List<CombatOwner.Factory> combatFactories,
             ICombatEquipment combatEquipment,
             ILocomotionController locomotionController
         )
         {
-            _updateObservable = updateObservable;
             _attackOwner = attackOwner;
             _combatFactories = combatFactories;
             _combatEquipment = combatEquipment;
@@ -72,15 +69,6 @@ namespace HexRPG.Battle.Enemy
                     _disposables.Clear();
 
                     _onFinishCombat.OnNext(Unit.Default);
-                })
-                .AddTo(_disposables);
-            // VelocityXV
-            _updateObservable
-                .OnUpdate((int)UPDATE_ORDER.INPUT)
-                .Subscribe(_ =>
-                {
-                    var velocity = _combat.Combat.Velocity;
-                    _locomotionController.SetSpeed(velocity, velocity.magnitude);
                 })
                 .AddTo(_disposables);
             _combat.Combat.Execute();

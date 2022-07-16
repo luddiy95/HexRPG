@@ -181,7 +181,7 @@ namespace HexRPG.Battle.Player.Member
         }
 
         [CustomEditor(typeof(MemberAnimationBehaviour))]
-        public class MemberAnimationBehaviourInspector : Editor
+        public class CustomInspector : Editor
         {
             private void OnEnable()
             {

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine.Profiling;
+using UnityEditor;
 
 namespace HexRPG.Battle.Enemy
 {
@@ -590,5 +591,45 @@ namespace HexRPG.Battle.Enemy
             _disposables.Dispose();
             AllTokenCancel();
         }
+
+#if UNITY_EDITOR
+
+        async UniTaskVoid CombatTest(CancellationToken token)
+        {
+            _actionStateController.Execute(new Command { Id = "rotate" });
+            await _locomotionObservable.OnFinishRotate.ToUniTask(useFirstValue: true, cancellationToken: token);
+
+            // Combat
+            _actionStateController.Execute(new Command { Id = "combat" });
+            await _combatObservable.OnFinishCombat.ToUniTask(useFirstValue: true, cancellationToken: token);
+            _actionStateController.Execute(new Command { Id = "finishCombat" });
+
+            await UniTask.Delay(1000, cancellationToken: token); // DelayÇ™è¨Ç≥Ç©Ç¡ÇΩÇÁidle->rotateëJà⁄íÜÇ…idleäÑÇËçûÇ›ÇÃâ¬î\ê´Ç™Ç†ÇÈ
+
+            _actionStateController.Execute(new Command { Id = "rotate" });
+            await _locomotionObservable.OnFinishRotate.ToUniTask(useFirstValue: true, cancellationToken: token);
+            _actionStateController.Execute(new Command { Id = "idle" });
+        }
+
+        public void OnInspectorGUI()
+        {
+            if (GUILayout.Button("Combat"))
+            {
+                CombatTest(this.GetCancellationTokenOnDestroy()).Forget();
+            }
+        }
+
+        [CustomEditor(typeof(BaseDynamicEnemyActionStateController))]
+        public class CustomInspector : Editor
+        {
+            public override void OnInspectorGUI()
+            {
+                base.OnInspectorGUI();
+
+                ((BaseDynamicEnemyActionStateController)target).OnInspectorGUI();
+            }
+        }
+
+#endif
     }
 }

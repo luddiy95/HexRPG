@@ -260,18 +260,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b28fe6ed3c3d77d4a9e91d5ac0c5042f, type: 3}
   m_Name: AttackEnableAsset
   m_EditorClassIdentifier: 
-  behaviour:
-    damage: 100
-    attackRange:
-    - {x: 1, y: 1}
-    - {x: 2, y: 0}
-    - {x: 1, y: -1}
-    - {x: 0, y: 0}
-    - {x: -1, y: -1}
-    - {x: -2, y: 0}
-    - {x: -1, y: 1}
-    attackEffectTrack: Attack Effect Track
-    attackEffectOffset: {x: 0, y: 0}
+  damage: 10
+  attackEffectTrack: Attack Effect Track
+  attackRange:
+  - {x: 1, y: 1}
+  - {x: 2, y: 0}
+  - {x: 1, y: -1}
+  - {x: -1, y: -1}
+  - {x: -2, y: 0}
+  - {x: -1, y: 1}
+  - {x: 0, y: 0}
+  attackEffectOffset: {x: 0, y: 0}
 --- !u!114 &-3254372559535421892
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -282,7 +281,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b34035c9592766e4b8774d006401f867, type: 3}
-  m_Name: Attack Enable Track
+  m_Name: Skill Attack Track
   m_EditorClassIdentifier: 
   m_Version: 3
   m_AnimClip: {fileID: 0}
@@ -361,7 +360,7 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: AttackEnable
+    m_DisplayName: SkillAttack
   m_Markers:
     m_Objects: []
   skillCenterType: 0

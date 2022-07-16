@@ -6,12 +6,12 @@ namespace HexRPG.Playable
 
     [TrackColor(1, 0, 0)]
     [TrackBindingType(typeof(AttackCollider))]
-    [TrackClipType(typeof(AttackColliderAsset))]
-    public class AttackColliderTrack : TrackAsset
+    [TrackClipType(typeof(CombatAttackAsset))]
+    public class CombatAttackTrack : TrackAsset
     {
         protected override void OnCreateClip(TimelineClip clip)
         {
-            clip.displayName = "AttackCollider";
+            clip.displayName = "CombatAttack";
             base.OnCreateClip(clip);
         }
     }

@@ -11,7 +11,7 @@ namespace HexRPG.Battle.Skill
     using Stage;
     using Playable;
 
-    public class AbstractAttackSkillBehaviour : MonoBehaviour, ISkillObservable, ISkill, IDisposable
+    public class AbstractAttackSkillBehaviour : MonoBehaviour, ISkillObservable, ISkill, ISkillReservation, ISkillAttack, IDisposable
     {
         IStageController _stageController;
         IBattleObservable _battleObservable;
@@ -44,6 +44,8 @@ namespace HexRPG.Battle.Skill
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
 
+        Hex _curSkillCenter;
+        int _curSkillRotation;
         List<Hex> _curAttackRange = new List<Hex>(16);
 
         readonly Dictionary<string, GameObject> _skillEffectMap = new Dictionary<string, GameObject>(8);
@@ -82,15 +84,15 @@ namespace HexRPG.Battle.Skill
             // Skillの全範囲を取得
             foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
             {
-                if (trackAsset is AttackEnableTrack attackEnableTrack)
+                if (trackAsset is SkillAttackTrack skillAttackTrack)
                 {
-                    _skillCenterType = attackEnableTrack.skillCenterType;
-                    _skillCenter = attackEnableTrack.skillCenter;
-                    foreach (var clip in attackEnableTrack.GetClips())
+                    _skillCenterType = skillAttackTrack.skillCenterType;
+                    _skillCenter = skillAttackTrack.skillCenter;
+                    foreach (var clip in skillAttackTrack.GetClips())
                     {
-                        var behaviour = (clip.asset as AttackEnableAsset).behaviour;
-                        attackEffectTrack.Add(behaviour.attackEffectTrack);
-                        behaviour.attackRange.ForEach(range =>
+                        var asset = (clip.asset as SkillAttackAsset);
+                        attackEffectTrack.Add(asset.attackEffectTrack);
+                        asset.attackRange.ForEach(range =>
                         {
                             if (!_fullAttackRange.Contains(range)) _fullAttackRange.Add(range);
                         });
@@ -124,7 +126,7 @@ namespace HexRPG.Battle.Skill
                 {
                     // 終了処理
                     OnFinishReservation();
-                    OnAttackDisable();
+                    FinishAttack();
 
                     HideUnverifiedEffect();
                     _unverifiedEffect.Clear();
@@ -141,67 +143,26 @@ namespace HexRPG.Battle.Skill
 
         void ISkill.StartSkill(Hex skillCenter, int skillRotation)
         {
-            foreach(KeyValuePair<string, GameObject> item in _skillEffectMap) _unverifiedEffect.Add(item.Value);
+            _curSkillCenter = skillCenter;
+            _curSkillRotation = skillRotation;
+
+            foreach (KeyValuePair<string, GameObject> item in _skillEffectMap) _unverifiedEffect.Add(item.Value);
             HideUnverifiedEffect();
 
             //_cinemachineTrack.muted = !isEnemyExistInSkillRange;
 
             foreach (var trackAsset in (_director.playableAsset as TimelineAsset).GetOutputTracks())
             {
-                if (trackAsset is AttackEnableTrack)
+                if (trackAsset is SkillAttackTrack)
                 {
                     foreach (var clip in trackAsset.GetClips())
                     {
-                        // Attack判定
-                        var behaviour = (clip.asset as AttackEnableAsset).behaviour;
-                        behaviour.OnAttackEnable
-                            .Subscribe(_ => {
-                                _stageController.GetHexList(skillCenter, behaviour.attackRange, skillRotation, ref _curAttackRange);
-
-                                var attackSetting = new SkillAttackSetting
-                                {
-                                    power = behaviour.damage,
-                                    attackRange = _curAttackRange,
-                                    attribute = _skillSetting.Attribute
-                                };
-                                _attackOwner.AttackController.StartAttack(attackSetting);
-
-                                _attackHitDisposable?.Dispose();
-                                _attackHitDisposable = _attackOwner.AttackObservable.OnAttackHit
-                                    .Subscribe(_ => RemoveUnverifiedEffect(behaviour.attackEffectTrack));
-                            })
-                            .AddTo(_disposables);
-                        behaviour.OnAttackDisable
-                            .Subscribe(_ =>
-                            {
-                                OnAttackDisable();
-
-                                _onSkillAttack.OnNext(_curAttackRange); // 着弾したタイミングでLiberate検証
-                                RemoveUnverifiedEffect(behaviour.attackEffectTrack);
-                            })
-                            .AddTo(_disposables);
-
-                        // AttackEffect
-                        if(_skillEffectMap.TryGetValue(behaviour.attackEffectTrack, out GameObject effect))
+                        var asset = clip.asset as SkillAttackAsset;
+                        if (_skillEffectMap.TryGetValue(asset.attackEffectTrack, out GameObject effect))
                         {
-                            effect.transform.position = _stageController.GetPos(skillCenter, behaviour.attackEffectOffset, skillRotation);
-                            effect.transform.rotation = Quaternion.Euler(new Vector3(0, skillRotation, 0));
+                            effect.transform.position = _stageController.GetPos(_curSkillCenter, asset.attackEffectOffset, _curSkillRotation);
+                            effect.transform.rotation = Quaternion.Euler(new Vector3(0, _curSkillRotation, 0));
                         }
-                    }
-                }
-
-                // SkillReservation
-                if (trackAsset is SkillReservationTrack)
-                {
-                    foreach (var clip in trackAsset.GetClips())
-                    {
-                        var behaviour = (clip.asset as SkillReservationAsset).behaviour;
-                        behaviour.OnStartReservation
-                            .Subscribe(_ => _onStartReservation.OnNext(Unit.Default))
-                            .AddTo(_disposables);
-                        behaviour.OnFinishReservation
-                            .Subscribe(_ => OnFinishReservation())
-                            .AddTo(_disposables);
                     }
                 }
             }
@@ -210,12 +171,57 @@ namespace HexRPG.Battle.Skill
             _animationController.Play(_director.playableAsset.name);
         }
 
+        void ISkillReservation.OnStartReservation()
+        {
+            _onStartReservation.OnNext(Unit.Default);
+        }
+
+        void ISkillReservation.OnFinishReservation()
+        {
+            OnFinishReservation();
+        }
+
+        void ISkillAttack.OnAttackEnable(int damage, string attackEffectTrack, List<Vector2> attackRange, Vector2 attackEffectOffset)
+        {
+            OnAttackEnable(damage, attackEffectTrack, attackRange, attackEffectOffset);
+        }
+
+        void ISkillAttack.OnAttackDisable(string attackEffectTrack)
+        {
+            OnAttackDisable(attackEffectTrack);
+        }
+
         void OnFinishReservation()
         {
             _onFinishReservation.OnNext(Unit.Default);
         }
 
-        void OnAttackDisable()
+        protected virtual void OnAttackEnable(int damage, string attackEffectTrack, List<Vector2> attackRange, Vector2 attackEffectOffset)
+        {
+            _stageController.GetHexList(_curSkillCenter, attackRange, _curSkillRotation, ref _curAttackRange);
+
+            var attackSetting = new SkillAttackSetting
+            {
+                power = damage,
+                attackRange = _curAttackRange,
+                attribute = _skillSetting.Attribute
+            };
+            _attackOwner.AttackController.StartAttack(attackSetting);
+
+            _attackHitDisposable?.Dispose();
+            _attackHitDisposable = _attackOwner.AttackObservable.OnAttackHit
+                .Subscribe(_ => RemoveUnverifiedEffect(attackEffectTrack));
+        }
+
+        protected virtual void OnAttackDisable(string attackEffectTrack)
+        {
+            FinishAttack();
+
+            _onSkillAttack.OnNext(_curAttackRange); // 着弾したタイミングでLiberate検証
+            RemoveUnverifiedEffect(attackEffectTrack);
+        }
+
+        protected virtual void FinishAttack()
         {
             _attackHitDisposable?.Dispose();
             _attackOwner.AttackController.FinishAttack();

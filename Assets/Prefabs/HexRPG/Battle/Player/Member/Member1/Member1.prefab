@@ -5951,7 +5951,7 @@ PrefabInstance:
       objectReference: {fileID: 5902907197689775700}
     - target: {fileID: 6885623368119258436, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7310130128193326296, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _components.Array.size

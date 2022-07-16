@@ -917,6 +917,7 @@ namespace AnimationTest
                     }
 
                     // ƒRƒ“ƒ{“ü—Í
+                    /*
                     if (trackAsset is ComboInputEnableTrack)
                     {
                         foreach (var clip in trackAsset.GetClips())
@@ -942,6 +943,7 @@ namespace AnimationTest
                                 .AddTo(this);
                         }
                     }
+                    */
                 }
             }
         }

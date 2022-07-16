@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4b145ade12d4884bb789961adc879e0, type: 3}
   m_Name: AttackColliderAsset
   m_EditorClassIdentifier: 
-  behaviour:
-    damage: 5
-    direction: {x: 0, y: 0, z: 1}
-    speed: 8
+  damage: 10
+  direction: {x: 0, y: 0, z: 1}
+  speed: 7
 --- !u!114 &-972693950217061442
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -381,7 +380,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 94cfda8322bda8d48bb48be0bfd5edf4, type: 3}
-  m_Name: Attack Collider Track
+  m_Name: Combat Attack Track
   m_EditorClassIdentifier: 
   m_Version: 3
   m_AnimClip: {fileID: 0}
@@ -460,6 +459,6 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: AttackCollider
+    m_DisplayName: CombatAttack
   m_Markers:
     m_Objects: []

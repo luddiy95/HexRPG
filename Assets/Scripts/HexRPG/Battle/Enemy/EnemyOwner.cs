@@ -61,7 +61,7 @@ namespace HexRPG.Battle.Enemy
         }
 
         [CustomEditor(typeof(EnemyOwner))]
-        public class EnemyOwnerInspector : Editor
+        public class CustomInspector : Editor
         {
             public override void OnInspectorGUI()
             {

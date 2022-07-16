@@ -55,7 +55,7 @@ namespace HexRPG.Battle.Player.HUD
         }
 
         [CustomEditor(typeof(SkillPointHUD))]
-        public class SkillPointHUDInspector : Editor
+        public class CustomInspector : Editor
         {
             public override void OnInspectorGUI()
             {

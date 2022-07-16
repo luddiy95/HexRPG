@@ -1,20 +1,22 @@
-using System;
-using UniRx;
 using UnityEngine.Playables;
 
 namespace HexRPG.Playable
 {
+    using HexRPG.Battle.Combat;
+
     public class ComboInputEnableBehaviour : PlayableBehaviour
     {
-        public IObservable<Unit> OnComboInputEnable => _onComboInputEnable;
-        readonly ISubject<Unit> _onComboInputEnable = new Subject<Unit>();
-        public IObservable<Unit> OnComboInputDisable => _onComboInputDisable;
-        readonly ISubject<Unit> _onComboInputDisable = new Subject<Unit>();
+        IComboInputEnable _comboInputEnable;
+
+        public void Init(IComboInputEnable comboInputEnable)
+        {
+            _comboInputEnable = comboInputEnable;
+        }
 
         public override void OnBehaviourPlay(UnityEngine.Playables.Playable playable, FrameData info)
         {
             base.OnBehaviourPlay(playable, info);
-            _onComboInputEnable.OnNext(Unit.Default);
+            _comboInputEnable.ComboInputEnable();
         }
 
         public override void OnBehaviourPause(UnityEngine.Playables.Playable playable, FrameData info)
@@ -23,7 +25,7 @@ namespace HexRPG.Playable
 
             if (!playable.IsClipEnded(info)) return;
 
-            _onComboInputDisable.OnNext(Unit.Default);
+            _comboInputEnable.ComboInputDisable();
         }
     }
 }

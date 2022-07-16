@@ -10,6 +10,5 @@ namespace HexRPG.Battle.Combat
         void Execute();
 
         PlayableAsset PlayableAsset { get; }
-        Vector3 Velocity { get; }
     }
 }

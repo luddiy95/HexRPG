@@ -78,7 +78,7 @@ namespace HexRPG.Battle.Enemy.HUD
         string _name;
 
         [CustomEditor(typeof(EnemyStatusHUD))]
-        public class EnemyStatusHUDInspector : Editor
+        public class CustomInspector : Editor
         {
             private void OnEnable()
             {

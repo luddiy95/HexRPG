@@ -168,7 +168,7 @@ namespace HexRPG.Battle.HUD
         }
 
         [CustomEditor(typeof(ScorePanelHUD))]
-        public class ScoreHUDInspector : Editor
+        public class CustomInspector : Editor
         {
             private void OnEnable()
             {

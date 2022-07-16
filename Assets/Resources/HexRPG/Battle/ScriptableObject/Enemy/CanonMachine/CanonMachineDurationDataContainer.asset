@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultLocomotionDuration: 0.25
   locomotionDurations: []
+  defaultRotateStartDuration: 0.25
+  rotateStartDurations: []
   defaultBackToIdleDuration: 0.25
   backToIdleDurations: []
   defaultCombatStartDuration: 0.25

@@ -145,7 +145,7 @@ namespace HexRPG.Battle.Enemy
         }
 
         [CustomEditor(typeof(EnemyAnimationBehaviour))]
-        public class MemberAnimationBehaviourInspector : Editor
+        public class CustomInspector : Editor
         {
             private void OnEnable()
             {

@@ -106,7 +106,7 @@ namespace HexRPG.Battle.HUD
         Vector2 _size;
 
         [CustomEditor(typeof(DamagedPanelHUD))]
-        public class DamagedPanelHUDInspector : Editor
+        public class CustomInspector : Editor
         {
             private void OnEnable()
             {

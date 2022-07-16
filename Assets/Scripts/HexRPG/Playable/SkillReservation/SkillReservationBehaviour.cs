@@ -1,22 +1,23 @@
 using UnityEngine.Playables;
-using UniRx;
-using System;
 
 namespace HexRPG.Playable
 {
+    using HexRPG.Battle.Skill;
+
     public class SkillReservationBehaviour : PlayableBehaviour
     {
-        public IObservable<Unit> OnStartReservation => _onStartReservation;
-        readonly ISubject<Unit> _onStartReservation = new Subject<Unit>();
+        ISkillReservation _skillReservation;
 
-        public IObservable<Unit> OnFinishReservation => _onFinishReservation;
-        readonly ISubject<Unit> _onFinishReservation = new Subject<Unit>();
+        public void Init(ISkillReservation skillReservation)
+        {
+            _skillReservation = skillReservation;
+        }
 
         public override void OnBehaviourPlay(UnityEngine.Playables.Playable playable, FrameData info)
         {
             base.OnBehaviourPlay(playable, info);
 
-            _onStartReservation.OnNext(Unit.Default);
+            _skillReservation.OnStartReservation();
         }
 
         public override void OnBehaviourPause(UnityEngine.Playables.Playable playable, FrameData info)
@@ -25,7 +26,7 @@ namespace HexRPG.Playable
 
             if (!playable.IsClipEnded(info)) return;
 
-            _onFinishReservation.OnNext(Unit.Default);
+            _skillReservation.OnFinishReservation();
         }
     }
 }

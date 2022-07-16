@@ -46,7 +46,7 @@ namespace HexRPG.Battle.Stage.Tower
         }
 
         [CustomEditor(typeof(TowerOwner))]
-        public class EnemyOwnerInspector : Editor
+        public class CustomInspector : Editor
         {
             public override void OnInspectorGUI()
             {
