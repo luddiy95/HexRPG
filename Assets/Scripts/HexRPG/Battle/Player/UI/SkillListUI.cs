@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 using Cysharp.Threading.Tasks;
+using System;
 
 namespace HexRPG.Battle.Player.UI
 {
@@ -22,6 +23,8 @@ namespace HexRPG.Battle.Player.UI
         readonly List<ISkillUI> _skillUIList = new List<ISkillUI>(8);
         readonly List<ISkillSetting> _curMemberSkillSettings = new List<ISkillSetting>(8);
 
+        IDisposable _memberChangeDisposable;
+
         void Awake()
         {
             SwitchBtnDecideEnable(false);
@@ -40,15 +43,16 @@ namespace HexRPG.Battle.Player.UI
                     .Subscribe(memberOwner =>
                     {
                         _curMemberSkillSettings.Clear();
-                        foreach(var skill in memberOwner.SkillSpawnObservable.SkillList) _curMemberSkillSettings.Add(skill.SkillSetting);
-                        UpdateSkillBtn(memberOwner.SkillPoint.Current.Value);
-                    })
-                    .AddTo(this);
+                        foreach (var skill in memberOwner.SkillSpawnObservable.SkillList) _curMemberSkillSettings.Add(skill.SkillSetting);
 
-                curMember.Value.SkillPoint.Current
-                    .Subscribe(sp =>
-                    {
-                        UpdateIconSkillEnable(sp);
+                        UpdateSkillBtn(memberOwner.SkillPoint.Current.Value);
+
+                        _memberChangeDisposable?.Dispose();
+                        _memberChangeDisposable = memberOwner.SkillPoint.Current
+                            .Subscribe(sp =>
+                            {
+                                UpdateIconSkillEnable(sp);
+                            });
                     })
                     .AddTo(this);
 
@@ -81,21 +85,21 @@ namespace HexRPG.Battle.Player.UI
             {
                 var skillUI = _skillUIList[i];
                 skillUI.SwitchSelected(false);
-                if(i > _curMemberSkillSettings.Count - 1)
+                if (i > _curMemberSkillSettings.Count - 1)
                 {
                     skillUI.SwitchSkillShow(false);
                     skillUI.SwitchEnable(true); // skill‚ð”ñ•\Ž¦‚É‚·‚é‚½‚ßdisableFilter‚à”ñ•\Ž¦
                     continue;
                 }
                 skillUI.SwitchSkillShow(true);
-                UpdateIconSkillEnable(sp);
                 skillUI.SetSkill(_curMemberSkillSettings[i]);
+                skillUI.SwitchEnable(_curMemberSkillSettings[i].Cost <= sp);
             }
         }
 
         void UpdateIconSkillEnable(int sp)
         {
-            for(int i = 0; i < _curMemberSkillSettings.Count; i++)
+            for (int i = 0; i < _curMemberSkillSettings.Count; i++)
             {
                 _skillUIList[i].SwitchEnable(_curMemberSkillSettings[i].Cost <= sp);
             }
@@ -113,5 +117,10 @@ namespace HexRPG.Battle.Player.UI
         }
 
         #endregion
+
+        void OnDestroy()
+        {
+            _memberChangeDisposable?.Dispose();
+        }
     }
 }

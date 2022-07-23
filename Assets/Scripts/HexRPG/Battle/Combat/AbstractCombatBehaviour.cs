@@ -165,7 +165,6 @@ namespace HexRPG.Battle.Combat
         {
             // I—¹ˆ—
             _isComboInputEnable = false;
-            //! velocity‚ÍActionStateController‚ÅCombatStateExit‚É0‚É‚È‚é
 
             _disposables.Clear();
             _director.Stop();
