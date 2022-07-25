@@ -28,7 +28,8 @@ namespace HexRPG
         public static int GetIntegerEuler60(float e)
         {
             int euler = (int)e;
-            euler = (euler + 30) / 60 * 60;
+            euler = (euler + (int)Mathf.Sign(e) * 30) / 60 * 60;
+            if (euler == -180) euler = 180;
             return GetIntegerEuler(euler);
         }
 

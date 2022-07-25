@@ -5779,7 +5779,7 @@ PrefabInstance:
       objectReference: {fileID: 1549104397}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.size
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skillList.Array.size
@@ -5795,15 +5795,15 @@ PrefabInstance:
       objectReference: {fileID: 5486576886436897123, guid: b9ff069509ef3384cb043a1e0783177c, type: 3}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[0]._cost
-      value: 7
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[1]._cost
-      value: 7
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[2]._cost
-      value: 7
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[0]._prefab
@@ -5812,7 +5812,7 @@ PrefabInstance:
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[1]._prefab
       value: 
-      objectReference: {fileID: 6832648262429242629, guid: a625dba56d5be7e4bacdfa30fb082137, type: 3}
+      objectReference: {fileID: 4496257026003262569, guid: 0a98c2d4c13d86742b3828ec922be54b, type: 3}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[2]._prefab
       value: 
@@ -5824,7 +5824,7 @@ PrefabInstance:
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[1]._timeline
       value: 
-      objectReference: {fileID: 11400000, guid: 49bab75568042fb4587fefabd6e03a97, type: 2}
+      objectReference: {fileID: 11400000, guid: bd59377cf55a85b46b8e9416c2b5c2f2, type: 2}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[2]._timeline
       value: 
@@ -5847,7 +5847,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _healthMax
-      value: 200000000
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _mentalMax

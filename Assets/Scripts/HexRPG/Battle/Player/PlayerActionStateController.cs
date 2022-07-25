@@ -189,7 +189,14 @@ namespace HexRPG.Battle.Player
 
             // Damaged
             _damagedApplicable.OnHit //! PlayerはHitTypeに依らずDamagedモーションを取る
-                .Subscribe(_ => _actionStateController.Execute(new Command { Id = "damaged" }))
+                .Subscribe(hitData =>
+                {
+                    var hitType = hitData.HitType;
+                    if (hitType == HitType.WEAK || hitType == HitType.CRITICAL)
+                    {
+                        _actionStateController.Execute(new Command { Id = "damaged" });
+                    }
+                })
                 .AddTo(_disposables);
 
             // joyスティック入力時
@@ -200,14 +207,14 @@ namespace HexRPG.Battle.Player
                     if (direction.sqrMagnitude > 0.1)
                     {
                         var canMoveState = (CurState == IDLE || CurState == MOVE || CurState == SKILL_SELECT);
-                        if(canMoveState && _acceptDirectionInput) _actionStateController.Execute(new Command { Id = "move" });
+                        if (canMoveState && _acceptDirectionInput) _actionStateController.Execute(new Command { Id = "move" });
                     }
                     else
                     {
-                        if(CurState == MOVE) _actionStateController.Execute(new Command { Id = "stop" });
+                        if (CurState == MOVE) _actionStateController.Execute(new Command { Id = "stop" });
 
                         // Skill選択ステートに遷移した後、一度Direction入力がzeroにならないとDirection入力による移動を受け付けない
-                        if (CurState == SKILL_SELECT) _acceptDirectionInput = true; 
+                        if (CurState == SKILL_SELECT) _acceptDirectionInput = true;
                     }
                 })
                 .AddTo(_disposables);
@@ -318,7 +325,8 @@ namespace HexRPG.Battle.Player
                 .AddTo(_disposables);
             _actionStateObservable
                 .OnEnd<ActionEventMove>()
-                .Subscribe(_ => {
+                .Subscribe(_ =>
+                {
                     _locomotionController.StopRotate();
                     _locomotionController.Stop();
                 }).AddTo(_disposables);

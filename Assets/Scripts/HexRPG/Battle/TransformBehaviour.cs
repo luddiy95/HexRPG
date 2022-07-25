@@ -154,7 +154,7 @@ namespace HexRPG.Battle
             foreach(var hit in _hits)
             {
                 Hex hex = null;
-                if (hit.collider?.TryGetComponent(out hex) != true) return;
+                if (hit.collider?.TryGetComponent(out hex) != true) continue;
                 if (hex.GetDistanceXZ(root) <= radius) surroundedHex.Add(hex);
             }
         }

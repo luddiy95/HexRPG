@@ -1,5 +1,6 @@
 using HexRPG.Battle.Stage;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UniRx;
 using Zenject;
@@ -17,8 +18,8 @@ namespace HexRPG.Battle.Enemy
         ITransformController _transformController;
         List<SkillOwner.Factory> _skillFactories;
         ISkillsEquipment _skillsEquipment;
-        IAttackComponentCollection _attackOwner;
         IAttackReserve _attackReserve;
+        ILiberateController _liberateController;
 
         List<ISkillComponentCollection> ISkillSpawnObservable.SkillList => _skillList;
         readonly List<ISkillComponentCollection> _skillList = new List<ISkillComponentCollection>(8);
@@ -44,8 +45,8 @@ namespace HexRPG.Battle.Enemy
             ITransformController transformController,
             List<SkillOwner.Factory> skillFactories,
             ISkillsEquipment skillsEquipment,
-            IAttackComponentCollection attackOwner,
-            IAttackReserve attackReservation
+            IAttackReserve attackReservation,
+            ILiberateController liberateController
         )
         {
             _stageController = stageController;
@@ -54,8 +55,8 @@ namespace HexRPG.Battle.Enemy
             _transformController = transformController;
             _skillFactories = skillFactories;
             _skillsEquipment = skillsEquipment;
-            _attackOwner = attackOwner;
             _attackReserve = attackReservation;
+            _liberateController = liberateController;
         }
 
         void IInitializable.Initialize()
@@ -65,7 +66,7 @@ namespace HexRPG.Battle.Enemy
                 var factory = _skillFactories[i];
                 ISkillComponentCollection skillOwner = factory.Create(_transformController.SpawnRootTransform("Skill"), Vector3.zero);
                 var skill = _skillsEquipment.Skills[i];
-                skillOwner.Skill.Init(_attackOwner, _enemyOwner.AnimationController, skill.Timeline, skill.ActivationBindingObjMap);
+                skillOwner.Skill.Init(_enemyOwner, _enemyOwner.AnimationController, skill.Timeline, skill.ActivationBindingObjMap);
                 _skillList.Add(skillOwner);
             }
 
@@ -77,11 +78,14 @@ namespace HexRPG.Battle.Enemy
             var runningSkill = _skillList[index];
 
             var skill = runningSkill.Skill;
-            var skillCenter = _transformController.GetLandedHex();
+            Hex skillCenter = default;
             switch (skill.SkillCenterType)
             {
                 case SkillCenterType.SELF:
-                    // Ž©•ªŽ©g‚Ìê‡landedHex‚Ì‚Ü‚Ü‚Å—Ç‚¢
+                    skillCenter = _stageController.GetHex(
+                        _transformController.GetLandedHex(),
+                        skill.SkillCenter,
+                        MathUtility.GetIntegerEuler60(_transformController.DefaultRotation + _transformController.RotationAngle + skillRotation));
                     break;
                 case SkillCenterType.PLAYER:
                     skillCenter = _battleObservable.PlayerLandedHex;
@@ -99,13 +103,22 @@ namespace HexRPG.Battle.Enemy
                 ref _curAttackIndicateHexList);
 
             _disposables.Clear();
-            runningSkill.SkillObservable.OnStartReservation
+            var skillObservable = runningSkill.SkillObservable;
+            skillObservable.OnStartReservation
                 .Subscribe(_ => _attackReserve.StartAttackReservation(_curAttackIndicateHexList))
                 .AddTo(_disposables);
-            runningSkill.SkillObservable.OnFinishReservation
+            skillObservable.OnFinishReservation
                 .Subscribe(_ => _attackReserve.FinishAttackReservation())
                 .AddTo(_disposables);
-            runningSkill.SkillObservable.OnFinishSkill
+
+            skillObservable.OnSkillAttack
+                .Subscribe(attackRange =>
+                {
+                    var isExistPlayerInAttackRange = attackRange.Contains(_battleObservable.PlayerLandedHex); //TODO: Player‚ª¶‚«‚Ä‚¢‚é‚©
+                    if (!isExistPlayerInAttackRange) _liberateController.Liberate(attackRange);
+                })
+                .AddTo(_disposables);
+            skillObservable.OnFinishSkill
                 .Subscribe(_ =>
                 {
                     _onFinishSkill.OnNext(Unit.Default);

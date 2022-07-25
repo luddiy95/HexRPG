@@ -141,6 +141,11 @@ namespace HexRPG.Battle.Skill
                 .AddTo(this);
         }
 
+        void ISkill.HideEffect()
+        {
+            foreach (KeyValuePair<string, GameObject> item in _skillEffectMap) item.Value.SetActive(false);
+        }
+
         void ISkill.StartSkill(Hex skillCenter, int skillRotation)
         {
             _curSkillCenter = skillCenter;

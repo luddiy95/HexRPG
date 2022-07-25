@@ -2359,12 +2359,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2234952170314847877}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce10d860c16a2fb49a01bcda2e585195, type: 3}
+  m_Script: {fileID: 11500000, guid: a9a1ab078fdf0994ca31de9379c1551d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _targetType: 0
   MOVE_ROTATE_TIME: 0.1
   LOOK_ROTATE_SPEED: 240
-  COMBAT_DISTANCE: 2
+  ATTACK_RADIUS: 2
   IDLE_INTERVAL: 100
   MOVE_SEARCH_INTERVAL: 1200
 --- !u!1001 &7348804145720973213
@@ -2388,11 +2389,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _healthMax
-      value: 200
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _moveSpeed
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _dieTimeline

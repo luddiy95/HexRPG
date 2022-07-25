@@ -23,6 +23,7 @@ namespace HexRPG.Battle
         IEnumerable<Hex> EnemyDestinationHexList { get; } // ˆê“xcopy‚³‚ê‚Ä‚©‚çŽg‚¤‘z’è
 
         IObservable<ITowerComponentCollection> OnTowerInit { get; }
+        List<ITowerComponentCollection> TowerList { get; }
 
         IObservable<Unit> OnUpdateNavMesh { get; }
 

@@ -80,18 +80,21 @@ namespace HexRPG.Battle.Stage.Tower
         {
             await UniTask.Delay(spawnSetting.FirstSpawnInterval, cancellationToken: token);
 
-            // enemyName‚ğæ“¾‚·‚é‚½‚ß‚ÌÅ‰‚Ìˆê‘Ì
-            Hex spawnHex = null;
-            try
+            string enemyName = "";
+            for(int i = 1; i <= spawnSetting.FirstSpawnCount; i++)
             {
-                spawnHex = _towerObservable.FixedHexList.First(hex => _enemyList.Any(enemy => enemy.TransformController.GetLandedHex() == hex) == false);
+                Hex spawnHex = null;
+                try
+                {
+                    spawnHex = _towerObservable.FixedHexList.First(hex => _enemyList.Any(enemy => enemy.TransformController.GetLandedHex() == hex) == false);
+                }
+                catch (System.NullReferenceException e)
+                {
+                    throw e;
+                }
+                var enemy = await SpawnEnemy(factory, spawnHex, token);
+                if (i == 1) enemyName = enemy.ProfileSetting.Name;
             }
-            catch (System.NullReferenceException e)
-            {
-                throw e;
-            }
-            var enemy = await SpawnEnemy(factory, spawnHex, token);
-            var enemyName = enemy.ProfileSetting.Name;
 
             CancellationTokenSource spawnIteraterCts = null;
             void CancelIterater()
@@ -161,6 +164,7 @@ namespace HexRPG.Battle.Stage.Tower
                 .First()
                 .Subscribe(_ =>
                 {
+                    enemyOwner.SkillSpawnObservable.SkillList.ForEach(skill => skill.Skill.HideEffect());
                     enemy.Dispose();
                     _enemyList.Remove(enemy);
                 })

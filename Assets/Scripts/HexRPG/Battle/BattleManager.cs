@@ -54,6 +54,8 @@ namespace HexRPG.Battle
 
         IObservable<ITowerComponentCollection> IBattleObservable.OnTowerInit => _onTowerInit;
         readonly ISubject<ITowerComponentCollection> _onTowerInit = new Subject<ITowerComponentCollection>();
+
+        List<ITowerComponentCollection> IBattleObservable.TowerList => _towerList;
         List<ITowerComponentCollection> _towerList = new List<ITowerComponentCollection>(16);
 
         IObservable<Unit> IBattleObservable.OnUpdateNavMesh => _onUpdateNavMesh;
