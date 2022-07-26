@@ -5779,7 +5779,7 @@ PrefabInstance:
       objectReference: {fileID: 1549104397}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skillList.Array.size
@@ -5795,11 +5795,11 @@ PrefabInstance:
       objectReference: {fileID: 5486576886436897123, guid: b9ff069509ef3384cb043a1e0783177c, type: 3}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[0]._cost
-      value: 3
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[1]._cost
-      value: 3
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[2]._cost
@@ -5812,7 +5812,7 @@ PrefabInstance:
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[1]._prefab
       value: 
-      objectReference: {fileID: 4496257026003262569, guid: 0a98c2d4c13d86742b3828ec922be54b, type: 3}
+      objectReference: {fileID: 6832648262429242629, guid: 8689af78659dcc04fa5af98c008f3613, type: 3}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[2]._prefab
       value: 
@@ -5824,7 +5824,7 @@ PrefabInstance:
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[1]._timeline
       value: 
-      objectReference: {fileID: 11400000, guid: bd59377cf55a85b46b8e9416c2b5c2f2, type: 2}
+      objectReference: {fileID: 11400000, guid: 308ff2f9a9b8c0b469b95da96361fe8d, type: 2}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skills.Array.data[2]._timeline
       value: 
@@ -5863,7 +5863,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 4d57825585c05d24c9aea73bee0f7119, type: 2}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skillPointMax
-      value: 15
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 2717514595689543170, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: m_RootOrder

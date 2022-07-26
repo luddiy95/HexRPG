@@ -17,17 +17,9 @@ namespace AnimationTest
     using HexRPG.Playable;
     using HexRPG.Battle;
 
-    public interface IAnimationPlayer
+    public class AnimationPlayer : MonoBehaviour
     {
-        void Initialize();
-
-        void Play(string clip, float? duration = null);
-
-        void Dispose();
-    }
-
-    public class AnimationPlayer : MonoBehaviour, IAnimationPlayer
-    {
+#if UNITY_EDITOR
         const int _locomotionCount = 9;
 
         [SerializeField] private Animator _animator;
@@ -86,7 +78,7 @@ namespace AnimationTest
             _graph.Play();
         }
 
-        void IAnimationPlayer.Play(string clip, float? duration) //TODO: Play呼び出しの直前でCancelする必要があるのでは(CancellationTokenの受け渡しをちゃんとしろ)->一応対応した
+        void Play(string clip, float? duration = null) //TODO: Play呼び出しの直前でCancelする必要があるのでは(CancellationTokenの受け渡しをちゃんとしろ)->一応対応した
         {
             if (_curPlayingIndex < 0)
             {
@@ -361,7 +353,7 @@ namespace AnimationTest
             //TODO: Skill終了
         }
 
-        void IAnimationPlayer.Dispose()
+        void Dispose()
         {
             OnDestroy();
         }
@@ -382,8 +374,6 @@ namespace AnimationTest
             if(_skillDirector != null) _skillDirector.Stop();
             TokenCancel();
         }
-
-        IAnimationPlayer _animationPlayer;
 
         GUISkin _skin;
 
@@ -485,9 +475,8 @@ namespace AnimationTest
             if (GUILayout.Button("SetupPlayableGraph"))
             {
                 OnInspectorEnable();
-                _animationPlayer = this;
-                _animationPlayer.Initialize();
-                _animationPlayer.Play("Idle");
+                Initialize();
+                Play("Idle");
             }
             GUI.enabled = true;
             GUILayout.Space(10);
@@ -590,18 +579,18 @@ namespace AnimationTest
                         // FadeなしでPlay
                         _prePlayingIndex = _curPlayingIndex;
                         _curPlayingIndex = -1;
-                        _animationPlayer.Play(_animationClips[_locomotionClipBeforeIndex]);
+                        Play(_animationClips[_locomotionClipBeforeIndex]);
                     }
                     if (GUILayout.Button("Transit", EditorStyles.miniButtonMid))
                     {
-                        _animationPlayer.Play(_animationClips[_locomotionClipAfterIndex], _customLocomotionDuration);
+                        Play(_animationClips[_locomotionClipAfterIndex], _customLocomotionDuration);
                     }
                     if (GUILayout.Button("Stop", EditorStyles.miniButtonRight))
                     {
                         // FadeなしでPlay
                         _prePlayingIndex = _curPlayingIndex;
                         _curPlayingIndex = -1;
-                        _animationPlayer.Play("Idle");
+                        Play("Idle");
                     }
                 }
                 GUI.enabled = true;
@@ -727,18 +716,18 @@ namespace AnimationTest
                         // FadeなしでPlay
                         _prePlayingIndex = _curPlayingIndex;
                         _curPlayingIndex = -1;
-                        _animationPlayer.Play(_animationClips[_damagedClipBeforeIndex]);
+                        Play(_animationClips[_damagedClipBeforeIndex]);
                     }
                     if (GUILayout.Button("Transit", EditorStyles.miniButtonMid))
                     {
-                        _animationPlayer.Play("Damaged", _customDamagedDuration);
+                        Play("Damaged", _customDamagedDuration);
                     }
                     if (GUILayout.Button("Stop", EditorStyles.miniButtonRight))
                     {
                         // FadeなしでPlay
                         _prePlayingIndex = _curPlayingIndex;
                         _curPlayingIndex = -1;
-                        _animationPlayer.Play("Idle");
+                        Play("Idle");
                     }
                 }
                 GUI.enabled = true;
@@ -759,7 +748,7 @@ namespace AnimationTest
                 {
                     if(_curCombat == null)
                     {
-                        _animationPlayer.Play(_combatTimeline.name);
+                        Play(_combatTimeline.name);
                         _combatDirector.Play();
                     }
                     else
@@ -786,7 +775,7 @@ namespace AnimationTest
                 GUI.enabled = (_curSkill == null);
                 if (GUILayout.Button("Play"))
                 {
-                    _animationPlayer.Play(_skillTimeline.name);
+                    Play(_skillTimeline.name);
                     _skillDirector.Play();
                 }
                 GUI.enabled = true;
@@ -800,7 +789,7 @@ namespace AnimationTest
                 _interruptClipIndex = EditorGUILayout.Popup(_interruptClipIndex, _animationClips.ToArray(), GUILayout.MaxWidth(110));
                 if (GUILayout.Button("Interrupt"))
                 {
-                    _animationPlayer.Play(_animationClips[_interruptClipIndex]);
+                    Play(_animationClips[_interruptClipIndex]);
                 }
             }
             GUI.enabled = true;
@@ -832,7 +821,7 @@ namespace AnimationTest
         {
             if(_skillDirector != null) DestroyImmediate(_skillDirector.gameObject);
             if (_combatDirector != null) DestroyImmediate(_combatDirector.gameObject);
-            if (_animationPlayer != null) _animationPlayer.Dispose();
+            Dispose();
         }
 
         internal void UpdateDamagedToIdleEvent()
@@ -850,7 +839,7 @@ namespace AnimationTest
 
         public void FadeToIdle()
         {
-            (this as IAnimationPlayer).Play("Idle", _durationToIdle);
+            Play("Idle", _durationToIdle);
         }
 
         internal void SetupCombatPlayableDirector()
@@ -1012,8 +1001,6 @@ namespace AnimationTest
                 }
             }
         }
-
-#if UNITY_EDITOR
 
         [CustomEditor(typeof(AnimationPlayer))]
         public class AnimationPlayerInspector : Editor

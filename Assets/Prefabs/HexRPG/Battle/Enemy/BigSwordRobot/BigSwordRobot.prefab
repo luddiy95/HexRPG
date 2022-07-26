@@ -2366,8 +2366,8 @@ MonoBehaviour:
   MOVE_ROTATE_TIME: 0.1
   LOOK_ROTATE_SPEED: 240
   ATTACK_RADIUS: 100
-  IDLE_INTERVAL: 1000
-  MOVE_SEARCH_INTERVAL: 2400
+  IDLE_INTERVAL: 500
+  MOVE_SEARCH_INTERVAL: 1200
 --- !u!1001 &5319563428181398960
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2385,7 +2385,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _healthMax
-      value: 50
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _moveSpeed

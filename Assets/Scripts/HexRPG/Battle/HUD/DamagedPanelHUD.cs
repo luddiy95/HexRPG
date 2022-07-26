@@ -99,11 +99,12 @@ namespace HexRPG.Battle.HUD
             _disposables.Dispose();
         }
 
-#if UNITY_EDITOR
-
         string _name;
 
         Vector2 _size;
+
+#if UNITY_EDITOR
+
 
         [CustomEditor(typeof(DamagedPanelHUD))]
         public class CustomInspector : Editor

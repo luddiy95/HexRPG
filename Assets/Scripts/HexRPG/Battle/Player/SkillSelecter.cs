@@ -75,12 +75,18 @@ namespace HexRPG.Battle.Player
                         switch (skill.SkillCenterType)
                         {
                             case SkillCenterType.SELF:
-                                _selectedSkillRotation = MathUtility.GetIntegerEuler60(_duplicateSelectedCount * 60);
+                                while (true)
+                                {
+                                    _selectedSkillRotation = MathUtility.GetIntegerEuler60(_duplicateSelectedCount * 60);
 
-                                _skillCenter = _stageController.GetHex(
-                                    _transformController.GetLandedHex(),
-                                    skill.SkillCenter,
-                                    _transformController.DefaultRotation + _selectedSkillRotation);
+                                    _skillCenter = _stageController.GetHex(
+                                        _transformController.GetLandedHex(),
+                                        skill.SkillCenter,
+                                        _transformController.DefaultRotation + _selectedSkillRotation);
+
+                                    if (_skillCenter != null) break;
+                                    _duplicateSelectedCount = (_duplicateSelectedCount + 1) % 6;
+                                }
 
                                 break;
                             case SkillCenterType.EIM_ENEMY:

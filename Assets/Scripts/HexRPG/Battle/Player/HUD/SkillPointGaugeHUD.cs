@@ -11,11 +11,12 @@ namespace HexRPG.Battle.Player.HUD
         {
             if(chara is IMemberComponentCollection memberOwner)
             {
-                SetGauge(100, 100);
+                var max = memberOwner.SkillPoint.Max;
+                SetGauge(max, max);
 
                 _disposables.Clear();
-                memberOwner.SkillPoint.ChargeRate
-                    .Subscribe(rate => UpdateAmount((int)(rate * 100)))
+                memberOwner.SkillPoint.Current
+                    .Subscribe(amount => UpdateAmount(amount))
                     .AddTo(_disposables);
             }
         }

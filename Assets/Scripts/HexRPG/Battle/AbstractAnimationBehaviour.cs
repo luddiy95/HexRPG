@@ -643,7 +643,7 @@ namespace HexRPG.Battle
             if(_graph.IsValid()) _graph.Destroy();
         }
 
-        #region Inspector
+#if UNITY_EDITOR
 
         public abstract void SetupDamaged();
 
@@ -655,6 +655,6 @@ namespace HexRPG.Battle
             }
         }
 
-        #endregion
+#endif
     }
 }

@@ -13,6 +13,9 @@ namespace HexRPG.Battle.Player
     {
         IUpdateObservable _updateObservable;
 
+        [Header("JoyStick")]
+        [SerializeField] Joystick _joystick;
+
         [Header("ÉJÉÅÉââÒì]É{É^Éì")]
         [SerializeField] Transform _cameraRotLeft;
         [SerializeField] Transform _cameraRotRight;
@@ -169,7 +172,7 @@ namespace HexRPG.Battle.Player
 
         void UpdateDirection()
         {
-            _direction.SetValueAndForceNotify(new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")));
+            _direction.SetValueAndForceNotify(new Vector3(_joystick.Horizontal, 0, _joystick.Vertical));
         }
     }
 }

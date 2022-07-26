@@ -73,9 +73,9 @@ namespace HexRPG.Battle.Enemy.HUD
             _disposables.Dispose();
         }
 
-#if UNITY_EDITOR
-
         string _name;
+
+#if UNITY_EDITOR
 
         [CustomEditor(typeof(EnemyStatusHUD))]
         public class CustomInspector : Editor
