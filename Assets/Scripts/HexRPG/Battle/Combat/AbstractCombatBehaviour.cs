@@ -4,6 +4,7 @@ using UnityEngine.Playables;
 using UnityEngine.Timeline;
 using System;
 using UniRx;
+using Zenject;
 
 namespace HexRPG.Battle.Combat
 {
@@ -11,6 +12,9 @@ namespace HexRPG.Battle.Combat
 
     public abstract class AbstractCombatBehaviour : MonoBehaviour, ICombat, ICombatObservable, ICombatAttack, IComboInputEnable, IDisposable
     {
+        IAudioController _audioController;
+        ICombatSetting _combatSetting;
+
         protected IAttackComponentCollection _attackOwner;
         IAnimationController _animationController;
 
@@ -42,6 +46,16 @@ namespace HexRPG.Battle.Combat
 
         protected IDisposable _attackHitDisposable;
         protected CompositeDisposable _disposables = new CompositeDisposable();
+
+        [Inject]
+        public void Construct(
+            IAudioController audioController,
+            ICombatSetting combatSetting
+        )
+        {
+            _audioController = audioController;
+            _combatSetting = combatSetting;
+        }
 
         void ICombat.Init(IAttackComponentCollection attackOwner, IAnimationController animationController, PlayableAsset timeline)
         {
@@ -129,11 +143,6 @@ namespace HexRPG.Battle.Combat
             _isComboInputEnable = false;
         }
 
-        protected virtual void OnAttackHit()
-        {
-
-        }
-
         protected virtual void OnAttackEnable(int damage, Vector3 colliderVelocity)
         {
             // hitŒŸ’m
@@ -148,6 +157,11 @@ namespace HexRPG.Battle.Combat
                 attackColliders = _attackColliders
             };
             _attackOwner.AttackController.StartAttack(attackSetting);
+        }
+
+        protected virtual void OnAttackHit()
+        {
+            _audioController.Play(_combatSetting.HitAudioName);
         }
 
         protected virtual void OnAttackDisable()

@@ -15,6 +15,7 @@ namespace HexRPG.Battle.Skill
     {
         IStageController _stageController;
         IBattleObservable _battleObservable;
+        IAudioController _audioController;
         ISkillSetting _skillSetting;
 
         IAttackComponentCollection _attackOwner;
@@ -60,11 +61,13 @@ namespace HexRPG.Battle.Skill
         public void Construct(
             IStageController stageController,
             IBattleObservable battleObservable,
+            IAudioController audioController,
             ISkillSetting skillSetting
         )
         {
             _stageController = stageController;
             _battleObservable = battleObservable;
+            _audioController = audioController;
             _skillSetting = skillSetting;
         }
 
@@ -243,6 +246,11 @@ namespace HexRPG.Battle.Skill
         void HideUnverifiedEffect()
         {
             _unverifiedEffect.ForEach(effect => effect.SetActive(false));
+        }
+
+        public void OnHitAudioPlay()
+        {
+            _audioController.Play(_skillSetting.HitAudioName);
         }
 
         void IDisposable.Dispose()

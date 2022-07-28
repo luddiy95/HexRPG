@@ -173,6 +173,7 @@ namespace HexRPG.Battle.Player
         void UpdateDirection()
         {
             _direction.SetValueAndForceNotify(new Vector3(_joystick.Horizontal, 0, _joystick.Vertical));
+            //_direction.SetValueAndForceNotify(new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")));
         }
     }
 }

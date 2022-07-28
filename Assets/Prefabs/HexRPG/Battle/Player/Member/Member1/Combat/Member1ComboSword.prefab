@@ -562,6 +562,10 @@ PrefabInstance:
       propertyPath: _damage
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 8525164581996491899, guid: f12c8762a550cc4439cbe3f3dcb7821b, type: 3}
+      propertyPath: _hitAudioName
+      value: SwordHit
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f12c8762a550cc4439cbe3f3dcb7821b, type: 3}
 --- !u!1 &5818886393387851045 stripped

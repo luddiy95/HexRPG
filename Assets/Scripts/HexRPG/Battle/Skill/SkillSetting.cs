@@ -6,6 +6,7 @@ namespace HexRPG.Battle.Skill
     {
         Attribute Attribute { get; }
         Sprite Icon { get; }
+        string HitAudioName { get; }
 
         int Cost { get; }
         void SetCost(int cost);
@@ -17,6 +18,8 @@ namespace HexRPG.Battle.Skill
         [SerializeField] Attribute _attribute;
         Sprite ISkillSetting.Icon => _icon;
         [SerializeField] Sprite _icon;
+        string ISkillSetting.HitAudioName => _hitAudioName;
+        [SerializeField] string _hitAudioName;
 
         int _cost;
         int ISkillSetting.Cost => _cost;

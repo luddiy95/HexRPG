@@ -29,6 +29,37 @@ PlayableDirector:
     value: {fileID: 0}
   m_ExposedReferences:
     m_References: []
+--- !u!114 &8159064715409984396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8494827099054276319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 0e5952276a0ae834794a40a579df54a6, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 7192683438282393397}
+          m_TargetAssemblyTypeName: HexRPG.Battle.Skill.AbstractAttackSkillBehaviour,
+            HexRPG
+          m_MethodName: OnHitAudioPlay
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &9164886155513211405
 GameObject:
   m_ObjectHideFlags: 0
@@ -53719,6 +53750,10 @@ PrefabInstance:
       propertyPath: _attribute
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3505504371383799877, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+      propertyPath: _hitAudioName
+      value: GeyserHit
+      objectReference: {fileID: 0}
     - target: {fileID: 5426194334740280399, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
       propertyPath: m_Name
       value: BigGeyser
@@ -53773,13 +53808,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
---- !u!4 &7037280449478826832 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6847573193581859264, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
-  m_PrefabInstance: {fileID: 4516554909798337168}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8494827099054276319 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5426194334740280399, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+  m_PrefabInstance: {fileID: 4516554909798337168}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7192683438282393397 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6737259389918104997, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
+  m_PrefabInstance: {fileID: 4516554909798337168}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8494827099054276319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 084923e7197bcf34491c7bb70f42e7d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &7037280449478826832 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6847573193581859264, guid: 21bc43bee4155c94e80a68242f6c3c28, type: 3}
   m_PrefabInstance: {fileID: 4516554909798337168}
   m_PrefabAsset: {fileID: 0}

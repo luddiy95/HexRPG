@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4b145ade12d4884bb789961adc879e0, type: 3}
   m_Name: AttackColliderAsset
   m_EditorClassIdentifier: 
-  damage: 25
-  direction: {x: 0, y: 0, z: 1}
-  speed: 7
+  damage: 40
+  direction: {x: 0, y: 0, z: 0}
+  speed: 0
 --- !u!114 &-972693950217061442
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -30,17 +30,17 @@ MonoBehaviour:
   m_Version: 3
   m_AnimClip: {fileID: 0}
   m_Locked: 0
-  m_Muted: 1
+  m_Muted: 0
   m_CustomPlayableFullTypename: 
   m_Curves: {fileID: 0}
   m_Parent: {fileID: 11400000}
   m_Children: []
   m_Clips:
   - m_Version: 1
-    m_Start: 0.42857142857142844
+    m_Start: 1.5
     m_ClipIn: 0
     m_Asset: {fileID: 387014894554167362}
-    m_Duration: 0.6
+    m_Duration: 0.2666666666666666
     m_TimeScale: 1
     m_ParentTrack: {fileID: -972693950217061442}
     m_EaseInDuration: 0
@@ -120,7 +120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030f85c3f73729f4f976f66ffb23b875, type: 3}
   m_Name: AnimationPlayableAsset
   m_EditorClassIdentifier: 
-  m_Clip: {fileID: 7400000, guid: 4da0dec51eca9074296d71dee14947fa, type: 2}
+  m_Clip: {fileID: 7400000, guid: 00934aa3cd1ca4546a1ca69b5abc9ced, type: 2}
   m_Position: {x: 0, y: 0, z: 0}
   m_EulerAngles: {x: 0, y: 0, z: 0}
   m_UseTrackMatchFields: 1
@@ -140,7 +140,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bfda56da833e2384a9677cd3c976a436, type: 3}
-  m_Name: Member2Slash
+  m_Name: Member2Sword
   m_EditorClassIdentifier: 
   m_Version: 0
   m_Tracks:
@@ -153,22 +153,6 @@ MonoBehaviour:
     m_ScenePreview: 1
   m_DurationMode: 0
   m_MarkerTrack: {fileID: 4499260894248291282}
---- !u!114 &249058076200690078
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15c38f6fa1940124db1ab7f6fe7268d1, type: 3}
-  m_Name: Signal Emitter
-  m_EditorClassIdentifier: 
-  m_Time: 0.8
-  m_Retroactive: 0
-  m_EmitOnce: 0
-  m_Asset: {fileID: 11400000, guid: 65404f3932aeae2478a2ba2ffde716f1, type: 2}
 --- !u!114 &387014894554167362
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -196,7 +180,7 @@ MonoBehaviour:
   m_Version: 3
   m_AnimClip: {fileID: 0}
   m_Locked: 0
-  m_Muted: 0
+  m_Muted: 1
   m_CustomPlayableFullTypename: 
   m_Curves: {fileID: 0}
   m_Parent: {fileID: 11400000}
@@ -206,13 +190,13 @@ MonoBehaviour:
     m_Start: 0
     m_ClipIn: 0
     m_Asset: {fileID: -295255906156987869}
-    m_Duration: 1.0285714285714285
-    m_TimeScale: 1.75
+    m_Duration: 2.4
+    m_TimeScale: 1.35
     m_ParentTrack: {fileID: 4208365363101606519}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
     m_BlendInDuration: -1
-    m_BlendOutDuration: 0.21666666666666656
+    m_BlendOutDuration: 0.7166666666666668
     m_MixInCurve:
       serializedVersion: 2
       m_Curve:
@@ -252,17 +236,17 @@ MonoBehaviour:
     m_PreExtrapolationMode: 1
     m_PostExtrapolationTime: Infinity
     m_PreExtrapolationTime: 0
-    m_DisplayName: Slash
+    m_DisplayName: Sword
   - m_Version: 1
-    m_Start: 0.8119047619047619
-    m_ClipIn: 0.08333333333333315
+    m_Start: 1.6833333333333331
+    m_ClipIn: 0.00000000000000011102230246251565
     m_Asset: {fileID: 6438392832479505433}
-    m_Duration: 0.21666666666666656
+    m_Duration: 0.7166666666666668
     m_TimeScale: 1
     m_ParentTrack: {fileID: 4208365363101606519}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
-    m_BlendInDuration: 0.21666666666666656
+    m_BlendInDuration: 0.7166666666666668
     m_BlendOutDuration: -1
     m_MixInCurve:
       serializedVersion: 2
@@ -346,8 +330,7 @@ MonoBehaviour:
   m_Children: []
   m_Clips: []
   m_Markers:
-    m_Objects:
-    - {fileID: 249058076200690078}
+    m_Objects: []
 --- !u!114 &6438392832479505433
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -392,10 +375,10 @@ MonoBehaviour:
   m_Children: []
   m_Clips:
   - m_Version: 1
-    m_Start: 0.42857142857142844
+    m_Start: 1.3333333333333333
     m_ClipIn: 0
     m_Asset: {fileID: -8029418157928836927}
-    m_Duration: 0.6
+    m_Duration: 0.21666666666666679
     m_TimeScale: 1
     m_ParentTrack: {fileID: 9093808660235759938}
     m_EaseInDuration: 0
