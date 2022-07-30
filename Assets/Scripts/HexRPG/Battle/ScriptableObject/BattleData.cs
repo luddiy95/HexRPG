@@ -5,6 +5,8 @@ using Kogane;
 
 namespace HexRPG.Battle
 {
+    using Player;
+
     [CreateAssetMenu(fileName = "BattleData", menuName = "ScriptableObjects/BattleData")]
     public class BattleData : ScriptableObject
     {
@@ -23,6 +25,11 @@ namespace HexRPG.Battle
         public List<ScoreInfo> scoreInfoMap = new List<ScoreInfo>();
         public int initScore;
         public int scoreMax;
+
+        // AppendSkill
+        [Serializable] public class AppendSkillIconValuePair : SerializableKeyValuePair<AppendSkillType, Sprite> { }
+        [Serializable] public class AppendSkillIconDictionary : SerializableDictionary<AppendSkillType, Sprite, AppendSkillIconValuePair> { }
+        public AppendSkillIconDictionary appendSkillIconMap = new AppendSkillIconDictionary();
 
         // DamagedDisplay
         [Serializable] public class DamagedDisplayMatValuePair : SerializableKeyValuePair<HitType, Material> { }

@@ -30,10 +30,10 @@ namespace HexRPG.Battle
         public int count;
     }
 
-    //TODO: InspectorÇ≈ÇµÇ©égÇÌÇ»Ç¢ÅH
     public interface IScoreController
     {
         void AcquireScore(ScoreType type, int acquireCount);
+        void Update(int amount);
     }
 
     public interface IScoreObservable
@@ -112,6 +112,14 @@ namespace HexRPG.Battle
             var score = _curScore.Value + scoreInfo.score * acquireCount;
             _curScore.Value = Mathf.Min(score, _scoreMax);
             _onAddScoreData.OnNext(new ScoreData() { scoreInfo = scoreInfo, count = acquireCount });
+        }
+
+        void IScoreController.Update(int amount)
+        {
+            int value = _curScore.Value + amount;
+            if (amount < 0) value = Mathf.Max(0, value);
+            else value = Mathf.Min(_scoreMax, value);
+            _curScore.Value = value;
         }
 
         void IDisposable.Dispose()

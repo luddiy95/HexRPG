@@ -353,23 +353,23 @@ namespace HexRPG.Battle.Enemy
 
             while (true)
             {
-                var landedHex = _transformController.GetLandedHex();
-                var relativeDirFromHexCenter = _transformController.Position.GetRelativePosXZ(landedHex.transform.position);
-
-                var enemyDestinationHexList = new List<Hex>(_battleObservable.EnemyDestinationHexList);
-                var curDestination = _navMeshAgentController.CurDestination.Value;
-                if (curDestination != null) enemyDestinationHexList.Remove(curDestination);
-
                 // DestinationÇ‚pathÇ™LiberateÇ…ÇÊÇ¡ÇƒèÛãµÇ™ïœÇÌÇ¡ÇΩ
                 if (!_navMeshAgentController.IsStopped)
                 {
-                    var directionHex = TransformExtensions.GetLandedHex(_transformController.Position + _moveDirection.Value.normalized * 0.1f);
+                    var directionHex = TransformExtensions.GetLandedHex(_transformController.Position + _moveDirection.Value.normalized * 0.25f);
                     if (directionHex.IsPlayerHex)
                     {
                         DeleteDestination();
                         return IDLE;
                     }
                 }
+
+                var landedHex = _transformController.GetLandedHex();
+                var relativeDirFromHexCenter = _transformController.Position.GetRelativePosXZ(landedHex.transform.position);
+
+                var enemyDestinationHexList = new List<Hex>(_battleObservable.EnemyDestinationHexList);
+                var curDestination = _navMeshAgentController.CurDestination.Value;
+                if (curDestination != null) enemyDestinationHexList.Remove(curDestination);
 
                 // TargetÇ™çUåÇîÕàÕì‡
                 if (_attackableHex == landedHex)
@@ -435,13 +435,13 @@ namespace HexRPG.Battle.Enemy
             // targetÇ©ÇÁATTACK_RADIUSÇÃãóó£à»ì‡ÇÃHexÇ≈EnemyÇ™à⁄ìÆèoóàÇÈHexÇ≈ç≈Ç‡targetÇ…ãﬂÇ¢HexÇ÷à⁄ìÆ
             TransformExtensions.GetSurroundedHexList(targetHex, ATTACK_RADIUS, ref _surroundedHexList);
             _enemyHexList.Clear();
-            if (_surroundedHexList.Contains(landedHex)) _enemyHexList.Add(landedHex);
+            if (enemyDestinationHexList.Contains(landedHex) == false && _surroundedHexList.Contains(landedHex)) _enemyHexList.Add(landedHex);
             var surroundedEnemyHexList = _surroundedHexList
                 .Where(hex =>
                         hex != targetHex
-                        && _navMeshAgentController.IsExistPath(hex.transform.position)
                         && hex.GetDistance2XZ(targetHex) + 0.1f < distance2FromTargetHex //! åªç›ÇÃLandedHexÇÊÇËTargetHexÇ…ãﬂÇ¢Hex(é~Ç‹Ç¡ÇƒÇ¢ÇÈèÛë‘Ç©ÇÁëSÇ≠ìØÇ∂ãóó£ÇÃhexÇ÷êiÇ‹Ç»Ç¢ÇÊÇ§Ç…)
-                        && enemyDestinationHexList.Contains(hex) == false);
+                        && enemyDestinationHexList.Contains(hex) == false
+                        && _navMeshAgentController.IsExistPath(hex.transform.position));
             _enemyHexList.AddRange(surroundedEnemyHexList);
 
             var attackableHex = _enemyHexList.OrderBy(hex => hex.GetDistance2XZ(targetHex)).FirstOrDefault();
@@ -463,7 +463,7 @@ namespace HexRPG.Battle.Enemy
             }
 
             _enemyHexList.Clear();
-            _enemyHexList.Add(landedHex);
+            if (enemyDestinationHexList.Contains(landedHex) == false) _enemyHexList.Add(landedHex);
             int radius = 1;
             while (true)
             {
@@ -471,9 +471,9 @@ namespace HexRPG.Battle.Enemy
                 var aroundEnemyHexList = _arroundHexList
                     .Where(hex =>
                         hex != targetHex
-                        && _navMeshAgentController.IsExistPath(hex.transform.position)
                         && hex.GetDistance2XZ(targetHex) + 0.1f < distance2FromTargetHex //! åªç›ÇÃLandedHexÇÊÇËtargetHexÇ…ãﬂÇ¢Hex(é~Ç‹Ç¡ÇƒÇ¢ÇÈèÛë‘Ç©ÇÁëSÇ≠ìØÇ∂ãóó£ÇÃhexÇ÷êiÇ‹Ç»Ç¢ÇÊÇ§Ç…)
-                        && enemyDestinationHexList.Contains(hex) == false);
+                        && enemyDestinationHexList.Contains(hex) == false
+                        && _navMeshAgentController.IsExistPath(hex.transform.position));
 
                 _enemyHexList.AddRange(aroundEnemyHexList);
 

@@ -80,7 +80,7 @@ namespace HexRPG.Battle.Player
         {
             var hitData = new HitData
             {
-                DamagedObject = _damagedOwner,
+                DamagedOwner = _damagedOwner,
                 Damage = damage ?? 0,
                 HitType = HitType.WEAK
             };

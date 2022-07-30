@@ -87,16 +87,18 @@ namespace HexRPG.Battle
             var hitData = new HitData
             {
                 AttackApplicator = attackApplicator,
-                DamagedObject = _damagedOwner,
+                DamagedOwner = _damagedOwner,
                 Damage = damage,
                 HitType = hitType
             };
 
-            // コールバック
+            //! ダメージ前
             _onHit.OnNext(hitData);
-            attackApplicator.NotifyAttackHit(hitData);
 
             _damagedOwner.Health.Update(-hitData.Damage);
+
+            //! ダメージ後(死んだか？)
+            attackApplicator.NotifyAttackHit(hitData);
         }
 
         void IDamageApplicable.OnHitTest(int damage)
@@ -146,7 +148,7 @@ namespace HexRPG.Battle
     public struct HitData
     {
         public IAttackApplicator AttackApplicator { get; set; }
-        public ICharacterComponentCollection DamagedObject { get; set; }
+        public ICharacterComponentCollection DamagedOwner { get; set; }
         public int Damage { get; set; }
         public HitType HitType { get; set; }
     }

@@ -21,8 +21,8 @@ namespace HexRPG.Battle
         [Header("Player Spawn ê›íË")]
         [SerializeField] StaticSpawnSetting _playerSpawnSetting;
 
+        [Header("ScriptableObject")]
         [SerializeField] BattleData _battleData;
-
         [SerializeField] DisplayDataContainer _displayDataContainer;
 
         [Header("Prefab")]

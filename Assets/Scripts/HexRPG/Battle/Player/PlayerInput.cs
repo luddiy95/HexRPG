@@ -31,6 +31,9 @@ namespace HexRPG.Battle.Player
         [Header("スキルキャンセルボタン")]
         [SerializeField] GameObject _btnSkillCancel;
 
+        [Header("アペンドスキルボタン")]
+        [SerializeField] GameObject _btnAppendSkill;
+
         [Header("メンバーリスト")]
         [SerializeField] Transform _memberList;
 
@@ -50,6 +53,9 @@ namespace HexRPG.Battle.Player
         readonly ISubject<Unit> _onSkillDecide = new Subject<Unit>();
         IObservable<Unit> ICharacterInput.OnSkillCancel => _onSkillCancel;
         readonly ISubject<Unit> _onSkillCancel = new Subject<Unit>();
+
+        IObservable<Unit> ICharacterInput.OnAppendSkill => _onAppendSkill;
+        readonly ISubject<Unit> _onAppendSkill = new Subject<Unit>();
 
         IObservable<int> ICharacterInput.SelectedMemberIndex => _selectedMemberIndex;
         readonly ISubject<int> _selectedMemberIndex = new Subject<int>();
@@ -71,6 +77,8 @@ namespace HexRPG.Battle.Player
             int selectedSkillIndex = -1;
             var isBtnSkillDecideClicked = false;
             var isBtnSkillCancelClicked = false;
+
+            var isBtnAppendSkillClicked = false;
 
             int selectedMemberIndex = -1;
 
@@ -101,6 +109,12 @@ namespace HexRPG.Battle.Player
                     {
                         _onSkillCancel.OnNext(Unit.Default);
                         isBtnSkillCancelClicked = false;
+                    }
+
+                    if (isBtnAppendSkillClicked)
+                    {
+                        _onAppendSkill.OnNext(Unit.Default);
+                        isBtnAppendSkillClicked = false;
                     }
 
                     if(selectedMemberIndex != -1)
@@ -152,6 +166,11 @@ namespace HexRPG.Battle.Player
                 isBtnSkillCancelClicked = true;
             }, gameObject);
 
+            _btnAppendSkill.OnClickListener(() =>
+            {
+                isBtnAppendSkillClicked = true;
+            }, gameObject);
+
             void SetMemberChangeBtnClickEvent(GameObject btn, int index)
             {
                 btn.OnClickListener(() =>
@@ -159,7 +178,6 @@ namespace HexRPG.Battle.Player
                     selectedMemberIndex = index;
                 }, gameObject);
             }
-
             var trigger = _memberList.gameObject.AddComponent<ObservableTransformChangedTrigger>();
             trigger.OnTransformChildrenChangedAsObservable()
                 .Subscribe(_ =>
@@ -172,8 +190,8 @@ namespace HexRPG.Battle.Player
 
         void UpdateDirection()
         {
-            _direction.SetValueAndForceNotify(new Vector3(_joystick.Horizontal, 0, _joystick.Vertical));
-            //_direction.SetValueAndForceNotify(new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")));
+            //_direction.SetValueAndForceNotify(new Vector3(_joystick.Horizontal, 0, _joystick.Vertical));
+            _direction.SetValueAndForceNotify(new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")));
         }
     }
 }

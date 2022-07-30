@@ -150,8 +150,7 @@ namespace HexRPG.Battle
             playerOwner.LiberateObservable.SuccessLiberateHexList
                 .Subscribe(_ =>
                 {
-                    _enemySurface.BuildNavMesh();
-                    _onUpdateNavMesh.OnNext(Unit.Default);
+                    UpdateEnemyNavMesh();
                 })
                 .AddTo(this);
 
@@ -180,8 +179,7 @@ namespace HexRPG.Battle
                         enemyOwner.LiberateObservable.SuccessLiberateHexList
                             .Subscribe(_ =>
                             {
-                                _enemySurface.BuildNavMesh();
-                                _onUpdateNavMesh.OnNext(Unit.Default);
+                                UpdateEnemyNavMesh();
                             })
                             .AddTo(enemyDisposables);
 
@@ -217,6 +215,15 @@ namespace HexRPG.Battle
 
                 tower.TowerController.Init();
                 _onTowerInit.OnNext(tower);
+
+                // TowerType‚ª•Ï‚í‚Á‚½‚çNavMesh‚ðÄBake
+                tower.TowerObservable.TowerType
+                    .Skip(1)
+                    .Subscribe(_ =>
+                    {
+                        UpdateEnemyNavMesh();
+                    })
+                    .AddTo(this);
             }
         }
 
@@ -244,6 +251,12 @@ namespace HexRPG.Battle
                 case GameResultType.WIN: Debug.Log("WIN"); break;
                 case GameResultType.LOSE: Debug.Log("LOSE"); break;
             }
+        }
+
+        void UpdateEnemyNavMesh()
+        {
+            _enemySurface.BuildNavMesh();
+            _onUpdateNavMesh.OnNext(Unit.Default);
         }
     }
 }

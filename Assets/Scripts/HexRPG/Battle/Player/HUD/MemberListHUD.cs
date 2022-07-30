@@ -38,7 +38,7 @@ namespace HexRPG.Battle.Player.HUD
                 memberList.ForEach(member =>
                 {
                     var clone = _memberStatusFactory.Create();
-                    clone.transform.SetParent(_memberListRoot);
+                    clone.transform.SetParent(_memberListRoot, false);
                     var hud = clone.GetComponent<IMemberHUD>();
                     _memberList.Add(hud);
                     hud.Bind(member);

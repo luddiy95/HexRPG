@@ -10,6 +10,7 @@ namespace HexRPG.Battle.Player
         IMemberObservable MemberObservable { get; }
         ICharacterActionStateController CharacterActionStateController { get; }
         ISelectSkillObservable SelectSkillObservable { get; }
+        IAppendSkillObservable AppendSkillObservable { get; }
 
         //TODO: Decorator—p
         IActionStateObservable ActionStateObservable { get; }
@@ -31,6 +32,7 @@ namespace HexRPG.Battle.Player
         [Inject] IMemberObservable IPlayerComponentCollection.MemberObservable { get; }
         [Inject] ICharacterActionStateController IPlayerComponentCollection.CharacterActionStateController { get; }
         [Inject] ISelectSkillObservable IPlayerComponentCollection.SelectSkillObservable { get; }
+        [Inject] IAppendSkillObservable IPlayerComponentCollection.AppendSkillObservable { get; }
 
         //TODO: Decorator—p
         [Inject] IActionStateObservable IPlayerComponentCollection.ActionStateObservable { get; }

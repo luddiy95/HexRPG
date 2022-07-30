@@ -39,8 +39,12 @@ namespace HexRPG.Battle.Skill
         IObservable<Unit> ISkillObservable.OnFinishReservation => _onFinishReservation;
         readonly ISubject<Unit> _onFinishReservation = new Subject<Unit>();
 
-        IObservable<IEnumerable<Hex>> ISkillObservable.OnSkillAttack => _onSkillAttack;
-        readonly ISubject<IEnumerable<Hex>> _onSkillAttack = new Subject<IEnumerable<Hex>>();
+        IObservable<IEnumerable<Hex>> ISkillObservable.OnAttackEnable => _onAttackEnable;
+        readonly ISubject<IEnumerable<Hex>> _onAttackEnable = new Subject<IEnumerable<Hex>>();
+        IObservable<HitData> ISkillObservable.OnAttackHit => _onAttackHit;
+        readonly ISubject<HitData> _onAttackHit = new Subject<HitData>();
+        IObservable<IEnumerable<Hex>> ISkillObservable.OnAttackDisable => _onAttackDisable;
+        readonly ISubject<IEnumerable<Hex>> _onAttackDisable = new Subject<IEnumerable<Hex>>();
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
@@ -216,16 +220,22 @@ namespace HexRPG.Battle.Skill
             };
             _attackOwner.AttackController.StartAttack(attackSetting);
 
+            _onAttackEnable.OnNext(_curAttackRange);
+
             _attackHitDisposable?.Dispose();
             _attackHitDisposable = _attackOwner.AttackObservable.OnAttackHit
-                .Subscribe(_ => RemoveUnverifiedEffect(attackEffectTrack));
+                .Subscribe(hitData =>
+                {
+                    _onAttackHit.OnNext(hitData);
+                    RemoveUnverifiedEffect(attackEffectTrack);
+                });
         }
 
         protected virtual void OnAttackDisable(string attackEffectTrack)
         {
             FinishAttack();
 
-            _onSkillAttack.OnNext(_curAttackRange); // 着弾したタイミングでLiberate検証
+            _onAttackDisable.OnNext(_curAttackRange); // 着弾したタイミングでLiberate検証
             RemoveUnverifiedEffect(attackEffectTrack);
         }
 

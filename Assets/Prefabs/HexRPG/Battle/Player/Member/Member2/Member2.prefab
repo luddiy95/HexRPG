@@ -117,7 +117,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8720306215907586367, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _skills.Array.data[1]._cost
-      value: 50
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 8720306215907586367, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _skills.Array.data[0]._prefab

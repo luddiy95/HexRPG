@@ -35,19 +35,25 @@ MonoBehaviour:
       m_value: {fileID: 2100000, guid: 505551ad7e4e62b40bc6c10eb5c91c1c, type: 2}
   scoreInfoMap:
   - type: 0
-    score: 10
+    score: 5
     message: "Liberate\u6210\u529F!"
   - type: 1
-    score: 30
+    score: 20
     message: "\u8907\u6570Enemy\u540C\u6642\u6483\u7834"
   - type: 2
-    score: 20
+    score: 15
     message: WEAK!!
   - type: 3
-    score: 20
+    score: 10
     message: CRITICAL!!
   initScore: 20
   scoreMax: 200
+  appendSkillIconMap:
+    m_list:
+    - m_key: 0
+      m_value: {fileID: 21300000, guid: 9ab866635d6b932468a87291765ae877, type: 3}
+    - m_key: 1
+      m_value: {fileID: 21300000, guid: 9ab866635d6b932468a87291765ae877, type: 3}
   damagedDisplayMatMap:
     m_list:
     - m_key: 0
@@ -58,8 +64,8 @@ MonoBehaviour:
       m_value: {fileID: 2100000, guid: 6a8cadda010d1e74989cef5fc6e59d29, type: 2}
     - m_key: 3
       m_value: {fileID: 2100000, guid: 9e99eb2515b36a148946bbcc4a9295b6, type: 2}
-  skillBackgroundDefaultSprite: {fileID: 21300000, guid: ae4dd3a93e774244ba170cbc210ea311, type: 3}
-  skillBackgroundSelectedSprite: {fileID: 21300000, guid: 9e9c5ff20c2a4d24082a692dbea18468, type: 3}
+  skillBackgroundDefaultSprite: {fileID: 21300000, guid: 6e43ad0cffcfb4d4695f233cf7409f7a, type: 3}
+  skillBackgroundSelectedSprite: {fileID: 21300000, guid: 8be486c2eafccfc4f907192aa4258ec6, type: 3}
   hexPlayerLineMat: {fileID: 2100000, guid: 7d366ef89ee835a42a3892a6eb558dd0, type: 2}
   hexFixedPlayerLineMat: {fileID: 2100000, guid: a814de75f8d854d42bd3a2df68c73352, type: 2}
   hexEnemyLineMat: {fileID: 2100000, guid: c6b438ef834b55f4b8285716d59a2cd7, type: 2}

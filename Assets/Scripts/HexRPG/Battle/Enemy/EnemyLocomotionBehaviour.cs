@@ -85,8 +85,8 @@ namespace HexRPG.Battle.Enemy
         void INavMeshAgentController.SetDestination(Hex destination)
         {
             _curDestination.Value = destination;
-            if (destination == null) return;
-            NavMeshAgent.SetDestination(destination.transform.position);
+            if (destination == null) NavMeshAgent.ResetPath();
+            else NavMeshAgent.SetDestination(destination.transform.position);
         }
     }
 }

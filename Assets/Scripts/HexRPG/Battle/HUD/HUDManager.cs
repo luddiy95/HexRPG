@@ -15,6 +15,9 @@ namespace HexRPG.Battle.HUD
         [Header("MemberのHUD実装オブジェクト")]
         [SerializeField] GameObject _memberListHUD;
 
+        [Header("AppendSkillのHUD実装オブジェクト")]
+        [SerializeField] GameObject _appendSkillHUD;
+
         [Header("TowerStatusHUDのRoot")]
         [SerializeField] Transform _towerStatusRoot;
 
@@ -41,9 +44,10 @@ namespace HexRPG.Battle.HUD
             // MemberList
             _battleObservable.OnPlayerSpawn
                 .Skip(1)
+                .First()
                 .Subscribe(playerOwner => {
-                    var playerHUD = _memberListHUD.GetComponents<ICharacterHUD>();
-                    Array.ForEach(playerHUD, hud => hud.Bind(playerOwner));
+                    var huds = _memberListHUD.GetComponents<ICharacterHUD>();
+                    foreach (var hud in huds) hud.Bind(playerOwner);
                 })
                 .AddTo(this);
 
@@ -63,7 +67,7 @@ namespace HexRPG.Battle.HUD
                         .AddTo(this);
 
                     var huds = enemyStatusHUD.GetComponents<ICharacterHUD>();
-                    Array.ForEach(huds, hud => hud.Bind(enemyOwner));
+                    foreach (var hud in huds) hud.Bind(enemyOwner);
                 })
                 .AddTo(this);
 
@@ -82,6 +86,7 @@ namespace HexRPG.Battle.HUD
             }
             _battleObservable.OnPlayerSpawn
                 .Skip(1)
+                .First()
                 .Subscribe(playerOwner =>
                 {
                     SpawnDamagedPanel(playerOwner);
@@ -91,15 +96,26 @@ namespace HexRPG.Battle.HUD
                 .Subscribe(enemyOwner => SpawnDamagedPanel(enemyOwner))
                 .AddTo(this);
 
+            // AppendSkill
+            _battleObservable.OnPlayerSpawn
+                .Skip(1)
+                .First()
+                .Subscribe(playerOwner =>
+                {
+                    var huds = _appendSkillHUD.GetComponents<ICharacterHUD>();
+                    foreach (var hud in huds) hud.Bind(playerOwner);
+                })
+                .AddTo(this);
+
             // Tower
             _battleObservable.OnTowerInit
                 .Subscribe(towerOwner =>
                 {
                     var towerStatusHUD = _towerStatusFactory.Create();
-                    towerStatusHUD.transform.SetParent(_towerStatusRoot);
+                    towerStatusHUD.transform.SetParent(_towerStatusRoot, false);
 
                     var huds = towerStatusHUD.GetComponents<ICharacterHUD>();
-                    Array.ForEach(huds, hud => hud.Bind(towerOwner));
+                    foreach (var hud in huds) hud.Bind(towerOwner);
                 })
                 .AddTo(this);
         }

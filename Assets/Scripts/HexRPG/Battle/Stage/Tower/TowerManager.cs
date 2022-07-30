@@ -67,9 +67,6 @@ namespace HexRPG.Battle.Stage.Tower
                     foreach (var fixedHex in _fixedHexList) fixedHex.UpdateFixedHexStatus(isTowerTypePlayer);
 
                     _health.Init();
-
-                    //TODO: FixedHexList内にEnemyがいたら全員殺す
-                    //TODO: TowerType==PLAYERからENEMYになったら？ -> Towerの周囲(Playerがいた場合はPlayerLandedHex以外)をEnemyHexにしてSpawn再開
                 })
                 .AddTo(this);
 

@@ -79,7 +79,7 @@ namespace HexRPG.Battle.Stage.Tower
         {
             var hitData = new HitData
             {
-                DamagedObject = _damagedOwner,
+                DamagedOwner = _damagedOwner,
                 Damage = damage ?? 0,
                 HitType = HitType.NORMAL // Tower‚Í–³‘®«
             };

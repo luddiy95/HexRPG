@@ -17,6 +17,8 @@ namespace HexRPG.Battle
         IObservable<Unit> OnSkillDecide { get; }
         IObservable<Unit> OnSkillCancel { get; }
 
+        IObservable<Unit> OnAppendSkill { get; }
+
         IObservable<int> SelectedMemberIndex { get; }
     }
 }

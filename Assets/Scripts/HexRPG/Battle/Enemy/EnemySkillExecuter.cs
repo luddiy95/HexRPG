@@ -29,7 +29,9 @@ namespace HexRPG.Battle.Enemy
 
         IObservable<Unit> ISkillObservable.OnStartReservation => null;
         IObservable<Unit> ISkillObservable.OnFinishReservation => null;
-        IObservable<IEnumerable<Hex>> ISkillObservable.OnSkillAttack => null;
+        IObservable<IEnumerable<Hex>> ISkillObservable.OnAttackEnable => null;
+        IObservable<HitData> ISkillObservable.OnAttackHit => null;
+        IObservable<IEnumerable<Hex>> ISkillObservable.OnAttackDisable => null;
 
         IObservable<Unit> ISkillObservable.OnFinishSkill => _onFinishSkill;
         readonly ISubject<Unit> _onFinishSkill = new Subject<Unit>();
@@ -111,7 +113,7 @@ namespace HexRPG.Battle.Enemy
                 .Subscribe(_ => _attackReserve.FinishAttackReservation())
                 .AddTo(_disposables);
 
-            skillObservable.OnSkillAttack
+            skillObservable.OnAttackDisable
                 .Subscribe(attackRange =>
                 {
                     var isExistPlayerInAttackRange = attackRange.Contains(_battleObservable.PlayerLandedHex); //TODO: Player‚ª¶‚«‚Ä‚¢‚é‚©
