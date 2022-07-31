@@ -2,7 +2,9 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 using UniRx;
 using UniRx.Triggers;
 using Zenject;
@@ -17,15 +19,16 @@ namespace HexRPG.Battle
     using Stage;
     using Stage.Tower;
 
+    public enum GameResultType
+    {
+        NONE,
+        WIN,
+        LOSE
+    }
+
     public class BattleManager : MonoBehaviour, IBattleObservable
     {
-        enum GameResultType
-        {
-            NONE,
-            WIN,
-            LOSE
-        }
-
+        BattleData _battleData;
         IUpdater _updater;
         IUpdateObservable _updateObservable;
         PlayerOwner.Factory _playerFactory;
@@ -61,31 +64,43 @@ namespace HexRPG.Battle
         IObservable<Unit> IBattleObservable.OnUpdateNavMesh => _onUpdateNavMesh;
         readonly ISubject<Unit> _onUpdateNavMesh = new Subject<Unit>();
 
-        CinemachineBrain IBattleObservable.CinemachineBrain => _cinemachineBrain;
+        [Header("キャンパス")]
+        [SerializeField] GameObject _HUD;
+        [SerializeField] GameObject _UI;
+        [SerializeField] GameObject _sequenceUI;
+
+        [Header("Sequence")]
+        [SerializeField] GameObject _btnStart;
+        [SerializeField] Text _resultText;
+
+        [Header("カメラ")]
         [SerializeField] CinemachineBrain _cinemachineBrain;
-
-        CinemachineVirtualCamera IBattleObservable.MainVirtualCamera => _mainVirtualCamera;
         [SerializeField] CinemachineVirtualCamera _mainVirtualCamera;
+        [SerializeField] CinemachineTargetGroup _targetGroup;
 
+        CinemachineBrain IBattleObservable.CinemachineBrain => _cinemachineBrain;
+        CinemachineVirtualCamera IBattleObservable.MainVirtualCamera => _mainVirtualCamera;
         CinemachineOrbitalTransposer IBattleObservable.CameraTransposer => _cameraTransposer;
         CinemachineOrbitalTransposer _cameraTransposer;
 
-        [SerializeField] CinemachineTargetGroup _targetGroup;
-
+        [Header("PlayerRoot")]
         [SerializeField] Transform _playerRoot;
 
+        [Header("EnemyのNavMeshSurface")]
         [SerializeField] NavMeshSurface _enemySurface;
 
         GameResultType _resultType = GameResultType.NONE;
 
         [Inject]
         public void Construct(
+            BattleData battleData,
             IUpdater updater,
             IUpdateObservable updateObservable,
             PlayerOwner.Factory playerFactory,
             IPlayerSpawnSetting playerSpawnSetting
         )
         {
+            _battleData = battleData;
             _updater = updater;
             _updateObservable = updateObservable;
             _playerFactory = playerFactory;
@@ -96,6 +111,18 @@ namespace HexRPG.Battle
         {
             _cameraTransposer = _mainVirtualCamera.GetCinemachineComponent<CinemachineOrbitalTransposer>();
 
+            _HUD.SetActive(false);
+            _UI.SetActive(false);
+            _sequenceUI.SetActive(true);
+            _btnStart.SetActive(true);
+            _resultText.gameObject.SetActive(false);
+        }
+
+        public void StartGame()
+        {
+            _HUD.SetActive(true);
+            _UI.SetActive(true);
+            _sequenceUI.SetActive(false);
             PlayGameSequence(this.GetCancellationTokenOnDestroy()).Forget();
         }
 
@@ -105,7 +132,7 @@ namespace HexRPG.Battle
 
             await PlayEndSequence(token);
 
-            PlayResultSequence().Forget();
+            PlayResultSequence(token).Forget();
 
             return;
         }
@@ -121,7 +148,7 @@ namespace HexRPG.Battle
             SetupTowers(token);
 
             _onBattleStart.OnNext(Unit.Default);
-            
+
             this.UpdateAsObservable() // 更新処理開始
                 .Subscribe(_ => _updater.FireUpdateStreams())
                 .AddTo(this);
@@ -161,7 +188,7 @@ namespace HexRPG.Battle
         {
             GetComponentsInChildren(_towerList); // NonAlloc
 
-            foreach(var tower in _towerList)
+            foreach (var tower in _towerList)
             {
                 var enemySpawnObservable = tower.EnemySpawnObservable;
                 enemySpawnObservable.EnemyList.ObserveAdd()
@@ -227,7 +254,6 @@ namespace HexRPG.Battle
             }
         }
 
-        //TODO: FinishRule実装
         async UniTask PlayEndSequence(CancellationToken token)
         {
             _onPlayerSpawn.Value.DieObservable.OnFinishDie
@@ -236,7 +262,8 @@ namespace HexRPG.Battle
                 .AddTo(this);
 
             await UniTask.WaitUntil(
-                () => _resultType == GameResultType.LOSE || _towerList.All(tower => tower.TowerObservable.TowerType.Value == TowerType.PLAYER),
+                () => _resultType == GameResultType.LOSE ||
+                _towerList.All(tower => tower.EnemySpawnObservable.EnemyList.Count() == 0 && tower.TowerObservable.TowerType.Value == TowerType.PLAYER),
                 cancellationToken: token);
 
             if (_resultType == GameResultType.NONE) _resultType = GameResultType.WIN;
@@ -244,13 +271,24 @@ namespace HexRPG.Battle
             return;
         }
 
-        async UniTask PlayResultSequence()
+        async UniTask PlayResultSequence(CancellationToken token)
         {
+            await UniTask.Delay(2000, cancellationToken: token);
+
+            //TODO: 結果表示
+            _sequenceUI.SetActive(true);
+            _btnStart.SetActive(false);
+            _resultText.gameObject.SetActive(true);
             switch (_resultType)
             {
-                case GameResultType.WIN: Debug.Log("WIN"); break;
-                case GameResultType.LOSE: Debug.Log("LOSE"); break;
+                case GameResultType.WIN: _resultText.text = "WIN!!"; break;
+                case GameResultType.LOSE: _resultText.text = "LOSE..."; break;
             }
+
+            await UniTask.Delay(2000, cancellationToken: token);
+
+            _battleData.result = _resultType;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         void UpdateEnemyNavMesh()

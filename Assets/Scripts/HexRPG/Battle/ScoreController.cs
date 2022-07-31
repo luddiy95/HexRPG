@@ -80,7 +80,6 @@ namespace HexRPG.Battle
                 {
                     // Liberate¬Œ÷
                     playerOwner.LiberateObservable.SuccessLiberateHexList
-                        .Where(hexList => hexList.Length > 0)
                         .Subscribe(hexList => AcquireScore(ScoreType.LIBERATE, hexList.Length))
                         .AddTo(_disposables);
 

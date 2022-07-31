@@ -2,14 +2,14 @@
     "name": "HexRPG",
     "rootNamespace": "",
     "references": [
-        "GUID:560b04d1a97f54a4e82edc0cbbb69285",
         "GUID:f51ebe6a0ceec4240a699833d6309b23",
         "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
         "GUID:4307f53044263cf4b835bd812fc161a4",
         "GUID:f06555f75b070af458a003d92f9efb00",
         "GUID:6055be8ebefd69e48b49212b09b47b2f",
         "GUID:cc48eddc26947844eb4acae49aac56f7",
-        "GUID:8c4dd21966739024fbd72155091d199e"
+        "GUID:8c4dd21966739024fbd72155091d199e",
+        "GUID:560b04d1a97f54a4e82edc0cbbb69285"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

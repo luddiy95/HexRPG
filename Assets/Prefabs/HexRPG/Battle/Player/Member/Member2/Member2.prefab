@@ -41,7 +41,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5510782246767885481, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: _skillPointMax
-      value: 50
+      value: 500000
       objectReference: {fileID: 0}
     - target: {fileID: 5559041374435087740, guid: 04c93618ad7ffaa459842cb40eb92b58, type: 3}
       propertyPath: m_RootOrder

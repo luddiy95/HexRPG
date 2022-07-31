@@ -42,8 +42,8 @@ namespace HexRPG.Battle
 
         void ILiberateController.Liberate(IEnumerable<Hex> hexList)
         {
-            var liberateHexList = hexList.Where(hex => hex.Liberate(_isPlayer));
-            if (liberateHexList.Count() > 0) _successLiberateHexList.OnNext(liberateHexList.ToArray());
+            var liberateHexList = hexList.Where(hex => hex.Liberate(_isPlayer)).ToArray();
+            if (liberateHexList.Length > 0) _successLiberateHexList.OnNext(liberateHexList);
         }
     }
 }

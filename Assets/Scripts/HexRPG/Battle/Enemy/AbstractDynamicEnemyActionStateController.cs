@@ -439,7 +439,7 @@ namespace HexRPG.Battle.Enemy
             var surroundedEnemyHexList = _surroundedHexList
                 .Where(hex =>
                         hex != targetHex
-                        && hex.GetDistance2XZ(targetHex) + 0.1f < distance2FromTargetHex //! Œ»Ý‚ÌLandedHex‚æ‚èTargetHex‚É‹ß‚¢Hex(Ž~‚Ü‚Á‚Ä‚¢‚éó‘Ô‚©‚ç‘S‚­“¯‚¶‹——£‚Ìhex‚Öi‚Ü‚È‚¢‚æ‚¤‚É)
+                        //&& hex.GetDistance2XZ(targetHex) + 0.1f < distance2FromTargetHex //! Œ»Ý‚ÌLandedHex‚æ‚èTargetHex‚É‹ß‚¢Hex(Ž~‚Ü‚Á‚Ä‚¢‚éó‘Ô‚©‚ç‘S‚­“¯‚¶‹——£‚Ìhex‚Öi‚Ü‚È‚¢‚æ‚¤‚É)
                         && enemyDestinationHexList.Contains(hex) == false
                         && _navMeshAgentController.IsExistPath(hex.transform.position));
             _enemyHexList.AddRange(surroundedEnemyHexList);
@@ -471,7 +471,7 @@ namespace HexRPG.Battle.Enemy
                 var aroundEnemyHexList = _arroundHexList
                     .Where(hex =>
                         hex != targetHex
-                        && hex.GetDistance2XZ(targetHex) + 0.1f < distance2FromTargetHex //! Œ»Ý‚ÌLandedHex‚æ‚ètargetHex‚É‹ß‚¢Hex(Ž~‚Ü‚Á‚Ä‚¢‚éó‘Ô‚©‚ç‘S‚­“¯‚¶‹——£‚Ìhex‚Öi‚Ü‚È‚¢‚æ‚¤‚É)
+                        //&& hex.GetDistance2XZ(targetHex) + 0.1f < distance2FromTargetHex //! Œ»Ý‚ÌLandedHex‚æ‚ètargetHex‚É‹ß‚¢Hex(Ž~‚Ü‚Á‚Ä‚¢‚éó‘Ô‚©‚ç‘S‚­“¯‚¶‹——£‚Ìhex‚Öi‚Ü‚È‚¢‚æ‚¤‚É)
                         && enemyDestinationHexList.Contains(hex) == false
                         && _navMeshAgentController.IsExistPath(hex.transform.position));
 

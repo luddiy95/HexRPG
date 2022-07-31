@@ -10,6 +10,8 @@ namespace HexRPG.Battle
     [CreateAssetMenu(fileName = "BattleData", menuName = "ScriptableObjects/BattleData")]
     public class BattleData : ScriptableObject
     {
+        public GameResultType result;
+
         // Camera
         public int cameraRotateUnit;
 
