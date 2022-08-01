@@ -107,6 +107,11 @@ namespace HexRPG.Battle
             _playerSpawnSetting = playerSpawnSetting;
         }
 
+        void Awake()
+        {
+            Application.targetFrameRate = 30;
+        }
+
         void Start()
         {
             _cameraTransposer = _mainVirtualCamera.GetCinemachineComponent<CinemachineOrbitalTransposer>();
