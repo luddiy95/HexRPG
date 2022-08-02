@@ -106,7 +106,7 @@ NavMeshSettings:
   m_BuildSettings:
     serializedVersion: 2
     agentTypeID: 0
-    agentRadius: 0.5
+    agentRadius: 0.05
     agentHeight: 2
     agentSlope: 45
     agentClimb: 0.4
@@ -114,7 +114,7 @@ NavMeshSettings:
     maxJumpAcrossDistance: 0
     minRegionArea: 2
     manualCellSize: 0
-    cellSize: 0.16666667
+    cellSize: 0.016666668
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
@@ -32846,7 +32846,7 @@ MonoBehaviour:
   m_IgnoreNavMeshAgent: 1
   m_IgnoreNavMeshObstacle: 1
   m_OverrideTileSize: 1
-  m_TileSize: 256
+  m_TileSize: 64
   m_OverrideVoxelSize: 1
   m_VoxelSize: 0.05
   m_BuildHeightMesh: 0
@@ -36178,16 +36178,16 @@ MonoBehaviour:
   - _prefab: {fileID: 6462630326340586861, guid: 90e4f3838f4abda428566aacfe682ed1, type: 3}
     _spawnHex: {fileID: 1044139174}
   _dynamicEnemySpawnSettings:
-  - _prefab: {fileID: 3687029209369040040, guid: 2a0651961c15a9b4180495b9b6a78542, type: 3}
-    _maxCount: 1
-    _firstSpawnCount: 1
-    _firstSpawnInterval: 3000
-    _spawnInterval: 8000
   - _prefab: {fileID: 2234952170314847877, guid: 409b142d3a41de542bbcd3ee26ac0ec3, type: 3}
     _maxCount: 4
     _firstSpawnCount: 3
     _firstSpawnInterval: 1000
     _spawnInterval: 6000
+  - _prefab: {fileID: 3687029209369040040, guid: 2a0651961c15a9b4180495b9b6a78542, type: 3}
+    _maxCount: 1
+    _firstSpawnCount: 1
+    _firstSpawnInterval: 3000
+    _spawnInterval: 8000
   _enemySpawnRoot: {fileID: 1474362757}
 --- !u!114 &1701108851205070382
 MonoBehaviour:
