@@ -160,6 +160,7 @@ namespace HexRPG.Battle.Player
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventMove(0f))
                 .AddEvent(new ActionEventCancel("stop", IDLE))
+                .AddEvent(new ActionEventCancel("move", MOVE, passEndNotification: true))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
                 .AddEvent(new ActionEventCancel("combat", COMBAT))
                 .AddEvent(new ActionEventCancel("skillSelect", SKILL_SELECT))

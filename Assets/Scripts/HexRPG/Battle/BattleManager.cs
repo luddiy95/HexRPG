@@ -67,12 +67,13 @@ namespace HexRPG.Battle
         readonly ISubject<Unit> _onCompleteUpdateNavMesh = new Subject<Unit>();
 
         [Header("キャンパス")]
-        [SerializeField] GameObject _HUD;
-        [SerializeField] GameObject _UI;
-        [SerializeField] GameObject _sequenceUI;
+        [SerializeField] Canvas _HUD;
+        [SerializeField] Canvas _UI;
+        [SerializeField] Canvas _sequenceUI;
 
         [Header("Sequence")]
         [SerializeField] GameObject _btnStart;
+        [SerializeField] GameObject _loadingText;
         [SerializeField] Text _resultText;
 
         [Header("カメラ")]
@@ -118,18 +119,12 @@ namespace HexRPG.Battle
         {
             _cameraTransposer = _mainVirtualCamera.GetCinemachineComponent<CinemachineOrbitalTransposer>();
 
-            _HUD.SetActive(false);
-            _UI.SetActive(false);
-            _sequenceUI.SetActive(true);
-            _btnStart.SetActive(true);
-            _resultText.gameObject.SetActive(false);
+            ShowStartButton();
         }
 
         public void StartGame()
         {
-            _HUD.SetActive(true);
-            _UI.SetActive(true);
-            _sequenceUI.SetActive(false);
+            ShowStartLoading();
             PlayGameSequence(this.GetCancellationTokenOnDestroy()).Forget();
         }
 
@@ -149,10 +144,15 @@ namespace HexRPG.Battle
             await UniTask.Yield(token); // HUD, UIの初期化処理が終わってから(OnPlayerSpawnは良いがEnemyは複数いるためOnEnemySpawnがHUD, UIの初期化前に発行されたら意味がない)
 
             _enemySurface.BuildNavMesh();
+            var asyncOperation = _enemySurface.UpdateNavMesh(_enemySurface.navMeshData);
 
             await SpawnPlayer(token);
 
             SetupTowers(token);
+
+            await UniTask.WaitUntil(() => asyncOperation.isDone, cancellationToken: token);
+
+            ShowGame();
 
             _onBattleStart.OnNext(Unit.Default);
 
@@ -285,14 +285,7 @@ namespace HexRPG.Battle
         {
             await UniTask.Delay(2000, cancellationToken: token);
 
-            _sequenceUI.SetActive(true);
-            _btnStart.SetActive(false);
-            _resultText.gameObject.SetActive(true);
-            switch (_resultType)
-            {
-                case GameResultType.WIN: _resultText.text = "WIN!!"; break;
-                case GameResultType.LOSE: _resultText.text = "LOSE..."; break;
-            }
+            ShowResult();
 
             await UniTask.Delay(2000, cancellationToken: token);
 
@@ -307,5 +300,46 @@ namespace HexRPG.Battle
             await UniTask.WaitUntil(() => asyncOperation.isDone, cancellationToken: token);
             _onCompleteUpdateNavMesh.OnNext(Unit.Default);
         }
+
+        #region View
+
+        void ShowStartButton()
+        {
+            _HUD.enabled = false;
+            _UI.enabled = false;
+
+            _sequenceUI.enabled = true;
+            _btnStart.SetActive(true);
+            _loadingText.SetActive(false);
+            _resultText.gameObject.SetActive(false);
+        }
+
+        void ShowStartLoading()
+        {
+            _btnStart.SetActive(false);
+            _loadingText.SetActive(true);
+        }
+
+        void ShowGame()
+        {
+            _HUD.enabled = true;
+            _UI.enabled = true;
+            _sequenceUI.enabled = false;
+        }
+
+        void ShowResult()
+        {
+            _sequenceUI.enabled = true;
+            _btnStart.SetActive(false);
+            _loadingText.SetActive(false);
+            _resultText.gameObject.SetActive(true);
+            switch (_resultType)
+            {
+                case GameResultType.WIN: _resultText.text = "WIN!!"; break;
+                case GameResultType.LOSE: _resultText.text = "LOSE..."; break;
+            }
+        }
+
+        #endregion
     }
 }
