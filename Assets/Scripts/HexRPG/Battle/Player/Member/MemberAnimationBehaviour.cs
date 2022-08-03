@@ -85,7 +85,7 @@ namespace HexRPG.Battle.Player.Member
             //! _nextPlayingIndexへ遷移中、_nextPlayingIndexで割り込みしない
             if (nextClip == playClip) return;
 
-            // Idle, Locomotion -> Idle, Locomotion遷移中は「Idle, Combat, Skill」割り込み可能
+            // Idle -> Locomotion, Locomotion -> Idle, Locomotion -> Locomotion 遷移中は「Idle, Combat, Skill」割り込み可能
             var isCrossFadeBtwLocomotion =
                 (curAnimationType == AnimationType.Idle || curAnimationType == AnimationType.Move) &&
                     (nextAnimationType == AnimationType.Idle || nextAnimationType == AnimationType.Move);
@@ -121,6 +121,22 @@ namespace HexRPG.Battle.Player.Member
                 }
 
                 if (GetAnimationType(playClip) == AnimationType.Idle)
+                {
+                    // 割り込み
+                    TokenCancel(); // Tokenキャンセルしたらawait後続処理は全て呼ばれない
+                    if (_nextPlayingIndex >= 0) fixedRate = rate;
+
+                    _cts = new CancellationTokenSource();
+                    InternalAnimationTransit(playClip, GetFadeLength(curClip, playClip), _cts.Token).Forget(); // 待ち合わせる必要なし
+                    return;
+                }
+            }
+
+            // Locomotion -> Idle 遷移中はLocomotion割り込み可能 (Locomotion -> LocomotionにLocomotion割り込みは不可能)
+            var isCrossFadeBtwLocomotionIdle = (curAnimationType == AnimationType.Move && nextAnimationType == AnimationType.Idle);
+            if (isCrossFadeBtwLocomotionIdle)
+            {
+                if (GetAnimationType(playClip) == AnimationType.Move)
                 {
                     // 割り込み
                     TokenCancel(); // Tokenキャンセルしたらawait後続処理は全て呼ばれない

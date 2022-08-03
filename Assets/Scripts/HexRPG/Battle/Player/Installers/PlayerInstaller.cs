@@ -34,7 +34,6 @@ namespace HexRPG.Battle.Player
 
             Container.BindInterfacesTo<PlayerDamagedApplicable>().AsSingle();
 
-            Container.BindInterfacesTo<PlayerActionStateController>().AsSingle();
             Container.BindInterfacesTo<ActionStateController>().AsSingle();
 
             Container.BindInterfacesTo<PlayerDieObservable>().AsSingle();

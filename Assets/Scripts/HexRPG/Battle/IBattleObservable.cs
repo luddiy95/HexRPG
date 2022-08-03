@@ -25,7 +25,8 @@ namespace HexRPG.Battle
         IObservable<ITowerComponentCollection> OnTowerInit { get; }
         List<ITowerComponentCollection> TowerList { get; }
 
-        IObservable<Unit> OnUpdateNavMesh { get; }
+        IObservable<Hex[]> OnReduceEnemyNavMesh { get; }
+        IObservable<Unit> OnCompleteUpdateNavMesh { get; }
 
         CinemachineBrain CinemachineBrain { get; }
         CinemachineVirtualCamera MainVirtualCamera { get; }

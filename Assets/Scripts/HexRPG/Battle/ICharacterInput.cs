@@ -6,7 +6,7 @@ namespace HexRPG.Battle
 {
     public interface ICharacterInput
     {
-        IReadOnlyReactiveProperty<Vector3> Direction { get; }
+        Vector3 Direction { get; }
 
         IObservable<int> CameraRotateDir { get; }
 

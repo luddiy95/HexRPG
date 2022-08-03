@@ -13,7 +13,6 @@ namespace HexRPG.Battle.Enemy
         IAttackComponentCollection _attackOwner;
         List<CombatOwner.Factory> _combatFactories;
         ICombatEquipment _combatEquipment;
-        ILocomotionController _locomotionController;
 
         IObservable<Unit> ICombatObservable.OnFinishCombat => _onFinishCombat;
         readonly ISubject<Unit> _onFinishCombat = new Subject<Unit>();
@@ -29,14 +28,12 @@ namespace HexRPG.Battle.Enemy
         public EnemyCombatExecuter(
             IAttackComponentCollection attackOwner,
             List<CombatOwner.Factory> combatFactories,
-            ICombatEquipment combatEquipment,
-            ILocomotionController locomotionController
+            ICombatEquipment combatEquipment
         )
         {
             _attackOwner = attackOwner;
             _combatFactories = combatFactories;
             _combatEquipment = combatEquipment;
-            _locomotionController = locomotionController;
         }
 
         void IInitializable.Initialize()
@@ -65,7 +62,6 @@ namespace HexRPG.Battle.Enemy
             _combat.CombatObservable.OnFinishCombat
                 .Subscribe(_ =>
                 {
-                    _locomotionController.Stop();
                     _disposables.Clear();
 
                     _onFinishCombat.OnNext(Unit.Default);

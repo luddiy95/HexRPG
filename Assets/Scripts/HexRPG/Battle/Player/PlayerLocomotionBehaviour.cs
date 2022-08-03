@@ -9,6 +9,8 @@ namespace HexRPG.Battle.Player
         IBattleObservable _battleObservable;
         IMemberObservable _memberObservable;
 
+        float _colliderRadius;
+
         [Inject]
         public void Construct(
             IBattleObservable battleObservable,

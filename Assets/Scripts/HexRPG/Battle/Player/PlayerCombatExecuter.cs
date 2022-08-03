@@ -7,7 +7,6 @@ namespace HexRPG.Battle.Player
 
     public class PlayerCombatExecuter : ICombatController, ICombatObservable, IDisposable
     {
-        ILocomotionController _locomotionController;
         IMemberObservable _memberObservable;
 
         IObservable<Unit> ICombatObservable.OnFinishCombat => _onFinishCombat;
@@ -18,11 +17,9 @@ namespace HexRPG.Battle.Player
         CompositeDisposable _disposables = new CompositeDisposable();
 
         public PlayerCombatExecuter(
-            ILocomotionController locomotionController,
             IMemberObservable memberObservable
         )
         {
-            _locomotionController = locomotionController;
             _memberObservable = memberObservable;
         }
 
@@ -43,7 +40,6 @@ namespace HexRPG.Battle.Player
                 _runningCombat.CombatObservable.OnFinishCombat
                     .Subscribe(_ =>
                     {
-                        _locomotionController.Stop();
                         _runningCombat = null;
 
                         _onFinishCombat.OnNext(Unit.Default);

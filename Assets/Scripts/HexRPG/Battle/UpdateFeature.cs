@@ -16,8 +16,6 @@ namespace HexRPG.Battle
 
         ACTION_TRANSITION,
 
-        SP_CHARGE,
-
         CAMERA,
 
         JUDGE,

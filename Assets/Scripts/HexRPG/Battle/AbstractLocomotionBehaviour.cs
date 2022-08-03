@@ -30,6 +30,7 @@ namespace HexRPG.Battle
 
     public interface ILocomotionObservable
     {
+        float StepDistanceByFrame { get; } //! 1Fで進む距離
         IObservable<Unit> OnFinishRotate { get; } //! 割り込みされることなく回転できたときのみ発行
     }
 
@@ -41,11 +42,12 @@ namespace HexRPG.Battle
         [Header("動かすRigidbody。nullならこのオブジェクト")]
         [SerializeField] Rigidbody _rigidbody;
 
+        public float StepDistanceByFrame => _speed * Time.fixedDeltaTime;
+
         IObservable<Unit> ILocomotionObservable.OnFinishRotate => _onFinishRotate;
         readonly ISubject<Unit> _onFinishRotate = new Subject<Unit>();
 
         protected float _speed = 7f;
-        protected float _colliderRadius = 0.5f;
 
         CancellationTokenSource _cts = null;
 

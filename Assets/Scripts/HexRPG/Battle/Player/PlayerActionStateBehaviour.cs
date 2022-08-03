@@ -1,14 +1,14 @@
 using UnityEngine;
 using UniRx;
+using UniRx.Triggers;
 using System;
-using System.Threading;
-using Cysharp.Threading.Tasks;
+using Zenject;
 
 namespace HexRPG.Battle.Player
 {
     using static ActionStateType;
 
-    public class PlayerActionStateController : ICharacterActionStateController, IDisposable
+    public class PlayerActionStateBehaviour : MonoBehaviour, ICharacterActionStateController
     {
         ITransformController _transformController;
 
@@ -45,7 +45,8 @@ namespace HexRPG.Battle.Player
         CompositeDisposable _disposables = new CompositeDisposable();
         CompositeDisposable _memberChangeDisposables = new CompositeDisposable();
 
-        public PlayerActionStateController(
+        [Inject]
+        public void Construct(
             ITransformController transformController,
             ILocomotionController locomotionController,
             ILocomotionObservable locomotionObservable,
@@ -94,6 +95,33 @@ namespace HexRPG.Battle.Player
                     {
                         SetUpControl();
                         _actionStateController.SetInitialState(initialState);
+
+                        this.FixedUpdateAsObservable()
+                            .Subscribe(_ =>
+                            {
+                                //TODO: 【ここから】移動中にモーションが再生されない
+                                if (_characterInput.Direction.sqrMagnitude > 0.1)
+                                {
+                                    var canMoveState = (CurState == IDLE || CurState == MOVE || CurState == SKILL_SELECT);
+                                    if (canMoveState && _acceptDirectionInput)
+                                    {
+                                        _actionStateController.Execute(new Command { Id = "move" });
+
+                                        var direction = _characterInput.Direction;
+                                        _locomotionController.FixTimeLookRotate(_transformController.Position + _characterInput.Direction, 0.05f);
+
+                                        _locomotionController.SetSpeed(direction);
+                                    }
+                                }
+                                else
+                                {
+                                    if (CurState == MOVE) _actionStateController.Execute(new Command { Id = "stop" });
+
+                                    // Skill選択ステートに遷移した後、一度Direction入力がzeroにならないとDirection入力による移動を受け付けない
+                                    if (CurState == SKILL_SELECT) _acceptDirectionInput = true;
+                                }
+                            })
+                            .AddTo(_disposables);
                     }
                     else
                     {
@@ -131,7 +159,6 @@ namespace HexRPG.Battle.Player
             NewState(MOVE)
                 .AddEvent(new ActionEventPlayMotion(0f))
                 .AddEvent(new ActionEventMove(0f))
-                .AddEvent(new ActionEventCancel("move", MOVE, passEndNotification: true)) // 方向変更
                 .AddEvent(new ActionEventCancel("stop", IDLE))
                 .AddEvent(new ActionEventCancel("damaged", DAMAGED))
                 .AddEvent(new ActionEventCancel("combat", COMBAT))
@@ -195,26 +222,6 @@ namespace HexRPG.Battle.Player
                     if (hitType == HitType.WEAK || hitType == HitType.CRITICAL)
                     {
                         _actionStateController.Execute(new Command { Id = "damaged" });
-                    }
-                })
-                .AddTo(_disposables);
-
-            // joyスティック入力時
-            _characterInput.Direction
-                .Skip(1)
-                .Subscribe(direction =>
-                {
-                    if (direction.sqrMagnitude > 0.1)
-                    {
-                        var canMoveState = (CurState == IDLE || CurState == MOVE || CurState == SKILL_SELECT);
-                        if (canMoveState && _acceptDirectionInput) _actionStateController.Execute(new Command { Id = "move" });
-                    }
-                    else
-                    {
-                        if (CurState == MOVE) _actionStateController.Execute(new Command { Id = "stop" });
-
-                        // Skill選択ステートに遷移した後、一度Direction入力がzeroにならないとDirection入力による移動を受け付けない
-                        if (CurState == SKILL_SELECT) _acceptDirectionInput = true;
                     }
                 })
                 .AddTo(_disposables);
@@ -313,16 +320,7 @@ namespace HexRPG.Battle.Player
                 })
                 .AddTo(_disposables);
 
-            // 移動開始/終了
-            _actionStateObservable
-                .OnStart<ActionEventMove>()
-                .Subscribe(_ =>
-                {
-                    var direction = _characterInput.Direction.Value;
-                    _locomotionController.FixTimeLookRotate(_transformController.Position + direction, 0.05f);
-                    _locomotionController.SetSpeed(direction);
-                })
-                .AddTo(_disposables);
+            // 移動終了
             _actionStateObservable
                 .OnEnd<ActionEventMove>()
                 .Subscribe(_ =>
@@ -396,7 +394,7 @@ namespace HexRPG.Battle.Player
                 .AddTo(_disposables);
         }
 
-        void IDisposable.Dispose()
+        void OnDestroy()
         {
             _memberChangeDisposables?.Dispose();
             _disposables.Dispose();

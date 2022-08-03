@@ -61,8 +61,10 @@ namespace HexRPG.Battle
         List<ITowerComponentCollection> IBattleObservable.TowerList => _towerList;
         List<ITowerComponentCollection> _towerList = new List<ITowerComponentCollection>(16);
 
-        IObservable<Unit> IBattleObservable.OnUpdateNavMesh => _onUpdateNavMesh;
-        readonly ISubject<Unit> _onUpdateNavMesh = new Subject<Unit>();
+        IObservable<Hex[]> IBattleObservable.OnReduceEnemyNavMesh => _onReduceEnemyNavMesh;
+        readonly ISubject<Hex[]> _onReduceEnemyNavMesh = new Subject<Hex[]>();
+        IObservable<Unit> IBattleObservable.OnCompleteUpdateNavMesh => _onCompleteUpdateNavMesh;
+        readonly ISubject<Unit> _onCompleteUpdateNavMesh = new Subject<Unit>();
 
         [Header("キャンパス")]
         [SerializeField] GameObject _HUD;
@@ -180,9 +182,10 @@ namespace HexRPG.Battle
                 .AddTo(this);
             // PlayerがLiberateしたらNavMeshを再Bake
             playerOwner.LiberateObservable.SuccessLiberateHexList
-                .Subscribe(_ =>
+                .Subscribe(liberateHexList =>
                 {
-                    UpdateEnemyNavMesh();
+                    _onReduceEnemyNavMesh.OnNext(liberateHexList);
+                    UpdateEnemyNavMesh(token).Forget();
                 })
                 .AddTo(this);
 
@@ -211,7 +214,7 @@ namespace HexRPG.Battle
                         enemyOwner.LiberateObservable.SuccessLiberateHexList
                             .Subscribe(_ =>
                             {
-                                UpdateEnemyNavMesh();
+                                UpdateEnemyNavMesh(token).Forget();
                             })
                             .AddTo(enemyDisposables);
 
@@ -248,12 +251,14 @@ namespace HexRPG.Battle
                 tower.TowerController.Init();
                 _onTowerInit.OnNext(tower);
 
+                var towerObservable = tower.TowerObservable;
                 // TowerTypeが変わったらNavMeshを再Bake
-                tower.TowerObservable.TowerType
+                towerObservable.TowerType
                     .Skip(1)
-                    .Subscribe(_ =>
+                    .Subscribe(type =>
                     {
-                        UpdateEnemyNavMesh();
+                        if (type == TowerType.PLAYER) _onReduceEnemyNavMesh.OnNext(towerObservable.FixedHexList);
+                        UpdateEnemyNavMesh(token).Forget();
                     })
                     .AddTo(this);
             }
@@ -280,7 +285,6 @@ namespace HexRPG.Battle
         {
             await UniTask.Delay(2000, cancellationToken: token);
 
-            //TODO: 結果表示
             _sequenceUI.SetActive(true);
             _btnStart.SetActive(false);
             _resultText.gameObject.SetActive(true);
@@ -296,10 +300,12 @@ namespace HexRPG.Battle
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
-        void UpdateEnemyNavMesh()
+        async UniTaskVoid UpdateEnemyNavMesh(CancellationToken token)
         {
             _enemySurface.BuildNavMesh();
-            _onUpdateNavMesh.OnNext(Unit.Default);
+            var asyncOperation = _enemySurface.UpdateNavMesh(_enemySurface.navMeshData);
+            await UniTask.WaitUntil(() => asyncOperation.isDone, cancellationToken: token);
+            _onCompleteUpdateNavMesh.OnNext(Unit.Default);
         }
     }
 }
