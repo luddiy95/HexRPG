@@ -66,13 +66,19 @@ namespace HexRPG.Battle
         IObservable<Unit> IBattleObservable.OnCompleteUpdateNavMesh => _onCompleteUpdateNavMesh;
         readonly ISubject<Unit> _onCompleteUpdateNavMesh = new Subject<Unit>();
 
+        IReadOnlyReactiveProperty<GameResultType> IBattleObservable.GameResultType => _gameResultType;
+        readonly IReactiveProperty<GameResultType> _gameResultType = new ReactiveProperty<GameResultType>(GameResultType.NONE);
+
+        CancellationTokenSource _cts;
+
         [Header("ƒLƒƒƒ“ƒpƒX")]
         [SerializeField] Canvas _HUD;
         [SerializeField] Canvas _UI;
         [SerializeField] Canvas _sequenceUI;
 
         [Header("Sequence")]
-        [SerializeField] GameObject _btnStart;
+        [SerializeField] GameObject _startPanel;
+        [SerializeField] Transform _timeList;
         [SerializeField] GameObject _loadingText;
         [SerializeField] Text _resultText;
 
@@ -91,8 +97,6 @@ namespace HexRPG.Battle
 
         [Header("Enemy‚ÌNavMeshSurface")]
         [SerializeField] NavMeshSurface _enemySurface;
-
-        GameResultType _resultType = GameResultType.NONE;
 
         [Inject]
         public void Construct(
@@ -119,13 +123,15 @@ namespace HexRPG.Battle
         {
             _cameraTransposer = _mainVirtualCamera.GetCinemachineComponent<CinemachineOrbitalTransposer>();
 
-            ShowStartButton();
+            ShowStartPanel();
         }
 
         public void StartGame()
         {
             ShowStartLoading();
-            PlayGameSequence(this.GetCancellationTokenOnDestroy()).Forget();
+
+            _cts = new CancellationTokenSource();
+            PlayGameSequence(_cts.Token).Forget();
         }
 
         async UniTaskVoid PlayGameSequence(CancellationToken token)
@@ -134,9 +140,10 @@ namespace HexRPG.Battle
 
             await PlayEndSequence(token);
 
-            PlayResultSequence(token).Forget();
+            await PlayResultSequence(token);
 
-            return;
+            _cts.Cancel();
+            _cts.Dispose();
         }
 
         async UniTask PlayStartSequence(CancellationToken token)
@@ -271,30 +278,35 @@ namespace HexRPG.Battle
 
         async UniTask PlayEndSequence(CancellationToken token)
         {
+            async UniTaskVoid WaitForPlayerWin(CancellationToken token)
+            {
+                await UniTask.WaitUntil(() =>
+                    _towerList.All(tower => tower.EnemySpawnObservable.EnemyList.Count() == 0 && tower.TowerObservable.TowerType.Value == TowerType.PLAYER),
+                    cancellationToken: token);
+
+                _gameResultType.Value = GameResultType.WIN;
+            }
+
             _onPlayerSpawn.Value.DieObservable.OnFinishDie
                 .First()
-                .Subscribe(_ => _resultType = GameResultType.LOSE)
+                .Subscribe(_ => _gameResultType.Value = GameResultType.LOSE)
                 .AddTo(this);
 
-            await UniTask.WaitUntil(
-                () => _resultType == GameResultType.LOSE ||
-                _towerList.All(tower => tower.EnemySpawnObservable.EnemyList.Count() == 0 && tower.TowerObservable.TowerType.Value == TowerType.PLAYER),
-                cancellationToken: token);
+            WaitForPlayerWin(token).Forget();
 
-            if (_resultType == GameResultType.NONE) _resultType = GameResultType.WIN;
+            await UniTask.WaitWhile(() => _gameResultType.Value == GameResultType.NONE, cancellationToken: token);
 
             return;
         }
 
         async UniTask PlayResultSequence(CancellationToken token)
         {
-            await UniTask.Delay(2000, cancellationToken: token);
+            await UniTask.Delay(1000, cancellationToken: token);
 
             ShowResult();
 
             await UniTask.Delay(2000, cancellationToken: token);
 
-            _battleData.result = _resultType;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
@@ -308,21 +320,40 @@ namespace HexRPG.Battle
 
         #region View
 
-        void ShowStartButton()
+        void ShowStartPanel()
         {
             _HUD.enabled = false;
             _UI.enabled = false;
 
             _sequenceUI.gameObject.SetActive(true);
             _sequenceUI.enabled = true;
-            _btnStart.SetActive(true);
+
+            _startPanel.SetActive(true);
+
+            // Time
+            var timeList = _battleData.timeList;
+            var showTimeCount = Mathf.Min(timeList.Count(), 3);
+            for(int i = 0; i < 3; i++)
+            {
+                var child = _timeList.GetChild(i);
+                if(i <= showTimeCount - 1)
+                {
+                    child.gameObject.SetActive(true);
+                    child.GetChild(1).GetComponent<Text>().text = timeList[i].GetTime();
+                }
+                else
+                {
+                    child.gameObject.SetActive(false);
+                }
+            }
+
             _loadingText.SetActive(false);
             _resultText.gameObject.SetActive(false);
         }
 
         void ShowStartLoading()
         {
-            _btnStart.SetActive(false);
+            _startPanel.SetActive(false);
             _loadingText.SetActive(true);
         }
 
@@ -336,10 +367,10 @@ namespace HexRPG.Battle
         void ShowResult()
         {
             _sequenceUI.enabled = true;
-            _btnStart.SetActive(false);
+            _startPanel.SetActive(false);
             _loadingText.SetActive(false);
             _resultText.gameObject.SetActive(true);
-            switch (_resultType)
+            switch (_gameResultType.Value)
             {
                 case GameResultType.WIN: _resultText.text = "WIN!!"; break;
                 case GameResultType.LOSE: _resultText.text = "LOSE..."; break;

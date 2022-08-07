@@ -14,7 +14,7 @@ namespace HexRPG.Battle.HUD
         {
             Container.BindFactory<AcquiredMessageHUD, AcquiredMessageHUD.Factory>()
                 .FromPoolableMemoryPool<AcquiredMessageHUD, AcquiredMessageHUD.Pool>(pool => pool
-                    .WithFixedSize(_maxShowMessageCount)
+                    .WithInitialSize(_maxShowMessageCount)
                     .FromComponentInNewPrefab(_acquiredMessagePrefab)
                     .UnderTransform(_acquiredMessageRoot));
         }

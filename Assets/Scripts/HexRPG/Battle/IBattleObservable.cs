@@ -28,6 +28,8 @@ namespace HexRPG.Battle
         IObservable<Hex[]> OnReduceEnemyNavMesh { get; }
         IObservable<Unit> OnCompleteUpdateNavMesh { get; }
 
+        IReadOnlyReactiveProperty<GameResultType> GameResultType { get; }
+
         CinemachineBrain CinemachineBrain { get; }
         CinemachineVirtualCamera MainVirtualCamera { get; }
         CinemachineOrbitalTransposer CameraTransposer { get; }

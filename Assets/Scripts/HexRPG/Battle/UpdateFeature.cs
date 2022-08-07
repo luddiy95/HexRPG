@@ -10,15 +10,13 @@ namespace HexRPG.Battle
 
         DAMAGED,
 
-        COLLISION,
-
         MOVE,
 
         ACTION_TRANSITION,
 
         CAMERA,
 
-        JUDGE,
+        TIME,
     }
 
     public class UpdateFeature : IUpdateObservable, IUpdater
