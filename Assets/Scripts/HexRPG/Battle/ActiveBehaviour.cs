@@ -15,16 +15,10 @@ namespace HexRPG.Battle
 
         void Start()
         {
-            //! Å‰‚Í”ñ•\¦
-            SetActive(false);
+            SetActive(false); // Å‰‚Í”ñ•\¦
         }
 
-        void IActiveController.SetActive(bool visible)
-        {
-            SetActive(visible);
-        }
-
-        protected virtual void SetActive(bool visible)
+        public void SetActive(bool visible)
         {
             GameObject.SetActive(visible);
         }

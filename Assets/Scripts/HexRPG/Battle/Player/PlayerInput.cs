@@ -37,8 +37,8 @@ namespace HexRPG.Battle.Player
         [Header("メンバーリスト")]
         [SerializeField] Transform _memberList;
 
-        Vector3 ICharacterInput.Direction => _direction;
-        Vector3 _direction;
+        IReadOnlyReactiveProperty<Vector3> ICharacterInput.Direction => _direction;
+        readonly ReactiveProperty<Vector3> _direction = new ReactiveProperty<Vector3>();
 
         IObservable<int> ICharacterInput.CameraRotateDir => _cameraRotateDir;
         readonly ISubject<int> _cameraRotateDir = new Subject<int>();
@@ -190,8 +190,8 @@ namespace HexRPG.Battle.Player
 
         void UpdateDirection()
         {
-            //_direction = new Vector3(_joystick.Horizontal, 0, _joystick.Vertical);
-            _direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+            //_direction.SetValueAndForceNotify(new Vector3(_joystick.Horizontal, 0, _joystick.Vertical));
+            _direction.SetValueAndForceNotify(new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")));
         }
     }
 }

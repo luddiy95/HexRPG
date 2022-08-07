@@ -132,8 +132,6 @@ namespace HexRPG.Battle.HUD
         ScoreType type = ScoreType.LIBERATE;
         int count = 0;
 
-        int index = 0;
-
         public void OnInspectorGUI()
         {
             using (new EditorGUILayout.HorizontalScope())

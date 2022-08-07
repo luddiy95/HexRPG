@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 using System;
 
 namespace HexRPG.Battle
@@ -131,38 +132,55 @@ namespace HexRPG.Battle
         readonly public static string EnemyHex = "EnemyHex";
         readonly public static string NeutralHex = "NeutralHex";
 
-        static RaycastHit[] _hits = new RaycastHit[128];
+        static Collider[] _hitColliders = new Collider[16];
+        static Collider[] _surroundedColliders = new Collider[128];
 
-        readonly static LayerMask hexLayerMask = 
+        readonly public static LayerMask hexLayerMask = 
             (1 << LayerMask.NameToLayer(PlayerHex) | 1 << LayerMask.NameToLayer(EnemyHex) | 1 << LayerMask.NameToLayer(NeutralHex));
 
         public static Hex GetLandedHex(this ITransformController transformController)
         {
-            return GetHitHex(new Ray(transformController.Position + Vector3.up * 0.15f, Vector3.down), 0.3f);
+            return GetHitHex(transformController.Position);
         }
 
         public static Hex GetLandedHex(Vector3 pos)
         {
-            return GetHitHex(new Ray(pos + Vector3.up * 0.15f, Vector3.down), 0.3f);
+            return GetHitHex(pos);
         }
 
         public static void GetSurroundedHexList(Hex root, float radius, ref List<Hex> surroundedHex)
         {
             surroundedHex.Clear();
 
-            Physics.SphereCastNonAlloc(new Ray(root.transform.position, Vector3.down), radius, results: _hits, layerMask: hexLayerMask, maxDistance: 0);
-            foreach(var hit in _hits)
+            Array.Clear(_surroundedColliders, 0, _surroundedColliders.Length);
+            Physics.OverlapSphereNonAlloc(root.transform.position, radius, _surroundedColliders, hexLayerMask);
+            Hex hex = default;
+            foreach (var collider in _surroundedColliders)
             {
-                Hex hex = null;
-                if (hit.collider?.TryGetComponent(out hex) != true) continue;
+                if (collider?.TryGetComponent(out hex) != true) continue;
                 if (hex.GetDistanceXZ(root) <= radius) surroundedHex.Add(hex);
             }
         }
 
-        static Hex GetHitHex(Ray ray, float maxDistance = Mathf.Infinity)
+        static Hex GetHitHex(Vector3 pos)
         {
-            Physics.Raycast(ray, out var hit, maxDistance, hexLayerMask);
-            return hit.collider?.GetComponent<Hex>();
+            Array.Clear(_hitColliders, 0, _hitColliders.Length);
+            Physics.OverlapSphereNonAlloc(pos, 0.1f, _hitColliders, hexLayerMask);
+
+            float minDistance = Mathf.Infinity;
+            Hex hex = default;
+            Hex result = null;
+            foreach (var collider in _hitColliders)
+            {
+                if (collider?.TryGetComponent(out hex) != true) continue;
+                var distance = pos.GetDistance2XZ(hex.transform.position);
+                if (distance < minDistance)
+                {
+                    result = hex;
+                    minDistance = distance;
+                }
+            }
+            return result;
         }
 
         /// <summary>

@@ -100,7 +100,6 @@ namespace HexRPG.Battle.HUD
         }
 
         string _name;
-
         Vector2 _size;
 
 #if UNITY_EDITOR

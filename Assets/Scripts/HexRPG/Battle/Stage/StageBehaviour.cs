@@ -114,7 +114,7 @@ namespace HexRPG.Battle.Stage
             arroundHexList.Clear();
 
             stageController.GetArroundPosList(root.transform.position, rad, ref _arroundPosList);
-            foreach(var pos in _arroundPosList)
+            foreach (var pos in _arroundPosList)
             {
                 var hex = TransformExtensions.GetLandedHex(pos);
                 if (hex != null) arroundHexList.Add(hex);

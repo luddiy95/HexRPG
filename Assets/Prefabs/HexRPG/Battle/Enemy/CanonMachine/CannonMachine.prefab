@@ -1,17 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &7717408061277836960
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6462630326340586861}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76ac6d8c82e490f449ae826d0b0726c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!320 &7049364295519211133
 PlayableDirector:
   m_ObjectHideFlags: 0
@@ -9683,6 +9671,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4455988860647483409}
   - component: {fileID: 4348565544612968219}
+  - component: {fileID: 4295984047334972508}
   m_Layer: 0
   m_Name: Light
   m_TagString: Untagged
@@ -9723,11 +9712,11 @@ Light:
   m_CookieSize: 10
   m_Shadows:
     m_Type: 1
-    m_Resolution: 0
+    m_Resolution: 128
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
+    m_Bias: 1
+    m_NormalBias: 1
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
       e00: 1
@@ -9766,6 +9755,20 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &4295984047334972508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4457445380279523327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: -1
 --- !u!1 &4457581489932621815
 GameObject:
   m_ObjectHideFlags: 0
@@ -15325,6 +15328,18 @@ MonoBehaviour:
   _clips:
   - {fileID: 7400000, guid: 3f7471cd242c1924c9e182d3ebf3e55e, type: 2}
   - {fileID: 7400000, guid: 1cf81bdff83d29c4ebbc63f750bd6eb4, type: 2}
+--- !u!114 &7717408061277836960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6462630326340586861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76ac6d8c82e490f449ae826d0b0726c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2546776026939493493
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15463,7 +15478,7 @@ PrefabInstance:
     - target: {fileID: 7135533358454013842, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _skills.Array.data[0]._prefab
       value: 
-      objectReference: {fileID: 6832648262429242629, guid: 5bd4110a588fa6743a7449b73693e592, type: 3}
+      objectReference: {fileID: 6832648262429242629, guid: 03713864cf6174d4a8d160277ae56e55, type: 3}
     - target: {fileID: 7135533358454013842, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _skills.Array.data[0]._timeline
       value: 

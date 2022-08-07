@@ -22,7 +22,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: ComboSword
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
-  m_ShaderKeywords: _EMISSION
+  m_ShaderKeywords: _EMISSION _METALLICSPECGLOSSMAP _NORMALMAP _OCCLUSIONMAP _PARALLAXMAP
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -34,11 +34,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 6cff31f6f9b91734b8b84d7937d973ce, type: 3}
+        m_Texture: {fileID: 2800000, guid: 366016be19da65a48b7814d7bc339ac3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 08dacca8e1c628b4cab7d4d22d2402f1, type: 3}
+        m_Texture: {fileID: 2800000, guid: 1389276157ca118479913fee511cc8f5, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -54,23 +54,23 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
-        m_Texture: {fileID: 2800000, guid: d818c47a6160df143b5023ad27871182, type: 3}
+        m_Texture: {fileID: 2800000, guid: 41a2df1031deead4cbdf6032836727df, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 366016be19da65a48b7814d7bc339ac3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
-        m_Texture: {fileID: 2800000, guid: 7db1f746671f4b344a43e975926a2acf, type: 3}
+        m_Texture: {fileID: 2800000, guid: ddf047673a763a74292a961c4c24672f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
-        m_Texture: {fileID: 2800000, guid: 83a9757a3df9834419bfe33e6e2bc462, type: 3}
+        m_Texture: {fileID: 2800000, guid: d3c59117a7906fb4db9c01cd30194072, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
-        m_Texture: {fileID: 2800000, guid: 18363db42f2f4aa40bf0dc8af1fbf807, type: 3}
+        m_Texture: {fileID: 2800000, guid: cfcec33408e52a848abc51e4fcaac6ff, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:

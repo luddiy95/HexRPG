@@ -40,9 +40,9 @@ namespace HexRPG.Battle.Player.HUD
             _disposables.Dispose();
         }
 
-        int _changeAmount = 0;
-
 #if UNITY_EDITOR
+
+        int _changeAmount = 0;
 
         public void OnInspectorGUI()
         {

@@ -33,3 +33,7 @@ MonoBehaviour:
     statusOffset: {x: 0, y: 0}
     damagedPanelOffset: {x: 20, y: 60}
     damagedPanelSize: {x: 30, y: 40}
+  - name: BigSwordRobot
+    statusOffset: {x: 0, y: 0}
+    damagedPanelOffset: {x: 20, y: 60}
+    damagedPanelSize: {x: 30, y: 40}

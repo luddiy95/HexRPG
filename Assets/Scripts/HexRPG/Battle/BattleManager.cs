@@ -146,12 +146,13 @@ namespace HexRPG.Battle
             _enemySurface.BuildNavMesh();
             var asyncOperation = _enemySurface.UpdateNavMesh(_enemySurface.navMeshData);
 
-            await SpawnPlayer(token);
+            var playerOwner = await SpawnPlayer(token);
 
             SetupTowers(token);
 
             await UniTask.WaitUntil(() => asyncOperation.isDone, cancellationToken: token);
 
+            playerOwner.MemberObservable.CurMember.Value.ActiveController.SetActive(true); // Player表示
             ShowGame();
 
             _onBattleStart.OnNext(Unit.Default);
@@ -161,13 +162,15 @@ namespace HexRPG.Battle
                 .AddTo(this);
         }
 
-        async UniTask SpawnPlayer(CancellationToken token)
+        async UniTask<IPlayerComponentCollection> SpawnPlayer(CancellationToken token)
         {
             var playerOwner = _playerFactory.Create(_playerRoot, _playerSpawnSetting.SpawnSetting.SpawnHex.transform.position) as IPlayerComponentCollection;
 
             var memberController = playerOwner.MemberController;
             await memberController.SpawnAllMember(token);
             memberController.ChangeMember(0); //! ここでようやくCurMemberが発行される
+
+            playerOwner.MemberObservable.CurMember.Value.ActiveController.SetActive(false); // もろもろ初期化出来るまでPlayerは隠す
 
             playerOwner.CharacterActionStateController.Init(); // 諸々の初期化が終わってからActionStateControllerを初期化
 
@@ -190,6 +193,8 @@ namespace HexRPG.Battle
                 .AddTo(this);
 
             _onPlayerSpawn.Value = playerOwner;
+
+            return playerOwner;
         }
 
         void SetupTowers(CancellationToken token)
@@ -308,6 +313,7 @@ namespace HexRPG.Battle
             _HUD.enabled = false;
             _UI.enabled = false;
 
+            _sequenceUI.gameObject.SetActive(true);
             _sequenceUI.enabled = true;
             _btnStart.SetActive(true);
             _loadingText.SetActive(false);
