@@ -375,23 +375,28 @@ namespace HexRPG.Battle.Enemy
             this.FixedUpdateAsObservable()
                 .Subscribe(_ =>
                 {
+                    var landedHex = _transformController.GetLandedHex();
+
                     //! à⁄ìÆ
                     _navMeshAgentController.NextPosition = _transformController.Position;
                     if (_navMeshAgentController.IsStopped == false)
                     {
-                        var steeringTargetPos = _navMeshAgentController.CurSteeringTargetPos;
-                        if (MathUtility.GetDistance2XZ(steeringTargetPos, _steeringTargetPosCache) > _stepDistance2ByFrame)
+                        if(_attackableHex != landedHex && _approachHex != landedHex)
                         {
-                            _steeringTargetPosCache = steeringTargetPos;
-                            _moveDirection = _transformController.Position.GetRelativePosXZ(steeringTargetPos);
+                            var steeringTargetPos = _navMeshAgentController.CurSteeringTargetPos;
+                            //! ç◊Ç©Ç¢steeringTargetPosÇÃç∑ï™Ç‡à⁄ìÆÇ…îΩâfÇ≥ÇπÇƒÇµÇ‹Ç§Ç∆ÉKÉ^ÉKÉ^ÇµÇƒÇµÇ‹Ç§
+                            if (MathUtility.GetDistance2XZ(steeringTargetPos, _steeringTargetPosCache) > _stepDistance2ByFrame)
+                            {
+                                _steeringTargetPosCache = steeringTargetPos;
+                                _moveDirection = _transformController.Position.GetRelativePosXZ(steeringTargetPos);
 
-                            _actionStateController.Execute(new Command { Id = "move" });
-                            _locomotionController.SetSpeed(_moveDirection);
+                                _actionStateController.Execute(new Command { Id = "move" });
+                                _locomotionController.SetSpeed(_moveDirection);
+                            }
                         }
                     }
 
                     //! ìûíÖÇµÇΩÅH
-                    var landedHex = _transformController.GetLandedHex();
                     var relativeDirFromHexCenter = _transformController.Position.GetRelativePosXZ(landedHex.transform.position);
 
                     var enemyDestinationHexList = new List<Hex>(_battleObservable.EnemyDestinationHexList);
@@ -454,7 +459,6 @@ namespace HexRPG.Battle.Enemy
             var relativeDirFromHexCenter = _transformController.Position.GetRelativePosXZ(landedHex.transform.position);
 
             var targetHex = TargetHex;
-            var distance2FromTargetHex = landedHex.GetDistance2XZ(targetHex);
 
             var enemyDestinationHexList = new List<Hex>(_battleObservable.EnemyDestinationHexList);
             var curDestination = _navMeshAgentController.CurDestination.Value;

@@ -68,7 +68,7 @@ namespace HexRPG.Battle.Enemy
             switch (breakStateType)
             {
                 case IDLE:
-                    //! どこにも移動できずlandedHexに居続けるしかない場合は、idle -> rotate -> idle遷移が頻繁に行われるので、その遷移でも違和感のないモーションにする必要がある
+                    //! どこにも移動できずlandedHexに居続けるしかない場合は、Playerの位置が変わらない場合idle -> rotate(回転なし) -> idle遷移が頻繁に行われるので、その遷移でも違和感のないモーションにする必要がある
                     _actionStateController.Execute(new Command { Id = "rotate" });
                     await _locomotionObservable.OnFinishRotate.ToUniTask(useFirstValue: true, cancellationToken: token);
                     _actionStateController.Execute(new Command { Id = "idle" });

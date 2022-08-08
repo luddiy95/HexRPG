@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79d2e370a640ee744a741cf0a932b4ef, type: 3}
   m_Name: BattleData
   m_EditorClassIdentifier: 
+  timeList: []
   cameraRotateUnit: 60
   attributeIconMap:
     m_list:
