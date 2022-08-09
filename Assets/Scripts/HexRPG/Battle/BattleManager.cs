@@ -74,6 +74,7 @@ namespace HexRPG.Battle
         [Header("ƒLƒƒƒ“ƒpƒX")]
         [SerializeField] Canvas _HUD;
         [SerializeField] Canvas _UI;
+        [SerializeField] Canvas _filterHUD;
         [SerializeField] Canvas _sequenceUI;
 
         [Header("Sequence")]
@@ -327,6 +328,9 @@ namespace HexRPG.Battle
             _HUD.enabled = false;
             _UI.enabled = false;
 
+            _filterHUD.gameObject.SetActive(true);
+            _filterHUD.enabled = true;
+
             _sequenceUI.gameObject.SetActive(true);
             _sequenceUI.enabled = true;
 
@@ -363,11 +367,13 @@ namespace HexRPG.Battle
         {
             _HUD.enabled = true;
             _UI.enabled = true;
+            _filterHUD.enabled = false;
             _sequenceUI.enabled = false;
         }
 
         void ShowResult()
         {
+            _filterHUD.enabled = true;
             _sequenceUI.enabled = true;
             _startPanel.SetActive(false);
             _loadingText.SetActive(false);

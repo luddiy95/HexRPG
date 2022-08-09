@@ -108,6 +108,8 @@ namespace HexRPG.Battle.Combat
 
         protected virtual void InternalExecute()
         {
+            _isComboInputEnable = false;
+            _isComboInputted = false;
             _isComboSuspended = false;
             _attackColliders.ForEach(collider => collider.gameObject.SetActive(false));
 

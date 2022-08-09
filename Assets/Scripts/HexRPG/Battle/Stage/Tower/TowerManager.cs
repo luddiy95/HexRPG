@@ -25,6 +25,7 @@ namespace HexRPG.Battle.Stage.Tower
     {
         IReadOnlyReactiveProperty<TowerType> TowerType { get; }
 
+        List<Hex> EnemyHexList { get; }
         Hex TowerCenter { get; }
         Hex[] FixedHexList { get; }
     }
@@ -36,9 +37,23 @@ namespace HexRPG.Battle.Stage.Tower
 
         [SerializeField] TowerType _initTowerType;
 
+        List<Hex> ITowerObservable.EnemyHexList
+        {
+            get
+            {
+                _enemyHexList.Clear();
+                for (int i = 0; i < _hexRoot.childCount; i++)
+                {
+                    var hex = _hexRoot.GetChild(i).GetComponent<Hex>();
+                    if (hex == null) continue;
+                    if (hex.IsPlayerHex == false) _enemyHexList.Add(hex);
+                }
+                return _enemyHexList;
+            }
+        }
+        List<Hex> _enemyHexList = new List<Hex>(256);
         Hex ITowerObservable.TowerCenter => _towerCenter;
         [SerializeField] Hex _towerCenter;
-
         Hex[] ITowerObservable.FixedHexList => _fixedHexList;
         [SerializeField] Hex[] _fixedHexList;
 
@@ -46,6 +61,8 @@ namespace HexRPG.Battle.Stage.Tower
 
         [SerializeField] GameObject _enemyCrystal;
         [SerializeField] GameObject _playerCrystal;
+
+        [SerializeField] Transform _hexRoot;
 
         [Inject]
         public void Construct(

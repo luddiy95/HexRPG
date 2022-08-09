@@ -17,6 +17,7 @@ namespace HexRPG.Battle.Stage.Tower
 
     public class EnemySpawnBehaviour : MonoBehaviour, IEnemySpawnObservable
     {
+        IBattleObservable _battleObservable;
         List<EnemyOwner.Factory> _enemyFactories;
         IEnemySpawnSettings _enemySpawnSettings;
         ITowerObservable _towerObservable;
@@ -30,11 +31,13 @@ namespace HexRPG.Battle.Stage.Tower
 
         [Inject]
         public void Construct(
+            IBattleObservable battleObservable,
             List<EnemyOwner.Factory> enemyFactories,
             IEnemySpawnSettings enemySpawnSettings,
             ITowerObservable towerObservable
         )
         {
+            _battleObservable = battleObservable;
             _enemyFactories = enemyFactories;
             _enemySpawnSettings = enemySpawnSettings;
             _towerObservable = towerObservable;
@@ -63,16 +66,25 @@ namespace HexRPG.Battle.Stage.Tower
 
             // Static Enemy
             var staticEnemySpawnSettings = _enemySpawnSettings.StaticEnemySpawnSettings;
-            for (int i = 0; i < staticEnemySpawnSettings.Count; i++)
-            {
-                SpawnEnemy(_enemyFactories[i], staticEnemySpawnSettings[i].SpawnHex, _spawnCts.Token).Forget();
-            }
+            SpawnStaticEnemies(staticEnemySpawnSettings, _spawnCts.Token).Forget();
 
             // Dynamic Enemy
             var dynamicEnemySpawnSettings = _enemySpawnSettings.DynamicEnemySpawnSettings;
             for (int i = 0; i < dynamicEnemySpawnSettings.Count; i++)
             {
                 StartDynamicEnemySpawnSequence(_enemyFactories[staticEnemySpawnSettings.Count + i], dynamicEnemySpawnSettings[i], _spawnCts.Token).Forget();
+            }
+        }
+
+        async UniTaskVoid SpawnStaticEnemies(IReadOnlyList<StaticSpawnSetting> spawnSettings, CancellationToken token)
+        {
+            for (int i = 0; i < spawnSettings.Count; i++)
+            {
+                var spawnableHexList = new List<Hex>(_towerObservable.EnemyHexList);
+                spawnableHexList.RemoveAll(hex => hex.IsFixed || _battleObservable.EnemyDestinationHexList.Contains(hex));
+                if (spawnableHexList.Count == 0) continue;
+                var spawnHex = spawnableHexList[(int)(Random.value * spawnableHexList.Count)];
+                await SpawnEnemy(_enemyFactories[i], spawnHex, _spawnCts.Token);
             }
         }
 

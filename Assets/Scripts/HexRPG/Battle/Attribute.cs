@@ -25,6 +25,7 @@ namespace HexRPG.Battle
         /// <returns></returns>
         public static bool IsWeakCompatibity(this Attribute self, Attribute other)
         {
+            if (self == NONE || other == NONE) return false;
             return AttributeArray[((int)self + 1) % AttributeArray.Length] == other;
         }
     }
