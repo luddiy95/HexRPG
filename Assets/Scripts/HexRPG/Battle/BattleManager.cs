@@ -183,10 +183,12 @@ namespace HexRPG.Battle
 
             _targetGroup.m_Targets[0].target = playerOwner.TransformController.MoveTransform;
             // Player‚ÌˆÊ’u‚ðŠÄŽ‹
+            if (playerOwner.TransformController.GetLandedHex() == null) Debug.Log("null11");
             _playerLandedHex = playerOwner.TransformController.GetLandedHex();
             _updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
                 .Subscribe(_ =>
                 {
+                    if (playerOwner.TransformController.GetLandedHex() == null) Debug.Log("null12");
                     _playerLandedHex = playerOwner.TransformController.GetLandedHex();
                 })
                 .AddTo(this);
@@ -333,10 +335,10 @@ namespace HexRPG.Battle
             // Time
             var timeList = _battleData.timeList;
             var showTimeCount = Mathf.Min(timeList.Count(), 3);
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
             {
                 var child = _timeList.GetChild(i);
-                if(i <= showTimeCount - 1)
+                if (i <= showTimeCount - 1)
                 {
                     child.gameObject.SetActive(true);
                     child.GetChild(1).GetComponent<Text>().text = timeList[i].GetTime();

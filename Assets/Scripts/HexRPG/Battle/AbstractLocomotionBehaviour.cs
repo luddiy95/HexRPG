@@ -15,7 +15,7 @@ namespace HexRPG.Battle
         void Rotate(int rotateAngle, float eulerVelocity);
         void FixTimeRotate(int rotateAngle, float rotateTime);
         void ForceRotate(int goalRotateAngle);
-        
+
         // pos‚Ì•û‚ÖŒü‚­‚æ‚¤‚É‰ñ“]‚µ‚Ä‚Ù‚µ‚¢
         int LookRotate(Vector3 pos, float eulerVelocity); // Œ»İ‚Ì‰ñ“]‚ğ’†’f‚·‚é‚©‚Ç‚¤‚©
         int LookRotate60(Vector3 pos, float eulerVelocity);
@@ -157,6 +157,7 @@ namespace HexRPG.Battle
 
         void ILocomotionController.SnapHexCenter()
         {
+            if (_transformController.GetLandedHex() == null) Debug.Log("null7");
             _transformController.Position = _transformController.GetLandedHex().transform.position;
         }
 

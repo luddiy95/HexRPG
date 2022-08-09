@@ -165,7 +165,7 @@ namespace HexRPG.Battle
         static Hex GetHitHex(Vector3 pos)
         {
             Array.Clear(_hitColliders, 0, _hitColliders.Length);
-            Physics.OverlapSphereNonAlloc(pos, 0.1f, _hitColliders, hexLayerMask);
+            Physics.OverlapSphereNonAlloc(pos, 0.25f, _hitColliders, hexLayerMask);
 
             float minDistance = Mathf.Infinity;
             Hex hex = default;

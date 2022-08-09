@@ -79,6 +79,7 @@ namespace HexRPG.Battle.Player
                                 {
                                     _selectedSkillRotation = MathUtility.GetIntegerEuler60(_duplicateSelectedCount * 60);
 
+                                    if (_transformController.GetLandedHex() == null) UnityEngine.Debug.Log("null9");
                                     _skillCenter = _stageController.GetHex(
                                         _transformController.GetLandedHex(),
                                         skill.SkillCenter,
@@ -92,6 +93,7 @@ namespace HexRPG.Battle.Player
                             case SkillCenterType.EIM_ENEMY:
                                 var enemyList = _battleObservable.EnemyList.Where(enemy => !enemy.DieObservable.IsDead.Value).ToArray();
                                 //TODO: EnemyÇ™Ç¢Ç»Ç©Ç¡ÇΩèÍçá
+                                if (enemyList[_duplicateSelectedCount % enemyList.Length].TransformController.GetLandedHex() == null) UnityEngine.Debug.Log("null10");
                                 _skillCenter = enemyList[_duplicateSelectedCount % enemyList.Length].TransformController.GetLandedHex();
                                 var worldAngleY = _transformController.GetLookRotationAngleY(_skillCenter.transform.position);
                                 _selectedSkillRotation = MathUtility.GetIntegerEuler60(worldAngleY - _transformController.DefaultRotation);

@@ -84,10 +84,12 @@ namespace HexRPG.Battle.Enemy
             switch (skill.SkillCenterType)
             {
                 case SkillCenterType.SELF:
+                    if (_transformController.GetLandedHex() == null) Debug.Log("null8");
                     skillCenter = _stageController.GetHex(
                         _transformController.GetLandedHex(),
                         skill.SkillCenter,
                         MathUtility.GetIntegerEuler60(_transformController.DefaultRotation + _transformController.RotationAngle + skillRotation));
+                    if (skillCenter == null) Debug.Log("null16");
                     break;
                 case SkillCenterType.PLAYER:
                     skillCenter = _battleObservable.PlayerLandedHex;

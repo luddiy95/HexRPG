@@ -72,6 +72,7 @@ namespace HexRPG.Battle.Enemy
             _navMeshAgentController.AgentEnable = true;
 
             _locomotionController.ForceLookRotate(_battleObservable.PlayerLandedHex.transform.position);
+            if (_transformController.GetLandedHex() == null) Debug.Log("null14");
             _navMeshAgentController.SetDestination(_transformController.GetLandedHex());
 
             _cts = new CancellationTokenSource();

@@ -47,6 +47,7 @@ namespace HexRPG.Battle
 
                     // SkillçUåÇ
                     var landedHex = _damagedOwner.TransformController.GetLandedHex();
+                    if (landedHex == null) Debug.Log("null4");
                     foreach (var attackApplicator in landedHex.AttackApplicatorList)
                     {
                         if (attackApplicator.AttackOrigin == _damagedOwner) continue;

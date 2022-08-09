@@ -58,6 +58,8 @@ namespace HexRPG.Battle.Enemy
         List<Hex> _arroundHexList = new List<Hex>(128);
         List<Hex> _enemyHexList = new List<Hex>(512);
 
+        ActionStateType _breakActionStateType = NONE;
+
         protected CompositeDisposable _disposables = new CompositeDisposable();
 
         CancellationTokenSource _actionCts = null;
@@ -79,7 +81,6 @@ namespace HexRPG.Battle.Enemy
 
         float _stepDistanceByFrame;
         float _stepDistance2ByFrame;
-        Vector3 _steeringTargetPosCache;
 
         ActionStateType CurState => _actionStateObservable.CurrentState.Value.Type;
 
@@ -183,7 +184,7 @@ namespace HexRPG.Battle.Enemy
             // NavMeshの状況が変わったら即経路探索
             _battleObservable.OnCompleteUpdateNavMesh
                 .Where(_ => _moveCts != null)
-                .Subscribe(_ => SearchDestinationAfterUpdateNavMesh(_moveCts.Token).Forget())
+                .Subscribe(_ => SearchDestination())
                 .AddTo(_disposables);
 
             // Damaged
@@ -196,6 +197,7 @@ namespace HexRPG.Battle.Enemy
                         AllTokenCancel(); // Sequence中断
 
                         var relativeDirFromHexCenter = _transformController.Position.GetRelativePosXZ(_transformController.GetLandedHex().transform.position);
+                        if (relativeDirFromHexCenter == null) Debug.Log("null1");
                         if (relativeDirFromHexCenter.sqrMagnitude < _stepDistance2ByFrame * 4)
                         {
                             SetDestinationLandedHex();
@@ -242,7 +244,7 @@ namespace HexRPG.Battle.Enemy
                 .OnStart<ActionEventMove>()
                 .Subscribe(_ =>
                 {
-                    if (_moveDirection.sqrMagnitude > _stepDistance2ByFrame)
+                    if (_moveDirection.sqrMagnitude > _stepDistance2ByFrame * 4)
                         _locomotionController.FixTimeLookRotate(_transformController.Position + _moveDirection, MOVE_ROTATE_TIME);
                 }).AddTo(_disposables);
             _actionStateObservable
@@ -296,9 +298,11 @@ namespace HexRPG.Battle.Enemy
                 var targetHex = _battleObservable.PlayerLandedHex;
                 if (_targetType == TargetType.PLAYER_TOWER)
                 {
+                    var landedHex = _transformController.GetLandedHex();
+                    if (landedHex == null) Debug.Log("null15");
                     var nearestPlayerTower = _battleObservable.TowerList
                         .Where(tower => tower.TowerObservable.TowerType.Value == TowerType.PLAYER)
-                        .OrderBy(tower => MathUtility.GetDistance2XZ(_transformController.GetLandedHex(), tower.TowerObservable.TowerCenter))
+                        .OrderBy(tower => MathUtility.GetDistance2XZ(landedHex, tower.TowerObservable.TowerCenter))
                         .FirstOrDefault();
                     if (nearestPlayerTower != null) targetHex = nearestPlayerTower.TowerObservable.TowerCenter;
                 }
@@ -321,11 +325,13 @@ namespace HexRPG.Battle.Enemy
                 _attackableHex = null;
                 _approachHex = null;
 
+                _breakActionStateType = NONE;
                 _moveCts = new CancellationTokenSource();
-                var breakStateType = await StartMoveSequence(_moveCts.Token);
+                StartMoveSequence(_moveCts.Token);
+                await UniTask.WaitWhile(() => _breakActionStateType == NONE, cancellationToken: token);
                 MoveTokenCancel();
 
-                await BreakState(breakStateType, token);
+                await BreakState(_breakActionStateType, token);
             }
         }
 
@@ -333,11 +339,55 @@ namespace HexRPG.Battle.Enemy
         {
         }
 
-        protected virtual async UniTask<ActionStateType> StartMoveSequence(CancellationToken token)
+        ActionStateType GetBreakActionStateType()
+        {
+            var landedHex = _transformController.GetLandedHex();
+            var relativeDirFromHexCenter = _transformController.Position.GetRelativePosXZ(landedHex.transform.position);
+
+            var enemyDestinationHexList = new List<Hex>(_battleObservable.EnemyDestinationHexList);
+            var curDestination = _navMeshAgentController.CurDestination.Value;
+            if (curDestination != null) enemyDestinationHexList.Remove(curDestination);
+
+            // Targetが攻撃範囲内
+            if (_attackableHex == landedHex)
+            {
+                if (relativeDirFromHexCenter.sqrMagnitude < _stepDistance2ByFrame * 4)
+                {
+                    SetDestinationLandedHex();
+                    return AttackableBreakStateType; //! Targetが攻撃範囲内でかつhexの中心に着いた
+                }
+                if (enemyDestinationHexList.Contains(landedHex))
+                {
+                    DeleteDestination();
+                    return IDLE; //! 状況が変わり目的地に別のEnemyが居座っていた
+                }
+            }
+            else if (_approachHex == landedHex)
+            {
+                // Hexの中心にいるかどうか
+                if (relativeDirFromHexCenter.sqrMagnitude < _stepDistance2ByFrame * 4)
+                {
+                    SetDestinationLandedHex();
+                    return IDLE; //! 現在のLandedHexから動きようがなくてかつhexの中心にいる
+                }
+                if (enemyDestinationHexList.Contains(landedHex))
+                {
+                    DeleteDestination();
+                    return IDLE; //! 状況が変わり目的地に別のEnemyが居座っていた
+                }
+            }
+            return NONE;
+        }
+
+        void SetSpeed()
+        {
+            _actionStateController.Execute(new Command { Id = "move" });
+            _locomotionController.SetSpeed(_moveDirection);
+        }
+
+        protected void StartMoveSequence(CancellationToken token)
         {
             StartSearchDestinationIterater(token).Forget(); // 一定時間ごとに経路探索
-
-            ActionStateType breakActionStateType = NONE;
 
             CompositeDisposable disposables = new CompositeDisposable();
             token.Register(() => disposables.Dispose()); // tokenキャンセル時にもfixedUpdateを止めるように
@@ -347,6 +397,7 @@ namespace HexRPG.Battle.Enemy
                 .Where(_ => _navMeshAgentController.IsStopped == false)
                 .Subscribe(liberateHexList =>
                 {
+                    if (_transformController.GetLandedHex() == null) Debug.Log("null5");
                     if (liberateHexList.Contains(_transformController.GetLandedHex())) return; // liberateHexList上にいたらダメージ食らうので無視
 
                     Array.Clear(_colliders, 0, _colliders.Length);
@@ -362,11 +413,9 @@ namespace HexRPG.Battle.Enemy
                         .Where(hex => hex != null);
                     if (hitHexList.Any(hex => liberateHexList.Contains(hex)))
                     {
-                        // ActionEventMoveがOnEndするタイミングまで待ってからstopするのでは遅い
-                        _locomotionController.Stop();
-
                         DeleteDestination();
-                        breakActionStateType = IDLE;
+                        _breakActionStateType = IDLE;
+                        MoveTokenCancel();
                     }
                 })
                 .AddTo(disposables);
@@ -376,75 +425,37 @@ namespace HexRPG.Battle.Enemy
                 .Subscribe(_ =>
                 {
                     var landedHex = _transformController.GetLandedHex();
+                    if (landedHex == null) Debug.Log("null2");
 
                     //! 移動
                     _navMeshAgentController.NextPosition = _transformController.Position;
                     if (_navMeshAgentController.IsStopped == false)
                     {
-                        if(_attackableHex != landedHex && _approachHex != landedHex)
+                        if (_attackableHex == landedHex || _approachHex == landedHex)
+                        {
+                            _moveDirection = _transformController.Position.GetRelativePosXZ(landedHex.transform.position);
+                            SetSpeed();
+                        }
+                        else
                         {
                             var steeringTargetPos = _navMeshAgentController.CurSteeringTargetPos;
                             //! 細かいsteeringTargetPosの差分も移動に反映させてしまうとガタガタしてしまう
-                            if (MathUtility.GetDistance2XZ(steeringTargetPos, _steeringTargetPosCache) > _stepDistance2ByFrame)
+                            if (MathUtility.GetDistance2XZ(_transformController.Position, steeringTargetPos) >= _stepDistance2ByFrame)
                             {
-                                _steeringTargetPosCache = steeringTargetPos;
                                 _moveDirection = _transformController.Position.GetRelativePosXZ(steeringTargetPos);
-
-                                _actionStateController.Execute(new Command { Id = "move" });
-                                _locomotionController.SetSpeed(_moveDirection);
+                                SetSpeed();
                             }
                         }
                     }
 
                     //! 到着した？
-                    var relativeDirFromHexCenter = _transformController.Position.GetRelativePosXZ(landedHex.transform.position);
-
-                    var enemyDestinationHexList = new List<Hex>(_battleObservable.EnemyDestinationHexList);
-                    var curDestination = _navMeshAgentController.CurDestination.Value;
-                    if (curDestination != null) enemyDestinationHexList.Remove(curDestination);
-
-                    // Targetが攻撃範囲内
-                    if (_attackableHex == landedHex)
-                    {
-                        if (relativeDirFromHexCenter.sqrMagnitude < _stepDistance2ByFrame * 4)
-                        {
-                            SetDestinationLandedHex();
-                            breakActionStateType = AttackableBreakStateType; //! Targetが攻撃範囲内でかつhexの中心に着いた
-                        }
-
-                        if (enemyDestinationHexList.Contains(landedHex))
-                        {
-                            DeleteDestination();
-                            breakActionStateType = IDLE; //! 状況が変わり目的地に別のEnemyが居座っていた
-                        }
-                    }
-
-                    // 現在のHexから動きようがない
-                    if (_approachHex == landedHex)
-                    {
-                        // Hexの中心にいるかどうか
-                        if (relativeDirFromHexCenter.sqrMagnitude < _stepDistance2ByFrame * 4)
-                        {
-                            SetDestinationLandedHex();
-                            breakActionStateType = IDLE; //! 現在のLandedHexから動きようがなくてかつhexの中心にいる
-                        }
-
-                        if (enemyDestinationHexList.Contains(landedHex))
-                        {
-                            DeleteDestination();
-                            breakActionStateType = IDLE; //! 状況が変わり目的地に別のEnemyが居座っていた
-                        }
-                    }
+                    _breakActionStateType = GetBreakActionStateType();
+                    if (_breakActionStateType != NONE) MoveTokenCancel();
                 })
                 .AddTo(disposables);
-
-            await UniTask.WaitWhile(() => breakActionStateType == NONE, cancellationToken: token);
-
-            disposables.Dispose();
-            return breakActionStateType;
         }
 
-        async UniTaskVoid StartSearchDestinationIterater(CancellationToken token)
+        async UniTask StartSearchDestinationIterater(CancellationToken token)
         {
             while (true)
             {
@@ -456,9 +467,11 @@ namespace HexRPG.Battle.Enemy
         void SearchDestination()
         {
             var landedHex = _transformController.GetLandedHex();
+            if (landedHex == null) Debug.Log("null3");
             var relativeDirFromHexCenter = _transformController.Position.GetRelativePosXZ(landedHex.transform.position);
 
             var targetHex = TargetHex;
+            Debug.Log("null17");
 
             var enemyDestinationHexList = new List<Hex>(_battleObservable.EnemyDestinationHexList);
             var curDestination = _navMeshAgentController.CurDestination.Value;
@@ -517,17 +530,18 @@ namespace HexRPG.Battle.Enemy
 
             var approachHex = _enemyHexList.OrderBy(hex => hex.GetDistance2XZ(targetHex)).FirstOrDefault();
 
-            // 毎フレームの評価ですぐにIDLEでreturnされる
             if (approachHex == null) // landedHexに留まることも許されない
             {
-                _approachHex = landedHex;
+                _breakActionStateType = IDLE;
+                MoveTokenCancel();
                 return;
             }
             if (approachHex == landedHex && CurState == IDLE)
             {
                 if (relativeDirFromHexCenter.sqrMagnitude < _stepDistance2ByFrame * 4)
                 {
-                    _approachHex = landedHex;
+                    _breakActionStateType = IDLE;
+                    MoveTokenCancel();
                     return; // hexの真ん中で静止している状態で現在のlandedHexで動きようがない場合はMOVEに遷移させない
                 }
             }
@@ -545,12 +559,6 @@ namespace HexRPG.Battle.Enemy
             return; //! なるべくtargetに近付こうとする
         }
 
-        async UniTaskVoid SearchDestinationAfterUpdateNavMesh(CancellationToken token)
-        {
-            await UniTask.Yield(token); // NavMeshSurfaceがNavMeshを更新するのを待つ
-            SearchDestination();
-        }
-
         void SetDestination(Hex destination)
         {
             _navMeshAgentController.SetDestination(destination);
@@ -560,6 +568,7 @@ namespace HexRPG.Battle.Enemy
         void SetDestinationLandedHex()
         {
             _navMeshAgentController.IsStopped = true;
+            if (_transformController.GetLandedHex() == null) Debug.Log("null13");
             _navMeshAgentController.SetDestination(_transformController.GetLandedHex());
         }
 
@@ -584,6 +593,7 @@ namespace HexRPG.Battle.Enemy
 
         void MoveTokenCancel()
         {
+            _locomotionController.Stop();
             _moveCts?.Cancel();
             _moveCts?.Dispose();
             _moveCts = null;
