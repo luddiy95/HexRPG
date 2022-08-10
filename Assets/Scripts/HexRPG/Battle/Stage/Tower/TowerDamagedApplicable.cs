@@ -65,7 +65,7 @@ namespace HexRPG.Battle.Stage.Tower
             base.InternalInit();
 
             //TODO: テストコード
-            AllHitTest();
+            //AllHitTest();
         }
 
         protected override void InternalDoHit(IAttackApplicator attackApplicator)

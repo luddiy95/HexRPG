@@ -52,7 +52,7 @@ namespace HexRPG.Battle.Enemy
             base.InternalInit();
 
             //TODO: テストコード
-            AllHitTest();
+            //AllHitTest();
         }
 
         protected override void InternalDoHit(IAttackApplicator attackApplicator)

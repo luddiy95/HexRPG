@@ -57,7 +57,7 @@ namespace HexRPG.Battle.Enemy
             //TODO: テストコード
             if (Input.GetKeyDown(KeyCode.A))
             {
-                _actionStateController.Execute(new Command { Id = "combat" });
+                //_actionStateController.Execute(new Command { Id = "combat" });
             }
         }
 
