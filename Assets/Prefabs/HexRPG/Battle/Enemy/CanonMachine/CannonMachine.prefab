@@ -1,5 +1,17 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &7717408061277836960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6462630326340586861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76ac6d8c82e490f449ae826d0b0726c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!320 &7049364295519211133
 PlayableDirector:
   m_ObjectHideFlags: 0
@@ -15328,18 +15340,6 @@ MonoBehaviour:
   _clips:
   - {fileID: 7400000, guid: 3f7471cd242c1924c9e182d3ebf3e55e, type: 2}
   - {fileID: 7400000, guid: 1cf81bdff83d29c4ebbc63f750bd6eb4, type: 2}
---- !u!114 &7717408061277836960
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6462630326340586861}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76ac6d8c82e490f449ae826d0b0726c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &2546776026939493493
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15357,11 +15357,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _attribute
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _healthMax
-      value: 70
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 14830042264568972, guid: 091a10ae7e89e21459449c4bbad6d351, type: 3}
       propertyPath: _dieTimeline

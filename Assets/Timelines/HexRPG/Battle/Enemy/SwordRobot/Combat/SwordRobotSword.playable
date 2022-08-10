@@ -276,7 +276,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4b145ade12d4884bb789961adc879e0, type: 3}
   m_Name: CombatAttackAsset
   m_EditorClassIdentifier: 
-  damage: 5
+  damage: 10
   direction: {x: 0, y: 0, z: 0}
   speed: 0
 --- !u!114 &4208365363101606519

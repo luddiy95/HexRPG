@@ -5730,9 +5730,13 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7400000, guid: 21800e1cfdf312a4f882bf28775c8220, type: 2}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
+      propertyPath: _combatType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _combatPrefab
       value: 
-      objectReference: {fileID: 1940756053800704397, guid: d9315c76ad98a6a4ab4d5b92eec92fec, type: 3}
+      objectReference: {fileID: 5712731543894596007, guid: fecad0b692e4c0a4cbf31bb7ec5239e4, type: 3}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _equipmentRoot
       value: 
@@ -5740,7 +5744,7 @@ PrefabInstance:
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _combatTimeline
       value: 
-      objectReference: {fileID: 11400000, guid: fc025e8a3d62a7249aa6a0d9c1356f16, type: 2}
+      objectReference: {fileID: 11400000, guid: 46ca3cd5783fcab43a67c202611b7c42, type: 2}
     - target: {fileID: 1267732234457698881, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _equipmentPrefab
       value: 
@@ -5799,7 +5803,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 37173864abe47b349841789103970ee4, type: 2}
     - target: {fileID: 2659684322474483671, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: _skillPointMax
-      value: 50000
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 2717514595689543170, guid: 83b33a3b7d25e1248aaf4018382b758c, type: 3}
       propertyPath: m_RootOrder

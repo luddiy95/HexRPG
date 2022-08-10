@@ -197,7 +197,6 @@ namespace HexRPG.Battle.Enemy
                         AllTokenCancel(); // Sequence中断
 
                         var relativeDirFromHexCenter = _transformController.Position.GetRelativePosXZ(_transformController.GetLandedHex().transform.position);
-                        if (relativeDirFromHexCenter == null) Debug.Log("null1");
                         if (relativeDirFromHexCenter.sqrMagnitude < _stepDistance2ByFrame * 4)
                         {
                             SetDestinationLandedHex();
@@ -299,7 +298,6 @@ namespace HexRPG.Battle.Enemy
                 if (_targetType == TargetType.PLAYER_TOWER)
                 {
                     var landedHex = _transformController.GetLandedHex();
-                    if (landedHex == null) Debug.Log("null15");
                     var nearestPlayerTower = _battleObservable.TowerList
                         .Where(tower => tower.TowerObservable.TowerType.Value == TowerType.PLAYER)
                         .OrderBy(tower => MathUtility.GetDistance2XZ(landedHex, tower.TowerObservable.TowerCenter))
@@ -397,7 +395,6 @@ namespace HexRPG.Battle.Enemy
                 .Where(_ => _navMeshAgentController.IsStopped == false)
                 .Subscribe(liberateHexList =>
                 {
-                    if (_transformController.GetLandedHex() == null) Debug.Log("null5");
                     if (liberateHexList.Contains(_transformController.GetLandedHex())) return; // liberateHexList上にいたらダメージ食らうので無視
 
                     Array.Clear(_colliders, 0, _colliders.Length);
@@ -425,7 +422,6 @@ namespace HexRPG.Battle.Enemy
                 .Subscribe(_ =>
                 {
                     var landedHex = _transformController.GetLandedHex();
-                    if (landedHex == null) Debug.Log("null2");
 
                     //! 移動
                     _navMeshAgentController.NextPosition = _transformController.Position;
@@ -467,11 +463,9 @@ namespace HexRPG.Battle.Enemy
         void SearchDestination()
         {
             var landedHex = _transformController.GetLandedHex();
-            if (landedHex == null) Debug.Log("null3");
             var relativeDirFromHexCenter = _transformController.Position.GetRelativePosXZ(landedHex.transform.position);
 
             var targetHex = TargetHex;
-            Debug.Log("null17");
 
             var enemyDestinationHexList = new List<Hex>(_battleObservable.EnemyDestinationHexList);
             var curDestination = _navMeshAgentController.CurDestination.Value;
@@ -568,7 +562,6 @@ namespace HexRPG.Battle.Enemy
         void SetDestinationLandedHex()
         {
             _navMeshAgentController.IsStopped = true;
-            if (_transformController.GetLandedHex() == null) Debug.Log("null13");
             _navMeshAgentController.SetDestination(_transformController.GetLandedHex());
         }
 

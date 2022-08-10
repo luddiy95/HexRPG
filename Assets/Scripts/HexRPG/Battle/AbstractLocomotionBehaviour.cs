@@ -157,7 +157,6 @@ namespace HexRPG.Battle
 
         void ILocomotionController.SnapHexCenter()
         {
-            if (_transformController.GetLandedHex() == null) Debug.Log("null7");
             _transformController.Position = _transformController.GetLandedHex().transform.position;
         }
 

@@ -184,12 +184,10 @@ namespace HexRPG.Battle
 
             _targetGroup.m_Targets[0].target = playerOwner.TransformController.MoveTransform;
             // Player‚ÌˆÊ’u‚ðŠÄŽ‹
-            if (playerOwner.TransformController.GetLandedHex() == null) Debug.Log("null11");
             _playerLandedHex = playerOwner.TransformController.GetLandedHex();
             _updateObservable.OnUpdate((int)UPDATE_ORDER.MOVE)
                 .Subscribe(_ =>
                 {
-                    if (playerOwner.TransformController.GetLandedHex() == null) Debug.Log("null12");
                     _playerLandedHex = playerOwner.TransformController.GetLandedHex();
                 })
                 .AddTo(this);

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4b145ade12d4884bb789961adc879e0, type: 3}
   m_Name: AttackColliderAsset
   m_EditorClassIdentifier: 
-  damage: 25
+  damage: 10
   direction: {x: 0, y: 0, z: 1}
   speed: 7
 --- !u!114 &-972693950217061442
@@ -196,7 +196,7 @@ MonoBehaviour:
   m_Version: 3
   m_AnimClip: {fileID: 0}
   m_Locked: 0
-  m_Muted: 0
+  m_Muted: 1
   m_CustomPlayableFullTypename: 
   m_Curves: {fileID: 0}
   m_Parent: {fileID: 11400000}
