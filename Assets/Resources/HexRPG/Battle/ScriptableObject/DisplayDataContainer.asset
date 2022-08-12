@@ -37,3 +37,7 @@ MonoBehaviour:
     statusOffset: {x: 0, y: 0}
     damagedPanelOffset: {x: 20, y: 60}
     damagedPanelSize: {x: 30, y: 40}
+  - name: Tower
+    statusOffset: {x: 0, y: -10}
+    damagedPanelOffset: {x: 40, y: 100}
+    damagedPanelSize: {x: 60, y: 30}

@@ -9,6 +9,7 @@ namespace HexRPG.Battle.HUD
 {
     using Player;
     using Enemy;
+    using Stage.Tower;
 
     public class DamagedPanelHUD : MonoBehaviour, ICharacterHUD
     {
@@ -47,6 +48,7 @@ namespace HexRPG.Battle.HUD
         {
             _disposables.Clear();
 
+            // Player/Enemy
             if (chara is IPlayerComponentCollection playerOwner)
             {
                 playerOwner.MemberObservable.CurMember
@@ -62,27 +64,38 @@ namespace HexRPG.Battle.HUD
                 _name = enemyOwner.ProfileSetting.Name;
                 UpdateDisplay();
             }
-
             if(chara is IAttackComponentCollection owner)
             {
                 owner.DamageApplicable.OnHit
-                    .Subscribe(hitData =>
-                    {
-                        _transform.anchoredPosition = _trackingHUD.AnchoredPos;
-
-                        var damagedDisplay = _damagedDisplayFactory.Create();
-                        damagedDisplay.AnchoredPos = new Vector2(_size.x * Random.value, _size.y * Random.value);
-                        damagedDisplay.Damage = hitData.Damage;
-                        if (_battleData.damagedDisplayMatMap.Table.TryGetValue(hitData.HitType, out Material mat)) damagedDisplay.Material = mat;
-
-                        DOTween.Sequence()
-                            .Append(TransformUtility.DOAnchorPosY(damagedDisplay.RectTransform, -18f, 0.3f).SetRelative(true).SetEase(Ease.OutBounce, 10))
-                            .AppendInterval(0.3f)
-                            .AppendCallback(() => damagedDisplay.Dispose());
-
-                    })
+                    .Subscribe(hitData => OnHit(hitData))
                     .AddTo(_disposables);
             }
+
+            // Tower
+            if(chara is ITowerComponentCollection towerOwner)
+            {
+                _name = "Tower";
+                UpdateDisplay();
+
+                towerOwner.DamageApplicable.OnHit
+                    .Subscribe(hitData => OnHit(hitData))
+                    .AddTo(_disposables);
+            }
+        }
+
+        void OnHit(HitData hitData)
+        {
+            _transform.anchoredPosition = _trackingHUD.AnchoredPos;
+
+            var damagedDisplay = _damagedDisplayFactory.Create();
+            damagedDisplay.AnchoredPos = new Vector2(_size.x * Random.value, _size.y * Random.value);
+            damagedDisplay.Damage = hitData.Damage;
+            if (_battleData.damagedDisplayMatMap.Table.TryGetValue(hitData.HitType, out Material mat)) damagedDisplay.Material = mat;
+
+            DOTween.Sequence()
+                .Append(TransformUtility.DOAnchorPosY(damagedDisplay.RectTransform, -18f, 0.3f).SetRelative(true).SetEase(Ease.OutBounce, 10))
+                .AppendInterval(0.3f)
+                .AppendCallback(() => damagedDisplay.Dispose());
         }
 
         public void UpdateDisplay()

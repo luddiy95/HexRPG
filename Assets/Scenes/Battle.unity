@@ -25572,8 +25572,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _staticEnemySpawnSettings:
   - _prefab: {fileID: 6462630326340586861, guid: 90e4f3838f4abda428566aacfe682ed1, type: 3}
-    _spawnHex: {fileID: 1044139174}
-  _dynamicEnemySpawnSettings: []
+    _spawnHex: {fileID: 0}
+  - _prefab: {fileID: 6462630326340586861, guid: 90e4f3838f4abda428566aacfe682ed1, type: 3}
+    _spawnHex: {fileID: 0}
+  _dynamicEnemySpawnSettings:
+  - _prefab: {fileID: 3687029209369040040, guid: 2a0651961c15a9b4180495b9b6a78542, type: 3}
+    _maxCount: 1
+    _firstSpawnCount: 1
+    _firstSpawnInterval: 2000
+    _spawnInterval: 8000
+  - _prefab: {fileID: 2234952170314847877, guid: 409b142d3a41de542bbcd3ee26ac0ec3, type: 3}
+    _maxCount: 4
+    _firstSpawnCount: 3
+    _firstSpawnInterval: 1000
+    _spawnInterval: 6000
   _enemySpawnRoot: {fileID: 1474362757}
 --- !u!114 &1701108851205070382
 MonoBehaviour:

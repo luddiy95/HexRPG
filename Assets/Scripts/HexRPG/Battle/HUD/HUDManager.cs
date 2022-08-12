@@ -41,7 +41,7 @@ namespace HexRPG.Battle.HUD
 
         void Start()
         {
-            // MemberList
+            // MemberStatusList
             _battleObservable.OnPlayerSpawn
                 .Skip(1)
                 .First()
@@ -96,6 +96,26 @@ namespace HexRPG.Battle.HUD
                 .Subscribe(enemyOwner => SpawnDamagedPanel(enemyOwner))
                 .AddTo(this);
 
+
+            // Tower
+            _battleObservable.OnTowerInit
+                .Subscribe(towerOwner =>
+                {
+                    // Status
+                    var towerStatusHUD = _towerStatusFactory.Create();
+                    towerStatusHUD.transform.SetParent(_towerStatusRoot, false);
+
+                    var huds = towerStatusHUD.GetComponents<ICharacterHUD>();
+                    foreach (var hud in huds) hud.Bind(towerOwner);
+
+                    // DamagedPanel
+                    var damagedPanelParentHUD = _damagedPanelFactory.Create();
+
+                    huds = damagedPanelParentHUD.GetComponents<ICharacterHUD>();
+                    foreach (var hud in huds) hud.Bind(towerOwner);
+                })
+                .AddTo(this);
+
             // AppendSkill
             _battleObservable.OnPlayerSpawn
                 .Skip(1)
@@ -104,18 +124,6 @@ namespace HexRPG.Battle.HUD
                 {
                     var huds = _appendSkillHUD.GetComponents<ICharacterHUD>();
                     foreach (var hud in huds) hud.Bind(playerOwner);
-                })
-                .AddTo(this);
-
-            // Tower
-            _battleObservable.OnTowerInit
-                .Subscribe(towerOwner =>
-                {
-                    var towerStatusHUD = _towerStatusFactory.Create();
-                    towerStatusHUD.transform.SetParent(_towerStatusRoot, false);
-
-                    var huds = towerStatusHUD.GetComponents<ICharacterHUD>();
-                    foreach (var hud in huds) hud.Bind(towerOwner);
                 })
                 .AddTo(this);
         }
