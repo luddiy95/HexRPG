@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 namespace HexRPG.Battle
 {
@@ -10,12 +10,12 @@ namespace HexRPG.Battle
     public class ActiveBehaviour : MonoBehaviour, IActiveController
     {
         GameObject GameObject => _gameObject ? _gameObject : gameObject;
-        [Header("•\¦‚ğ‘€ì‚µ‚½‚¢ƒIƒuƒWƒFƒNƒgBnull‚È‚ç‚±‚ÌƒIƒuƒWƒFƒNƒgB")]
+        [Header("è¡¨ç¤ºã‚’æ“ä½œã—ãŸã„ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚nullãªã‚‰ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚")]
         [SerializeField] protected GameObject _gameObject;
 
         void Start()
         {
-            SetActive(false); // Å‰‚Í”ñ•\¦
+            SetActive(false); // æœ€åˆã¯éè¡¨ç¤º
         }
 
         public void SetActive(bool visible)
