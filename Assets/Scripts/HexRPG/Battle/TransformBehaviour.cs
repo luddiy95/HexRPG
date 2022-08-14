@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -11,18 +11,18 @@ namespace HexRPG.Battle
     public interface ITransformController
     {
         /// <summary>
-        /// Root‚Æ‚È‚éTransform
+        /// Rootã¨ãªã‚‹Transform
         /// </summary>
         Transform RootTransform { get; }
 
         /// <summary>
-        /// “®‚©‚·Transform
+        /// å‹•ã‹ã™Transform
         /// </summary>
         Transform MoveTransform { get; }
         Vector3 Position { get; set; }
 
         /// <summary>
-        /// ‰ñ“]‚³‚¹‚éTransform
+        /// å›è»¢ã•ã›ã‚‹Transform
         /// </summary>
         Transform RotateTransform { get; }
         Quaternion Rotation { get; set; }
@@ -30,12 +30,12 @@ namespace HexRPG.Battle
         int DefaultRotation { get; set; }
 
         /// <summary>
-        /// HUD‚ğ•\¦‚³‚¹‚é‚Æ‚«‚ÌTransform
+        /// HUDã‚’è¡¨ç¤ºã•ã›ã‚‹ã¨ãã®Transform
         /// </summary>
         Transform DisplayTransform { get; }
 
         /// <summary>
-        /// spawnObj‚ğ¶¬‚·‚éÛ‚Ée‚Æ‚È‚éTransform
+        /// spawnObjã‚’ç”Ÿæˆã™ã‚‹éš›ã«è¦ªã¨ãªã‚‹Transform
         /// </summary>
         Transform SpawnRootTransform(string spawnObj);
 
@@ -67,7 +67,7 @@ namespace HexRPG.Battle
 
         int ITransformController.RotationAngle
         {
-            get => _rotationAngle; //! DefaultRotation‚ğŠî€‚Æ‚µ‚½‰ñ“]
+            get => _rotationAngle; //! DefaultRotationã‚’åŸºæº–ã¨ã—ãŸå›è»¢
             set
             {
                 _rotationAngle = value;
@@ -76,7 +76,7 @@ namespace HexRPG.Battle
         }
         int _rotationAngle = 0;
 
-        int ITransformController.DefaultRotation { get => _defaultRotation; set => _defaultRotation = value; } //! CameraRotateUnit(60)‚Ì”{”
+        int ITransformController.DefaultRotation { get => _defaultRotation; set => _defaultRotation = value; } //! CameraRotateUnit(60)ã®å€æ•°
         int _defaultRotation = 0;
 
         Transform ITransformController.SpawnRootTransform(string spawnObj)
@@ -85,19 +85,19 @@ namespace HexRPG.Battle
             return (spawnRootTransform != null && spawnRootTransform.Transform != null) ? spawnRootTransform.Transform : transform;
         }
 
-        [Header("Root‚Æ‚È‚éTransformBnull ‚È‚ç‚±‚ÌƒIƒuƒWƒFƒNƒgB")]
+        [Header("Rootã¨ãªã‚‹Transformã€‚null ãªã‚‰ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚")]
         [SerializeField] Transform _rootTransform;
 
-        [Header("“®‚©‚·TransformALandedHex‚ğŒvZ‚·‚éTransformBnull ‚È‚ç‚±‚ÌƒIƒuƒWƒFƒNƒgB")]
+        [Header("å‹•ã‹ã™Transformã€LandedHexã‚’è¨ˆç®—ã™ã‚‹Transformã€‚null ãªã‚‰ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚")]
         [SerializeField] Transform _moveTransform;
 
-        [Header("‰ñ“]‚³‚¹‚éTransformBnull ‚È‚ç‚±‚ÌƒIƒuƒWƒFƒNƒgB")]
+        [Header("å›è»¢ã•ã›ã‚‹Transformã€‚null ãªã‚‰ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚")]
         [SerializeField] Transform _rotateTransform;
 
-        [Header("HUD‚ğ•\¦‚³‚¹‚é‚Æ‚«‚ÌTransformBnull ‚È‚ç‚±‚ÌƒIƒuƒWƒFƒNƒgB")]
+        [Header("HUDã‚’è¡¨ç¤ºã•ã›ã‚‹ã¨ãã®Transformã€‚null ãªã‚‰ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚")]
         [SerializeField] Transform _displayTransform;
 
-        [Header("‰½‚©‚ğ¶¬‚·‚éÛ‚Ée‚Æ‚È‚éTransformBnull ‚È‚ç‚±‚ÌƒIƒuƒWƒFƒNƒgB")]
+        [Header("ä½•ã‹ã‚’ç”Ÿæˆã™ã‚‹éš›ã«è¦ªã¨ãªã‚‹Transformã€‚null ãªã‚‰ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚")]
         [SerializeField] SpawnRoot[] _spawnRoots;
 
         [Serializable]
@@ -106,16 +106,16 @@ namespace HexRPG.Battle
             public Transform Transform => _transform;
             public string SpawnObj => _spawnObj;
 
-            [Header("null‚È‚ç‚±‚ÌƒIƒuƒWƒFƒNƒg")]
+            [Header("nullãªã‚‰ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ")]
             [SerializeField] Transform _transform;
 
-            [Header("spawn‚·‚éƒIƒuƒWƒFƒNƒg")]
+            [Header("spawnã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ")]
             [SerializeField] string _spawnObj;
         }
 
         void Start()
         {
-            //TODO: ‚±‚ê‚¢‚éH
+            //TODO: ã“ã‚Œã„ã‚‹ï¼Ÿ
             Self.RotationAngle = 0;
         }
 
@@ -184,7 +184,7 @@ namespace HexRPG.Battle
         }
 
         /// <summary>
-        /// target‚Ì•û‚ğŒü‚­Û‚É•K—v‚ÈWorld‰ñ“]
+        /// targetã®æ–¹ã‚’å‘ãéš›ã«å¿…è¦ãªWorldå›è»¢
         /// </summary>
         /// <param name="transformController"></param>
         /// <param name="targetPos"></param>
