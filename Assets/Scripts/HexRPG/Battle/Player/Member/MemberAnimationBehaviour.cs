@@ -184,7 +184,7 @@ namespace HexRPG.Battle.Player.Member
         {
             _graph = PlayableGraph.Create();
             _playables = _clips.Select(clip => AnimationClipPlayable.Create(_graph, clip)).ToList();
-            var damagedClip = _playables.First(playable => GetAnimationType(playable.GetAnimationClip().name) == AnimationType.Damaged).GetAnimationClip();
+            var damagedClip = _playables.First(playable => playable.GetAnimationClip().name == "Damaged").GetAnimationClip();
             var damagedToIdleEvent = new AnimationEvent[] {
                 new AnimationEvent()
                 {
