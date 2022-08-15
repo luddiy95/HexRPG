@@ -43,8 +43,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.64, y: 3, z: 0.17}
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Size: {x: 3, y: 1.75, z: 2}
+  m_Center: {x: 0, y: 1, z: 1.01}
 --- !u!114 &6673880378274093177
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -353,7 +353,7 @@ VFXRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8651745634506127923}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1

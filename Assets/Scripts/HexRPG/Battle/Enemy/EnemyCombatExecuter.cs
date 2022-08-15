@@ -49,7 +49,7 @@ namespace HexRPG.Battle.Enemy
                 _combat = _combatFactories[0].Create(enemyOwner.TransformController.SpawnRootTransform("Combat"), Vector3.zero);
 
                 _combat.Combat.Init(_attackOwner, enemyOwner.AnimationController, _combatEquipment.Timeline);
-                if (_combatEquipment.CombatType == CombatType.PROXIMITY) _combat.Combat.AttackColliderRoot = _combatEquipment.EquipmentRoot;
+                //if (_combatEquipment.CombatType == CombatType.PROXIMITY) _combat.Combat.AttackColliderRoot = _combatEquipment.EquipmentRoot;
 
                 _isCombatSpawned = true;
             }

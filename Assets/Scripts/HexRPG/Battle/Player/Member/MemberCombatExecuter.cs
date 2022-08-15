@@ -37,7 +37,7 @@ namespace HexRPG.Battle.Player.Member
             _combat = _combatFactory.Create(_transformController.SpawnRootTransform("Combat"), Vector3.zero);
 
             _combat.Combat.Init(attackOwner, _animationController, _combatEquipment.Timeline);
-            if (_combatEquipment.CombatType == CombatType.PROXIMITY) _combat.Combat.AttackColliderRoot = equipment.transform;
+            //if (_combatEquipment.CombatType == CombatType.PROXIMITY) _combat.Combat.AttackColliderRoot = equipment.transform;
 
             _isCombatSpawned = true;
         }
