@@ -22,7 +22,6 @@ namespace HexRPG.Battle
         [SerializeField] StaticSpawnSetting _playerSpawnSetting;
 
         [Header("ScriptableObject")]
-        [SerializeField] BattleData _battleData;
         [SerializeField] DisplayDataContainer _displayDataContainer;
 
         [Header("Prefab")]
@@ -40,7 +39,6 @@ namespace HexRPG.Battle
             Container.BindInterfacesTo<UpdateFeature>().AsSingle();
             Container.BindInterfacesTo<DeltaTime>().AsSingle();
 
-            Container.Bind<BattleData>().FromInstance(_battleData);
             Container.Bind<DisplayDataContainer>().FromInstance(_displayDataContainer);
 
             Container.BindInterfacesTo<ScoreController>().AsSingle();

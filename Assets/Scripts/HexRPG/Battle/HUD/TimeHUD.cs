@@ -3,15 +3,14 @@ using UnityEngine.UI;
 using UniRx;
 using Zenject;
 using System;
-using System.Linq;
 
 namespace HexRPG.Battle.HUD
 {
     public class TimeHUD : MonoBehaviour
     {
+        BattleData _battleData;
         IBattleObservable _battleObservable;
         IUpdateObservable _updateObservable;
-        BattleData _battleData;
 
         float _curTime;
         IDisposable _disposable;
@@ -22,14 +21,14 @@ namespace HexRPG.Battle.HUD
 
         [Inject]
         public void Construct(
+            BattleData battleData,
             IBattleObservable battleObservable,
-            IUpdateObservable updateObservable,
-            BattleData battleData
+            IUpdateObservable updateObservable
         )
         {
+            _battleData = battleData;
             _battleObservable = battleObservable;
             _updateObservable = updateObservable;
-            _battleData = battleData;
         }
 
         void Start()
@@ -54,11 +53,13 @@ namespace HexRPG.Battle.HUD
                 .Subscribe(type =>
                 {
                     _disposable?.Dispose();
-                    if (type == GameResultType.WIN)
+                    if (type == GameResultType.CLEAR)
                     {
-                        var timeList = _battleData.timeList;
-                        timeList.Add(_curTime);
-                        _battleData.timeList = timeList.OrderBy(time => time).ToList();
+                        _battleData.battleClearDataMap.Add(new BattleData.BattleClearData
+                        {
+                            battleName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
+                            time = _curTime
+                        });
                     }
                 })
                 .AddTo(this);

@@ -22,13 +22,12 @@ namespace HexRPG.Battle
     public enum GameResultType
     {
         NONE,
-        WIN,
-        LOSE
+        CLEAR,
+        FAILED
     }
 
     public class BattleManager : MonoBehaviour, IBattleObservable
     {
-        BattleData _battleData;
         IUpdater _updater;
         IUpdateObservable _updateObservable;
         PlayerOwner.Factory _playerFactory;
@@ -78,8 +77,6 @@ namespace HexRPG.Battle
         [SerializeField] Canvas _sequenceUI;
 
         [Header("Sequence")]
-        [SerializeField] GameObject _startPanel;
-        [SerializeField] Transform _timeList;
         [SerializeField] GameObject _loadingText;
         [SerializeField] Text _resultText;
 
@@ -101,14 +98,12 @@ namespace HexRPG.Battle
 
         [Inject]
         public void Construct(
-            BattleData battleData,
             IUpdater updater,
             IUpdateObservable updateObservable,
             PlayerOwner.Factory playerFactory,
             IPlayerSpawnSetting playerSpawnSetting
         )
         {
-            _battleData = battleData;
             _updater = updater;
             _updateObservable = updateObservable;
             _playerFactory = playerFactory;
@@ -124,10 +119,10 @@ namespace HexRPG.Battle
         {
             _cameraTransposer = _mainVirtualCamera.GetCinemachineComponent<CinemachineOrbitalTransposer>();
 
-            ShowStartPanel();
+            StartGame();
         }
 
-        public void StartGame()
+        void StartGame()
         {
             ShowStartLoading();
 
@@ -285,12 +280,12 @@ namespace HexRPG.Battle
                     _towerList.All(tower => tower.EnemySpawnObservable.EnemyList.Count() == 0 && tower.TowerObservable.TowerType.Value == TowerType.PLAYER),
                     cancellationToken: token);
 
-                _gameResultType.Value = GameResultType.WIN;
+                _gameResultType.Value = GameResultType.CLEAR;
             }
 
             _onPlayerSpawn.Value.DieObservable.OnFinishDie
                 .First()
-                .Subscribe(_ => _gameResultType.Value = GameResultType.LOSE)
+                .Subscribe(_ => _gameResultType.Value = GameResultType.FAILED)
                 .AddTo(this);
 
             WaitForPlayerWin(token).Forget();
@@ -308,7 +303,7 @@ namespace HexRPG.Battle
 
             await UniTask.Delay(2000, cancellationToken: token);
 
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneManager.LoadScene("Start");
         }
 
         async UniTaskVoid UpdateEnemyNavMesh(CancellationToken token)
@@ -321,43 +316,17 @@ namespace HexRPG.Battle
 
         #region View
 
-        void ShowStartPanel()
+        void ShowStartLoading()
         {
             _HUD.enabled = false;
             _UI.enabled = false;
 
             _filterHUD.gameObject.SetActive(true);
             _filterHUD.enabled = true;
-
             _sequenceUI.gameObject.SetActive(true);
             _sequenceUI.enabled = true;
 
-            _startPanel.SetActive(true);
-
-            // Time
-            var timeList = _battleData.timeList;
-            var showTimeCount = Mathf.Min(timeList.Count(), 3);
-            for (int i = 0; i < 3; i++)
-            {
-                var child = _timeList.GetChild(i);
-                if (i <= showTimeCount - 1)
-                {
-                    child.gameObject.SetActive(true);
-                    child.GetChild(1).GetComponent<Text>().text = timeList[i].GetTime();
-                }
-                else
-                {
-                    child.gameObject.SetActive(false);
-                }
-            }
-
-            _loadingText.SetActive(false);
             _resultText.gameObject.SetActive(false);
-        }
-
-        void ShowStartLoading()
-        {
-            _startPanel.SetActive(false);
             _loadingText.SetActive(true);
         }
 
@@ -373,13 +342,12 @@ namespace HexRPG.Battle
         {
             _filterHUD.enabled = true;
             _sequenceUI.enabled = true;
-            _startPanel.SetActive(false);
             _loadingText.SetActive(false);
             _resultText.gameObject.SetActive(true);
             switch (_gameResultType.Value)
             {
-                case GameResultType.WIN: _resultText.text = "WIN!!"; break;
-                case GameResultType.LOSE: _resultText.text = "LOSE..."; break;
+                case GameResultType.CLEAR: _resultText.text = "CLEAR!!"; break;
+                case GameResultType.FAILED: _resultText.text = "FAILED..."; break;
             }
         }
 
