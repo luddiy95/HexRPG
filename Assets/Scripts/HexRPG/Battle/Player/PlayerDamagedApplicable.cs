@@ -7,17 +7,20 @@ namespace HexRPG.Battle.Player
 {
     public class PlayerDamagedApplicable : AbstractDamagedApplicable
     {
+        BattleData _battleData;
         IMemberObservable _memberObservable;
 
         IDisposable _memberChangeDisposable;
 
         [Inject]
         public void Construct(
+            BattleData battleData,
             ICharacterComponentCollection owner,
             IUpdateObservable updateObservable,
             IMemberObservable memberObservable
          )
         {
+            _battleData = battleData;
             _damagedOwner = owner;
             _updateObservable = updateObservable;
             _memberObservable = memberObservable;
@@ -51,6 +54,16 @@ namespace HexRPG.Battle.Player
                             // Ž€‚ñ‚Å‚È‚¢‚©‚Ç‚¤‚©
                             _hitAttacks.Add(attackCollider);
                         });
+                })
+                .AddTo(_disposables);
+
+            _onHit
+                .Subscribe(hitData =>
+                {
+                    if (_battleData.hitTypeSkillpointMap.Table.TryGetValue(hitData.HitType, out int getAmount))
+                    {
+                        _memberObservable.CurMember.Value.SkillPoint.Update(getAmount);
+                    }
                 })
                 .AddTo(_disposables);
 

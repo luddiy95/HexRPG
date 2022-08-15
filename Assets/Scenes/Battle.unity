@@ -25585,7 +25585,7 @@ MonoBehaviour:
     _maxCount: 1
     _firstSpawnCount: 1
     _firstSpawnInterval: 3000
-    _spawnInterval: 8000
+    _spawnInterval: 10000
   _enemySpawnRoot: {fileID: 1474362757}
 --- !u!114 &1701108851205070382
 MonoBehaviour:

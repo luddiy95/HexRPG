@@ -36,7 +36,7 @@ namespace HexRPG.Battle.Enemy
             Container.BindInterfacesTo<EnemyCombatExecuter>().AsSingle();
             Container.BindInterfacesTo<EnemySkillExecuter>().AsSingle();
 
-            Container.BindInterfacesTo<AttackController>().AsSingle();
+            Container.BindInterfacesTo<EnemyAttackController>().AsSingle();
             Container.BindInterfacesTo<Liberater>().AsSingle();
 
             Container.BindInterfacesTo<EnemyDamagedApplicable>().AsSingle();

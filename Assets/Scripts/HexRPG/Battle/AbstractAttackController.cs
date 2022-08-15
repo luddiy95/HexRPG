@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System;
-using System.Linq;
 using UniRx;
 
 namespace HexRPG.Battle
 {
+    using Player;
     using Stage;
 
     public interface IAttackObservable
@@ -41,7 +41,7 @@ namespace HexRPG.Battle
         void FinishAttackReservation();
     }
 
-    public class AttackController : IAttackApplicator, IAttackController, IAttackObservable, IAttackReservation, IAttackReserve
+    public abstract class AbstractAttackController : IAttackApplicator, IAttackController, IAttackObservable, IAttackReservation, IAttackReserve
     {
         List<Hex> _curReservationRange = new List<Hex>();
 
@@ -51,17 +51,12 @@ namespace HexRPG.Battle
         ICharacterComponentCollection IAttackReservation.ReservationOrigin => _owner;
         ICharacterComponentCollection IAttackApplicator.AttackOrigin => _owner;
 
-        ICharacterComponentCollection _owner;
+        protected ICharacterComponentCollection _owner;
 
         IObservable<HitData> IAttackObservable.OnAttackHit => _onAttackHit;
         readonly ISubject<HitData> _onAttackHit = new Subject<HitData>();
 
         readonly List<ICharacterComponentCollection> _hitObjects = new List<ICharacterComponentCollection>(32);
-
-        public AttackController(ICharacterComponentCollection owner)
-        {
-            _owner = owner;
-        }
 
         void IAttackReserve.StartAttackReservation(in List<Hex> reservationRange)
         {
@@ -90,11 +85,11 @@ namespace HexRPG.Battle
 
         void IAttackController.FinishAttack()
         {
-            if(_currentSetting is ICombatAttackSetting combatAttackSetting)
+            if (_currentSetting is ICombatAttackSetting combatAttackSetting)
             {
                 combatAttackSetting.AttackColliders.ForEach(collider => collider.gameObject.SetActive(false));
             }
-            if(_currentSetting is ISkillAttackSetting skillAttackSetting)
+            if (_currentSetting is ISkillAttackSetting skillAttackSetting)
             {
                 skillAttackSetting.AttackRange.ForEach(hex => hex.RemoveAttackApplicator(this));
             }
@@ -116,6 +111,11 @@ namespace HexRPG.Battle
         }
 
         void IAttackApplicator.NotifyAttackHit(HitData hitData)
+        {
+            InternalNotifyAttackHit(hitData);
+        }
+
+        protected virtual void InternalNotifyAttackHit(HitData hitData)
         {
             _onAttackHit.OnNext(hitData);
         }

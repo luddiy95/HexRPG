@@ -28,6 +28,11 @@ namespace HexRPG.Battle
         public int initScore;
         public int scoreMax;
 
+        // SkillPoint
+        [Serializable] public class HitTypeSkillPointPair : SerializableKeyValuePair<HitType, int> { }
+        [Serializable] public class HitTypeSkillPointDictionary : SerializableDictionary<HitType, int, HitTypeSkillPointPair> { }
+        public HitTypeSkillPointDictionary hitTypeSkillpointMap = new HitTypeSkillPointDictionary();
+
         // AppendSkill
         [Serializable] public class AppendSkillIconValuePair : SerializableKeyValuePair<AppendSkillType, Sprite> { }
         [Serializable] public class AppendSkillIconDictionary : SerializableDictionary<AppendSkillType, Sprite, AppendSkillIconValuePair> { }

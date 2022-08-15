@@ -18,11 +18,9 @@ namespace HexRPG.Battle.Player
         int Max { get; }
     }
 
-    public class SkillPoint : ISkillPoint, IInitializable, IDisposable
+    public class SkillPoint : ISkillPoint, IInitializable
     {
         ISkillPointSetting _setting;
-        IAttackObservable _attackObservable;
-        IDamageApplicable _damagedApplicable;
 
         int ISkillPoint.Max => _max;
         int _max;
@@ -30,38 +28,17 @@ namespace HexRPG.Battle.Player
         IReadOnlyReactiveProperty<int> ISkillPoint.Current => _current;
         readonly ReactiveProperty<int> _current = new ReactiveProperty<int>();
 
-        CompositeDisposable _disposables = new CompositeDisposable();
-
         public SkillPoint(
-            ISkillPointSetting setting,
-            IAttackObservable attackObservable,
-            IDamageApplicable damageApplicable
+            ISkillPointSetting setting
         )
         {
             _setting = setting;
-            _attackObservable = attackObservable;
-            _damagedApplicable = damageApplicable;
         }
 
         void IInitializable.Initialize()
         {
             _max = _setting.Max;
             _current.Value = _max;
-
-            Observable.Merge(_attackObservable.OnAttackHit, _damagedApplicable.OnHit)
-                .Subscribe(hitData =>
-                {
-                    int getAmount = hitData.HitType switch
-                    {
-                        HitType.NORMAL => 3,
-                        HitType.WEAK => 5,
-                        HitType.RESIST => 2,
-                        HitType.CRITICAL => 5,
-                        _ => 0
-                    };
-                    Update(getAmount);
-                })
-                .AddTo(_disposables);
         }
 
         public void Update(int cv)
@@ -70,11 +47,6 @@ namespace HexRPG.Battle.Player
             if (cv < 0) value = Mathf.Max(0, _current.Value + cv);
             else value = Mathf.Min(_max, _current.Value + cv);
             _current.SetValueAndForceNotify(value);
-        }
-
-        void IDisposable.Dispose()
-        {
-            _disposables.Dispose();
         }
     }
 }
